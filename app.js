@@ -4,7 +4,7 @@
 var express = require('express');
 var app = express();
 var project = require('./server/project/project.router');
-app.use('/project',project);
+app.use('/',project);
 app.get('/', function (req, res) {
     res.send("WELCOME TO WI-SYSTEM");
 });

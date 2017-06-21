@@ -1,6 +1,9 @@
 
 function createNewProject(projectInfo) {
     console.log("A new project is created");
+    return {
+        "id": "123"
+    };
 
 }
 function editProject(projectInfo) {
