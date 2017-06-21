@@ -1,12 +1,12 @@
 
 
-function createNewCurve() {
+function createNewCurve(curveInfo) {
 
 }
-function editCurve() {
+function editCurve(curveInfo) {
 
 }
-function deleteCurve() {
+function deleteCurve(curveInfo) {
 
 }
 

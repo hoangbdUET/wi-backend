@@ -6,7 +6,7 @@ function createNewProject(projectInfo) {
 function editProject(projectInfo) {
     console.log("Project is editted");
 }
-function deleteProject(project) {
+function deleteProject(projectInfo) {
     console.log("Project is deleted")
 }
 

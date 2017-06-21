@@ -1,11 +1,11 @@
 
-function createNewPlot() {
+function createNewPlot(plotInfo) {
 
 }
-function editPlot() {
+function editPlot(plotInfo) {
 
 }
-function deletePlot() {
+function deletePlot(plotInfo) {
 
 }
 

@@ -1,12 +1,12 @@
 
 
-function createNewWell() {
+function createNewWell(wellInfo) {
 
 }
-function editWell() {
+function editWell(wellInfo) {
 
 }
-function deleteWell() {
+function deleteWell(wellInfo) {
 
 }
 

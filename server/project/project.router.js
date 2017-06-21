@@ -12,15 +12,13 @@ router.get('/project', function (req, res) {
 });
 router.post('/project/new', function (req, res) {
     // res.send("Show Create New Project Form");
-    console.log(req.body);
-    var jsonResponse = {};
-    var jsonRequest = req.body;
-    jsonResponse.result = jsonRequest.a + jsonRequest.x;
-    res.send(jsonResponse);
+    const result=projectModel.createNewProject(req.body);
+    res.send(result);
 });
 router.post('/project/edit', function (req, res) {
-    res.send("Receive New Project Information and processing");
-    projectModel.createNewProject();
+
+    const result=projectModel.editProject(req.body);
+    res.send(result);
 });
 router.delete('/project/delete', function (req, res) {
     res.send("Delete Project .....");
