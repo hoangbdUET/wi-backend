@@ -1,0 +1,13 @@
+var CURVE = {
+	name:'curve',
+	query: [
+			'ID_CURVE INT AUTO_INCREMENT PRIMARY KEY',
+			'NAME VARCHAR(50) NOT NULL',
+			'UNIT VARCHAR(50) NOT NULL',
+			'DESCRIPTON VARCHAR(50) NOT NULL',
+			'VALUE VARCHAR(250) NOT NULL'
+			],
+	field:['NAME', 'UNIT', 'DESCRIPTON', 'VALUE']
+}
+
+module.exports.curve = CURVE;

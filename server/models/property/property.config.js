@@ -1,0 +1,14 @@
+var PROPERTY = {
+	name: 'property',
+	query: [
+			'ID_PROPERTY INT AUTO_INCREMENT PRIMARY KEY',
+			'ID INT NOT NULL',
+			'NAME VARCHAR(50) NOT NULL',
+			'UNIT VARCHAR(50) NOT NULL',
+			'DESCRIPTON VARCHAR(50) NOT NULL',
+			'VALUE VARCHAR(250) NOT NULL'
+		],
+	field:['ID', 'NAME', 'UNIT', 'DESCRIPTON', 'VALUE']
+}
+
+module.exports.property = PROPERTY;

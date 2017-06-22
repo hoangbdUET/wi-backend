@@ -1,0 +1,117 @@
+{
+    "empty_2": [
+
+        {
+            "section": "~CURVE INFORMATION",
+            "id": "DEPTH_1",
+            "name": " DEPTH",
+            "unit": ".M",
+            "data": ""
+        },
+        {
+            "section": "~CURVE INFORMATION",
+            "id": "ACTECDM_1",
+            "name": " ACTECDM",
+            "unit": ".ppg",
+            "data": ""
+        },
+        {
+            "section": "~CURVE INFORMATION",
+            "id": "APRESM_1",
+            "name": " APRESM",
+            "unit": ".psi",
+            "data": ""
+        },
+        {
+            "section": "~CURVE INFORMATION",
+            "id": "GR1CFM_1",
+            "name": " GR1CFM",
+            "unit": ".API",
+            "data": "Gamma Ray"
+        },
+        {
+            "section": "~CURVE INFORMATION",
+            "id": "RACEHM_1",
+            "name": " RACEHM",
+            "unit": ".ohm.m",
+            "data": ""
+        },
+        {
+            "section": "~CURVE INFORMATION",
+            "id": "RACELM_1",
+            "name": " RACELM",
+            "unit": ".ohm.m",
+            "data": ""
+        },
+        {
+            "section": "~CURVE INFORMATION",
+            "id": "RACESHM_1",
+            "name": " RACESHM",
+            "unit": ".ohm.m",
+            "data": ""
+        },
+        {
+            "section": "~CURVE INFORMATION",
+            "id": "RACESLM_1",
+            "name": " RACESLM",
+            "unit": ".ohm.m",
+            "data": ""
+        },
+        {
+            "section": "~CURVE INFORMATION",
+            "id": "ROP_AVG_1",
+            "name": " ROP_AVG",
+            "unit": ".m/hr",
+            "data": ""
+        },
+        {
+            "section": "~CURVE INFORMATION",
+            "id": "RPCEHM_1",
+            "name": " RPCEHM",
+            "unit": ".ohm.m",
+            "data": ""
+        },
+        {
+            "section": "~CURVE INFORMATION",
+            "id": "RPCELM_1",
+            "name": " RPCELM",
+            "unit": ".ohm.m",
+            "data": ""
+        },
+        {
+            "section": "~CURVE INFORMATION",
+            "id": "RPCESHM_1",
+            "name": " RPCESHM",
+            "unit": ".ohm.m",
+            "data": ""
+        },
+        {
+            "section": "~CURVE INFORMATION",
+            "id": "RPCESLM_1",
+            "name": " RPCESLM",
+            "unit": ".ohm.m",
+            "data": ""
+        },
+        {
+            "section": "~CURVE INFORMATION",
+            "id": "RPTHM_1",
+            "name": " RPTHM",
+            "unit": ".min",
+            "data": ""
+        },
+        {
+            "section": "~CURVE INFORMATION",
+            "id": "TCDM_1",
+            "name": " TCDM",
+            "unit": ".degC",
+            "data": ""
+        },
+        {
+            "section": "~CURVE INFORMATION",
+            "id": "TVD_1",
+            "name": " TVD",
+            "unit": ".m",
+            "data": "True vertical thickness"
+        }
+    ]
+}
