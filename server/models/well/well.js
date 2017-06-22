@@ -43,7 +43,6 @@ function insertDB(url,start,end,connect,callback) {
 	connect.query(insert,function(err,result){
 			if(err) {
 				flag = false;
-
 				return callback(err, flag);
 			}
 			else {
@@ -66,7 +65,7 @@ function insert(connect,hangso,url, cb) {
 			insertDB(url,0,length,connect, function(err, flag) {
 				if(err) {
                     status = {
-                        "id":123,
+                        "id":-1,
                         "code":"404"
                     }
                     cb(false, status);
