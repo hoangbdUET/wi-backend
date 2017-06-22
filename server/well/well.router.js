@@ -12,8 +12,10 @@ router.use(bodyParser.json());
 router.get('/well', function (req, res) {
 });
 router.post('/well/new', function (req, res) {
-    const result=wellModel.createNewWell(req.body);
-    res.send(result);
+
+    wellModel.createNewWell(req.body, function(err, status) {
+     	res.send(status);
+    }); // callback result
 });
 router.post('/well/edit', function (req, res) {
     const result=wellModel.createNewWell(req.body);

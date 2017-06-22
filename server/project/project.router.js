@@ -5,7 +5,7 @@ var router = express.Router();
 var wellRouter = require('../well/well.router');
 var bodyParser = require('body-parser');
 
-router.use('/well',wellRouter);
+router.use('/project',wellRouter);
 router.use(bodyParser.json());
 router.get('/project', function (req, res) {
     res.send('Welcome Screen');
