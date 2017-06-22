@@ -8,6 +8,11 @@ var url = process.argv[2];
 var hangso = 1000;
 
 var conn = createDB.connect();
-createDB.create('mysqltest', conn);
-well.insert(conn,hangso,url);
-conn.end();
+createDB.create('mysqltest', conn, function (err,con) {
+    if(err) {
+        return console.log(err);
+    }
+    con.end();
+});
+
+
