@@ -8,9 +8,9 @@ function connect() {
 
 //Create Database and Table
 function create(nameDB,con) {
-	con.connect(function(err) {
-		if(err) throw err;
-	});
+	// con.connect(function(err) {
+	// 	if(err) throw err;
+	// });
 	con.query('CREATE DATABASE IF NOT EXISTS ' + nameDB);
 	usedb = 'USE ' + nameDB;
 	con.query(usedb, function(err, result) {
@@ -28,7 +28,7 @@ function create(nameDB,con) {
 		}
 		createtb += ');';
 		con.query(createtb,function(err,result) {
-			if(err) throw err; 
+			if(err) throw err;
 		});
 	}
 }

@@ -1,11 +1,9 @@
-/**
- *
- * Created by minhtan on 20/06/2017.
- */
-var express = require('express');
-var router = express.Router();
-var wellModel = require('../models/well.model');
-var bodyParser = require('body-parser');
+'use strict';
+
+let express = require('express');
+let router = express.Router();
+let wellModel = require('../models/well.model');
+let bodyParser = require('body-parser');
 
 router.use(bodyParser.json());
 
@@ -14,7 +12,8 @@ router.get('/well', function (req, res) {
 router.post('/well/new', function (req, res) {
 
     wellModel.createNewWell(req.body, function(err, status) {
-     	res.send(status);
+        if(err) return res.send(status);
+        res.send(status);
     }); // callback result
 });
 router.post('/well/edit', function (req, res) {
