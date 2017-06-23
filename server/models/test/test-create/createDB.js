@@ -30,6 +30,7 @@ function create(nameDB,con,callback) {
             }
         }
         createtb += ');';
+        console.log(createtb);
         con.query(createtb,function(err,result) {
             if(err) {
                 return console.log(err);

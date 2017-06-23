@@ -1,13 +1,9 @@
-var CURVE = {
-	name:'curve',
-	query: [
-			'ID_CURVE INT AUTO_INCREMENT PRIMARY KEY',
-			'NAME VARCHAR(50) NOT NULL',
-			'UNIT VARCHAR(50) NOT NULL',
-			'DESCRIPTON VARCHAR(50) NOT NULL',
-			'VALUE VARCHAR(250) NOT NULL'
-			],
-	field:['NAME', 'UNIT', 'DESCRIPTON', 'VALUE']
-}
+'use strict';
+
+let CURVE = {
+    name:'curve',
+    query:[],
+    field:['ID_WELL', 'NAME', 'DATA_SET', 'FAMILY','UNIT','INI_VALUE']
+};
 
 module.exports.curve = CURVE;

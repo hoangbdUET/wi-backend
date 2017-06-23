@@ -1,79 +1,73 @@
-var configwell = require('./curve.config.js').curve;
-var fs = require('fs');
-var mysql = require('mysql');
+'use strict';
+
+let configcurve = require('./curve.config.js').curve;
+let fs = require('fs');
 
 function readfile(url) {
-	var obj;
-	obj = fs.readFileSync(url);
-	return obj.toString();
+    let obj;
+    obj = fs.readFileSync(url);
+    return obj.toString();
 }
 
-function Length(url) {
-	var obj = JSON.parse(readfile(url));
-	return obj.empty_2.length;
-}
-function insertDB(url,start,end,connect) {
-	var obj;
-	var index;
-	obj = JSON.parse(readfile(url));
-	var insert = 'INSERT INTO curve (';
-	for(var i = 0; i < configwell.field.length; i++) {
-		insert += configwell.field[i];
-		if(i != configwell.field.length - 1) {
-			insert += ',';
-		}
-	}
-	insert += ') VALUES ';
-	var i;
-	i = start;
-	for(i = start;i<end;i++) {
-		insert += '("'+obj.empty_2[i].name+'","'+obj.empty_2[i].unit+ '","' + obj.empty_2[i].desc+ '","'+ obj.empty_2[i].data+ '"'+')';
-		if(i!=end -1) {
-			insert+=',';
-		}
-	}
-	connect.query(insert,function(err,result){
-			if(err) throw err;
-	});
+function insert(infoCurve, connect, callbackCurve) {
+    let insertCurve = 'INSERT INTO curve (';
+    let status;
+    for (let i = 0; i < configcurve.field.length; i++) {
+        insertCurve += configcurve.field[i];
+        if (i != configcurve.field.length - 1) {
+            insertCurve += ',';
+        }
+    }
+    insertCurve += ') VALUES ("' + infoCurve.wellId + '", "' + infoCurve.name + '", "' + infoCurve.dataset + '", "' +
+        infoCurve.family  + '", "' + infoCurve.unit + '", "' + infoCurve.ini_value +'");';
+    console.log(insertCurve);
+    connect.query(insertCurve, function (err, result) {
+        if (err) {
+            status = {
+                "id": -1,
+                "code": 404
+            };
+            return callbackCurve(err, status);
+        }
+        let select = 'SELECT ID_PROJECT FROM curve WHERE NAME = ' + '"' + infoCurve.name + '";';
+        console.log(select);
+        connect.query(select, function (err, result) {
+            if (err) {
+                status = {
+                    "id": -1,
+                    "code": 404
+                }
+                return callbackCurve(err, status);
+            }
+            let json = JSON.parse(JSON.stringify(result));
+            status = {
+                "id":json[0].ID_curve,
+                "description":"Ma so cua project vua tao"
+            }
+            callbackCurve(err, status);
+        });
+    });
+
 }
 
-
-function insert(connect,hangso,url) {
-	var length = Length(url);
-	if(hangso > 10000) {
-		console.log('Hang so qua lon');
-	}
-	else {
-		if(length<hangso) {
-			insertDB(url,0,length,connect);
-		}
-		else {
-			for(var j = 0; j < length/hangso; j++) {
-				let start = j * hangso;
-				let end = start + hangso;
-				insertDB(url, start, end, connect);
-			}
-		}
-	}
-}
 
 function delet(condition, connect) {
-	var query = 'DELETE FROM curve WHERE ' + condition;
-	connect.query(query, function(err, result) {
-		if(err) throw err;
-	});
+    let query = 'DELETE FROM curve WHERE ' + condition;
+    connect.query(query, function (err, result) {
+        if (err) throw err;
+    });
 }
 
 function update(setup, condition, connect) {
-	var query = 'UPDATE curve SET ' + setup + ' WHERE ' + condition;
-	connect.query(query, function(err, result) {
-		if(err) throw err;
-	})
+    let query = 'UPDATE curve SET ' + setup + ' WHERE ' + condition;
+    connect.query(query, function (err, result) {
+        if (err) throw err;
+    })
 }
 
 module.exports.readfile = readfile;
-module.exports.insertDB = insertDB;
 module.exports.insert = insert;
 module.exports.delet = delet;
 module.exports.update = update;
+
 

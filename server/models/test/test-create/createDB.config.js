@@ -7,7 +7,7 @@ var CONFIG = {
 	dbname:'mysqltest',
 	table: [
 		{
-			name:'CURVE',
+			name:'curve_data',
 			query: [
 				'ID_CURVE INT AUTO_INCREMENT PRIMARY KEY',
 				'NAME VARCHAR(50) NOT NULL',
@@ -36,7 +36,7 @@ var CONFIG = {
 			]
 		},
 		{
-			name:'well',
+			name:'well_data',
 			query:[
 				'ID_WELL INT AUTO_INCREMENT PRIMARY KEY',
 				'STRT VARCHAR(50) NOT NULL', 
@@ -67,7 +67,30 @@ var CONFIG = {
 				'DEPARTMENT VARCHAR(250) NOT NULL',
 				'DESCRIPTION VARCHAR(250) NOT NULL'
 			]
-		}
+		},
+        {
+            name:'well',
+            query:[
+                'ID_WELL INT AUTO_INCREMENT PRIMARY KEY',
+				'ID_PROJECT INT',
+                'NAME VARCHAR(50) NOT NULL',
+                'TOP_DEPTH VARCHAR(250) NOT NULL',
+                'BOTTOM_DEPTH VARCHAR(250) NOT NULL',
+                'STEP VARCHAR(250) NOT NULL'
+            ]
+        },
+        {
+            name:'curve',
+            query:[
+                'ID_CURVE INT AUTO_INCREMENT PRIMARY KEY',
+                'ID_WELL INT',
+                'NAME VARCHAR(50) NOT NULL',
+                'DATA_SET VARCHAR(250) NOT NULL',
+                'FAMILY VARCHAR(250) NOT NULL',
+                'UNIT VARCHAR(250) NOT NULL',
+                'INI_VALUE VARCHAR(250) NOT NULL'
+            ]
+        }
 	]
 	
 }
