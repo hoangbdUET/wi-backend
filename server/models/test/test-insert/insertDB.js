@@ -1,5 +1,5 @@
 var fs = require('fs');
-var createDB = require('../test-create/createDB.js');
+var createDB = require('../test-create/create-database.js');
 var well = require('../../well/well.import.js');
 var curve = require('../../curve/curve.import.js');
 var property = require('../../property/property.js');

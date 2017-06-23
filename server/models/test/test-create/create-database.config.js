@@ -1,10 +1,10 @@
-var CONFIG = {
+const CONFIG_DATABASE = {
 	connect:{
 		host:"localhost",
 		user:"root",
 		password:""
 	},
-	dbname:'mysqltest',
+	database_name:'mysqltest',
 	table: [
 		{
 			name:'curve_data',
@@ -93,5 +93,6 @@ var CONFIG = {
         }
 	]
 	
-}
-module.exports.config = CONFIG;
+};
+
+module.exports.CONFIG_DATABASE = CONFIG_DATABASE;

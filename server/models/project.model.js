@@ -1,30 +1,51 @@
 'use strict';
 let project = require('./project/project.js');
-let createDB = require('./test/test-create/createDB.js');
-function createNewProject(projectInfo, cbCreateProject) {
-    console.log("A new project is created");
-    let conn = createDB.connect();
-    createDB.create('mysqltest', conn, function (err, con) {
-        if(err) {
-            return console.log(err);
-        }
+let createDatabase = require('./test/test-create/create-database.js');
 
+function createNewProject(inputProject, callbackCreateProject) {
+    let conn = createDatabase.connectDatabase();
+
+    createDatabase.createDatabaseAndTable('mysqltest', conn, function (err, con) {
+        if (err) return console.log(err);
+
+        project.insertProject(inputProject, conn, function (err, status) {
+            if (err) return callbackCreateProject(err, status);
+            callbackCreateProject(false, status);
+            conn.end();
+        });
     });
-    project.insert(projectInfo, conn, function (err, status) {
-        if (err) return cbCreateProject(err, status);
-        cbCreateProject(false, status);
-        conn.end();
+}
+
+function editProject(inputProject, callbackEditProject) {
+    let conn = createDatabase.connectDatabase();
+
+    createDatabase.createDatabaseAndTable('mysqltest', conn, function (err, con) {
+        if (err) return console.log(err);
+
+        project.updateProject(inputProject, conn, function (err, status) {
+            if (err) return callbackEditProject(err, status);
+            callbackEditProject(false, status);
+            conn.end();
+        });
     });
-
 }
 
-function editProject(projectInfo) {
-    console.log("Project is editted");
-}
-function deleteProject(projectInfo) {
-    console.log("Project is deleted")
+function deleteProject(inputProject, callbackDeleteProject) {
+    let conn = createDatabase.connectDatabase();
+
+    createDatabase.createDatabaseAndTable('mysqltest', conn, function (err, con) {
+        if (err) return console.log(err);
+
+        project.deleteProject(inputProject, conn, function (err, status) {
+            if(err) return callbackDeleteProject(err, status);
+            callbackDeleteProject(false, status);
+            conn.end();
+        });
+    });
 }
 
-module.exports.createNewProject = createNewProject;
-module.exports.editProject = editProject;
-module.exports.deleteProject = deleteProject;
+module.exports = {
+    createNewProject: createNewProject,
+    editProject: editProject,
+    deleteProject: deleteProject
+}
