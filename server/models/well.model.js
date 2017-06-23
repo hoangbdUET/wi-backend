@@ -1,12 +1,12 @@
 'use strict';
 
 let well = require('./well/well.js');
-let createDatabase = require('./test/test-create/create-database.js');
+let createDatabase = require('./database/create-database.js');
 
 function createNewWell(inputWell, callbackCreateWell) {
     let conn = createDatabase.connectDatabase();
 
-    createDatabase.createDatabaseAndTable('mysqltest', conn, function (err, con) {
+    createDatabase.createDatabaseAndTable(conn, function (err, con) {
         if (err) return console.log(err);
 
         well.insertWell(inputWell, conn, function (err, status) {
@@ -22,7 +22,7 @@ function createNewWell(inputWell, callbackCreateWell) {
 function editWell(inputWell, callbackEditWell) {
     let conn = createDatabase.connectDatabase();
 
-    createDatabase.createDatabaseAndTable('mysqltest', conn, function (err, con) {
+    createDatabase.createDatabaseAndTable(conn, function (err, con) {
         if (err) return console.log(err);
 
         well.updateWell(inputWell, conn, function (err, status) {
@@ -36,7 +36,7 @@ function editWell(inputWell, callbackEditWell) {
 function deleteWell(inputWell, callbackDeleteWell) {
     let conn = createDatabase.connectDatabase();
 
-    createDatabase.createDatabaseAndTable('mysqltest', conn, function (err, con) {
+    createDatabase.createDatabaseAndTable(conn, function (err, con) {
         if (err) return console.log(err);
 
         well.deleteWell(inputWell, conn, function (err, status) {

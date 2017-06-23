@@ -1,12 +1,12 @@
 'use strict';
 
 let curve = require('./curve/curve.js');
-let createDatabase = require('./test/test-create/create-database.js');
+let createDatabase = require('./database/create-database.js');
 
 function createNewCurve(inputCurve, callbackCreateCurve) {
     let conn = createDatabase.connectDatabase();
 
-    createDatabase.createDatabaseAndTable('mysqltest', conn, function (err, con) {
+    createDatabase.createDatabaseAndTable(conn, function (err, conn) {
         if (err) return console.log(err);
 
         curve.insertCurve(inputCurve, conn, function (err, status) {
@@ -19,12 +19,16 @@ function createNewCurve(inputCurve, callbackCreateCurve) {
 
 function editCurve(inputCurve, callbackEditCurve) {
     let conn = createDatabase.connectDatabase();
+    createDatabase.createDatabaseAndTable(conn, function (er, conn) {
+        if(err) return console.log(err);
 
-    curve.updateCurve(inputCurve, conn, function (err, status) {
-        if (err) return callbackEditCurve(err, status);
-        callbackEditCurve(false, status);
-        conn.end();
+        curve.updateCurve(inputCurve, conn, function (err, status) {
+            if (err) return callbackEditCurve(err, status);
+            callbackEditCurve(false, status);
+            conn.end();
+        });
     });
+
 }
 
 function deleteCurve(inputCurve, callbackDeleteCurve) {

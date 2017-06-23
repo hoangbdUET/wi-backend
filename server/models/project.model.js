@@ -1,11 +1,11 @@
 'use strict';
 let project = require('./project/project.js');
-let createDatabase = require('./test/test-create/create-database.js');
+let createDatabase = require('./database/create-database.js');
 
 function createNewProject(inputProject, callbackCreateProject) {
     let conn = createDatabase.connectDatabase();
 
-    createDatabase.createDatabaseAndTable('mysqltest', conn, function (err, con) {
+    createDatabase.createDatabaseAndTable(conn, function (err, con) {
         if (err) return console.log(err);
 
         project.insertProject(inputProject, conn, function (err, status) {
@@ -19,7 +19,7 @@ function createNewProject(inputProject, callbackCreateProject) {
 function editProject(inputProject, callbackEditProject) {
     let conn = createDatabase.connectDatabase();
 
-    createDatabase.createDatabaseAndTable('mysqltest', conn, function (err, con) {
+    createDatabase.createDatabaseAndTable(conn, function (err, con) {
         if (err) return console.log(err);
 
         project.updateProject(inputProject, conn, function (err, status) {
@@ -33,7 +33,7 @@ function editProject(inputProject, callbackEditProject) {
 function deleteProject(inputProject, callbackDeleteProject) {
     let conn = createDatabase.connectDatabase();
 
-    createDatabase.createDatabaseAndTable('mysqltest', conn, function (err, con) {
+    createDatabase.createDatabaseAndTable(conn, function (err, con) {
         if (err) return console.log(err);
 
         project.deleteProject(inputProject, conn, function (err, status) {

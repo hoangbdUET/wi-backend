@@ -4,5 +4,5 @@ const CONFIG_PROJECT = {
 
     ],
     field:['NAME', 'LOCATION', 'COMPANY', 'DEPARTMENT','DESCRIPTION']
-}
+};
 module.exports.CONFIG_PROJECT = CONFIG_PROJECT;
