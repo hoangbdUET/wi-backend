@@ -1,6 +1,21 @@
 
+'use strict';
+let curve = require('./curve/curve.js');
+let createDB = require('./test/test-create/createDB.js');
+function createNewCurve(curveInfo, cbCreateCurve) {
+    console.log("A new project is created");
+    let conn = createDB.connect();
+    createDB.create('mysqltest', conn, function (err, con) {
+        if(err) {
+            return console.log(err);
+        }
 
-function createNewCurve(curveInfo) {
+    });
+    curve.insert(curveInfo, conn, function (err, status) {
+        if (err) return cbCreateCurve(err, status);
+        cbCreateCurve(false, status);
+        conn.end();
+    });
 
 }
 function editCurve(curveInfo) {
