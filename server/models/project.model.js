@@ -2,10 +2,25 @@
 let project = require('./project/project.js');
 let createDatabase = require('./database/create-database.js');
 
+
+function getProject(callbackGetProject) {
+    let conn = createDatabase.connectDatabase();
+
+    createDatabase.createDatabaseAndTable(conn, function (err, conn) {
+        if(err) return console.log(err);
+
+        project.selectProject(conn, function (err, status, result) {
+            if(err) return callbackGetProject(err, status, result);
+            callbackGetProject(false, status, result);
+            conn.end();
+        });
+    });
+}
+
 function createNewProject(inputProject, callbackCreateProject) {
     let conn = createDatabase.connectDatabase();
 
-    createDatabase.createDatabaseAndTable(conn, function (err, con) {
+    createDatabase.createDatabaseAndTable(conn, function (err, conn) {
         if (err) return console.log(err);
 
         project.insertProject(inputProject, conn, function (err, status) {
@@ -19,7 +34,7 @@ function createNewProject(inputProject, callbackCreateProject) {
 function editProject(inputProject, callbackEditProject) {
     let conn = createDatabase.connectDatabase();
 
-    createDatabase.createDatabaseAndTable(conn, function (err, con) {
+    createDatabase.createDatabaseAndTable(conn, function (err, conn) {
         if (err) return console.log(err);
 
         project.updateProject(inputProject, conn, function (err, status) {
@@ -33,7 +48,7 @@ function editProject(inputProject, callbackEditProject) {
 function deleteProject(inputProject, callbackDeleteProject) {
     let conn = createDatabase.connectDatabase();
 
-    createDatabase.createDatabaseAndTable(conn, function (err, con) {
+    createDatabase.createDatabaseAndTable(conn, function (err, conn) {
         if (err) return console.log(err);
 
         project.deleteProject(inputProject, conn, function (err, status) {
@@ -45,7 +60,8 @@ function deleteProject(inputProject, callbackDeleteProject) {
 }
 
 module.exports = {
+    getProject: getProject,
     createNewProject: createNewProject,
     editProject: editProject,
     deleteProject: deleteProject
-}
+};

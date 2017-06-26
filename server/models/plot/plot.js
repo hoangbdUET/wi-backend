@@ -9,8 +9,35 @@ function readfile(url) {
     return obj.toString();
 }
 
-function insertPlot(inputPlot, connect, callbackPlot) {
-    let insertPlot = 'INSERT INTO plot (';
+function selectPlot(inputPlot, connect, callbackSelectPlot) {
+    let selectPlot = 'SELECT * FROM ' + CONFIG_PLOT.name + ' WHERE ID_WELL = ' + inputPlot.idWell + ';'; //condition select
+    let status;
+
+    connect.query(selectPlot, function (err, result) {
+        if(err) {
+            status = {
+                "id": -1,
+                "code": 404,
+                "desc": "Select not found"
+            };
+
+            result = null;
+            callbackSelectPlot(err, status, result);
+        }
+
+        status = {
+            "id": 1,
+            "code": "000",
+            "desc": "Select Successfull"
+        };
+
+        result = JSON.parse(JSON.stringify(result));
+        callbackSelectPlot(false, status, result);
+    });
+}
+
+function insertPlot(inputPlot, connect, callbackInsertPlot) {
+    let insertPlot = 'INSERT INTO ' + CONFIG_PLOT.name+ '(';
     let status;
 
     for (let i = 0; i < CONFIG_PROJECT.field.length; i++) {
@@ -31,10 +58,10 @@ function insertPlot(inputPlot, connect, callbackPlot) {
                 "code": 404
             };
 
-            return callbackPlot(err, status);
+            return callbackInsertPlot(err, status);
         }
 
-        let selectPlot = 'SELECT ID_PLOT FROM plot WHERE NAME = ' + '"' + inputPlot.name + '";';
+        let selectPlot = 'SELECT ID_PLOT FROM ' + CONFIG_PLOT.name + ' WHERE NAME = ' + '"' + inputPlot.name + '";';
 
         connect.query(selectPlot, function (err, result) {
             if (err) {
@@ -43,7 +70,7 @@ function insertPlot(inputPlot, connect, callbackPlot) {
                     "code": 404
                 };
 
-                return callbackPlot(err, status);
+                return callbackInsertPlot(err, status);
             }
 
             let json = JSON.parse(JSON.stringify(result));
@@ -52,7 +79,7 @@ function insertPlot(inputPlot, connect, callbackPlot) {
                 "description": "ID_PLOT is created before"
             };
 
-            return callbackPlot(err, status);
+            return callbackInsertPlot(err, status);
         });
     });
 
@@ -61,7 +88,7 @@ function insertPlot(inputPlot, connect, callbackPlot) {
 
 function updatePlot(inputPlot, connect, callbackUpdatePlot) {
     let status;
-    let updatePlot = 'UPDATE plot SET ' +
+    let updatePlot = 'UPDATE ' + CONFIG_PLOT.name + ' SET ' +
         'ID_WELL = ' + '"' + inputPlot.idWell + '", ' +
         'NAME = ' + inputPlot.name + '", ' +
         'OPTION = ' + inputPlot.option +
@@ -90,7 +117,7 @@ function updatePlot(inputPlot, connect, callbackUpdatePlot) {
 
 function deletePlot(inputPlot, connect, callbackDeletePlot) {
     let status;
-    let deletePlot = 'DELETE FROM plot WHERE ID_PLOT' + inputPlot.idPlot;
+    let deletePlot = 'DELETE FROM ' +  CONFIG_PLOT.name +' WHERE ID_PLOT' + inputPlot.idPlot;
 
     connect.query(deletePlot, function (err, result) {
         if (err) {
@@ -115,6 +142,7 @@ function deletePlot(inputPlot, connect, callbackDeletePlot) {
 
 module.exports = {
     readfile: readfile,
+    selectPlot: selectPlot,
     insertPlot: insertPlot,
     deletePlot: deletePlot,
     updatePlot: updatePlot

@@ -11,7 +11,7 @@ function readfile(url) {
 }
 
 function insertTrack(inputTrack, connect, callbackTrack) {
-    let insertTrack = 'INSERT INTO track (';
+    let insertTrack = 'INSERT INTO ' + CONFIG_TRACK.name + ' (';
     let status;
 
     for (let i = 0; i < CONFIG_TRACK.field.length; i++) {
@@ -35,7 +35,7 @@ function insertTrack(inputTrack, connect, callbackTrack) {
             return callbackTrack(err, status);
         }
 
-        let selectTrack = 'SELECT ID_TRACK FROM track WHERE NAME = ' + '"' + inputTrack.name + '";';
+        let selectTrack = 'SELECT ID_TRACK FROM ' + CONFIG_TRACK.name + ' WHERE NAME = ' + '"' + inputTrack.name + '";';
 
         connect.query(selectTrack, function (err, result) {
             if (err) {
@@ -62,7 +62,7 @@ function insertTrack(inputTrack, connect, callbackTrack) {
 
 function updateTrack(inputTrack, connect, callbackUpdateTrack) {
     let status;
-    let updateTrack = 'UPDATE track SET ' +
+    let updateTrack = 'UPDATE ' + CONFIG_TRACK.name + ' SET ' +
         'ID_PLOT = ' + '"' + inputTrack.idWell + '", ' +
         'NAME = ' + inputTrack.name + '", ' +
         'OPTION = ' + inputTrack.option +
@@ -91,7 +91,7 @@ function updateTrack(inputTrack, connect, callbackUpdateTrack) {
 
 function deleteTrack(inputTrack, connect, callbackDeleteTrack) {
     let status;
-    let deleteTrack = 'DELETE FROM track WHERE ID_TRACK' + inputTrack.idTrack;
+    let deleteTrack = 'DELETE FROM ' + CONFIG_TRACK.name + ' WHERE ID_TRACK' + inputTrack.idTrack;
 
     connect.query(deleteTrack, function (err, result) {
         if (err) {

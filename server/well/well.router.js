@@ -9,7 +9,6 @@ router.use(bodyParser.json());
 
 router.get('/well', function (req, res) {
 
-
 });
 
 router.post('/well/new', function (req, res) {

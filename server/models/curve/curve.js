@@ -11,12 +11,12 @@ function readfile(url) {
 }
 
 function insertCurve(inputCurve, connect, callbackCurve) {
-    let insertCurve = 'INSERT INTO curve (';
+    let insertCurve = 'INSERT INTO ' + CONFIG_CURVE.name + ' (';
     let status;
 
     for (let i = 0; i < CONFIG_CURVE.field.length; i++) {
         insertCurve += CONFIG_CURVE.field[i];
-        if (i != CONFIG_CURVE.field.length - 1) {
+        if (i !== CONFIG_CURVE.field.length - 1) {
             insertCurve += ',';
         }
     }
@@ -40,7 +40,7 @@ function insertCurve(inputCurve, connect, callbackCurve) {
             return callbackCurve(err, status);
         }
 
-        let select = 'SELECT ID_PROJECT FROM curve WHERE NAME = ' + '"' + inputCurve.name + '";';
+        let select = 'SELECT ID_PROJECT FROM ' + CONFIG_CURVE.name + ' WHERE NAME = ' + '"' + inputCurve.name + '";';
 
         connect.query(select, function (err, result) {
             if (err) {
@@ -66,7 +66,7 @@ function insertCurve(inputCurve, connect, callbackCurve) {
 
 function updateCurve(inputCurve, connect, cbUpdateCurve) {
     let status;
-    let query = 'UPDATE curve SET ' +
+    let query = 'UPDATE ' + CONFIG_CURVE.name + ' SET ' +
         'ID_WELL = ' + inputCurve.wellId + ', ' +
         'NAME = ' + '"' + inputCurve.name + '", ' +
         'DATA_SET = ' + inputCurve.data_set + '", ' +
@@ -99,7 +99,7 @@ function updateCurve(inputCurve, connect, cbUpdateCurve) {
 
 function deleteCurve(inputCurve, connect, cbDeleteCurve) {
     let status;
-    let query = 'DELETE FROM curve WHERE ID_CURVE' + inputCurve.id_curve;
+    let query = 'DELETE FROM ' + CONFIG_CURVE.name + ' WHERE ID_CURVE' + inputCurve.id_curve;
 
     connect.query(query, function (err, result) {
         if (err) {

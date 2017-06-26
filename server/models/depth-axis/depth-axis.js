@@ -11,7 +11,7 @@ function readfile(url) {
 }
 
 function insertDepthAxis(inputDepthAxis, connect, callbackDepthAxis) {
-    let insertDepthAxis = 'INSERT INTO depth_axis (';
+    let insertDepthAxis = 'INSERT INTO ' + CONFIG_DEPTH_AXIS.name + ' (';
     let status;
 
     for (let i = 0; i < CONFIG_DEPTH_AXIS.field.length; i++) {
@@ -35,7 +35,7 @@ function insertDepthAxis(inputDepthAxis, connect, callbackDepthAxis) {
             return callbackDepthAxis(err, status);
         }
 
-        let selectDepthAxis = 'SELECT ID_DEPTH_AXIS FROM depth_axis WHERE NAME = ' + '"' + inputDepthAxis.name + '";';
+        let selectDepthAxis = 'SELECT ID_DEPTH_AXIS FROM ' + CONFIG_DEPTH_AXIS.name + ' WHERE NAME = ' + '"' + inputDepthAxis.name + '";';
 
         connect.query(selectDepthAxis, function (err, result) {
             if (err) {
@@ -62,7 +62,7 @@ function insertDepthAxis(inputDepthAxis, connect, callbackDepthAxis) {
 
 function updateDepthAxis(inputDepthAxis, connect, callbackUpdateDepthAxis) {
     let status;
-    let updateDepthAxis = 'UPDATE depth_axis SET ' +
+    let updateDepthAxis = 'UPDATE ' + CONFIG_DEPTH_AXIS.name + ' SET ' +
         'ID_PLOT = ' + '"' + inputDepthAxis.idWell + '", ' +
         'NAME = ' + inputDepthAxis.name + '", ' +
         'OPTION = ' + inputDepthAxis.option +
@@ -91,7 +91,7 @@ function updateDepthAxis(inputDepthAxis, connect, callbackUpdateDepthAxis) {
 
 function deleteDepthAxis(inputDepthAxis, connect, callbackDeleteDepthAxis) {
     let status;
-    let deleteDepthAxis = 'DELETE FROM depth_axis WHERE ID_DEPTH_AXIS' + inputDepthAxis.idDepthAxis;
+    let deleteDepthAxis = 'DELETE FROM ' + CONFIG_DEPTH_AXIS.name + ' WHERE ID_DEPTH_AXIS' + inputDepthAxis.idDepthAxis;
 
     connect.query(deleteDepthAxis, function (err, result) {
         if (err) {

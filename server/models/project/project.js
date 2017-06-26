@@ -9,6 +9,33 @@ function readfile(url) {
     return obj.toString();
 }
 
+function selectProject(connect, callbackSelectProject) {
+    let selectProject = 'SELECT * FROM ' + CONFIG_PROJECT.name + ' WHERE ID_PROJECT = 1'; //condition select
+    let status;
+
+    connect.query(selectProject, function (err, result) {
+        if(err) {
+            status = {
+                "id": -1,
+                "code": 404,
+                "desc": "Select not found"
+            };
+
+            result = null;
+            callbackSelectProject(err, status, result);
+        }
+
+        status = {
+            "id": 1,
+            "code": "000",
+            "desc": "Select Successfull"
+        };
+
+        result = JSON.parse(JSON.stringify(result));
+        callbackSelectProject(false, status, result);
+    });
+}
+
 function insertProject(inputProject, connect, callbackProject) {
     let insertProject = 'INSERT INTO project (';
     let status;
@@ -119,6 +146,7 @@ function deleteProject(inputProject, connect, callbackDeleteProject) {
 
 module.exports = {
     readfile: readfile,
+    selectProject: selectProject,
     insertProject: insertProject,
     deleteProject: deleteProject,
     updateProject: updateProject
