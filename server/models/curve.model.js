@@ -19,7 +19,7 @@ function createNewCurve(inputCurve, callbackCreateCurve) {
 
 function editCurve(inputCurve, callbackEditCurve) {
     let conn = createDatabase.connectDatabase();
-    createDatabase.createDatabaseAndTable(conn, function (er, conn) {
+    createDatabase.createDatabaseAndTable(conn, function (err, conn) {
         if(err) return console.log(err);
 
         curve.updateCurve(inputCurve, conn, function (err, status) {

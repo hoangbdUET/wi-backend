@@ -8,11 +8,24 @@ function getProjectInfo(inputProject,callbackProjectInfo) {
     //Moi Well gom 2 thong tin la ID va name cua well
     //inputProject la JSON { id: "123"}
     //Tra ve JSON. VD: { well:[ {id:"132", name"well1" },{ id:"133", name: "well2"}, { id: "134", name: "well3"})
+    let conn = createDatabase.connectDatabase();
+
+    createDatabase.createDatabaseAndTable(conn, function (err, conn) {
+        if(err) return console.log(err);
+
+        project.selectProject(conn, function (err, status, result) {
+            if(err) return callbackGetProject(err, status, result);
+            callbackGetProject(false, status, result);
+            conn.end();
+        });
+    });
 }
+
+
 function createNewProject(inputProject, callbackCreateProject) {
     let conn = createDatabase.connectDatabase();
 
-    createDatabase.createDatabaseAndTable(conn, function (err, con) {
+    createDatabase.createDatabaseAndTable(conn, function (err, conn) {
         if (err) return console.log(err);
 
         project.insertProject(inputProject, conn, function (err, status) {
@@ -26,7 +39,7 @@ function createNewProject(inputProject, callbackCreateProject) {
 function editProject(inputProject, callbackEditProject) {
     let conn = createDatabase.connectDatabase();
 
-    createDatabase.createDatabaseAndTable(conn, function (err, con) {
+    createDatabase.createDatabaseAndTable(conn, function (err, conn) {
         if (err) return console.log(err);
 
         project.updateProject(inputProject, conn, function (err, status) {
@@ -40,7 +53,7 @@ function editProject(inputProject, callbackEditProject) {
 function deleteProject(inputProject, callbackDeleteProject) {
     let conn = createDatabase.connectDatabase();
 
-    createDatabase.createDatabaseAndTable(conn, function (err, con) {
+    createDatabase.createDatabaseAndTable(conn, function (err, conn) {
         if (err) return console.log(err);
 
         project.deleteProject(inputProject, conn, function (err, status) {
@@ -52,6 +65,7 @@ function deleteProject(inputProject, callbackDeleteProject) {
 }
 
 module.exports = {
+
     createNewProject: createNewProject,
     editProject: editProject,
     deleteProject: deleteProject,

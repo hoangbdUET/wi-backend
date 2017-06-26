@@ -7,9 +7,9 @@ function createNewDepthAxis(inputDepthAxis, callbackCreateDepthAxis) {
     let conn = createDatabase.connectDatabase();
 
     createDatabase.createDatabaseAndTable(conn, function (err, conn) {
-        if(conn) return console.log(err);
-        depthAxis.insertDepthAxis(inputDepthAxis, conn, function (er, status) {
-            if(err) return callbackCreateDepthAxis(err, status);
+        if (conn) return console.log(err);
+        depthAxis.insertDepthAxis(inputDepthAxis, conn, function (err, status) {
+            if (err) return callbackCreateDepthAxis(err, status);
             callbackCreateDepthAxis(false, status);
             conn.end();
         })
@@ -20,14 +20,17 @@ function deleteDepthAxis(inputDepthAxis, callbackDeleteDepthAxis) {
     let conn = createDatabase.connectDatabase();
 
     createDatabase.createDatabaseAndTable(conn, function (err, conn) {
-        if(err) return console.log(err);
+        if (err) return console.log(err);
         depthAxis.deleteDepthAxis(inputDepthAxis, conn, function (err, status) {
-            if(err) return callbackDeleteDepthAxis(err, status);
+            if (err) return callbackDeleteDepthAxis(err, status);
             callbackDeleteDepthAxis(false, status);
             conn.end();
         })
     });
 }
 
-module.exports.createNewDepthAxis = createNewDepthAxis;
-module.exports.deleteDepthAxis = deleteDepthAxis;
+module.exports = {
+    createNewDepthAxis: createNewDepthAxis,
+    deleteDepthAxis: deleteDepthAxis
+};
+
