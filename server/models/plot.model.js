@@ -8,9 +8,9 @@ function getPlotInfo(inputPlot, callbackPlotInfo) {
 
     createDatabase.createDatabaseAndTable(conn, function (err, conn) {
         if (err) return console.log(err);
-        plot.selectPlot(inputPlot, conn, function (err, status, result) {
-            if (err) return callbackPlotInfo(err, status, result);
-            callbackPlotInfo(err, status, result);
+        plot.selectPlot(inputPlot, conn, function (err, status) {
+            if (err) return callbackPlotInfo(err, status);
+            callbackPlotInfo(err, status);
             conn.end();
         });
     });

@@ -49,7 +49,7 @@ function insertDepthAxis(inputDepthAxis, connect, callbackDepthAxis) {
 
             let json = JSON.parse(JSON.stringify(result));
             status = {
-                "id": json[0].ID_DepthAxis,
+                "id": json[json.length - 1].ID_DepthAxis,
                 "description": "ID_DepthAxis is created before"
             };
 

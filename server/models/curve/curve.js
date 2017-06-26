@@ -55,7 +55,7 @@ function insertCurve(inputCurve, connect, callbackCurve) {
 
             let json = JSON.parse(JSON.stringify(result));
             status = {
-                "id": json[0].ID_curve,
+                "id": json[json.length - 1].ID_curve,
                 "description": "Ma so cua curve vua tao"
             };
 

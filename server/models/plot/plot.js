@@ -22,17 +22,18 @@ function selectPlot(inputPlot, connect, callbackSelectPlot) {
             };
 
             result = null;
-            callbackSelectPlot(err, status, result);
+            callbackSelectPlot(err, status);
         }
-
+        result = JSON.parse(JSON.stringify(result));
         status = {
             "id": 1,
             "code": "000",
-            "desc": "Select Successfull"
+            "desc": "Select Successfull",
+            "Plots": result
         };
 
-        result = JSON.parse(JSON.stringify(result));
-        callbackSelectPlot(false, status, result);
+
+        callbackSelectPlot(false, status);
     });
 }
 
@@ -75,7 +76,7 @@ function insertPlot(inputPlot, connect, callbackInsertPlot) {
 
             let json = JSON.parse(JSON.stringify(result));
             status = {
-                "id": json[0].ID_PLOT,
+                "id": json[json.length - 1].ID_PLOT,
                 "description": "ID_PLOT is created before"
             };
 

@@ -13,9 +13,9 @@ function getProjectInfo(inputProject,callbackProjectInfo) {
     createDatabase.createDatabaseAndTable(conn, function (err, conn) {
         if(err) return console.log(err);
 
-        project.selectProject(conn, function (err, status, result) {
-            if(err) return callbackGetProject(err, status, result);
-            callbackGetProject(false, status, result);
+        project.selectProject(inputProject, conn, function (err, status) {
+            if(err) return callbackProjectInfo(err, status);
+            callbackProjectInfo(false, status);
             conn.end();
         });
     });

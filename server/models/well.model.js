@@ -8,9 +8,9 @@ function getWellInfo(inputWell, callbackWellInfo) {
     let conn  = createDatabase.connectDatabase();
     createDatabase.createDatabaseAndTable(conn, function (err, conn) {
         if(err) return console.log(err);
-        well.selectWell(inputWell, conn, function (err, status, result) {
-            if(err) return callbackGetWell(err, status, result);
-            callbackGetWell(err, status, result);
+        well.selectWell(inputWell, conn, function (err, status) {
+            if(err) return callbackWellInfo(err, status);
+            callbackWellInfo(err, status);
             conn.end();
         });
     });
@@ -19,9 +19,7 @@ function getWellInfo(inputWell, callbackWellInfo) {
 function createNewWell(inputWell, callbackCreateWell) {
     let conn = createDatabase.connectDatabase();
 
-    createDatabase.createDatabaseAndTable(conn, function (err, conn
-
-    ) {
+    createDatabase.createDatabaseAndTable(conn, function (err, conn) {
         if (err) return console.log(err);
 
         well.insertWell(inputWell, conn, function (err, status) {

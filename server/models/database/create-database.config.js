@@ -2,7 +2,7 @@ const CONFIG_DATABASE = {
 	connect:{
 		host:"localhost",
 		user:"root",
-		password:"Nguyenthao046"
+		password:""
 	},
 	database_name:'well_insight_test',
 	table: [
@@ -110,9 +110,9 @@ const CONFIG_DATABASE = {
             ]
         },
         {
-            name:'depth_axis',
+            name:'track',
             query:[
-                'ID_DEPTH_AXIS INT AUTO_INCREMENT PRIMARY KEY',
+                'ID_TRACK INT AUTO_INCREMENT PRIMARY KEY',
                 'ID_PLOT INT',
                 'NAME VARCHAR(50) NOT NULL',
                 'OPTION VARCHAR(250) NOT NULL'

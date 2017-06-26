@@ -9,8 +9,8 @@ function readfile(url) {
     return obj.toString();
 }
 
-function selectProject(connect, callbackSelectProject) {
-    let selectProject = 'SELECT * FROM ' + CONFIG_PROJECT.name + ' WHERE ID_PROJECT = 1'; //condition select
+function selectProject(inputProject, connect, callbackSelectProject) {
+    let selectProject = 'SELECT * FROM well' + ' WHERE ID_PROJECT = ' + inputProject.idProject + ';'; //condition select
     let status;
 
     connect.query(selectProject, function (err, result) {
@@ -22,17 +22,19 @@ function selectProject(connect, callbackSelectProject) {
             };
 
             result = null;
-            callbackSelectProject(err, status, result);
+            callbackSelectProject(err, status);
         }
 
+        result = JSON.parse(JSON.stringify(result));
+        console.log(result);
         status = {
             "id": 1,
             "code": "000",
-            "desc": "Select Successfull"
+            "desc": "Select Successfull",
+            "wells":result
         };
 
-        result = JSON.parse(JSON.stringify(result));
-        callbackSelectProject(false, status, result);
+        callbackSelectProject(false, status);
     });
 }
 
@@ -77,7 +79,7 @@ function insertProject(inputProject, connect, callbackProject) {
 
             let json = JSON.parse(JSON.stringify(result));
             status = {
-                "id": json[0].ID_PROJECT,
+                "id": json[json.length - 1].ID_PROJECT,
                 "description": "ID_PROJECT is created before"
             };
 

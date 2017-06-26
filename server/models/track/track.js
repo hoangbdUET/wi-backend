@@ -49,7 +49,7 @@ function insertTrack(inputTrack, connect, callbackTrack) {
 
             let json = JSON.parse(JSON.stringify(result));
             status = {
-                "id": json[0].ID_Track,
+                "id": json[json.length - 1].ID_Track,
                 "description": "ID_Track is created before"
             };
 

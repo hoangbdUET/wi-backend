@@ -13,7 +13,7 @@ function createNewDepthAxis(inputDepthAxis, callbackCreateDepthAxis) {
             callbackCreateDepthAxis(false, status);
             conn.end();
         })
-    })
+    });
 }
 
 function deleteDepthAxis(inputDepthAxis, callbackDeleteDepthAxis) {

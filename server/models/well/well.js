@@ -11,7 +11,8 @@ function readfile(url) {
 }
 
 function selectWell(inputWell, connect, callbackSelectWell) {
-    let selectWell = 'SELECT * FROM ' + CONFIG_WELL.name + ' WHERE ID_PROJECT = ' + inputWell.idProject + ';'; //condition select
+    let selectWell = 'SELECT * FROM curve_data INNER JOIN (SELECT * FROM curve WHERE ID_WELL = ' + inputWell.idWell +
+        ') selectCurve ON selectCurve.ID_CURVE = curve_data.ID_CURVE;'; //condition select
     let status;
 
     connect.query(selectWell, function (err, result) {
@@ -22,18 +23,18 @@ function selectWell(inputWell, connect, callbackSelectWell) {
                 "desc": "Select not found"
             };
 
-            result = null;
-            callbackSelectWell(err, status, result);
+            callbackSelectWell(err, status);
         }
 
+        result = JSON.parse(JSON.stringify(result));
         status = {
             "id": 1,
             "code": "000",
-            "desc": "Select Successfull"
+            "desc": "Select Successfull",
+            "Curves":result
         };
 
-        result = JSON.parse(JSON.stringify(result));
-        callbackSelectWell(false, status, result);
+        callbackSelectWell(false, status);
     });
 }
 
@@ -55,7 +56,7 @@ function insertWell(inputWell, connect, callbackWell) {
         inputWell.topDepth + '", "' +
         inputWell.bottomDepth + '", "' +
         inputWell.step + '");';
-
+    console.log('query insert:', insertWell);
     connect.query(insertWell, function (err, result) {
         if (err) {
             status = {
@@ -79,9 +80,10 @@ function insertWell(inputWell, connect, callbackWell) {
             }
 
             let json = JSON.parse(JSON.stringify(result));
+            console.log(json);
             status = {
-                "id": json[0].ID_WELL,
-                "description": "Ma so cua project vua tao"
+                "id": json[json.length - 1].ID_WELL,
+                "description": "Ma so cua well vua tao"
             };
 
             return callbackWell(err, status);

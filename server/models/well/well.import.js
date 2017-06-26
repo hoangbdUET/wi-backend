@@ -10,7 +10,7 @@ function readfile(url) {
 }
 
 function Length(url) {
-	let obj = url;
+    var obj = JSON.parse(readfile(url));
 	// let obj = JSON.parse((url));
 	return obj.empty_2.length;
 }
