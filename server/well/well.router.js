@@ -7,9 +7,11 @@ let bodyParser = require('body-parser');
 
 router.use(bodyParser.json());
 
-router.get('/well', function (req, res) {
-
-
+router.post('/well', function (req, res) {
+    wellModel.getWellInfo(req.body,function (err, status) {
+        if (err) return res.send(status);
+        res.send(status);
+    })
 });
 
 router.post('/well/new', function (req, res) {

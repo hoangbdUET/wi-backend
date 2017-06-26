@@ -3,6 +3,9 @@
 let well = require('./well/well.js');
 let createDatabase = require('./database/create-database.js');
 
+function getWellInfo(inputWell, callbackWellInfo) {
+    //Tuong tu voi getProjectInfo
+}
 function createNewWell(inputWell, callbackCreateWell) {
     let conn = createDatabase.connectDatabase();
 
@@ -50,6 +53,7 @@ function deleteWell(inputWell, callbackDeleteWell) {
 module.exports = {
     createNewWell: createNewWell,
     editWell: editWell,
-    deleteWell: deleteWell
+    deleteWell: deleteWell,
+    getWellInfo:getWellInfo
 }
 

@@ -3,6 +3,9 @@
 let plot = require('./plot/plot.js');
 let createDatabase = require('./database/create-database.js');
 
+function getPlotInfo(inputPlot, callbackPlotInfo) {
+    //Tuong tu voi getProjectInfo
+}
 function createNewPlot(inputPlot, callbackCreatePlot ) {
     let conn = createDatabase.connectDatabase();
 
@@ -45,3 +48,4 @@ function deletePlot(inputPlot, callbackDeletePlot) {
 module.exports.creatNewPlot = createNewPlot;
 module.exports.editPlot = editPlot;
 module.exports.deletePlot = deletePlot;
+module.exports.getPlotInfo = getPlotInfo;

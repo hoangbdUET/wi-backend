@@ -58,3 +58,5 @@ typings/
 .env
 .idea/*
 node_modules/*
+.idea/
+.~lock.wi-api-server.xlsx#

@@ -1,3 +1,4 @@
+"use strict";
 let mysql = require('mysql');
 const CONFIG_DATABASE = require('./create-database.config.js').CONFIG_DATABASE;
 

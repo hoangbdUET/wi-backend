@@ -2,7 +2,7 @@ const CONFIG_DATABASE = {
 	connect:{
 		host:"localhost",
 		user:"root",
-		password:""
+		password:"Nguyenthao046"
 	},
 	database_name:'well_insight_test',
 	table: [

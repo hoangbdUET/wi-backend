@@ -2,6 +2,13 @@
 let project = require('./project/project.js');
 let createDatabase = require('./database/create-database.js');
 
+function getProjectInfo(inputProject,callbackProjectInfo) {
+    //Ham nay tra ve thong tin cua 1 project dua vao ID cua no
+    //Nhung thong tin nay bao gom ca danh sach cac Well
+    //Moi Well gom 2 thong tin la ID va name cua well
+    //inputProject la JSON { id: "123"}
+    //Tra ve JSON. VD: { well:[ {id:"132", name"well1" },{ id:"133", name: "well2"}, { id: "134", name: "well3"})
+}
 function createNewProject(inputProject, callbackCreateProject) {
     let conn = createDatabase.connectDatabase();
 
@@ -47,5 +54,6 @@ function deleteProject(inputProject, callbackDeleteProject) {
 module.exports = {
     createNewProject: createNewProject,
     editProject: editProject,
-    deleteProject: deleteProject
-}
+    deleteProject: deleteProject,
+    getProjectInfo: getProjectInfo
+};

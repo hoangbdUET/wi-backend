@@ -8,22 +8,28 @@ let curveModel = require('../models/curve.model');
 
 router.use(bodyParser.json());
 
-router.get('/well', function (req, res) {
+router.get('/curve', function (req, res) {
 
 });
-router.post('/well/new', function (req, res) {
-    // const result=curveModel.createNewCurve(req.body);
-    // res.send(result);
-
+router.post('/curve/new', function (req, res) {
+    curveModel.createNewCurve(req.body,function (err, status) {
+        if (err) return res.send(status);
+        res.send(status);
+    })
 
 });
-router.post('/well/edit', function (req, res) {
-    const result=curveModel.editCurve(req.body);
-    res.send(result);
+router.post('/curve/edit', function (req, res) {
+    curveModel.editCurve(req.body,function (err, status) {
+        if (err) return res.send(status);
+        res.send(status);
+    })
+
 });
-router.delete('/well/delete', function (req, res) {
-    const result=curveModel.deleteCurve(req.body);
-    res.send(result);
+router.delete('/curve/delete', function (req, res) {
+    curveModel.deleteCurve(req.body,function (err, status) {
+        if (err) return res.send(status);
+        res.send(status);
+    })
 });
 
 module.exports = router;

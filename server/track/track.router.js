@@ -10,12 +10,16 @@ router.get('/track', function (req, res) {
 
 });
 router.post('/track/new', function (req, res) {
-    const result=trackModel.createTrack(req.body);
-    res.send(result);
+    trackModel.createTrack(req.body,function (err, status) {
+        if (err) return res.send(status);
+        res.send(status);
+    })
 });
 router.delete('/track/delete', function (req, res) {
-    const result=trackModel.deleteTrack(req.body);
-    res.send(result);
+    trackModel.deleteTrack(req.body,function (err, status) {
+        if (err) return res.send(status);
+        res.send(status);
+    })
 });
 
 module.exports = router;
