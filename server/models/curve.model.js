@@ -1,30 +1,48 @@
-
 'use strict';
-let curve = require('./curve/curve.js');
-let createDB = require('./test/test-create/createDB.js');
-function createNewCurve(curveInfo, cbCreateCurve) {
-    console.log("A new project is created");
-    let conn = createDB.connect();
-    createDB.create('mysqltest', conn, function (err, con) {
-        if(err) {
-            return console.log(err);
-        }
 
+let curve = require('./curve/curve.js');
+let createDatabase = require('./database/create-database.js');
+
+function createNewCurve(inputCurve, callbackCreateCurve) {
+    let conn = createDatabase.connectDatabase();
+
+    createDatabase.createDatabaseAndTable(conn, function (err, conn) {
+        if (err) return console.log(err);
+
+        curve.insertCurve(inputCurve, conn, function (err, status) {
+            if (err) return callbackCreateCurve(err, status);
+            callbackCreateCurve(false, status);
+            conn.end();
+        });
     });
-    curve.insert(curveInfo, conn, function (err, status) {
-        if (err) return cbCreateCurve(err, status);
-        cbCreateCurve(false, status);
+}
+
+function editCurve(inputCurve, callbackEditCurve) {
+    let conn = createDatabase.connectDatabase();
+    createDatabase.createDatabaseAndTable(conn, function (er, conn) {
+        if(err) return console.log(err);
+
+        curve.updateCurve(inputCurve, conn, function (err, status) {
+            if (err) return callbackEditCurve(err, status);
+            callbackEditCurve(false, status);
+            conn.end();
+        });
+    });
+
+}
+
+function deleteCurve(inputCurve, callbackDeleteCurve) {
+    let conn = createDatabase.connectDatabase();
+
+    curve.deleteCurve(inputCurve, conn, function (err, status) {
+        if(err) return callbackDeleteCurve(err, status);
+        callbackDeleteCurve(false, status);
         conn.end();
     });
-
-}
-function editCurve(curveInfo) {
-
-}
-function deleteCurve(curveInfo) {
-
 }
 
-module.exports.createNewCurve = createNewCurve;
-module.exports.editCurve = editCurve;
-module.exports.deleteCurve = deleteCurve;
+module.exports = {
+    createNewCurve: createNewCurve,
+    editCurve: editCurve,
+    deleteCurve: deleteCurve
+};

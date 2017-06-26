@@ -1,73 +1,131 @@
 'use strict';
 
-let configcurve = require('./curve.config.js').curve;
-let fs = require('fs');
+const fs = require('fs');
+
+const CONFIG_CURVE = require('./curve.config.js').CONFIG_CURVE;
 
 function readfile(url) {
-    let obj;
-    obj = fs.readFileSync(url);
-    return obj.toString();
+    let object;
+    object = fs.readFileSync(url);
+    return object.toString();
 }
 
-function insert(infoCurve, connect, callbackCurve) {
+function insertCurve(inputCurve, connect, callbackCurve) {
     let insertCurve = 'INSERT INTO curve (';
     let status;
-    for (let i = 0; i < configcurve.field.length; i++) {
-        insertCurve += configcurve.field[i];
-        if (i != configcurve.field.length - 1) {
+
+    for (let i = 0; i < CONFIG_CURVE.field.length; i++) {
+        insertCurve += CONFIG_CURVE.field[i];
+        if (i != CONFIG_CURVE.field.length - 1) {
             insertCurve += ',';
         }
     }
-    insertCurve += ') VALUES ("' + infoCurve.wellId + '", "' + infoCurve.name + '", "' + infoCurve.dataset + '", "' +
-        infoCurve.family  + '", "' + infoCurve.unit + '", "' + infoCurve.ini_value +'");';
-    console.log(insertCurve);
+
+    insertCurve += ') VALUES ("' +
+        inputCurve.wellId + '", "' +
+        inputCurve.name + '", "' +
+        inputCurve.dataset + '", "' +
+        inputCurve.family + '", "' +
+        inputCurve.unit + '", "' +
+        inputCurve.ini_value + '");';
+
     connect.query(insertCurve, function (err, result) {
         if (err) {
             status = {
                 "id": -1,
-                "code": 404
+                "code": 404,
+                "desc": "Have error about query insert"
             };
+
             return callbackCurve(err, status);
         }
-        let select = 'SELECT ID_PROJECT FROM curve WHERE NAME = ' + '"' + infoCurve.name + '";';
-        console.log(select);
+
+        let select = 'SELECT ID_PROJECT FROM curve WHERE NAME = ' + '"' + inputCurve.name + '";';
+
         connect.query(select, function (err, result) {
             if (err) {
                 status = {
                     "id": -1,
-                    "code": 404
-                }
+                    "code": 404,
+                    "desc": "Have error about query select"
+                };
+
                 return callbackCurve(err, status);
             }
+
             let json = JSON.parse(JSON.stringify(result));
             status = {
-                "id":json[0].ID_curve,
-                "description":"Ma so cua project vua tao"
-            }
-            callbackCurve(err, status);
+                "id": json[0].ID_curve,
+                "description": "Ma so cua curve vua tao"
+            };
+
+            return callbackCurve(err, status);
         });
     });
-
 }
 
+function updateCurve(inputCurve, connect, cbUpdateCurve) {
+    let status;
+    let query = 'UPDATE curve SET ' +
+        'ID_WELL = ' + inputCurve.wellId + ', ' +
+        'NAME = ' + '"' + inputCurve.name + '", ' +
+        'DATA_SET = ' + inputCurve.data_set + '", ' +
+        'FAMILY = ' + inputCurve.family + '", ' +
+        'UNIT = ' + inputCurve.unit + '", ' +
+        'INI_VALUE = ' + inputCurve.ini_value +
+        ' WHERE ID_CURVE = ' + inputCurve.id_curve;
 
-function delet(condition, connect) {
-    let query = 'DELETE FROM curve WHERE ' + condition;
     connect.query(query, function (err, result) {
-        if (err) throw err;
-    });
-}
+        if (err) {
+            status = {
+                "id": -1,
+                "code": 404,
+                "desc": "Data not update. Have error..."
+            };
 
-function update(setup, condition, connect) {
-    let query = 'UPDATE curve SET ' + setup + ' WHERE ' + condition;
-    connect.query(query, function (err, result) {
-        if (err) throw err;
+            return cbUpdateCurve(err, status);
+        }
+
+        status = {
+            "id": inputCurve.id_curve,
+            "code": "000",
+            "desc": "Updata data Success"
+        };
+
+        return cbUpdateCurve(false, status);
     })
 }
 
-module.exports.readfile = readfile;
-module.exports.insert = insert;
-module.exports.delet = delet;
-module.exports.update = update;
 
+function deleteCurve(inputCurve, connect, cbDeleteCurve) {
+    let status;
+    let query = 'DELETE FROM curve WHERE ID_CURVE' + inputCurve.id_curve;
+
+    connect.query(query, function (err, result) {
+        if (err) {
+            status = {
+                "id": -1,
+                "code": 404,
+                "desc": "Data not Delete. Have error about query delele"
+            };
+
+            return cbDeleteCurve(err, status);
+        }
+
+        status = {
+            "id": inputCurve.id_curve,
+            "code": "000",
+            "desc": "Delete data Success"
+        };
+
+        return cbDeleteCurve(err, status);
+    });
+}
+
+module.exports = {
+    readfile: readfile,
+    insertCurve: insertCurve,
+    deleteCurve: deleteCurve,
+    updateCurve: updateCurve
+};
 

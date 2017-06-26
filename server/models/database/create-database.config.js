@@ -1,10 +1,10 @@
-var CONFIG = {
+const CONFIG_DATABASE = {
 	connect:{
 		host:"localhost",
 		user:"root",
 		password:""
 	},
-	dbname:'mysqltest',
+	database_name:'well_insight_test',
 	table: [
 		{
 			name:'curve_data',
@@ -23,7 +23,7 @@ var CONFIG = {
 				'ID INT NOT NULL',
 				'NAME VARCHAR(50) NOT NULL',
 				'UNIT VARCHAR(50) NOT NULL',
-				'DESCRIPTON VARCHAR(50) NOT NULL',
+				'DESCRIPTION VARCHAR(50) NOT NULL',
 				'VALUE VARCHAR(250) NOT NULL'
 			]
 		},
@@ -90,8 +90,36 @@ var CONFIG = {
                 'UNIT VARCHAR(250) NOT NULL',
                 'INI_VALUE VARCHAR(250) NOT NULL'
             ]
+        },
+        {
+            name:'plot',
+            query:[
+                'ID_PLOT INT AUTO_INCREMENT PRIMARY KEY',
+                'ID_WELL INT',
+				'NAME VARCHAR(50) NOT NULL',
+				'OPTION VARCHAR(250) NOT NULL'
+            ]
+        },
+        {
+            name:'depth_axis',
+            query:[
+                'ID_DEPTH_AXIS INT AUTO_INCREMENT PRIMARY KEY',
+                'ID_PLOT INT',
+                'NAME VARCHAR(50) NOT NULL',
+                'OPTION VARCHAR(250) NOT NULL'
+            ]
+        },
+        {
+            name:'depth_axis',
+            query:[
+                'ID_DEPTH_AXIS INT AUTO_INCREMENT PRIMARY KEY',
+                'ID_PLOT INT',
+                'NAME VARCHAR(50) NOT NULL',
+                'OPTION VARCHAR(250) NOT NULL'
+            ]
         }
 	]
 	
-}
-module.exports.config = CONFIG;
+};
+
+module.exports.CONFIG_DATABASE = CONFIG_DATABASE;

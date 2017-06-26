@@ -1,33 +1,55 @@
 'use strict';
 
 let well = require('./well/well.js');
-let createDB = require('./test/test-create/createDB.js');
+let createDatabase = require('./database/create-database.js');
 
-function createNewWell(wellInfo, cbCreateWell) {
-    console.log("A new project is created");
-    let conn = createDB.connect();
-    createDB.create('mysqltest', conn, function (err, con) {
-        if(err) {
-            return console.log(err);
-        }
+function createNewWell(inputWell, callbackCreateWell) {
+    let conn = createDatabase.connectDatabase();
 
-    });
-    well.insert(wellInfo, conn, function (err, status) {
-        if (err) return cbCreateWell(err, status);
-        cbCreateWell(false, status);
-        conn.end();
+    createDatabase.createDatabaseAndTable(conn, function (err, con) {
+        if (err) return console.log(err);
+
+        well.insertWell(inputWell, conn, function (err, status) {
+            if (err) return callbackCreateWell(err, status);
+            callbackCreateWell(false, status);
+            conn.end();
+        });
     });
 
 
-
-}
-function editWell(wellInfo) {
-
-}
-function deleteWell(wellInfo) {
-
 }
 
-module.exports.createNewWell = createNewWell;
-module.exports.editWell = editWell;
-module.exports.deleteWell = deleteWell;
+function editWell(inputWell, callbackEditWell) {
+    let conn = createDatabase.connectDatabase();
+
+    createDatabase.createDatabaseAndTable(conn, function (err, con) {
+        if (err) return console.log(err);
+
+        well.updateWell(inputWell, conn, function (err, status) {
+            if (err) return callbackEditWell(err, status);
+            callbackEditWell(false, status);
+            conn.end();
+        });
+    });
+}
+
+function deleteWell(inputWell, callbackDeleteWell) {
+    let conn = createDatabase.connectDatabase();
+
+    createDatabase.createDatabaseAndTable(conn, function (err, con) {
+        if (err) return console.log(err);
+
+        well.deleteWell(inputWell, conn, function (err, status) {
+            if(err) return callbackDeleteWell(err, status);
+            callbackDeleteWell(false, status);
+            conn.end();
+        });
+    });
+}
+
+module.exports = {
+    createNewWell: createNewWell,
+    editWell: editWell,
+    deleteWell: deleteWell
+}
+

@@ -1,8 +1,8 @@
-var PROJECT = {
+const CONFIG_PROJECT = {
     name:'project',
     query:[
 
     ],
     field:['NAME', 'LOCATION', 'COMPANY', 'DEPARTMENT','DESCRIPTION']
-}
-module.exports.project = PROJECT;
+};
+module.exports.CONFIG_PROJECT = CONFIG_PROJECT;

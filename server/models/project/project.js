@@ -1,6 +1,6 @@
 'use strict';
 
-let configproject = require('./project.config.js').project;
+const CONFIG_PROJECT = require('./project.config.js').CONFIG_PROJECT;
 let fs = require('fs');
 
 function readfile(url) {
@@ -9,65 +9,120 @@ function readfile(url) {
     return obj.toString();
 }
 
-function insert(infoProject, connect, callbackProject) {
+function insertProject(inputProject, connect, callbackProject) {
     let insertProject = 'INSERT INTO project (';
     let status;
-    for (let i = 0; i < configproject.field.length; i++) {
-        insertProject += configproject.field[i];
-        if (i != configproject.field.length - 1) {
+
+    for (let i = 0; i < CONFIG_PROJECT.field.length; i++) {
+        insertProject += CONFIG_PROJECT.field[i];
+        if (i !== CONFIG_PROJECT.field.length - 1) {
             insertProject += ',';
         }
     }
-    insertProject += ') VALUES ("' + infoProject.name + '", "' + infoProject.location + '", "' + infoProject.company + '", "' +
-        infoProject.department  + '", "' + infoProject.description + '");';
-    console.log(insertProject);
+
+    insertProject += ') VALUES ("' +
+        inputProject.name + '", "' +
+        inputProject.location + '", "' +
+        inputProject.company + '", "' +
+        inputProject.department + '", "' +
+        inputProject.description + '");';
     connect.query(insertProject, function (err, result) {
         if (err) {
             status = {
                 "id": -1,
                 "code": 404
             };
+
             return callbackProject(err, status);
         }
-        let select = 'SELECT ID_PROJECT FROM project WHERE NAME = ' + '"' + infoProject.name + '";';
-        console.log(select);
-        connect.query(select, function (err, result) {
+
+        let selectProject = 'SELECT ID_PROJECT FROM project WHERE NAME = ' + '"' + inputProject.name + '";';
+
+        connect.query(selectProject, function (err, result) {
             if (err) {
                 status = {
                     "id": -1,
                     "code": 404
-                }
+                };
+
                 return callbackProject(err, status);
             }
+
             let json = JSON.parse(JSON.stringify(result));
             status = {
-                "id":json[0].ID_PROJECT,
-                "description":"Ma so cua project vua tao"
-            }
-            callbackProject(err, status);
+                "id": json[0].ID_PROJECT,
+                "description": "ID_PROJECT is created before"
+            };
+
+            return callbackProject(err, status);
         });
     });
 
 }
 
 
-function delet(condition, connect) {
-    let query = 'DELETE FROM well WHERE ' + condition;
-    connect.query(query, function (err, result) {
-        if (err) throw err;
-    });
-}
+function updateProject(inputProject, connect, callbackUpdateProject) {
+    let status;
+    let updateProject = 'UPDATE project SET ' +
+        'NAME = ' + '"' + inputProject.name + '", ' +
+        'LOCATION = ' + inputProject.location + '", ' +
+        'COMPANY = ' + inputProject.company + '", ' +
+        'DEPARTMENT = ' + inputProject.department + '", ' +
+        'DESCRIPTION = ' + inputProject.description +
+        ' WHERE ID_PROJECT = ' + inputProject.idProject;
 
-function update(setup, condition, connect) {
-    let query = 'UPDATE well SET ' + setup + ' WHERE ' + condition;
-    connect.query(query, function (err, result) {
-        if (err) throw err;
+    connect.query(updateProject, function (err, result) {
+        if (err) {
+            status = {
+                "id": -1,
+                "code": 404,
+                "desc": "Data not update. Have error..."
+            };
+
+            return callbackUpdateProject(err, status);
+        }
+
+        status = {
+            "id": inputProject.idProject,
+            "code": "000",
+            "desc": "Update data Success"
+        };
+
+        return callbackUpdateProject(false, status);
     })
 }
 
-module.exports.readfile = readfile;
-module.exports.insert = insert;
-module.exports.delet = delet;
-module.exports.update = update;
+function deleteProject(inputProject, connect, callbackDeleteProject) {
+    let status;
+    let deleteProject = 'DELETE FROM project WHERE ID_PROJECT' + inputProject.idProject;
+
+    connect.query(deleteProject, function (err, result) {
+        if (err) {
+            status = {
+                "id": -1,
+                "code": 404,
+                "desc": "Data not Delete. Have error about query delele"
+            };
+
+            return callbackDeleteProject(err, status);
+        }
+
+        status = {
+            "id": inputProject.idProject,
+            "code": "000",
+            "desc": "Delete data Success"
+        };
+
+        return callbackDeleteProject(err, status);
+    });
+}
+
+module.exports = {
+    readfile: readfile,
+    insertProject: insertProject,
+    deleteProject: deleteProject,
+    updateProject: updateProject
+};
+
 
 
