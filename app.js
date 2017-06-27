@@ -9,7 +9,9 @@ var plotRouter = require('./server/plot/plot.router');
 var curveRouter = require('./server/curve/curve.router');
 var trackRouter = require('./server/track/track.router');
 var depthAxisRouter = require('./server/depth-axis/depth-axis.router');
+var uploadRouter = require('./server/upload/index');
 
+app.use('/', uploadRouter);
 app.use('/',projectRouter);
 app.use('/project', wellRouter);
 app.use('/project/well',plotRouter);
