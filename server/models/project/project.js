@@ -30,7 +30,7 @@ function selectProject(inputProject, connect, callbackSelectProject) {
         status = {
             "id": 1,
             "code": "000",
-            "desc": "Select Successfull",
+            "desc": "Select Successful",
             "wells":result
         };
 
