@@ -22,7 +22,7 @@ function selectProject(inputProject, connect, callbackSelectProject) {
             };
 
             result = null;
-            callbackSelectProject(err, status);
+            return callbackSelectProject(err, status);
         }
 
         result = JSON.parse(JSON.stringify(result));
@@ -34,10 +34,35 @@ function selectProject(inputProject, connect, callbackSelectProject) {
             "wells":result
         };
 
-        callbackSelectProject(false, status);
+        return callbackSelectProject(false, status);
     });
 }
 
+function listProject(inputProject, connect, callbackListProject) {
+    let listProject = 'SELECT * FROM ' + CONFIG_PROJECT.name + ' WHERE 1';
+    let status;
+
+    connect.query(listProject, function (err, result) {
+        if(err) {
+            status = {
+                "id": -1,
+                "code": 404,
+                "desc": "Select not found"
+            };
+
+            return callbackListProject(err, status);
+        }
+
+        result = JSON.parse(JSON.stringify(result));
+        status = {
+            "id": 1,
+            "code": "000",
+            "desc": "Select Successful",
+            "Projects":result
+        };
+        return callbackListProject(false, status);
+    });
+}
 function insertProject(inputProject, connect, callbackProject) {
     let insertProject = 'INSERT INTO project (';
     let status;
@@ -149,6 +174,7 @@ function deleteProject(inputProject, connect, callbackDeleteProject) {
 module.exports = {
     readfile: readfile,
     selectProject: selectProject,
+    listProject: listProject,
     insertProject: insertProject,
     deleteProject: deleteProject,
     updateProject: updateProject

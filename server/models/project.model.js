@@ -64,7 +64,18 @@ function deleteProject(inputProject, callbackDeleteProject) {
     });
 }
 function getProjectList(input,callbackProjectList) {
+    let conn = createDatabase.connectDatabase();
 
+    createDatabase.createDatabaseAndTable(conn, function (err, conn) {
+        if(err) return console.log(err);
+
+        project.listProject(input, conn, function (err, status) {
+            if(err) return callbackProjectList(err, status);
+
+            callbackProjectList(false, status);
+            conn.end();
+        });
+    })
 }
 
 module.exports = {
