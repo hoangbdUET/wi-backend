@@ -7,7 +7,7 @@ function createNewDepthAxis(inputDepthAxis, callbackCreateDepthAxis) {
     let conn = createDatabase.connectDatabase();
 
     createDatabase.createDatabaseAndTable(conn, function (err, conn) {
-        if (conn) return console.log(err);
+        if (err) return console.log(err);
         depthAxis.insertDepthAxis(inputDepthAxis, conn, function (err, status) {
             if (err) return callbackCreateDepthAxis(err, status);
             callbackCreateDepthAxis(false, status);

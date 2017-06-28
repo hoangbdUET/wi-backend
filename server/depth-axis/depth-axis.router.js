@@ -12,7 +12,7 @@ router.post('/depth-axis/new', function (req, res) {
     depthAxisModel.createNewDepthAxis(req.body,function (err, status) {
         if (err) return res.send(status);
         res.send(status);
-    })
+    });
 });
 router.delete('/depth-axis/delete', function (req, res) {
     depthAxisModel.deleteDepthAxis(req.body,function (err, status) {

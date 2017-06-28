@@ -3,12 +3,6 @@
 const CONFIG_PLOT = require('./plot.config.js').CONFIG_PLOT;
 let fs = require('fs');
 
-function readfile(url) {
-    let obj;
-    obj = fs.readFileSync(url);
-    return obj.toString();
-}
-
 function selectPlot(inputPlot, connect, callbackSelectPlot) {
     let selectPlot = 'SELECT * FROM ' + CONFIG_PLOT.name + ' WHERE ID_WELL = ' + inputPlot.idWell + ';'; //condition select
     let status;
@@ -41,9 +35,9 @@ function insertPlot(inputPlot, connect, callbackInsertPlot) {
     let insertPlot = 'INSERT INTO ' + CONFIG_PLOT.name+ '(';
     let status;
 
-    for (let i = 0; i < CONFIG_PROJECT.field.length; i++) {
-        insertPlot += CONFIG_PROJECT.field[i];
-        if (i !== CONFIG_PROJECT.field.length - 1) {
+    for (let i = 0; i < CONFIG_PLOT.field.length; i++) {
+        insertPlot += CONFIG_PLOT.field[i];
+        if (i !== CONFIG_PLOT.field.length - 1) {
             insertPlot += ',';
         }
     }
@@ -91,8 +85,8 @@ function updatePlot(inputPlot, connect, callbackUpdatePlot) {
     let status;
     let updatePlot = 'UPDATE ' + CONFIG_PLOT.name + ' SET ' +
         'ID_WELL = ' + '"' + inputPlot.idWell + '", ' +
-        'NAME = ' + inputPlot.name + '", ' +
-        'OPTION = ' + inputPlot.option +
+        'NAME = "' + inputPlot.name + '", ' +
+        'OPTION = "' + inputPlot.option + '"' +
         ' WHERE ID_PLOT = ' + inputPlot.idPlot;
 
     connect.query(updatePlot, function (err, result) {
@@ -118,14 +112,14 @@ function updatePlot(inputPlot, connect, callbackUpdatePlot) {
 
 function deletePlot(inputPlot, connect, callbackDeletePlot) {
     let status;
-    let deletePlot = 'DELETE FROM ' +  CONFIG_PLOT.name +' WHERE ID_PLOT' + inputPlot.idPlot;
+    let deletePlot = 'DELETE FROM ' +  CONFIG_PLOT.name +' WHERE ID_PLOT = ' + inputPlot.idPlot;
 
     connect.query(deletePlot, function (err, result) {
         if (err) {
             status = {
                 "id": -1,
                 "code": 404,
-                "desc": "Data not Delete. Have error about query delele"
+                "desc": "Data not Delete. Have error about query delete"
             };
 
             return callbackDeletePlot(err, status);
@@ -137,12 +131,11 @@ function deletePlot(inputPlot, connect, callbackDeletePlot) {
             "desc": "Delete data Success"
         };
 
-        return callbackDeletePlot(err, status);
+        return callbackDeletePlot(false, status);
     });
 }
 
 module.exports = {
-    readfile: readfile,
     selectPlot: selectPlot,
     insertPlot: insertPlot,
     deletePlot: deletePlot,

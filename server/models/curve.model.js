@@ -34,11 +34,16 @@ function editCurve(inputCurve, callbackEditCurve) {
 function deleteCurve(inputCurve, callbackDeleteCurve) {
     let conn = createDatabase.connectDatabase();
 
-    curve.deleteCurve(inputCurve, conn, function (err, status) {
-        if(err) return callbackDeleteCurve(err, status);
-        callbackDeleteCurve(false, status);
-        conn.end();
+    createDatabase.createDatabaseAndTable(conn, function (err, conn) {
+        if(err) return console.log(err);
+
+        curve.deleteCurve(inputCurve, conn, function (err, status) {
+            if(err) return callbackDeleteCurve(err, status);
+            callbackDeleteCurve(false, status);
+            conn.end();
+        });
     });
+
 }
 
 module.exports = {

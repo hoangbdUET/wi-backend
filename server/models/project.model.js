@@ -71,7 +71,6 @@ function getProjectList(input,callbackProjectList) {
 
         project.listProject(input, conn, function (err, status) {
             if(err) return callbackProjectList(err, status);
-
             callbackProjectList(false, status);
             conn.end();
         });

@@ -47,7 +47,7 @@ function deletePlot(inputPlot, callbackDeletePlot) {
 
     createDatabase.createDatabaseAndTable(conn, function (err, conn) {
         if (err) console.log(err);
-        plot.deletePlot(inputPlot, conn, function (err, conn) {
+        plot.deletePlot(inputPlot, conn, function (err, status) {
             if (err) return callbackDeletePlot(err, status);
             callbackDeletePlot(false, status);
             conn.end();

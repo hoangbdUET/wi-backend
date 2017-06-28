@@ -4,12 +4,6 @@ let fs = require('fs');
 
 const CONFIG_DEPTH_AXIS = require('./depth-axis.config.js').CONFIG_DEPTH_AXIS;
 
-function readfile(url) {
-    let obj;
-    obj = fs.readFileSync(url);
-    return obj.toString();
-}
-
 function insertDepthAxis(inputDepthAxis, connect, callbackDepthAxis) {
     let insertDepthAxis = 'INSERT INTO ' + CONFIG_DEPTH_AXIS.name + ' (';
     let status;
@@ -21,8 +15,8 @@ function insertDepthAxis(inputDepthAxis, connect, callbackDepthAxis) {
         }
     }
 
-    insertDepthAxis += ') VALUES ("' +
-        inputDepthAxis.idPlot + '", "' +
+    insertDepthAxis += ') VALUES (' +
+        inputDepthAxis.idPlot + ', "' +
         inputDepthAxis.name + '", "' +
         inputDepthAxis.option + '");';
     connect.query(insertDepthAxis, function (err, result) {
@@ -49,11 +43,11 @@ function insertDepthAxis(inputDepthAxis, connect, callbackDepthAxis) {
 
             let json = JSON.parse(JSON.stringify(result));
             status = {
-                "id": json[json.length - 1].ID_DepthAxis,
+                "id": json[json.length - 1].ID_DEPTH_AXIS,
                 "description": "ID_DepthAxis is created before"
             };
 
-            return callbackDepthAxis(err, status);
+            return callbackDepthAxis(false, status);
         });
     });
 
@@ -64,8 +58,8 @@ function updateDepthAxis(inputDepthAxis, connect, callbackUpdateDepthAxis) {
     let status;
     let updateDepthAxis = 'UPDATE ' + CONFIG_DEPTH_AXIS.name + ' SET ' +
         'ID_PLOT = ' + '"' + inputDepthAxis.idWell + '", ' +
-        'NAME = ' + inputDepthAxis.name + '", ' +
-        'OPTION = ' + inputDepthAxis.option +
+        'NAME = "' + inputDepthAxis.name + '", ' +
+        'OPTION = "' + inputDepthAxis.option + '"' +
         ' WHERE ID_DEPTH_AXIS = ' + inputDepthAxis.idDepthAxis;
 
     connect.query(updateDepthAxis, function (err, result) {
@@ -91,7 +85,7 @@ function updateDepthAxis(inputDepthAxis, connect, callbackUpdateDepthAxis) {
 
 function deleteDepthAxis(inputDepthAxis, connect, callbackDeleteDepthAxis) {
     let status;
-    let deleteDepthAxis = 'DELETE FROM ' + CONFIG_DEPTH_AXIS.name + ' WHERE ID_DEPTH_AXIS' + inputDepthAxis.idDepthAxis;
+    let deleteDepthAxis = 'DELETE FROM ' + CONFIG_DEPTH_AXIS.name + ' WHERE ID_DEPTH_AXIS = ' + inputDepthAxis.idDepthAxis;
 
     connect.query(deleteDepthAxis, function (err, result) {
         if (err) {
@@ -110,12 +104,11 @@ function deleteDepthAxis(inputDepthAxis, connect, callbackDeleteDepthAxis) {
             "desc": "Delete data Success"
         };
 
-        return callbackDeleteDepthAxis(err, status);
+        return callbackDeleteDepthAxis(false, status);
     });
 }
 
 module.exports = {
-    readfile: readfile,
     insertDepthAxis: insertDepthAxis,
     deleteDepthAxis: deleteDepthAxis,
     updateDepthAxis: updateDepthAxis

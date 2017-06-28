@@ -118,13 +118,13 @@ function insertProject(inputProject, connect, callbackProject) {
 function updateProject(inputProject, connect, callbackUpdateProject) {
     let status;
     let updateProject = 'UPDATE project SET ' +
-        'NAME = ' + '"' + inputProject.name + '", ' +
-        'LOCATION = ' + inputProject.location + '", ' +
-        'COMPANY = ' + inputProject.company + '", ' +
-        'DEPARTMENT = ' + inputProject.department + '", ' +
-        'DESCRIPTION = ' + inputProject.description +
+        'NAME = "' + inputProject.name + '", ' +
+        'LOCATION = "' + inputProject.location + '", ' +
+        'COMPANY = "' + inputProject.company + '", ' +
+        'DEPARTMENT = "' + inputProject.department + '", ' +
+        'DESCRIPTION = "' + inputProject.description + '"' +
         ' WHERE ID_PROJECT = ' + inputProject.idProject;
-
+    console.log('update ' , updateProject);
     connect.query(updateProject, function (err, result) {
         if (err) {
             status = {
@@ -148,7 +148,7 @@ function updateProject(inputProject, connect, callbackUpdateProject) {
 
 function deleteProject(inputProject, connect, callbackDeleteProject) {
     let status;
-    let deleteProject = 'DELETE FROM project WHERE ID_PROJECT' + inputProject.idProject;
+    let deleteProject = 'DELETE FROM project WHERE ID_PROJECT = ' + inputProject.idProject;
 
     connect.query(deleteProject, function (err, result) {
         if (err) {
@@ -172,7 +172,6 @@ function deleteProject(inputProject, connect, callbackDeleteProject) {
 }
 
 module.exports = {
-    readfile: readfile,
     selectProject: selectProject,
     listProject: listProject,
     insertProject: insertProject,

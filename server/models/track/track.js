@@ -4,11 +4,6 @@ let fs = require('fs');
 
 const CONFIG_TRACK = require('./track.config.js').CONFIG_TRACK;
 
-function readfile(url) {
-    let obj;
-    obj = fs.readFileSync(url);
-    return obj.toString();
-}
 
 function insertTrack(inputTrack, connect, callbackTrack) {
     let insertTrack = 'INSERT INTO ' + CONFIG_TRACK.name + ' (';
@@ -49,11 +44,11 @@ function insertTrack(inputTrack, connect, callbackTrack) {
 
             let json = JSON.parse(JSON.stringify(result));
             status = {
-                "id": json[json.length - 1].ID_Track,
+                "id": json[json.length - 1].ID_TRACK,
                 "description": "ID_Track is created before"
             };
 
-            return callbackTrack(err, status);
+            return callbackTrack(false, status);
         });
     });
 
@@ -91,7 +86,7 @@ function updateTrack(inputTrack, connect, callbackUpdateTrack) {
 
 function deleteTrack(inputTrack, connect, callbackDeleteTrack) {
     let status;
-    let deleteTrack = 'DELETE FROM ' + CONFIG_TRACK.name + ' WHERE ID_TRACK' + inputTrack.idTrack;
+    let deleteTrack = 'DELETE FROM ' + CONFIG_TRACK.name + ' WHERE ID_TRACK = ' + inputTrack.idTrack;
 
     connect.query(deleteTrack, function (err, result) {
         if (err) {
@@ -110,12 +105,11 @@ function deleteTrack(inputTrack, connect, callbackDeleteTrack) {
             "desc": "Delete data Success"
         };
 
-        return callbackDeleteTrack(err, status);
+        return callbackDeleteTrack(false, status);
     });
 }
 
 module.exports = {
-    readfile: readfile,
     insertTrack: insertTrack,
     deleteTrack: deleteTrack,
     updateTrack: updateTrack
