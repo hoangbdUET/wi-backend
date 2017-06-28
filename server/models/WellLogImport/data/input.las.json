@@ -1,0 +1,209 @@
+{
+    "section": [
+        {
+            "name": "~VERSION INFORMATION",
+            "content": [
+                {
+                    "name": " VERS.",
+                    "data": "2.0",
+                    "description": "CWLS LOG ASCII STANDARD - VERSION 2.0"
+                },
+                {
+                    "name": " WRAP.",
+                    "data": "NO",
+                    "description": "SINGLE LINE PER DEPTH STEP"
+                },
+                {
+                    "name": " CREA.",
+                    "data": "01/06/2017 16 04:44"
+                }
+            ]
+        },
+        {
+            "name": "~WELL INFORMATION",
+            "content": [
+                {
+                    "name": " STRT",
+                    "unit": ".M",
+                    "data": "2860.0000",
+                    "description": "START DEPTH"
+                },
+                {
+                    "name": " STOP",
+                    "unit": ".M",
+                    "data": "4644.2993",
+                    "description": "STOP DEPTH"
+                },
+                {
+                    "name": " STEP",
+                    "unit": ".M",
+                    "data": "0.1524",
+                    "description": "STEP VALUE"
+                },
+                {
+                    "name": " NULL",
+                    "unit": ".",
+                    "data": "-999.0000",
+                    "description": "NULL VALUE"
+                },
+                {
+                    "name": " SRVC",
+                    "unit": ".",
+                    "data": "SCH",
+                    "description": "Service Company/Logging company"
+                },
+                {
+                    "name": " DATE",
+                    "unit": ".",
+                    "data": "01/06/2017",
+                    "description": "LAS file Creation Date"
+                },
+                {
+                    "name": " WELL",
+                    "unit": ".",
+                    "data": "05-2-HT-9P",
+                    "description": "Well Name"
+                },
+                {
+                    "name": " COMP",
+                    "unit": ".",
+                    "data": "Bien Dong Petroleum Operating",
+                    "description": "Company"
+                },
+                {
+                    "name": " FLD",
+                    "unit": ".",
+                    "data": "Hai Thach",
+                    "description": "Field"
+                },
+                {
+                    "name": " LOC",
+                    "unit": ".",
+                    "data": "WHP-HT1",
+                    "description": "Location"
+                },
+                {
+                    "name": " LATI",
+                    "unit": ".",
+                    "data": "0",
+                    "description": "Latitude/Northing"
+                },
+                {
+                    "name": " LONG",
+                    "unit": ".",
+                    "data": "0",
+                    "description": "Longitude/Easting"
+                },
+                {
+                    "name": " RWS",
+                    "unit": ".",
+                    "data": "-999",
+                    "description": "Def_Rw"
+                },
+                {
+                    "name": " WST",
+                    "unit": ".",
+                    "data": "-999",
+                    "description": "Def_Rwt"
+                },
+                {
+                    "name": " PROV",
+                    "unit": ".",
+                    "data": "Unused",
+                    "description": "Province"
+                },
+                {
+                    "name": " SRVC",
+                    "unit": ".",
+                    "data": "SCH",
+                    "description": "Contractor"
+                }
+            ]
+        },
+        {
+            "name": "~CURVE INFORMATION",
+            "content": [
+                {
+                    "name": " DEPTH",
+                    "unit": ".M",
+                    "data": ""
+                },
+                {
+                    "name": " ACTECDM",
+                    "unit": ".ppg",
+                    "data": ""
+                },
+                {
+                    "name": " APRESM",
+                    "unit": ".psi",
+                    "data": ""
+                },
+                {
+                    "name": " GR1CFM",
+                    "unit": ".API",
+                    "data": "Gamma Ray"
+                },
+                {
+                    "name": " RACEHM",
+                    "unit": ".ohm.m",
+                    "data": ""
+                },
+                {
+                    "name": " RACELM",
+                    "unit": ".ohm.m",
+                    "data": ""
+                },
+                {
+                    "name": " RACESHM",
+                    "unit": ".ohm.m",
+                    "data": ""
+                },
+                {
+                    "name": " RACESLM",
+                    "unit": ".ohm.m",
+                    "data": ""
+                },
+                {
+                    "name": " ROP_AVG",
+                    "unit": ".m/hr",
+                    "data": ""
+                },
+                {
+                    "name": " RPCEHM",
+                    "unit": ".ohm.m",
+                    "data": ""
+                },
+                {
+                    "name": " RPCELM",
+                    "unit": ".ohm.m",
+                    "data": ""
+                },
+                {
+                    "name": " RPCESHM",
+                    "unit": ".ohm.m",
+                    "data": ""
+                },
+                {
+                    "name": " RPCESLM",
+                    "unit": ".ohm.m",
+                    "data": ""
+                },
+                {
+                    "name": " RPTHM",
+                    "unit": ".min",
+                    "data": ""
+                },
+                {
+                    "name": " TCDM",
+                    "unit": ".degC",
+                    "data": ""
+                },
+                {
+                    "name": " TVD",
+                    "unit": ".m",
+                    "data": "True vertical thickness"
+                }
+            ]
+        }
+    ]
+}

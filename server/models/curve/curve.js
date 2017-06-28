@@ -4,12 +4,6 @@ const fs = require('fs');
 
 const CONFIG_CURVE = require('./curve.config.js').CONFIG_CURVE;
 
-function readfile(url) {
-    let object;
-    object = fs.readFileSync(url);
-    return object.toString();
-}
-
 function insertCurve(inputCurve, connect, callbackCurve) {
     let insertCurve = 'INSERT INTO ' + CONFIG_CURVE.name + ' (';
     let status;
@@ -123,7 +117,6 @@ function deleteCurve(inputCurve, connect, cbDeleteCurve) {
 }
 
 module.exports = {
-    readfile: readfile,
     insertCurve: insertCurve,
     deleteCurve: deleteCurve,
     updateCurve: updateCurve
