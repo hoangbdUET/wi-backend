@@ -63,11 +63,15 @@ function deleteProject(inputProject, callbackDeleteProject) {
         });
     });
 }
+function getProjectList(input,callbackProjectList) {
+
+}
 
 module.exports = {
 
     createNewProject: createNewProject,
     editProject: editProject,
     deleteProject: deleteProject,
-    getProjectInfo: getProjectInfo
+    getProjectInfo: getProjectInfo,
+    getProjectList:getProjectList
 };

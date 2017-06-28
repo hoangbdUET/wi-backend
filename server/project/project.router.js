@@ -5,6 +5,13 @@ var router = express.Router();
 var bodyParser = require('body-parser');
 
 router.use(bodyParser.json());
+
+router.post('/',function (req, res) {
+    projectModel.getProjectList(req.body,function (err, status) {
+        if (err) return res.send(status);
+        res.send(status);
+    })
+})
 router.post('/project', function (req, res) {
     projectModel.getProjectInfo(req.body,function (err, status) {
         if (err) return res.send(status);
