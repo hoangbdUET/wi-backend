@@ -124,7 +124,7 @@ function updateProject(inputProject, connect, callbackUpdateProject) {
         'DEPARTMENT = "' + inputProject.department + '", ' +
         'DESCRIPTION = "' + inputProject.description + '"' +
         ' WHERE ID_PROJECT = ' + inputProject.idProject;
-    console.log('update ' , updateProject);
+
     connect.query(updateProject, function (err, result) {
         if (err) {
             status = {

@@ -58,7 +58,7 @@ function insertCurve(inputCurve, connect, callbackCurve) {
     });
 }
 
-function updateCurve(inputCurve, connect, cbUpdateCurve) {
+function updateCurve(inputCurve, connect, callbackUpdateCurve) {
     let status;
     let query = 'UPDATE ' + CONFIG_CURVE.name + ' SET ' +
         'ID_WELL = ' + inputCurve.idWell + ', ' +
@@ -77,21 +77,21 @@ function updateCurve(inputCurve, connect, cbUpdateCurve) {
                 "desc": "Data not update. Have error..."
             };
 
-            return cbUpdateCurve(err, status);
+            return callbackUpdateCurve(err, status);
         }
 
         status = {
-            "id": inputCurve.id_curve,
+            "id": inputCurve.idCurve,
             "code": "000",
-            "desc": "Updata data Success"
+            "desc": "Update data Success"
         };
 
-        return cbUpdateCurve(false, status);
+        return callbackUpdateCurve(false, status);
     })
 }
 
 
-function deleteCurve(inputCurve, connect, cbDeleteCurve) {
+function deleteCurve(inputCurve, connect, callbackDeleteCurve) {
     let status;
     let query = 'DELETE FROM ' + CONFIG_CURVE.name + ' WHERE ID_CURVE = ' + inputCurve.idCurve + ';';
 
@@ -103,7 +103,7 @@ function deleteCurve(inputCurve, connect, cbDeleteCurve) {
                 "desc": "Data not Delete. Have error about query delele"
             };
 
-            return cbDeleteCurve(err, status);
+            return callbackDeleteCurve(err, status);
         }
 
         status = {
@@ -112,7 +112,7 @@ function deleteCurve(inputCurve, connect, cbDeleteCurve) {
             "desc": "Delete data Success"
         };
 
-        return cbDeleteCurve(err, status);
+        return callbackDeleteCurve(err, status);
     });
 }
 
