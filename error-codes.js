@@ -1,0 +1,5 @@
+module.exports.CODES= {
+    SUCCESS: 200,
+    ERROR_FIELD_EMPTY:510,
+    ERROR_ENTITY_NOT_EXITS: 511
+};
