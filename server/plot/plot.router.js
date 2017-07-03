@@ -1,7 +1,7 @@
 
 var express = require('express');
 var router = express.Router();
-var plotModel = require('../models/plot.model');
+var plotModel = require('./plot.model');
 var bodyParser = require('body-parser');
 
 router.use(bodyParser.json());

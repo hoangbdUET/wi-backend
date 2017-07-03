@@ -2,7 +2,6 @@
 const express = require('express');
 const multer  = require('multer');
 const cors = require('cors');
-let wlogExtract = require('../models/WellLogImport/wlog-extractor');
 var router = express.Router();
 let inDir = __dirname + '../../uploads/';
 router.use(cors());

@@ -1,7 +1,7 @@
 
 var express = require('express');
 var router = express.Router();
-var depthAxisModel = require('../models/depth-axis.model');
+var depthAxisModel = require('./depth-axis.model');
 var bodyParserr = require('body-parser');
 
 router.use(bodyParserr.json());

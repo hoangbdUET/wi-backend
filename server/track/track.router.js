@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var trackModel = require('../models/track.model');
+var trackModel = require('./track.model');
 var bodyParser = require('body-parser');
 
 router.use(bodyParser.json());

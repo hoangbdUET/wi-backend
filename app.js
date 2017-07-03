@@ -19,9 +19,9 @@ var uploadRouter = require('./server/upload/index');
    Attach all routers to app
  */
 app.use('/', uploadRouter);
-app.use('/',projectRouter);
+app.use('/', projectRouter);
 app.use('/project', wellRouter);
-app.use('/project/well',plotRouter);
+app.use('/project/well', plotRouter);
 app.use('/project/well', curveRouter);
 app.use('/project/well/plot', depthAxisRouter);
 app.use('/project/well/plot', trackRouter);

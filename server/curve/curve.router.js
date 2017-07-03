@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
 
-let curveModel = require('../models/curve.model');
+let curveModel = require('./curve.model');
 
 router.use(bodyParser.json());
 
