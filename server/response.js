@@ -1,5 +1,7 @@
 'use strict';
-
+/**
+ * This file defines Response construtor
+ */
 class Response {
     constructor(code,reason,content) {
         this.code = code;

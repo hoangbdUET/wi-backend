@@ -1,10 +1,12 @@
 var Sequelize = require('sequelize');
+var config=require('config').Database;
 
-const sequelize = new Sequelize('testDB', 'root', 'tanlm',{
+
+const sequelize = new Sequelize(config.dbName, config.user, config.password,{
     define: {
         freezeTableName: true
     },
-    dialect: 'mysql'
+    dialect: config.dialect
 });
 
 var models = [

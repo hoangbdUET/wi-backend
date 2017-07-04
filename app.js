@@ -6,6 +6,7 @@ var app = express();
 var morgan = require('morgan');
 var path = require('path');
 var fs = require('fs');
+var config=require('config').Application;
 
 var projectRouter = require('./server/project/project.router');
 var wellRouter = require('./server/well/well.router');
@@ -37,6 +38,6 @@ app.get('/', function (req, res) {
     res.send("WELCOME TO WI-SYSTEM");
 });
 
-app.listen(3000,function () {
-    console.log("Listening on port 3000!");
+app.listen(config.port,function () {
+    console.log("Listening on port "+config.port);
 });
