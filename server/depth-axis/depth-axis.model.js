@@ -23,7 +23,7 @@ function createNewDepthAxis(depthAxisInfo,done) {
         )
 }
 function deleteDepthAxis(depthAxisInfo,done) {
-    DepthAxis.findById(depthAxisInfo.idDeathAxis)
+    DepthAxis.findById(depthAxisInfo.idDepthAxis)
         .then(function (depthAxis) {
             depthAxis.destroy()
                 .then(function () {
@@ -39,7 +39,7 @@ function deleteDepthAxis(depthAxisInfo,done) {
 
 }
 function getDepthAxisInfo(depthAxis, done) {
-    DepthAxis.findById(depthAxis.idDeathAxis, {include: [{all: true}]})
+    DepthAxis.findById(depthAxis.idDepthAxis, {include: [{all: true}]})
         .then(function (depthAxis) {
             if (!depthAxis) throw "not exits";
             done(ResponseJSON(ErrorCodes.SUCCESS, "Success", depthAxis));

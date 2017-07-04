@@ -5,8 +5,10 @@ var depthAxisModel = require('./depth-axis.model');
 var bodyParserr = require('body-parser');
 
 router.use(bodyParserr.json());
-router.get('/depth-axis', function (req, res) {
-
+router.post('/depth-axis/info', function (req, res) {
+    depthAxisModel.getDepthAxisInfo(req.body,function (status) {
+        res.send(status);
+    })
 });
 router.post('/depth-axis/new', function (req, res) {
     depthAxisModel.createNewDepthAxis(req.body,function (status) {

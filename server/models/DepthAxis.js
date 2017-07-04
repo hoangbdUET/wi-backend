@@ -1,6 +1,6 @@
 module.exports = function (sequelize, DataTypes) {
     return sequelize.define('depth_axis',{
-        idDeathAxis:{
+        idDepthAxis:{
             type:DataTypes.INTEGER,
             autoIncrement:true,
             primaryKey:true
