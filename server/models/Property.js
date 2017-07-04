@@ -1,6 +1,6 @@
 module.exports = function (sequelize, DataTypes) {
     return sequelize.define('property', {
-        ID_PROPERTY:{
+        idProperty:{
             type:DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true

@@ -1,5 +1,7 @@
 var models = require('../models');
 var Track = models.Track;
+var ResponseJSON = require('../response');
+var ErrorCodes = require('../../error-codes').CODES;
 
 function createNewTrack(trackInfo,done) {
     Track.sync()
@@ -9,20 +11,27 @@ function createNewTrack(trackInfo,done) {
                     idPlot:trackInfo.idPlot
                 });
                 track.save()
-                    .then(function () {
-
+                    .then(function (track) {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Success", {idTrack: track.idTrack}));
                     })
                     .catch(function (err) {
-                        console.log(err);
+                        done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.errors[0].message));
                     })
             },
-            function (err) {
-                console.log(err);
+            function () {
+                done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
             }
         )
+}
+function deleteTrack(trackInfo, done) {
+
 }
 var trackEx = {
     "type": "track",
     "idPlot": 444
 };
 // createNewTrack(trackEx);
+module.exports = {
+    createNewTrack:createNewTrack,
+    deleteTrack:deleteTrack
+};

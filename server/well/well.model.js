@@ -1,5 +1,7 @@
 var models = require('../models');
 var Well = models.Well;
+var ResponseJSON = require('../response');
+var ErrorCodes = require('../../error-codes').CODES;
 
 function createNewWell(wellInfo, done) {
     Well.sync()
@@ -14,36 +16,42 @@ function createNewWell(wellInfo, done) {
                 });
                 well.save()
                     .then(function (well) {
-                        done({id: well.idWell});
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Success", {idWell: well.idWell}));
                     })
                     .catch(function (err) {
-                        done({status: err});
+                        done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.errors[0].message));
                     });
             },
-            function (err) {
-                done({status:err});
+            function () {
+                done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
             }
         )
 
 }
 function editWell(wellInfo, done) {
-    Well.update({
-        idProject: wellInfo.idProject,
-        name: wellInfo.name,
-        topDepth: wellInfo.topDepth,
-        bottomDepth: wellInfo.bottomDepth,
-        step: wellInfo.step
-        }, {
-        where: {idWell: wellInfo.idWell}
+    Well.findById(wellInfo.idWell)
+        .then(function (well) {
+            well.idProject = wellInfo.idProject;
+            well.name = wellInfo.name;
+            well.topDepth = wellInfo.topDepth;
+            well.bottomDepth = wellInfo.bottomDepth;
+            well.step = wellInfo.step;
+            well.save()
+                .then(function () {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Success", wellInfo));
+                })
+                .catch(function (err) {
+                    done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.errors[0].message));
+                })
         })
-        .then(function () {
-            done({id: wellInfo.idWell, status: "changed"});
+        .catch(function () {
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS,"Well not exist"));
         })
-        .catch(function (err) {
-            done({id: wellInfo.idWell, status: err});
-        });
 }
 function deleteWell(wellInfo,done) {
+
+}
+function getWellInfo() {
 
 }
 var wellEx = {
@@ -54,9 +62,9 @@ var wellEx = {
     "bottomDepth": "50",
     "step": "30"
 };
-// createNewWell(wellEx);
 module.exports = {
     createNewWell:createNewWell,
     editWell:editWell,
-    deleteWell:deleteWell
+    deleteWell:deleteWell,
+    getWellInfo:getWellInfo
 };

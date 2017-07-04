@@ -1,4 +1,3 @@
-
 var express = require('express');
 var projectModel = require('./project.model');
 var router = express.Router();
@@ -29,8 +28,7 @@ router.post('/project/edit', function (req, res) {
     })
 });
 router.delete('/project/delete', function (req, res) {
-    projectModel.deleteProject(req.body,function (err, status) {
-        if (err) return res.send(status);
+    projectModel.deleteProject(req.body,function (status) {
         res.send(status);
     })
 });

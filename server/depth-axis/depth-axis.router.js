@@ -9,14 +9,12 @@ router.get('/depth-axis', function (req, res) {
 
 });
 router.post('/depth-axis/new', function (req, res) {
-    depthAxisModel.createNewDepthAxis(req.body,function (err, status) {
-        if (err) return res.send(status);
+    depthAxisModel.createNewDepthAxis(req.body,function (status) {
         res.send(status);
     });
 });
 router.delete('/depth-axis/delete', function (req, res) {
-    depthAxisModel.deleteDepthAxis(req.body,function (err, status) {
-        if (err) return res.send(status);
+    depthAxisModel.deleteDepthAxis(req.body,function (status) {
         res.send(status);
     })
 
