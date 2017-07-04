@@ -70,13 +70,7 @@ function getPlotInfo(plot, done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not found"));
         })
 }
-var plotEx = {
-    "type": "plot",
-    "idWell": 123,
-    "name": "Ex-Plot",
-    "option": "blank-plot",
-};
-// createNewPlot(plotEx);
+
 module.exports = {
     createNewPlot:createNewPlot,
     editPlot:editPlot,

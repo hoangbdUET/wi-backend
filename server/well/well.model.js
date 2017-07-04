@@ -73,14 +73,7 @@ function getWellInfo(well,done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not Found"));
         })
 }
-var wellEx = {
-    "idProject": 1,
-    "type": "well",
-    "name": "Ex-Well",
-    "topDepth": "10",
-    "bottomDepth": "50",
-    "step": "30"
-};
+
 module.exports = {
     createNewWell:createNewWell,
     editWell:editWell,

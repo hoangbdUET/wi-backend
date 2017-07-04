@@ -49,11 +49,7 @@ function getTrackInfo(track,done) {
         })
 
 }
-var trackEx = {
-    "type": "track",
-    "idPlot": 444
-};
-// createNewTrack(trackEx);
+
 module.exports = {
     createNewTrack:createNewTrack,
     deleteTrack:deleteTrack,

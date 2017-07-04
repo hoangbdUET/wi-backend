@@ -8,7 +8,10 @@ const sequelize = new Sequelize(config.dbName, config.user, config.password,{
     },
     dialect: config.dialect
 });
-
+sequelize.sync()
+    .catch(function (err) {
+        console.log(err);
+    });
 var models = [
     'Curve',
     'CurveData',
