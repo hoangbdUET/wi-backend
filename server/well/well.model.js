@@ -19,7 +19,7 @@ function createNewWell(wellInfo, done) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Success", {idWell: well.idWell}));
                     })
                     .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.errors[0].message));
+                        done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.name+" idProject not exist"));
                     });
             },
             function () {
@@ -41,7 +41,7 @@ function editWell(wellInfo, done) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Success", wellInfo));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.name));
                 })
         })
         .catch(function () {
@@ -49,10 +49,29 @@ function editWell(wellInfo, done) {
         })
 }
 function deleteWell(wellInfo,done) {
-
+    Well.findById(wellInfo.idWell)
+        .then(function (well) {
+            well.destroy()
+                .then(function () {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Deleted", well));
+                })
+                .catch(function (err) {
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.errors[0].message));
+                })
+        })
+        .catch(function () {
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not found"));
+        })
 }
-function getWellInfo() {
-
+function getWellInfo(well,done) {
+    Well.findById(well.idWell,{include:[{all:true}]})
+        .then(function (well) {
+            if (!well) throw "not exist";
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Success", well));
+        })
+        .catch(function () {
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not Found"));
+        })
 }
 var wellEx = {
     "idProject": 1,

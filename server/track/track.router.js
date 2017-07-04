@@ -10,7 +10,7 @@ router.get('/track/info', function (req, res) {
 
 });
 router.post('/track/new', function (req, res) {
-    trackModel.createTrack(req.body,function (status) {
+    trackModel.createNewTrack(req.body,function (status) {
         res.send(status);
     })
 });

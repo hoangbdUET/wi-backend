@@ -19,7 +19,7 @@ function createNewProject(projectInfo, done) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Success", {idProject: project.idProject}));
         })
         .catch(function (err) {
-            done(ResponseJSON(ErrorCodes.ERROR_FIELD_EMPTY, err.errors[0].message));
+            done(ResponseJSON(ErrorCodes.ERROR_FIELD_EMPTY, err.name));
         });
 };
 function editProject(projectInfo, done) {
@@ -34,7 +34,7 @@ function editProject(projectInfo, done) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Success", projectInfo));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.name));
                 })
         })
         .catch(function () {
@@ -44,6 +44,7 @@ function editProject(projectInfo, done) {
 function getProjectInfo(project,done) {
     Project.findById(project.idProject,{include:[Well]})
         .then(function (project) {
+            if (!project) throw "not exits";
             done(ResponseJSON(ErrorCodes.SUCCESS, "Success", project));
         })
         .catch(function () {

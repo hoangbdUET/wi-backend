@@ -8,8 +8,10 @@ let curveModel = require('./curve.model');
 
 router.use(bodyParser.json());
 
-router.get('/curve/info', function (req, res) {
-
+router.post('/curve/info', function (req, res) {
+    curveModel.getCurveInfo(req.body,function (status) {
+        res.send(status);
+    })
 });
 router.post('/curve/new', function (req, res) {
     curveModel.createNewCurve(req.body,function (status) {

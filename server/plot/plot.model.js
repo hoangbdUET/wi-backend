@@ -3,6 +3,7 @@ var Plot = models.Plot;
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 
+
 function createNewPlot(plotInfo, done) {
     Plot.sync()
         .then(
@@ -14,10 +15,10 @@ function createNewPlot(plotInfo, done) {
                 });
                 plot.save()
                     .then(function (plot) {
-                        done(ErrorCodes.SUCCESS,"Success",{idPlot:plot.idPlot});
+                        done(ResponseJSON(ErrorCodes.SUCCESS,"Success",{idPlot:plot.idPlot}));
                     })
                     .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.errors[0].message));
+                        done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.name));
                     })
             },
             function () {
@@ -27,7 +28,7 @@ function createNewPlot(plotInfo, done) {
 }
 
 function editPlot(plotInfo,done) {
-    Plot.findById(plotInfo.idWell)
+    Plot.findById(plotInfo.idPlot)
         .then(function (plot) {
             plot.idWell = plotInfo.idWell;
             plot.name = plotInfo.name;
@@ -37,7 +38,7 @@ function editPlot(plotInfo,done) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Success", plotInfo));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.name));
                 })
         })
         .catch(function () {
@@ -45,7 +46,29 @@ function editPlot(plotInfo,done) {
         })
 }
 function deletePlot(plotInfo,done) {
-
+    Plot.findById(plotInfo.idPlot)
+        .then(function (plot) {
+            plot.destroy()
+                .then(function () {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Deleted", plot));
+                })
+                .catch(function (err) {
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.errors[0].message));
+                })
+        })
+        .catch(function () {
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not Found"));
+        })
+}
+function getPlotInfo(plot, done) {
+    Plot.findById(plot.idPlot, {include: [{all:true}]})
+        .then(function (plot) {
+            if (!plot) throw "not exits";
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Success", plot));
+        })
+        .catch(function () {
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not found"));
+        })
 }
 var plotEx = {
     "type": "plot",
@@ -57,5 +80,6 @@ var plotEx = {
 module.exports = {
     createNewPlot:createNewPlot,
     editPlot:editPlot,
-    deletePlot:deletePlot
+    deletePlot:deletePlot,
+    getPlotInfo:getPlotInfo
 };

@@ -14,7 +14,7 @@ function createNewDepthAxis(depthAxisInfo,done) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Success", {idDepthAxis: depthAxis.idDepthAxis}));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.name));
                 })
         },
             function () {
@@ -22,10 +22,34 @@ function createNewDepthAxis(depthAxisInfo,done) {
             }
         )
 }
-function deleteDepthAxis() {
+function deleteDepthAxis(depthAxisInfo,done) {
+    DepthAxis.findById(depthAxisInfo.idDeathAxis)
+        .then(function (depthAxis) {
+            depthAxis.destroy()
+                .then(function () {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Deleted", depthAxis));
+                })
+                .catch(function (err) {
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.errors[0].message));
+                })
+        })
+        .catch(function () {
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not found"));
+        })
 
+}
+function getDepthAxisInfo(depthAxis, done) {
+    DepthAxis.findById(depthAxis.idDeathAxis, {include: [{all: true}]})
+        .then(function (depthAxis) {
+            if (!depthAxis) throw "not exits";
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Success", depthAxis));
+        })
+        .catch(function () {
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not found"));
+        });
 }
 module.exports = {
     createNewDepthAxis:createNewDepthAxis,
-    deleteDepthAxis:deleteDepthAxis
+    deleteDepthAxis:deleteDepthAxis,
+    getDepthAxisInfo:getDepthAxisInfo
 };

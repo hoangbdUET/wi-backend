@@ -15,7 +15,7 @@ function createNewTrack(trackInfo,done) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Success", {idTrack: track.idTrack}));
                     })
                     .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.errors[0].message));
+                        done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.name));
                     })
             },
             function () {
@@ -24,6 +24,29 @@ function createNewTrack(trackInfo,done) {
         )
 }
 function deleteTrack(trackInfo, done) {
+    Track.findById(trackInfo.idTrack)
+        .then(function (track) {
+            track.destroy()
+                .then(function () {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Deleted", track));
+                })
+                .catch(function (err) {
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.errors[0].message));
+                })
+        })
+        .catch(function (err) {
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not found"));
+        })
+}
+function getTrackInfo(track,done) {
+    Track.findById(track.idTrack, {include: [{all: true}]})
+        .then(function (track) {
+            if (!track) throw "not exits";
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Success", track));
+        })
+        .catch(function () {
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not found"));
+        })
 
 }
 var trackEx = {
@@ -33,5 +56,6 @@ var trackEx = {
 // createNewTrack(trackEx);
 module.exports = {
     createNewTrack:createNewTrack,
-    deleteTrack:deleteTrack
+    deleteTrack:deleteTrack,
+    getTrackInfo:getTrackInfo
 };

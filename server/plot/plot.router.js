@@ -12,7 +12,7 @@ router.post('/plot/info', function (req, res) {
 
 });
 router.post('/plot/new', function (req, res) {
-    plotModel.creatNewPlot(req.body,function (status) {
+    plotModel.createNewPlot(req.body,function (status) {
         res.send(status);
     })
 });
