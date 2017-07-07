@@ -47,7 +47,6 @@ function getTrackInfo(track,done) {
         .catch(function () {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not found"));
         })
-
 }
 
 module.exports = {

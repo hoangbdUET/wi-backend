@@ -2,9 +2,9 @@
   "Database":{
     "dialect":"mysql",
     "host":"localhost",
-    "port":"3306",
-    "user":"root",
-    "password":"tanlm",
+    "port":"8080",
+    "user":"pma98",
+    "password":"",
     "dbName":"testDB"
   },
   "Application":{

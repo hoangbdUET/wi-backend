@@ -12,7 +12,7 @@ function createNewCurve(curveInfo,done) {
                     dataset: curveInfo.dataset,
                     family: curveInfo.family,
                     unit: curveInfo.unit,
-                    iniValue: curveInfo.initValue
+                    initValue: curveInfo.initValue
                 });
                 curve.save()
                     .then(function (curve) {
