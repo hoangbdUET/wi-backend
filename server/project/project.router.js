@@ -19,7 +19,7 @@ router.post('/project/new', function (req, res) {
     // res.send("Show Create New Project Form");
     projectModel.createNewProject(req.body, function (status) {
         res.send(status);
-    })
+    });
 });
 router.post('/project/edit', function (req, res) {
 

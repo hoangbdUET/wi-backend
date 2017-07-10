@@ -7,7 +7,7 @@ function createNewCurve(curveInfo,done) {
     Curve.sync()
         .then(function () {
                 var curve = Curve.build({
-                    idWell: curveInfo.idWell,
+                    idDataset: curveInfo.idDataset,
                     name: curveInfo.name,
                     dataset: curveInfo.dataset,
                     family: curveInfo.family,
@@ -31,7 +31,7 @@ function createNewCurve(curveInfo,done) {
 function editCurve(curveInfo, done) {
     Curve.findById(curveInfo.idCurve)
         .then(function (curve) {
-            curve.idWell = curveInfo.idWell;
+            curve.idDataset = curveInfo.idDataset;
             curve.name = curveInfo.name;
             curve.dataset = curveInfo.dataset;
             curve.family = curveInfo.family;
