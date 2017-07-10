@@ -15,11 +15,16 @@ router.post('/project/info', function (req, res) {
         res.send(status);
     });
 });
+router.post('/project/fullinfo', function (req, res) {
+    projectModel.getProjectFullInfo(req.body, function (status) {
+        res.send(status);
+    })
+});
 router.post('/project/new', function (req, res) {
     // res.send("Show Create New Project Form");
     projectModel.createNewProject(req.body, function (status) {
         res.send(status);
-    })
+    });
 });
 router.post('/project/edit', function (req, res) {
 

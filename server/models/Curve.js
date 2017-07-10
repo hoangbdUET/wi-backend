@@ -22,7 +22,7 @@ module.exports = function (sequelize, DataTypes) {
             allowNull:false
         },
 
-        iniValue:{
+        initValue:{
             type:DataTypes.STRING(250),
             allowNull:false
         }

@@ -15,6 +15,7 @@ var curveRouter = require('./server/curve/curve.router');
 var trackRouter = require('./server/track/track.router');
 var depthAxisRouter = require('./server/depth-axis/depth-axis.router');
 var uploadRouter = require('./server/upload/index');
+var datasetRouter = require('./server/dataset/dataset.router');
 
 /**
    Attach all routers to app
@@ -23,7 +24,8 @@ app.use('/', uploadRouter);
 app.use('/', projectRouter);
 app.use('/project', wellRouter);
 app.use('/project/well', plotRouter);
-app.use('/project/well', curveRouter);
+app.use('/project/well',datasetRouter);
+app.use('/project/well/dataset', curveRouter);//change
 app.use('/project/well/plot', depthAxisRouter);
 app.use('/project/well/plot', trackRouter);
 
