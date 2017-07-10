@@ -11,7 +11,6 @@ module.exports = function (sequelize, DataTypes) {
         },
         idWell:{
             type:DataTypes.INTEGER,
-            unique:true,
             allowNull:false
         }
     });

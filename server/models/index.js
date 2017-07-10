@@ -31,7 +31,7 @@ models.forEach(function (model) {
 
 (function (m) {
     m.Project.hasMany(m.Well,{foreignKey:"idProject",onDelete:'CASCADE'});
-    m.Well.hasOne(m.Dataset, {foreignKey: "idWell", onDelete: 'CASCADE'});
+    m.Well.hasMany(m.Dataset, {foreignKey: "idWell", onDelete: 'CASCADE'});
     m.Well.hasMany(m.Plot, {foreignKey: "idWell", onDelete: 'CASCADE'});
 
     m.Dataset.hasMany(m.Curve, {foreignKey: "idDataset", onDelete: 'CASCADE'});

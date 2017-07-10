@@ -38,20 +38,20 @@ function editProject(projectInfo, done) {
                 })
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS,"Project not exist"));
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Project not exist"));
         })
 }
-function getProjectInfo(project,done) {
-    Project.findById(project.idProject,{include:[Well]})
+function getProjectInfo(project, done) {
+    Project.findById(project.idProject, {include: [Well]})
         .then(function (project) {
             if (!project) throw "not exits";
             done(ResponseJSON(ErrorCodes.SUCCESS, "Success", project));
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS,"Not found"));
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not found"));
         });
 }
-function getProjectList(owner,done) {
+function getProjectList(owner, done) {
     Project.all()
         .then(function (projects) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Success", projects));
@@ -65,12 +65,24 @@ function deleteProject(projectInfo, done) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Deleted", project));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED,err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.errors[0].message));
                 })
 
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS,"Not found"));
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not found"));
+        });
+}
+function getProjectFullInfo(project, done) {
+    Project.findById(project.idProject, {
+        include: [{all:true,include:[{all:true,include:{all:true}}]}]
+    })
+        .then(function (project) {
+            if (!project) throw "not exits";
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Success", project));
+        })
+        .catch(function () {
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not found"));
         });
 }
 function genLocationOfNewProject() {
@@ -78,9 +90,10 @@ function genLocationOfNewProject() {
 }
 
 module.exports = {
-    createNewProject:createNewProject,
-    editProject:editProject,
-    getProjectInfo:getProjectInfo,
-    getProjectList:getProjectList,
-    deleteProject:deleteProject
+    createNewProject: createNewProject,
+    editProject: editProject,
+    getProjectInfo: getProjectInfo,
+    getProjectList: getProjectList,
+    deleteProject: deleteProject,
+    getProjectFullInfo: getProjectFullInfo
 };
