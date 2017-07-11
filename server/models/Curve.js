@@ -9,7 +9,7 @@ module.exports = function (sequelize, DataTypes) {
             type:DataTypes.STRING(50),
             allowNull:false
         },
-        dataset:{
+        dataset:{ // propose to remove
             type:DataTypes.STRING(250),
             allowNull:false
         },
