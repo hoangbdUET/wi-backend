@@ -11,7 +11,7 @@ function createNewDepthAxis(depthAxisInfo,done) {
             });
             depthAxis.save()
                 .then(function (depthAxis) {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Success", {idDepthAxis: depthAxis.idDepthAxis}));
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Depth-Axis success", {idDepthAxis: depthAxis.idDepthAxis}));
                 })
                 .catch(function (err) {
                     done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.name));
@@ -27,14 +27,14 @@ function deleteDepthAxis(depthAxisInfo,done) {
         .then(function (depthAxis) {
             depthAxis.destroy()
                 .then(function () {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Deleted", depthAxis));
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Depth-Axis is deleted", depthAxis));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Depth-Axis "+err.errors[0].message));
                 })
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not found"));
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Depth-Axis not found for delete"));
         })
 
 }
@@ -42,10 +42,10 @@ function getDepthAxisInfo(depthAxis, done) {
     DepthAxis.findById(depthAxis.idDepthAxis, {include: [{all: true}]})
         .then(function (depthAxis) {
             if (!depthAxis) throw "not exits";
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Success", depthAxis));
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Depth-Axis success", depthAxis));
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not found"));
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Depth-Axis not found for get info"));
         });
 }
 module.exports = {

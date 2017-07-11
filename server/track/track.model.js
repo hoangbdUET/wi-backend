@@ -12,10 +12,10 @@ function createNewTrack(trackInfo,done) {
                 });
                 track.save()
                     .then(function (track) {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Success", {idTrack: track.idTrack}));
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Track success", {idTrack: track.idTrack}));
                     })
                     .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.name));
+                        done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, "Create new Track "+err.name));
                     })
             },
             function () {
@@ -28,24 +28,24 @@ function deleteTrack(trackInfo, done) {
         .then(function (track) {
             track.destroy()
                 .then(function () {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Deleted", track));
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Track is deleted", track));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Track "+err.errors[0].message));
                 })
         })
         .catch(function (err) {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not found"));
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Track not found for delete"));
         })
 }
 function getTrackInfo(track,done) {
     Track.findById(track.idTrack, {include: [{all: true}]})
         .then(function (track) {
             if (!track) throw "not exits";
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Success", track));
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Track success", track));
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not found"));
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Track not found for get info"));
         })
 }
 

@@ -16,10 +16,10 @@ function createNewProject(projectInfo, done) {
             });
         })
         .then(function (project) {
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Success", {idProject: project.idProject}));
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new project success", project));
         })
         .catch(function (err) {
-            done(ResponseJSON(ErrorCodes.ERROR_FIELD_EMPTY, err.name));
+            done(ResponseJSON(ErrorCodes.ERROR_FIELD_EMPTY, "Create new Project "+err.name));
         });
 };
 function editProject(projectInfo, done) {
@@ -31,30 +31,30 @@ function editProject(projectInfo, done) {
             project.description = projectInfo.description;
             project.save()
                 .then(function () {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Success", projectInfo));
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Project success", projectInfo));
                 })
                 .catch(function (err) {
                     done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.name));
                 })
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Project not exist"));
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Project not found for edit"));
         })
 }
 function getProjectInfo(project, done) {
     Project.findById(project.idProject, {include: [Well]})
         .then(function (project) {
             if (!project) throw "not exits";
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Success", project));
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Project success", project));
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not found"));
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Project not found for getInfo"));
         });
 }
 function getProjectList(owner, done) {
     Project.all()
         .then(function (projects) {
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Success", projects));
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Get List Project success", projects));
         });
 }
 function deleteProject(projectInfo, done) {
@@ -70,7 +70,7 @@ function deleteProject(projectInfo, done) {
 
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not found"));
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Project not found for delete"));
         });
 }
 function getProjectFullInfo(project, done) {
@@ -78,11 +78,11 @@ function getProjectFullInfo(project, done) {
         include: [{all:true,include:[{all:true,include:{all:true}}]}]
     })
         .then(function (project) {
-            if (!project) throw "not exits";
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Success", project));
+            if (!project) throw "not exists";
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Get full info Project success", project));
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not found"));
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Project not found for full info"));
         });
 }
 function genLocationOfNewProject() {

@@ -16,7 +16,7 @@ function createNewWell(wellInfo, done) {
                 });
                 well.save()
                     .then(function (well) {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Success", {idWell: well.idWell}));
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new well success", {idWell: well.idWell}));
                     })
                     .catch(function (err) {
                         done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.name+" idProject not exist"));
@@ -38,14 +38,14 @@ function editWell(wellInfo, done) {
             well.step = wellInfo.step;
             well.save()
                 .then(function () {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Success", wellInfo));
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Well success", wellInfo));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.name));
+                    done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, "Edit Well "+err.name));
                 })
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS,"Well not exist"));
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS,"Well not found for edit"));
         })
 }
 function deleteWell(wellInfo,done) {
@@ -53,24 +53,24 @@ function deleteWell(wellInfo,done) {
         .then(function (well) {
             well.destroy()
                 .then(function () {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Deleted", well));
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Well is deleted", well));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Well"+err.errors[0].message));
                 })
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not found"));
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Well not found for delete"));
         })
 }
 function getWellInfo(well,done) {
     Well.findById(well.idWell,{include:[{all:true}]})
         .then(function (well) {
             if (!well) throw "not exist";
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Success", well));
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Well success", well));
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not Found"));
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Well not found for get info"));
         })
 }
 

@@ -12,7 +12,7 @@ function createNewDataset(datasetInfo, done) {
                 });
                 dataset.save()
                     .then(function (dataset) {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Success", {idDataset: dataset.idDataset}));
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Dataset success", {idDataset: dataset.idDataset}));
                     })
                     .catch(function (err) {
                         done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.name + ". Probably idWell not exist/ Can't create two dataset with common ID"));
@@ -30,14 +30,14 @@ function editDataset(datasetInfo, done) {
             dataset.idWell = datasetInfo.idWell;
             dataset.save()
                 .then(function () {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Success", datasetInfo));
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Dataset success", datasetInfo));
                 })
                 .catch(function (err) {
                     done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.name));
                 })
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Dataset not exist"))
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Dataset not found for edit"))
         });
 }
 function deleteDataset(datasetInfo, done) {
@@ -45,24 +45,24 @@ function deleteDataset(datasetInfo, done) {
         .then(function (dataset) {
             dataset.destroy()
                 .then(function () {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Deleted", dataset));
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Dataset is deleted", dataset));
                 })
                 .catch(function (err) {
                     done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.errors[0].message));
                 })
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not found"));
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Dataset not found for delete"));
         });
 }
 function getDatasetInfo(dataset, done) {
     Dataset.findById(dataset.idDataset, {include: [{all: true}]})
         .then(function (dataset) {
             if (!dataset) throw "not exist";
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Success", dataset));
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Dataset success", dataset));
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not found"));
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Dataset not found for get info"));
         });
 }
 

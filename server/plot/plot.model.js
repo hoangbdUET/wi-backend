@@ -15,10 +15,10 @@ function createNewPlot(plotInfo, done) {
                 });
                 plot.save()
                     .then(function (plot) {
-                        done(ResponseJSON(ErrorCodes.SUCCESS,"Success",{idPlot:plot.idPlot}));
+                        done(ResponseJSON(ErrorCodes.SUCCESS,"Create new Plot success",{idPlot:plot.idPlot}));
                     })
                     .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.name));
+                        done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, "Create new Plot "+err.name));
                     })
             },
             function () {
@@ -35,14 +35,14 @@ function editPlot(plotInfo,done) {
             plot.option = plotInfo.option;
             plot.save()
                 .then(function () {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Success", plotInfo));
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Plot success", plotInfo));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.name));
+                    done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, "Edit Plot "+err.name));
                 })
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS,"Plot not exist"));
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS,"Plot not found for edit"));
         })
 }
 function deletePlot(plotInfo,done) {
@@ -50,24 +50,24 @@ function deletePlot(plotInfo,done) {
         .then(function (plot) {
             plot.destroy()
                 .then(function () {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Deleted", plot));
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Plot is deleted", plot));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Plot "+err.errors[0].message));
                 })
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not Found"));
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Plot not found for delete"));
         })
 }
 function getPlotInfo(plot, done) {
     Plot.findById(plot.idPlot, {include: [{all:true}]})
         .then(function (plot) {
             if (!plot) throw "not exits";
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Success", plot));
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Plot success", plot));
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not found"));
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Plot not found for get info"));
         })
 }
 

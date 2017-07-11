@@ -16,10 +16,10 @@ function createNewCurve(curveInfo,done) {
                 });
                 curve.save()
                     .then(function (curve) {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Success", {idCurve: curve.idCurve}))
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Curve success", {idCurve: curve.idCurve}))
                     })
                     .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.name));
+                        done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, "Create new Curve "+err.name));
                     });
             },
             function () {
@@ -39,14 +39,14 @@ function editCurve(curveInfo, done) {
             curve.initValue = curveInfo.initValue;
             curve.save()
                 .then(function () {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Success", curveInfo));
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Curve success", curveInfo));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.name));
+                    done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, "Edit Curve "+err.name));
                 })
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not exist"));
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found for edit"));
         })
 }
 function deleteCurve(curveInfo, done) {
@@ -54,24 +54,24 @@ function deleteCurve(curveInfo, done) {
         .then(function (curve) {
             curve.destroy()
                 .then(function () {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Deleted", curve));
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Curve is deleted", curve));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Curve "+err.errors[0].message));
                 })
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not found"));
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found for delete"));
         })
 }
 function getCurveInfo(curve, done) {
     Curve.findById(curve.idCurve, {include: [{all: true}]})
         .then(function (curve) {
             if (!curve) throw "not exits";
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Success", curve));
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Curve success", curve));
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Not found"));
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found for get info"));
         });
 }
 
