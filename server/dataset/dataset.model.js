@@ -8,14 +8,16 @@ function createNewDataset(datasetInfo, done) {
         .then(function () {
                 var dataset = Dataset.build({
                     idWell:datasetInfo.idWell,
-                    name: datasetInfo.name
+                    name: datasetInfo.name,
+                    datasetKey:datasetInfo.datasetKey,
+                    datasetLabel:datasetInfo.datasetLabel
                 });
                 dataset.save()
                     .then(function (dataset) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Dataset success", {idDataset: dataset.idDataset}));
                     })
                     .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.name + ". Probably idWell not exist/ Can't create two dataset with common ID"));
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name + ". Probably idWell not exist/ Can't create two dataset with common ID"));
                     });
             },
             function () {
@@ -28,12 +30,15 @@ function editDataset(datasetInfo, done) {
         .then(function (dataset) {
             dataset.name = datasetInfo.name;
             dataset.idWell = datasetInfo.idWell;
+            dataset.datasetKey = datasetInfo.datasetKey;
+            dataset.datasetLabel = datasetInfo.datasetLabel;
+
             dataset.save()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Dataset success", datasetInfo));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.name));
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name));
                 })
         })
         .catch(function () {

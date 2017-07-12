@@ -14,7 +14,7 @@ function createNewDepthAxis(depthAxisInfo,done) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Depth-Axis success", {idDepthAxis: depthAxis.idDepthAxis}));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.name));
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name));
                 })
         },
             function () {

@@ -5,7 +5,14 @@ const cors = require('cors');
 var router = express.Router();
 let inDir = __dirname + '../../../uploads/';
 let wiImport = require('wi-import');
-
+let errorCode = require('../../error-codes');
+let well = require('../well/well.model');
+let dataset = require('../dataset/dataset.model');
+let curve = require('../curve/curve.model');
+let messageNotice = {
+    error:'Import Error',
+    success:'Import Success'
+};
 router.use(cors());
 
 var storage = multer.diskStorage({
@@ -19,18 +26,173 @@ var storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
+function createCurves(idDataset, curvesInfo, done) {
+    curvesInfo.forEach(function (curveInfo) {
+        curveInfo.idDataset = parseInt(idDataset);
+        curve.createNewCurve(curveInfo,function (result) {
+            if(result.code == 200) {
+                done(result);
+            }
+            else {
+                done(result);
+            }
+        });
+    });
+
+}
+
+function createWellAndDatasetAndCurve(result, res, req) {
+    let wellInfo = {
+        idProject: null,
+        name:"",
+        topDepth:"",
+        bottomDepth: "",
+        step:""
+    };
+    let datasetInfo = {
+        idWell:null,
+        name:"",
+        datasetKey:"",
+        datasetLabel: ""
+    };
+    let curveInfo = new Object();
+    let curvesInfo = new Array();
+    result.forEach(function (section) {
+        if(/~WELL/g.test(section.name)) {
+            section.content.forEach(function (item) {
+                if(/STRT/g.test(item.name.toUpperCase())) {
+                    wellInfo.topDepth = item.data;
+                }
+                if(/STOP/g.test(item.name.toUpperCase())) {
+                    wellInfo.bottomDepth = item.data;
+                }
+                if(/STEP/g.test(item.name.toUpperCase())) {
+                    wellInfo.step = item.data;
+                }
+                if(/WELL/g.test(item.name.toUpperCase())) {
+                    wellInfo.name = item.data;
+                    datasetInfo.name = item.data;
+                    datasetInfo.datasetKey = item.data;
+                    datasetInfo.datasetLabel = item.data;
+                }
+            })
+        }
+        else if(/~CURVE/g.test(section.name)) {
+            section.content.forEach(function (item) {
+                curveInfo.name = item.name;
+                curveInfo.unit = item.unit;
+                curveInfo.initValue = "abc";
+                curveInfo.family = "VNU";
+                curveInfo.dataset = datasetInfo.datasetKey;
+                curveInfo.idDataset = null;
+                curvesInfo.push(curveInfo);
+                curveInfo = new Object();
+            });
+        }
+    });
+    if(!req.body.wellId || req.body.wellId === "") {
+        wellInfo.idProject = parseInt(req.body.projectId);
+        well.createNewWell(wellInfo,function (result) {
+            if(result.code == 200) {
+                //do something
+                // tao dataset && curves cho well
+                datasetInfo.idWell = result.content.idWell
+                if(!req.body.datasetId || req.body.datasetId === "") {
+                    dataset.createNewDataset(datasetInfo, function (result) {
+                        if(result.code == 200) {
+                            if(curvesInfo) {
+                                createCurves(result.content.idDataset, curvesInfo, function (result) {
+                                    res.end(JSON.stringify(result) + messageNotice.success);
+                                });
+                            }
+                        }
+                        else {
+                            //response err for client
+                            return res.end(JSON.stringify(result) + messageNotice.error);
+                        }
+                    });
+                }
+                else {
+                    //create curves
+                    if(curvesInfo) {
+                        createCurves(req.body.datasetId, curvesInfo, function (result) {
+                            res.end(JSON.stringify(result));
+                        });
+                    }
+                }
+            }
+
+            else {
+                // response error for client
+                res.end(JSON.stringify(result) + messageNotice.error);
+            }
+        });
+    }
+
+    else {
+        //do something
+        //tao dataset %% curves for well exist
+        datasetInfo.idWell = req.body.idWell;
+        if(!req.body.datasetId || req.body.datasetId === "") {
+            dataset.createNewDataset(datasetInfo, function (result) {
+                if(result.code == 200) {
+                    if(curvesInfo) {
+                        createCurves(result.content.idDataset, curvesInfo, function (result) {
+                            res.end(JSON.stringify(result) + messageNotice.success);
+                        });
+                    }
+                }
+                else {
+                    //response err for client
+                    res.end(JSON.stringify(result) + messageNotice.error);
+                }
+            });
+        }
+        else {
+            //create curves
+            if(curvesInfo) {
+                createCurves(req.body.datasetId, curvesInfo, function (result) {
+                    res.end(JSON.stringify(result) + messageNotice.error);
+                });
+            }
+        }
+    }
+}
+
 router.post('/file', upload.single('file'), function (req, res) {
-    console.log(req.file);
-    console.log(req.body);
     console.log('-----------------------------');
+    // TODO:
+    // Check if req.body.projectId != undefined || null
+    // Check if req.body.projectId is valid
+    if(!req.body.projectId || req.body.projectId === "") {
+        console.log("projectId undefined");
+        return res.end(errorCode.CODES.ERROR_INVALID_PARAMS,'projectId can not be null');
+
+    }
 
     let list = req.file.filename.split('.');
     let fileFormat = list[list.length - 1];
     if(/LAS/.test(fileFormat.toUpperCase())) {
-        wiImport.extractLAS2(inDir + req.file.filename,'idProject', 'idWell', function (result) {
-            //do something with result
+        wiImport.extractLAS2(inDir + req.file.filename, function (result) {
+
+            // if (!req.body.wellId)
+            //      Tao well for idProject=req.body.projectId ==> wellId
+            // else
+            //      Khong tao well nua ma di check xem wellId co valid khong
+
+            // Tao dataset & curves cho idWell = wellId (su dung noi dung trong "result")
+
+            createWellAndDatasetAndCurve(result, res, req);
+
+            //res.end(JSON.stringify(result, null, 2));
+        }, {
+            projectId: parseInt(req.body.projectId),
+            wellId: "someWellId",
+            label: 'datasetLabel'
         });
     }
+
+
     else if(/ASC/.test(fileFormat.toUpperCase())) {
         wiImport.extractASC(inDir + req.file.filename, 'idProject', 'idWell', function (result) {
             //do something with result
@@ -39,7 +201,7 @@ router.post('/file', upload.single('file'), function (req, res) {
     else if(/CSV/.test(fileFormat.toUpperCase())) {
         wiImport.extractCSV(inDir + req.file.filename, 'idProject', 'idWell');
     }
-    return res.end(JSON.stringify(req.file));
+    //return res.end(JSON.stringify(req.file));
 }); //done
 
 module.exports = router;
