@@ -63,3 +63,4 @@ node_modules/*
 
 # upload file dir
 uploads/*
+data/*

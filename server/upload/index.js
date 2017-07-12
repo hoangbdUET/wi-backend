@@ -3,7 +3,7 @@ const express = require('express');
 const multer  = require('multer');
 const cors = require('cors');
 var router = express.Router();
-let inDir = __dirname + '../../../uploads/';
+let inDir = __dirname + '/../../uploads/';
 let wiImport = require('wi-import');
 let errorCode = require('../../error-codes');
 let well = require('../well/well.model');
@@ -90,14 +90,14 @@ function createWellAndDatasetAndCurve(result, res, req) {
             });
         }
     });
-    if(!req.body.wellId || req.body.wellId === "") {
-        wellInfo.idProject = parseInt(req.body.projectId);
+    if(!req.body.id_well || req.body.id_well === "") {
+        wellInfo.idProject = parseInt(req.body.id_project);
         well.createNewWell(wellInfo,function (result) {
             if(result.code == 200) {
                 //do something
                 // tao dataset && curves cho well
                 datasetInfo.idWell = result.content.idWell
-                if(!req.body.datasetId || req.body.datasetId === "") {
+                if(!req.body.id_dataset || req.body.id_dataset === "") {
                     dataset.createNewDataset(datasetInfo, function (result) {
                         if(result.code == 200) {
                             if(curvesInfo) {
@@ -115,8 +115,8 @@ function createWellAndDatasetAndCurve(result, res, req) {
                 else {
                     //create curves
                     if(curvesInfo) {
-                        createCurves(req.body.datasetId, curvesInfo, function (result) {
-                            res.end(JSON.stringify(result));
+                        createCurves(req.body.id_dataset, curvesInfo, function (result) {
+                            res.end(JSON.stringify(result)+ messageNotice.success);
                         });
                     }
                 }
@@ -132,8 +132,8 @@ function createWellAndDatasetAndCurve(result, res, req) {
     else {
         //do something
         //tao dataset %% curves for well exist
-        datasetInfo.idWell = req.body.idWell;
-        if(!req.body.datasetId || req.body.datasetId === "") {
+        datasetInfo.idWell = req.body.id_well;
+        if(!req.body.id_dataset || req.body.id_dataset === "") {
             dataset.createNewDataset(datasetInfo, function (result) {
                 if(result.code == 200) {
                     if(curvesInfo) {
@@ -151,7 +151,7 @@ function createWellAndDatasetAndCurve(result, res, req) {
         else {
             //create curves
             if(curvesInfo) {
-                createCurves(req.body.datasetId, curvesInfo, function (result) {
+                createCurves(req.body.id_dataset, curvesInfo, function (result) {
                     res.end(JSON.stringify(result) + messageNotice.error);
                 });
             }
@@ -162,11 +162,11 @@ function createWellAndDatasetAndCurve(result, res, req) {
 router.post('/file', upload.single('file'), function (req, res) {
     console.log('-----------------------------');
     // TODO:
-    // Check if req.body.projectId != undefined || null
-    // Check if req.body.projectId is valid
-    if(!req.body.projectId || req.body.projectId === "") {
-        console.log("projectId undefined");
-        return res.end(errorCode.CODES.ERROR_INVALID_PARAMS,'projectId can not be null');
+    // Check if req.body.id_project != undefined || null
+    // Check if req.body.id_project is valid
+    if(!req.body.id_project || req.body.id_project === "") {
+        console.log("idProject undefined");
+        return res.end(errorCode.CODES.ERROR_INVALID_PARAMS,'idProject can not be null');
 
     }
 
@@ -175,18 +175,17 @@ router.post('/file', upload.single('file'), function (req, res) {
     if(/LAS/.test(fileFormat.toUpperCase())) {
         wiImport.extractLAS2(inDir + req.file.filename, function (result) {
 
-            // if (!req.body.wellId)
-            //      Tao well for idProject=req.body.projectId ==> wellId
+            // if (!req.body.id_well)
+            //      Tao well for idProject=req.body.id_project ==> idWell
             // else
-            //      Khong tao well nua ma di check xem wellId co valid khong
-
-            // Tao dataset & curves cho idWell = wellId (su dung noi dung trong "result")
+            //      Khong tao well nua ma di check xem idWell co valid khong
+            // Tao dataset & curves cho idWell = req.body.id_well (su dung noi dung trong "result")
 
             createWellAndDatasetAndCurve(result, res, req);
 
             //res.end(JSON.stringify(result, null, 2));
         }, {
-            projectId: parseInt(req.body.projectId),
+            projectId: parseInt(req.body.id_project),
             wellId: "someWellId",
             label: 'datasetLabel'
         });
