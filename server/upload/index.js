@@ -5,14 +5,18 @@ const cors = require('cors');
 var router = express.Router();
 let inDir = __dirname + '/../../uploads/';
 let wiImport = require('wi-import');
+let async = require('async');
 let errorCode = require('../../error-codes');
 let well = require('../well/well.model');
 let dataset = require('../dataset/dataset.model');
 let curve = require('../curve/curve.model');
+let ResponseJSON = require('../response');
 let messageNotice = {
     error:'Import Error',
     success:'Import Success'
 };
+
+
 router.use(cors());
 
 var storage = multer.diskStorage({
@@ -27,17 +31,21 @@ var storage = multer.diskStorage({
 var upload = multer({ storage: storage });
 
 function createCurves(idDataset, curvesInfo, done) {
-    curvesInfo.forEach(function (curveInfo) {
+    let curvesResult = new Array();
+    async.each(curvesInfo, function (curveInfo, callback) {
         curveInfo.idDataset = parseInt(idDataset);
         curve.createNewCurve(curveInfo,function (result) {
             if(result.code == 200) {
-                done(result);
-            }
-            else {
-                done(result);
+                curvesResult.push(result.content);
+                callback();
             }
         });
+    }, function (err) {
+        if(err) return done(err);
+        else return done(curvesResult);
     });
+
+
 
 }
 
@@ -57,6 +65,8 @@ function createWellAndDatasetAndCurve(result, res, req) {
     };
     let curveInfo = new Object();
     let curvesInfo = new Array();
+    let responseResult = new Object();
+
     result.forEach(function (section) {
         if(/~WELL/g.test(section.name)) {
             section.content.forEach(function (item) {
@@ -96,35 +106,43 @@ function createWellAndDatasetAndCurve(result, res, req) {
             if(result.code == 200) {
                 //do something
                 // tao dataset && curves cho well
+                responseResult.idWell = result.content.idWell;
                 datasetInfo.idWell = result.content.idWell
                 if(!req.body.id_dataset || req.body.id_dataset === "") {
                     dataset.createNewDataset(datasetInfo, function (result) {
                         if(result.code == 200) {
+                            responseResult.idDataset = result.content.idDataset;
+                            responseResult.idCurves = new Array();
                             if(curvesInfo) {
                                 createCurves(result.content.idDataset, curvesInfo, function (result) {
-                                    res.end(JSON.stringify(result) + messageNotice.success);
+                                    responseResult.idCurves = result;
+                                    res.end(JSON.stringify(ResponseJSON(errorCode.CODES.SUCCESS, messageNotice.success, responseResult)));
+
                                 });
                             }
                         }
                         else {
                             //response err for client
-                            return res.end(JSON.stringify(result) + messageNotice.error);
+                            res.end(JSON.stringify(ResponseJSON(errorCode.CODES.ERROR_INVALID_PARAMS, messageNotice.error, result.content)));
                         }
                     });
                 }
                 else {
                     //create curves
+                    responseResult.idDataset = req.body.id_dataset;
+                    responseResult.idCurves = new Array();
                     if(curvesInfo) {
                         createCurves(req.body.id_dataset, curvesInfo, function (result) {
-                            res.end(JSON.stringify(result)+ messageNotice.success);
+                            responseResult.idCurves = result;
+                            res.end(JSON.stringify(ResponseJSON(errorCode.CODES.SUCCESS, messageNotice.success, responseResult)));
                         });
                     }
                 }
             }
 
             else {
-                // response error for client
-                res.end(JSON.stringify(result) + messageNotice.error);
+                // response error for client'
+                res.end(JSON.stringify(ResponseJSON(errorCode.CODES.ERROR_INVALID_PARAMS, messageNotice.error, result.content)));
             }
         });
     }
@@ -136,23 +154,29 @@ function createWellAndDatasetAndCurve(result, res, req) {
         if(!req.body.id_dataset || req.body.id_dataset === "") {
             dataset.createNewDataset(datasetInfo, function (result) {
                 if(result.code == 200) {
+                    responseResult.idDataset = result.content.idDataset;
+                    responseResult.idCurves = new Array();
                     if(curvesInfo) {
                         createCurves(result.content.idDataset, curvesInfo, function (result) {
-                            res.end(JSON.stringify(result) + messageNotice.success);
+                            responseResult.idCurves = result;
+                            res.end(JSON.stringify(ResponseJSON(errorCode.CODES.SUCCESS, messageNotice.success, responseResult)));
                         });
                     }
                 }
                 else {
                     //response err for client
-                    res.end(JSON.stringify(result) + messageNotice.error);
+                    res.end(JSON.stringify(ResponseJSON(errorCode.CODES.ERROR_INVALID_PARAMS, messageNotice.error, result.content)));
                 }
             });
         }
         else {
             //create curves
+            responseResult.idDataset = req.body.id_dataset;
+            responseResult.idCurves = new Array();
             if(curvesInfo) {
                 createCurves(req.body.id_dataset, curvesInfo, function (result) {
-                    res.end(JSON.stringify(result) + messageNotice.error);
+                    responseResult.idCurves = result;
+                    res.end(JSON.stringify(ResponseJSON(errorCode.CODES.SUCCESS, messageNotice.success, responseResult)));
                 });
             }
         }
@@ -165,8 +189,8 @@ router.post('/file', upload.single('file'), function (req, res) {
     // Check if req.body.id_project != undefined || null
     // Check if req.body.id_project is valid
     if(!req.body.id_project || req.body.id_project === "") {
-        console.log("idProject undefined");
-        return res.end(errorCode.CODES.ERROR_INVALID_PARAMS,'idProject can not be null');
+        console.log("idProject undefined", req.body.id_project);
+        return res.end(JSON.stringify(ResponseJSON(errorCode.CODES.ERROR_INVALID_PARAMS, 'idProject can not be null')));
 
     }
 
