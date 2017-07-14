@@ -1,7 +1,6 @@
 'use strict';
 const express = require('express');
 
-let inDir = __dirname + '../../uploads/';
 const multer = require('multer');
 const cors = require('cors');
 var router = express.Router();
@@ -12,8 +11,8 @@ let errorCodes = require('../../error-codes');
 let well = require('../well/well.model');
 let dataset = require('../dataset/dataset.model');
 let curve = require('../curve/curve.model');
-let curvedata = require('../curve-data/curve-data.model');
 let ResponseJSON = require('../response');
+let importUntils = require('../import-untils/import-untils');
 let messageNotice = {
     error: 'Import Error',
     success: 'Import Success'
@@ -118,6 +117,7 @@ function createCurvesData(curvesDataInfo, done) {
     });
 }
 
+/*
 router.post('/file', upload.single('file'), function (req, res) {
     console.log('-----------------------------');
     // TODO:
@@ -332,5 +332,112 @@ router.post('/file', upload.single('file'), function (req, res) {
     }
     //return res.end(JSON.stringify(req.file));
 }); //done
+*/
+
+
+
+
+router.post('/file', upload.single('file'), function (req, res) {
+    console.log('-----------------------------');
+    // TODO:
+    // Check if req.body.id_project != undefined || null
+    // Check if req.body.id_project is valid
+    if (!req.body.id_project || req.body.id_project === "") {
+        console.log("idProject undefined", req.body.id_project);
+        return res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, 'idProject can not be null')));
+
+    }
+
+    let list = req.file.filename.split('.');
+    let fileFormat = list[list.length - 1];
+    if (/LAS/.test(fileFormat.toUpperCase())) {
+        wiImport.extractLAS2(inDir + req.file.filename, function (result) {
+            // if (!req.body.id_well)
+            //      Tao well for idProject=req.body.id_project ==> idWell
+            // else
+            //      Khong tao well nua ma di check xem idWell co valid khong
+            // Tao dataset & curves cho idWell = req.body.id_well (su dung noi dung trong "result")
+
+            //createWellAndDatasetAndCurve(result, res, req);
+            let projectInfo = {
+                idProject:req.body.id_project
+            };
+            let wellInfo = null;
+            let curvesInfo = null;
+            let datasetInfo = {
+                idWell: null,
+                name: "",
+                datasetKey: "",
+                datasetLabel: ""
+            };
+            let curvesDataInfo = null;
+            let responseResult = new Object();
+            let curveSection = null;
+
+            result.forEach(function (section) {
+                if (/~WELL/g.test(section.name)) {
+                    wellInfo = getWellInfo(section);
+                }
+                else if (/~CURVE/g.test(section.name)) {
+                    curvesInfo = getCurveInfo(section, wellInfo.name);
+                }
+            });
+            datasetInfo.name = wellInfo.name;
+            datasetInfo.datasetLabel = wellInfo.name;
+            datasetInfo.datasetKey = wellInfo.name;
+            if (!req.body.id_well || req.body.id_well === "") {
+                importUntils.createCurvesWithProjectExist(projectInfo,wellInfo,curvesInfo)
+                    .then(function (result) {
+                        res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, result)));
+                    })
+                    .catch(function (err) {
+                        res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error,err)));
+                    })
+            }
+            else {
+                //do something
+                //tao dataset %% curves for well exist
+                wellInfo.idWell = req.body.id_well;
+                if (!req.body.id_dataset || req.body.id_dataset === "") {
+                    importUntils.createCurvesWithWellExist(wellInfo,curvesInfo,{overwrite:false})
+                        .then(function (result) {
+                            res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, result)));
+                        })
+                        .catch(function (err) {
+                            res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error,err)));
+                        })
+                }
+                else {
+                    //create curves
+                    datasetInfo = new Object();
+                    datasetInfo.id_dataset = req.body.id_dataset;
+                    importUntils.createCurvesWithDatasetExist(datasetInfo, curvesInfo, {overwrite:false})
+                        .then(function (result) {
+                            res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, result)));
+                        })
+                        .catch(function (err) {
+                            res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error,err)));
+                        })
+
+                }
+            }
+        }, {
+            projectId: parseInt(req.body.id_project),
+            wellId: "someWellId",
+            label: 'datasetLabel'
+        });
+    }
+
+
+    else if (/ASC/.test(fileFormat.toUpperCase())) {
+        wiImport.extractASC(inDir + req.file.filename, 'idProject', 'idWell', function (result) {
+            //do something with result
+        });
+    }
+    else if (/CSV/.test(fileFormat.toUpperCase())) {
+        wiImport.extractCSV(inDir + req.file.filename, 'idProject', 'idWell');
+    }
+    //return res.end(JSON.stringify(req.file));
+});
 
 module.exports = router;
