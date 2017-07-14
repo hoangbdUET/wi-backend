@@ -45,7 +45,7 @@ function createCurvesWithWellExist(wellInfo,datasetInfo,curvesInfo,option) {
                     });
             }
             else {
-                return Well.findById(well.idWell,{include: [{all: true, include: {all: true}}], transaction: t})
+                return Well.findById(wellInfo.idWell,{include: [{all: true, include: {all: true}}], transaction: t})
             }
         })
     })
@@ -53,7 +53,7 @@ function createCurvesWithWellExist(wellInfo,datasetInfo,curvesInfo,option) {
 
 }
 
-function createCurvesWithDatasetExist(datasetInfo,curvesInfo,option) {
+function createCurvesWithDatasetExist(wellInfo, datasetInfo,curvesInfo,option) {
     curvesInfo.forEach(function (item) {
         item.idDataset=datasetInfo.idDataset
     });
@@ -71,7 +71,7 @@ function createCurvesWithDatasetExist(datasetInfo,curvesInfo,option) {
                     });
             }
             else {
-                return Well.findById(well.idWell,{include: [{all: true, include: {all: true}}], transaction: t})
+                return Well.findById(wellInfo.idWell,{include: [{all: true, include: {all: true}}], transaction: t})
             }
         })
     })
