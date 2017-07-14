@@ -4,7 +4,7 @@ var Well=models.Well;
 var Dataset=models.Dataset;
 var Curve=models.Curve;
 
-function createCurvesWithProjectExist(projectInfo,wellInfo,curvesInfo) {
+function createCurvesWithProjectExist(projectInfo,wellInfo,datasetInfo,curvesInfo) {
     return Well.create({
         idProject: projectInfo.idProject,
         name: wellInfo.name,
@@ -13,17 +13,21 @@ function createCurvesWithProjectExist(projectInfo,wellInfo,curvesInfo) {
         step: wellInfo.step,
         datasets: [{
             name: wellInfo.name,
+            datasetKey:datasetInfo.datasetKey,
+            datasetLabel:datasetInfo.datasetLabel,
             curves:curvesInfo
         }]
     },{
         include:[{model:models.Dataset,include:[models.Curve]}]
     });
 }
-function createCurvesWithWellExist(wellInfo,curvesInfo,option) {
+function createCurvesWithWellExist(wellInfo,datasetInfo,curvesInfo,option) {
     return models.sequelize.transaction(function (t) {
         return Dataset.create({
             idWell:wellInfo.idWell,
             name:wellInfo.name,
+            datasetKey:datasetInfo.datasetKey,
+            datasetLabel:datasetInfo.datasetLabel,
             curves:curvesInfo
         },{
             include:[models.Curve],

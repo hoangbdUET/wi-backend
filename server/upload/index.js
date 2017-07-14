@@ -1,7 +1,6 @@
 'use strict';
 const express = require('express');
 
-let inDir = __dirname + '../../uploads/';
 const multer = require('multer');
 const cors = require('cors');
 var router = express.Router();
