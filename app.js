@@ -18,6 +18,7 @@ var depthAxisRouter = require('./server/depth-axis/depth-axis.router');
 var uploadRouter = require('./server/upload/index');
 var datasetRouter = require('./server/dataset/dataset.router');
 
+app.use(cors());
 /**
    Attach all routers to app
  */
@@ -36,7 +37,7 @@ app.use('/project/well/plot', trackRouter);
 // create a write stream (in append mode)
 var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});
 app.use(morgan('combined', {stream: accessLogStream}));
-app.use(cors());
+
 
 app.get('/', function (req, res) {
     res.send("WELCOME TO WI-SYSTEM");
