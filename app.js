@@ -6,6 +6,7 @@ var app = express();
 var morgan = require('morgan');
 var path = require('path');
 var fs = require('fs');
+const cors = require('cors');
 var config=require('config').Application;
 
 var projectRouter = require('./server/project/project.router');
@@ -35,6 +36,7 @@ app.use('/project/well/plot', trackRouter);
 // create a write stream (in append mode)
 var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});
 app.use(morgan('combined', {stream: accessLogStream}));
+app.use(cors());
 
 app.get('/', function (req, res) {
     res.send("WELCOME TO WI-SYSTEM");

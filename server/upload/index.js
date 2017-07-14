@@ -1,10 +1,9 @@
 'use strict';
 const express = require('express');
 const multer  = require('multer');
-const cors = require('cors');
+
 var router = express.Router();
 let inDir = __dirname + '../../uploads/';
-router.use(cors());
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
