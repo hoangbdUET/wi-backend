@@ -34,7 +34,7 @@ function editProject(projectInfo, done) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Project success", projectInfo));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.name));
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name));
                 })
         })
         .catch(function () {
@@ -75,7 +75,13 @@ function deleteProject(projectInfo, done) {
 }
 function getProjectFullInfo(project, done) {
     Project.findById(project.idProject, {
-        include: [{all:true,include:[{all:true,include:{all:true}}]}]
+        include: [{
+            all:true,
+            include:[{
+                all:true,
+                include:{all:true}
+            }]
+        }]
     })
         .then(function (project) {
             if (!project) throw "not exists";

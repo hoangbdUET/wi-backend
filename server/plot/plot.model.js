@@ -18,7 +18,7 @@ function createNewPlot(plotInfo, done) {
                         done(ResponseJSON(ErrorCodes.SUCCESS,"Create new Plot success",{idPlot:plot.idPlot}));
                     })
                     .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, "Create new Plot "+err.name));
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Plot "+err.name));
                     })
             },
             function () {
@@ -38,7 +38,7 @@ function editPlot(plotInfo,done) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Plot success", plotInfo));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, "Edit Plot "+err.name));
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Plot "+err.name));
                 })
         })
         .catch(function () {

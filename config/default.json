@@ -4,8 +4,8 @@
     "host":"localhost",
     "port":"3306",
     "user":"root",
-    "password":"qwertyui",
-    "dbName":"wi_backend"
+    "password":"1234",
+    "dbName":"testDB"
   },
   "Application":{
     "port":3000

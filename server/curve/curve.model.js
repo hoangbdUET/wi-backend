@@ -19,7 +19,7 @@ function createNewCurve(curveInfo,done) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Curve success", {idCurve: curve.idCurve}))
                     })
                     .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, "Create new Curve "+err.name));
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Curve "+err.name));
                     });
             },
             function () {
@@ -42,7 +42,7 @@ function editCurve(curveInfo, done) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Curve success", curveInfo));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, "Edit Curve "+err.name));
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Curve "+err.name));
                 })
         })
         .catch(function () {

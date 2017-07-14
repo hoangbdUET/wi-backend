@@ -19,7 +19,7 @@ function createNewWell(wellInfo, done) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new well success", {idWell: well.idWell}));
                     })
                     .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, err.name+" idProject not exist"));
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name+" idProject not exist"));
                     });
             },
             function () {
@@ -41,7 +41,7 @@ function editWell(wellInfo, done) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Well success", wellInfo));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, "Edit Well "+err.name));
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Well "+err.name));
                 })
         })
         .catch(function () {

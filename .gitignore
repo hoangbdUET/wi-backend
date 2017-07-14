@@ -64,3 +64,4 @@ node_modules/*
 # upload file dir
 uploads/*
 package-lock.json
+data/*

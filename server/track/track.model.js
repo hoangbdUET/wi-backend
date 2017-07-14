@@ -15,7 +15,7 @@ function createNewTrack(trackInfo,done) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Track success", {idTrack: track.idTrack}));
                     })
                     .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INCORRECT_FORMAT, "Create new Track "+err.name));
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Track "+err.name));
                     })
             },
             function () {
