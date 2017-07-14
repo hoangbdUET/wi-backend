@@ -30,13 +30,12 @@ models.forEach(function (model) {
 });
 
 (function (m) {
-    m.Project.hasMany(m.Well,{foreignKey:"idProject",onDelete:'CASCADE'});
-    m.Well.hasMany(m.Dataset, {foreignKey: "idWell", onDelete: 'CASCADE'});
-    m.Well.hasMany(m.Plot, {foreignKey: "idWell", onDelete: 'CASCADE'});
+    m.Project_Well=m.Project.hasMany(m.Well,{foreignKey:"idProject",onDelete:'CASCADE'});
+    m.Well_Dataset=m.Well.hasMany(m.Dataset, {foreignKey: "idWell", onDelete: 'CASCADE'});
+    m.Well_Plot=m.Well.hasMany(m.Plot, {foreignKey: "idWell", onDelete: 'CASCADE'});
 
-    m.Dataset.hasMany(m.Curve, {foreignKey: "idDataset", onDelete: 'CASCADE'});
-    m.Plot.hasMany(m.Track, {foreignKey: "idPlot", onDelete: 'CASCADE'});
-    m.Plot.hasMany(m.DepthAxis, {foreignKey: "idPlot", onDelete: 'CASCADE'});
+    m.Dataset_Curve=m.Dataset.hasMany(m.Curve, {foreignKey: "idDataset", onDelete: 'CASCADE'});
+    m.Plot_Track=m.Plot.hasMany(m.Track, {foreignKey: "idPlot", onDelete: 'CASCADE'});
+    m.Plot_DepthAxis=m.Plot.hasMany(m.DepthAxis, {foreignKey: "idPlot", onDelete: 'CASCADE'});
 })(module.exports);
-
 module.exports.sequelize = sequelize;
