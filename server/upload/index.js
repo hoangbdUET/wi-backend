@@ -288,9 +288,10 @@ router.post('/file', upload.single('file'), function (req, res) {
                 }
                 else {
                     //create curves
-                    let idDataset = req.body.id_dataset;
+                    let idDataset = parseInt(req.body.id_dataset);
                     dataset.getDatasetInfo(idDataset, function (result) {
                         let datasetObject = new Object();
+                        datasetObject.idDataset = idDataset;
                         datasetObject.name = result.content.name;
                         datasetObject.datasetKey = result.content.datasetKey;
                         datasetObject.datasetLabel = result.content.datasetLabel;
