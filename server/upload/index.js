@@ -175,8 +175,8 @@ router.post('/file', upload.single('file'), function (req, res) {
                         if (!req.body.id_dataset || req.body.id_dataset === "") {
                             dataset.createNewDataset(datasetInfo, function (result) {
                                 if (result.code == 200) {
-                                    responseResult.dataset = datasetInfo;
-                                    responseResult.dataset.idDataset = result.content.idDataset;
+                                    responseResult.well.dataset = datasetInfo;
+                                    responseResult.well.dataset.idDataset = result.content.idDataset;
                                     if (curvesInfo) {
                                         createCurves(result.content.idDataset, curvesInfo, function (err, result) {
                                             if (err) {
@@ -184,7 +184,7 @@ router.post('/file', upload.single('file'), function (req, res) {
 
                                             }
                                             else {
-                                                responseResult.curves = result;
+                                                responseResult.well.dataset.curves = result;
                                                 res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, responseResult)));
                                                 // curvesDataInfo = getCurveDataInfo(curveSection, result);
                                                 // createCurvesData(curvesDataInfo, function (result) {
@@ -211,16 +211,19 @@ router.post('/file', upload.single('file'), function (req, res) {
                             //create curves
                             let idDataset = req.body.id_dataset;
                             dataset.getDatasetInfo(idDataset, function (result) {
-                                responseResult.dataset = result.content;
+                                let datasetObject = new Object();
+                                datasetObject.name = result.content.name;
+                                datasetObject.datasetKey = result.content.datasetKey;
+                                datasetObject.datasetLabel = result.content.datasetLabel;
+                                responseResult.well.dataset = datasetObject;
                             });
                             if (curvesInfo) {
                                 createCurves(req.body.id_dataset, curvesInfo, function (result) {
                                     if (err) {
                                         res.end(JSON.stringify(ResponseJSON(err, messageNotice.error)));
-
                                     }
                                     else {
-                                        responseResult.curves = result;
+                                        responseResult.well.dataset.curves = result;
                                         res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, responseResult)));
                                     }
                                 });
@@ -251,8 +254,8 @@ router.post('/file', upload.single('file'), function (req, res) {
                 if (!req.body.id_dataset || req.body.id_dataset === "") {
                     dataset.createNewDataset(datasetInfo, function (result) {
                         if (result.code == 200) {
-                            responseResult.dataset = datasetInfo;
-                            responseResult.dataset.idDataset = result.content.idDataset;
+                            responseResult.well.dataset = datasetInfo;
+                            responseResult.well.dataset.idDataset = result.content.idDataset;
                             if (curvesInfo) {
                                 createCurves(result.content.idDataset, curvesInfo, function (err, result) {
                                     if (err) {
@@ -260,8 +263,19 @@ router.post('/file', upload.single('file'), function (req, res) {
 
                                     }
                                     else {
-                                        responseResult.curves = result;
+                                        responseResult.well.dataset.curves = result;
                                         res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, responseResult)));
+                                        // curvesDataInfo = getCurveDataInfo(curveSection, result);
+                                        // createCurvesData(curvesDataInfo, function (result) {
+                                        //     if(result.code != 200) {
+                                        //         res.end(JSON.stringify(ResponseJSON(result, messageNotice.error)));
+                                        //     }
+                                        //     else {
+                                        //         res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, responseResult)));
+                                        //
+                                        //     }
+                                        // });
+
                                     }
                                 });
                             }
@@ -276,16 +290,19 @@ router.post('/file', upload.single('file'), function (req, res) {
                     //create curves
                     let idDataset = req.body.id_dataset;
                     dataset.getDatasetInfo(idDataset, function (result) {
-                        responseResult.dataset = result.content;
+                        let datasetObject = new Object();
+                        datasetObject.name = result.content.name;
+                        datasetObject.datasetKey = result.content.datasetKey;
+                        datasetObject.datasetLabel = result.content.datasetLabel;
+                        responseResult.well.dataset = datasetObject;
                     });
                     if (curvesInfo) {
-                        createCurves(req.body.id_dataset, curvesInfo, function (result) {
+                        createCurves(req.body.id_dataset, curvesInfo, function (err,result) {
                             if (err) {
                                 res.end(JSON.stringify(ResponseJSON(err, messageNotice.error)));
-
                             }
                             else {
-                                responseResult.curves = result;
+                                responseResult.well.dataset.curves = result;
                                 res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, responseResult)));
                             }
                         });
