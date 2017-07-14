@@ -1,5 +1,4 @@
 var models = require('../models');
-var Project = models.Project;
 var Well=models.Well;
 var Dataset=models.Dataset;
 var Curve=models.Curve;
@@ -21,7 +20,9 @@ function createCurvesWithProjectExist(projectInfo,wellInfo,datasetInfo,curvesInf
         include:[{model:models.Dataset,include:[models.Curve]}]
     });
 }
+
 function createCurvesWithWellExist(wellInfo,datasetInfo,curvesInfo,option) {
+
     return models.sequelize.transaction(function (t) {
         return Dataset.create({
             idWell:wellInfo.idWell,
@@ -51,6 +52,7 @@ function createCurvesWithWellExist(wellInfo,datasetInfo,curvesInfo,option) {
 
 
 }
+
 function createCurvesWithDatasetExist(datasetInfo,curvesInfo,option) {
     curvesInfo.forEach(function (item) {
         item.idDataset=datasetInfo.idDataset
@@ -74,38 +76,41 @@ function createCurvesWithDatasetExist(datasetInfo,curvesInfo,option) {
         })
     })
 }
-var curves = [{
-    "name":"Ex-Curve",
-    "dataset": "",
-    "family":"Rate of opreration",
-    "unit": "mn/m",
-    "initValue":"30"
-},{
-    "name":"Ex-Curve",
-    "dataset": "",
-    "family":"Rate of opreration",
-    "unit": "mn/m",
-    "initValue":"30"
-},{
-    "name":"Ex-Curve",
-    "dataset": "",
-    "family":"Rate of opreration",
-    "unit": "mn/m",
-    "initValue":"30"
-}];
-var project = {
-    idProject:1
-};
-var well = {
-    "idWell":2,//createCurves with Project exist khong can idWell
-    "name": "Ex-Hoang-Thanh",
-    "topDepth": "10",
-    "bottomDepth": "50",
-    "step": "30"
-};
-var dataset = {
-    idDataset:6
-};
+
+//example***************************************
+
+// var curves = [{
+//     "name":"Ex-Curve",
+//     "dataset": "",
+//     "family":"Rate of opreration",
+//     "unit": "mn/m",
+//     "initValue":"30"
+// },{
+//     "name":"Ex-Curve",
+//     "dataset": "",
+//     "family":"Rate of opreration",
+//     "unit": "mn/m",
+//     "initValue":"30"
+// },{
+//     "name":"Ex-Curve",
+//     "dataset": "",
+//     "family":"Rate of opreration",
+//     "unit": "mn/m",
+//     "initValue":"30"
+// }];
+// var project = {
+//     idProject:1
+// };
+// var well = {
+//     "idWell":2,//createCurves with Project exist khong can idWell
+//     "name": "Ex-Hoang-Thanh",
+//     "topDepth": "10",
+//     "bottomDepth": "50",
+//     "step": "30"
+// };
+// var dataset = {
+//     idDataset:6
+// };
 // createCurvesWithProjectExist(project, well, curves)
 //     .then(function (result) {
 //         console.log("thanh cong ");
@@ -132,3 +137,7 @@ var dataset = {
 //         console.log(result.toJSON());
 //
 //     })
+
+module.exports.createCurvesWithProjectExist = createCurvesWithProjectExist;
+module.exports.createCurvesWithWellExist = createCurvesWithWellExist;
+module.exports.createCurvesWithDatasetExist = createCurvesWithDatasetExist;
