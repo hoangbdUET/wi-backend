@@ -2,7 +2,7 @@ module.exports = function (sequelize, DataTypes) {
     return sequelize.define('curve_data', {
         idCurve: {
             type: DataTypes.INTEGER,
-            autoIncrement: true,
+            autoIncrement:true,
             primaryKey: true,
         },
         name: {
@@ -17,7 +17,7 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING(50),
             allowNull:false
         },
-        value:{
+        path:{
             type: DataTypes.STRING(50),
             allowNull:false
         }
