@@ -21,6 +21,6 @@
     "mysql2": "^1.3.5",
     "path": "^0.12.7",
     "sequelize": "^4.2.1",
-    "wi-import": "file:../wi-import"
+    "wi-import": "^1.0.18"
   }
 }
