@@ -66,10 +66,6 @@ function getCurveInfo(section, datasetKey) {
     return curvesInfo;
 }
 
-
-
-
-
 router.post('/file', upload.single('file'), function (req, res) {
     console.log('-----------------------------');
     // TODO:
@@ -138,7 +134,7 @@ router.post('/file', upload.single('file'), function (req, res) {
                 else {
                     //create curves
                     datasetInfo = new Object();
-                    datasetInfo.id_dataset = parseInt(req.body.id_dataset);
+                    datasetInfo.idDataset = parseInt(req.body.id_dataset);
                     importUntils.createCurvesWithDatasetExist(wellInfo,datasetInfo, curvesInfo, {overwrite:false})
                         .then(function (result) {
                             res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, result)));
