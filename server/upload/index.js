@@ -1,5 +1,6 @@
 'use strict';
 const express = require('express');
+const config =  require('config');
 
 const multer = require('multer');
 const cors = require('cors');
@@ -67,19 +68,17 @@ function getCurveInfo(section, datasetKey) {
 }
 
 router.post('/file', upload.single('file'), function (req, res) {
-    console.log('-----------------------------');
     // TODO:
     // Check if req.body.id_project != undefined || null
     // Check if req.body.id_project is valid
     if (!req.body.id_project || req.body.id_project === "") {
-        console.log("idProject undefined", req.body.id_project);
         return res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, 'idProject can not be null')));
 
     }
-
     let list = req.file.filename.split('.');
     let fileFormat = list[list.length - 1];
     if (/LAS/.test(fileFormat.toUpperCase())) {
+        wiImport.setBasePath(config.curveBasePath);
         wiImport.extractLAS2(inDir + req.file.filename, function (result) {
             let projectInfo = {
                 idProject:req.body.id_project
@@ -92,9 +91,6 @@ router.post('/file', upload.single('file'), function (req, res) {
                 datasetKey: "",
                 datasetLabel: ""
             };
-            let curvesDataInfo = null;
-            let responseResult = new Object();
-            let curveSection = null;
 
             result.forEach(function (section) {
                 if (/~WELL/g.test(section.name)) {
@@ -123,11 +119,9 @@ router.post('/file', upload.single('file'), function (req, res) {
                 if (!req.body.id_dataset || req.body.id_dataset === "") {
                     importUntils.createCurvesWithWellExist(wellInfo,datasetInfo,curvesInfo,{overwrite:false})
                         .then(function (result) {
-                            console.log('resulr');
                             res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, result)));
                         })
                         .catch(function (err) {
-                            console.log('error la ', err);
                             res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error,err)));
                         })
                 }
@@ -151,8 +145,6 @@ router.post('/file', upload.single('file'), function (req, res) {
             label: 'datasetLabel'
         });
     }
-
-
     else if (/ASC/.test(fileFormat.toUpperCase())) {
         wiImport.extractASC(inDir + req.file.filename, 'idProject', 'idWell', function (result) {
             //do something with result

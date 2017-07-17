@@ -4,12 +4,13 @@
     "host":"localhost",
     "port":"3306",
     "user":"root",
-    "password":"1234",
-    "dbName":"testDB"
+    "password":"tanlm",
+    "dbName":"wi_backend"
   },
   "Application":{
     "port":3000
-  }
+  },
+  "curveBasePath": "../data"
 }
 
 // should ignore from git

@@ -25,6 +25,10 @@ module.exports = function (sequelize, DataTypes) {
         initValue:{
             type:DataTypes.STRING(250),
             allowNull:false
+        },
+        path:{
+            type:DataTypes.STRING(250),
+            allowNull:false
         }
     });
 };
