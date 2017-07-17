@@ -4,7 +4,7 @@
     "host":"localhost",
     "port":"3306",
     "user":"root",
-    "password":"tanlm",
+    "password":"qwertyui",
     "dbName":"wi_backend"
   },
   "Application":{
