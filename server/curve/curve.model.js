@@ -1,7 +1,11 @@
 var models = require('../models');
+var config = require('config');
 var Curve = models.Curve;
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
+
+var wiImport = require('wi-import');
+var hashDir = wiImport.hashDir;
 
 function createNewCurve(curveInfo,done) {
     Curve.sync()
@@ -12,6 +16,7 @@ function createNewCurve(curveInfo,done) {
                     dataset: curveInfo.dataset,
                     family: curveInfo.family,
                     unit: curveInfo.unit,
+                    path:genCurvePath(),
                     initValue: curveInfo.initValue
                 });
                 curve.save()
@@ -74,11 +79,23 @@ function getCurveInfo(curve, done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found for get info"));
         });
 }
-
+function genCurvePath(param) {
+    return "";
+}
+function getData(param, successFunc, errorFunc) {
+    Curve.findById(param.idCurve)
+        .then(function(curve) {
+            successFunc( hashDir.createJSONReadStream(config.curveBasePath, curve.dataset + curve.name, curve.name + '.txt', '{\n"code": 200,\n"content":', '}\n') );
+        })
+        .catch(function() {
+            errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found"));
+        });
+}
 module.exports = {
     createNewCurve:createNewCurve,
     editCurve:editCurve,
     deleteCurve:deleteCurve,
-    getCurveInfo:getCurveInfo
+    getCurveInfo:getCurveInfo,
+    getData: getData
 };
 

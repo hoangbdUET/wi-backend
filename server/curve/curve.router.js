@@ -31,4 +31,12 @@ router.delete('/curve/delete', function (req, res) {
     })
 });
 
+router.post('/curve/getData', function(req, res) {
+    curveModel.getData(req.body, function(resultStream) {
+        resultStream.pipe(res);
+    }, function(status) {
+        res.send(status);
+    });
+});
+
 module.exports = router;

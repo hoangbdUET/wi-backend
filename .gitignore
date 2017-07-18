@@ -65,3 +65,5 @@ node_modules/*
 uploads/*
 package-lock.json
 data/*
+
+config/production.json

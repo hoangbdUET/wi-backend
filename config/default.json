@@ -9,7 +9,8 @@
   },
   "Application":{
     "port":3000
-  }
+  },
+  "curveBasePath": "../data"
 }
 
 // should ignore from git
