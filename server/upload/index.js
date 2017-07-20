@@ -2,6 +2,10 @@
 const express = require('express');
 const config =  require('config');
 
+const fs = require('fs');
+const formidable = require('formidable');
+const EventEmitter = require('events');
+
 const multer = require('multer');
 const cors = require('cors');
 var router = express.Router();
@@ -154,6 +158,142 @@ router.post('/file', upload.single('file'), function (req, res) {
         wiImport.extractCSV(inDir + req.file.filename, 'idProject', 'idWell');
     }
     //return res.end(JSON.stringify(req.file));
+});
+
+router.post('/files', function (req, res) {
+    let now = Date.now();
+    var form = new formidable.IncomingForm();
+    form.multiples = true;
+    form.uploadDir = 'uploads_temp';
+    form.parse(req, function (err, fields, files) {
+        // res.end(util.inspect({fields, files}));
+        let id_wells = [];
+        let id_datasets = [];
+        for (var key in fields) if (fields.hasOwnProperty(key)) {
+            var value = fields[key];
+            if (/^id_wells/.test(key)) {
+                let keyParts = key.split(/[\[\]]/, 2);
+                let index = keyParts[1];
+                let valueInt = Number.parseInt(value);
+                if (!Number.isNaN(valueInt)) {
+                    id_wells[index] = valueInt;
+                } else id_wells[index] = '';
+            }
+            if (/^id_datasets/.test(key)) {
+                let keyParts = key.split(/[\[\]]/, 2);
+                let index = keyParts[1];
+                let valueInt = Number.parseInt(value);
+                if (!Number.isNaN(valueInt)) {
+                    id_datasets[index] = valueInt;
+                } else id_datasets[index] = '';
+            }
+        }
+        console.log('id_wells',id_wells);
+        console.log('\n');
+        console.log('id_datasets',id_datasets);
+        let results = [];
+        let event = new EventEmitter();
+        event.on('done-process-files', function(){
+            res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, results)));
+        });
+        for (var key in files) if (files.hasOwnProperty(key)) {
+            let keyParts = key.split(/[\[\]]/, 2);
+            let i = keyParts[1];
+            let file = files[key];
+            let fileNameParts = file.name.split('.');
+            let fileFormat = fileNameParts[fileNameParts.length - 1];
+            if (/LAS/.test(fileFormat.toUpperCase())) {
+                wiImport.setBasePath(config.curveBasePath);
+                wiImport.extractLAS2(file.path, function (result) {
+                    fs.unlinkSync(file.path);
+                    let projectInfo = {
+                        idProject: fields.id_project
+                    };
+                    let wellInfo = null;
+                    let curvesInfo = null;
+                    let datasetInfo = {
+                        idWell: null,
+                        name: "",
+                        datasetKey: "",
+                        datasetLabel: ""
+                    };
+
+                    result.forEach(function (section) {
+                        if (/~WELL/g.test(section.name)) {
+                            wellInfo = getWellInfo(section);
+                        }
+                        else if (/~CURVE/g.test(section.name)) {
+                            curvesInfo = getCurveInfo(section, wellInfo.name);
+                        }
+                    });
+                    datasetInfo.name = wellInfo.name;
+                    datasetInfo.datasetLabel = wellInfo.name;
+                    datasetInfo.datasetKey = wellInfo.name;
+                    if (!id_wells[i] || id_wells[i] === "") {
+                        importUntils.createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, curvesInfo)
+                            .then(function (result) {
+                                results.push(result);
+                                if (i == id_wells.length - 1) {
+                                    event.emit('done-process-files');
+                                }
+                            })
+                            .catch(function (err) {
+                                res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, err)));
+                            })
+                    }
+                    else {
+                        //tao dataset %% curves for exist well
+                        wellInfo.idWell = parseInt(id_wells[i]);
+                        if (!id_datasets[i] || id_datasets[i] === "") {
+                            importUntils.createCurvesWithWellExist(wellInfo, datasetInfo, curvesInfo, { overwrite: false })
+                                .then(function (result) {
+                                    results.push(result);
+                                    if (i == id_wells.length - 1) {
+                                        event.emit('done-process-files');
+                                    }
+                                })
+                                .catch(function (err) {
+                                    res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, err)));
+                                })
+                        }
+                        else {
+                            //create curves
+                            datasetInfo = new Object();
+                            datasetInfo.idDataset = parseInt(id_datasets[i]);
+                            importUntils.createCurvesWithDatasetExist(wellInfo, datasetInfo, curvesInfo, { overwrite: false })
+                                .then(function (result) {
+                                    results.push(result);
+                                    if (i == id_wells.length - 1) {
+                                        event.emit('done-process-files');
+                                    }
+                                })
+                                .catch(function (err) {
+                                    res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, err)));
+                                })
+
+                        }
+                    }
+                }, {
+                        projectId: parseInt(fields.id_project),
+                        wellId: 'someWellId',
+                        label: 'datasetLabel'
+                    });
+            }
+            else if (/ASC/.test(fileFormat.toUpperCase())) {
+                wiImport.extractASC(inDir + file.name, 'idProject', 'idWell', function (result) {
+                    //do something with result
+                });
+            }
+            else if (/CSV/.test(fileFormat.toUpperCase())) {
+                wiImport.extractCSV(inDir + file.name, 'idProject', 'idWell');
+            }
+            //return res.end(JSON.stringify(req.file));
+        }
+    });
+    form.on('error', function (err) {
+        res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.INTERNAL_SERVER_ERROR, 'Internal server error')));
+    });
+    return;
 });
 
 module.exports = router;
