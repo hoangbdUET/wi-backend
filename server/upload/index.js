@@ -64,7 +64,7 @@ function getWellInfo(section) {
 
 function getCurveInfo(section, datasetKey) {
     let curvesInfo = new Array();
-    if(section.wellInfo.curves) {
+    if(section.wellInfo) {
         section.wellInfo.curves.forEach(function (item) {
             let curveInfo = new Object();
             curveInfo.name = item.name;
