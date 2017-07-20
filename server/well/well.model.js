@@ -64,7 +64,7 @@ function deleteWell(wellInfo,done) {
         })
 }
 function getWellInfo(well,done) {
-    Well.findById(well.idWell,{include:[{all:true,include:[{all:true,include:{all:true}}]}]})
+    Well.findById(well.idWell,{include:[{all:true,include:[{all:true}]}]})
         .then(function (well) {
             if (!well) throw "not exist";
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Well success", well));

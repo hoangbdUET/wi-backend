@@ -5,13 +5,30 @@ module.exports = function (sequelize, DataTypes) {
             autoIncrement:true,
             primaryKey:true
         },
-        // name:{
-        //     type:DataTypes.STRING(50),
-        //     allowNull:false
+        showTitle:{
+            type: DataTypes.BOOLEAN,
+            allowNull:false,
+            defaultValue:true
+        },
+        title:{
+            type:DataTypes.STRING(100),
+            allowNull:false,
+            defaultValue:'Depth'
+        },
+        // cssStyle:{
+        //     type:DataTypes.STRING,
+        //     allowNull:false,
+        //     //TODO add default value
         // },
-        // option:{
-        //     type:DataTypes.STRING(250),
-        //     allowNull:false
-        // }
+        trackBackground:{
+            type:DataTypes.STRING(20),
+            allowNull:false,
+            defaultValue:'rgba(255,255,255,0)'
+        },
+        geometryWidth:{
+            type:DataTypes.INTEGER,
+            allowNull:false,
+            defaultValue:60
+        }
     });
 };

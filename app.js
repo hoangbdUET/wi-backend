@@ -17,6 +17,7 @@ var trackRouter = require('./server/track/track.router');
 var depthAxisRouter = require('./server/depth-axis/depth-axis.router');
 var uploadRouter = require('./server/upload/index');
 var datasetRouter = require('./server/dataset/dataset.router');
+var lineRouter = require('./server/line/line.router');
 
 app.use(cors());
 /**
@@ -30,6 +31,8 @@ app.use('/project/well',datasetRouter);
 app.use('/project/well/dataset', curveRouter);//change
 app.use('/project/well/plot', depthAxisRouter);
 app.use('/project/well/plot', trackRouter);
+app.use('/project/well/plot/track', lineRouter);
+
 
 /**
  * Log manager

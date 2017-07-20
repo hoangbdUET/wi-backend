@@ -23,7 +23,8 @@ var models = [
     'Track',
     'Well',
     'WellData',
-    'Dataset'
+    'Dataset',
+    'Line',
 ];
 models.forEach(function (model) {
     module.exports[model] = sequelize.import(__dirname + '/' + model);
@@ -37,5 +38,8 @@ models.forEach(function (model) {
     m.Dataset_Curve=m.Dataset.hasMany(m.Curve, {foreignKey: "idDataset", onDelete: 'CASCADE'});
     m.Plot_Track=m.Plot.hasMany(m.Track, {foreignKey: "idPlot", onDelete: 'CASCADE'});
     m.Plot_DepthAxis=m.Plot.hasMany(m.DepthAxis, {foreignKey: "idPlot", onDelete: 'CASCADE'});
+
+    m.Track.hasMany(m.Line,{foreignKey:"idTrack",onDelete:'CASCADE'});
+    m.Line.belongsTo(m.Curve,{foreignKey:"idCurve",onDelete:'CASCADE'});
 })(module.exports);
 module.exports.sequelize = sequelize;
