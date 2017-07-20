@@ -253,7 +253,13 @@ router.post('/files', function (req, res) {
     form.multiples = true;
     form.uploadDir = 'uploads_temp';
     form.parse(req, function (err, fields, files) {
-        // res.end(util.inspect({fields, files}));
+        console.log(files);
+        if (!fields.id_project || fields.id_project === "") {
+            return res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, 'idProject can not be null')));
+        }
+        if (!files || !Object.keys(files).length) {
+            return res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, 'One or more files must be sent')));
+        }
         let id_wells = [];
         let id_datasets = [];
         for (var key in fields) if (fields.hasOwnProperty(key)) {
