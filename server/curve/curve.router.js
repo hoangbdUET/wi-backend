@@ -33,7 +33,8 @@ router.delete('/curve/delete', function (req, res) {
 
 router.post('/curve/getData', function(req, res) {
     curveModel.getData(req.body, function(resultStream) {
-        resultStream.pipe(res);
+        if(resultStream) resultStream.pipe(res);
+        else res.end(ResponseJSON(ErrorCodes.ERROR_CURVE_DATA_FILE_NOT_EXISTS, "Curve data file does not exist"));
     }, function(status) {
         res.send(status);
     });

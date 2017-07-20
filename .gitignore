@@ -67,3 +67,4 @@ package-lock.json
 data/*
 
 config/production.json
+config/default.json

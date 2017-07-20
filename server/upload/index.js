@@ -39,35 +39,55 @@ var upload = multer({storage: storage});
 
 function getWellInfo(section) {
     let wellInfo = {};
-    section.content.forEach(function (item) {
-        if (/STRT/g.test(item.name.toUpperCase())) {
-            wellInfo.topDepth = item.data;
-        }
-        if (/STOP/g.test(item.name.toUpperCase())) {
-            wellInfo.bottomDepth = item.data;
-        }
-        if (/STEP/g.test(item.name.toUpperCase())) {
-            wellInfo.step = item.data;
-        }
-        if (/WELL/g.test(item.name.toUpperCase())) {
-            wellInfo.name = item.data;
-        }
-    });
+    if(section.wellInfo) {
+        section.wellInfo.curves = getCurveInfo(section, section.wellInfo.name);
+        wellInfo = section.wellInfo;
+    }
+    else {
+        section.content.forEach(function (item) {
+            if (/STRT/g.test(item.name.toUpperCase())) {
+                wellInfo.topDepth = item.data;
+            }
+            if (/STOP/g.test(item.name.toUpperCase())) {
+                wellInfo.bottomDepth = item.data;
+            }
+            if (/STEP/g.test(item.name.toUpperCase())) {
+                wellInfo.step = item.data;
+            }
+            if (/WELL/g.test(item.name.toUpperCase())) {
+                wellInfo.name = item.data;
+            }
+        });
+    }
     return wellInfo;
 }
 
 function getCurveInfo(section, datasetKey) {
     let curvesInfo = new Array();
-    section.content.forEach(function (item) {
-        let curveInfo = new Object();
-        curveInfo.name = item.name;
-        curveInfo.unit = item.unit;
-        curveInfo.initValue = "abc";
-        curveInfo.family = "VNU";
-        curveInfo.dataset = datasetKey;
-        curveInfo.idDataset = null;
-        curvesInfo.push(curveInfo);
-    });
+    if(section.wellInfo.curves) {
+        section.wellInfo.curves.forEach(function (item) {
+            let curveInfo = new Object();
+            curveInfo.name = item.name;
+            curveInfo.unit = item.unit;
+            curveInfo.initValue = "abc";
+            curveInfo.family = "VNU";
+            curveInfo.dataset = datasetKey;
+            curveInfo.idDataset = null;
+            curvesInfo.push(curveInfo);
+        });
+    }
+    else {
+        section.content.forEach(function (item) {
+            let curveInfo = new Object();
+            curveInfo.name = item.name;
+            curveInfo.unit = item.unit;
+            curveInfo.initValue = "abc";
+            curveInfo.family = "VNU";
+            curveInfo.dataset = datasetKey;
+            curveInfo.idDataset = null;
+            curvesInfo.push(curveInfo);
+        });
+    }
     return curvesInfo;
 }
 
@@ -149,13 +169,80 @@ router.post('/file', upload.single('file'), function (req, res) {
             label: 'datasetLabel'
         });
     }
-    else if (/ASC/.test(fileFormat.toUpperCase())) {
-        wiImport.extractASC(inDir + req.file.filename, 'idProject', 'idWell', function (result) {
+    else {
+        wiImport.extractASC(inDir + req.file.filename, function (result) {
             //do something with result
+            let projectInfo = {
+                idProject:req.body.id_project
+            };
+            let wellsInfo = new Array();
+            let curvesInfo = null;
+            let wellInfo = null;
+            let datasetInfo = {
+                idWell: null,
+                name: "Data Default",
+                datasetKey: "datasetKey Default",
+                datasetLabel: "DatasetLabel Default"
+            };
+            let curves = new Array();
+            result.data.forEach(function (section) {
+                    wellInfo = getWellInfo(section);
+                    //curvesInfo = getCurveInfo(section, wellInfo.name);
+                    wellsInfo.push({
+                        wellInfo:wellInfo,
+                    });
+            });
+            let results = new Array();
+            console.log('well info la ', JSON.stringify(wellsInfo,null,2));
+            if (!req.body.id_well || req.body.id_well === "") {
+                async.each(wellsInfo, function (wellInfo, callback) {
+                    importUntils.createCurvesWithProjectExist(projectInfo,wellInfo.wellInfo,datasetInfo, wellInfo.wellInfo.curves)
+                        .then(function (result) {
+                            results.push(result);
+                            callback();
+                        })
+                        .catch(function (err) {
+                            res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error,err)));
+                        });
+
+                }, function (err) {
+                   if(err) {
+                       res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error,err)));
+
+                   }
+                   else {
+                       res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, results)));
+                   }
+                });
+            }
+            else {
+                //do something
+                //tao dataset %% curves for well exist
+                wellInfo.idWell = parseInt(req.body.id_well);
+                if (!req.body.id_dataset || req.body.id_dataset === "") {
+                    if(wellsInfo.length > 1) {
+                        res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error,"File has many wells")));
+                    }
+                    else {
+                        importUntils.createCurvesWithWellExist(wellInfo,datasetInfo,curvesInfo,{overwrite:false})
+                            .then(function (result) {
+                                res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, result)));
+                            })
+                            .catch(function (err) {
+                                res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error,err)));
+                            });
+                    }
+                }
+                else {
+                    //create curves
+                    res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error,"File has many wells")));
+
+                }
+            }
+
+        },{
+            label: 'datasetLabel'
         });
-    }
-    else if (/CSV/.test(fileFormat.toUpperCase())) {
-        wiImport.extractCSV(inDir + req.file.filename, 'idProject', 'idWell');
     }
     //return res.end(JSON.stringify(req.file));
 });
