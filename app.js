@@ -18,6 +18,7 @@ var depthAxisRouter = require('./server/depth-axis/depth-axis.router');
 var uploadRouter = require('./server/upload/index');
 var datasetRouter = require('./server/dataset/dataset.router');
 var lineRouter = require('./server/line/line.router');
+var family = require('./server/family/index');
 
 app.use(cors());
 /**

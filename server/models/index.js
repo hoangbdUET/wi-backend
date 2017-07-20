@@ -6,7 +6,12 @@ const sequelize = new Sequelize(config.dbName, config.user, config.password,{
     define: {
         freezeTableName: true
     },
-    dialect: config.dialect
+    dialect: config.dialect,
+    pool:{
+        max:20,
+        min:0,
+        idle:200
+    }
 });
 sequelize.sync()
     .catch(function (err) {
