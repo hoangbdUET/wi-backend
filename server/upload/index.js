@@ -37,10 +37,10 @@ var storage = multer.diskStorage({
 
 var upload = multer({storage: storage});
 
-function getWellInfo(section) {
+function getWellInfo(section, path) {
     let wellInfo = {};
     if(section.wellInfo) {
-        section.wellInfo.curves = getCurveInfo(section, section.wellInfo.name);
+        section.wellInfo.curves = getCurveInfo(section, section.wellInfo.name, path);
         wellInfo = section.wellInfo;
     }
     else {
@@ -62,13 +62,14 @@ function getWellInfo(section) {
     return wellInfo;
 }
 
-function getCurveInfo(section, datasetKey) {
+function getCurveInfo(section, datasetKey, path) {
     let curvesInfo = new Array();
     if(section.wellInfo) {
         section.wellInfo.curves.forEach(function (item) {
             let curveInfo = new Object();
             curveInfo.name = item.name;
             curveInfo.unit = item.unit;
+            curveInfo.path = path;
             curveInfo.initValue = "abc";
             curveInfo.family = "VNU";
             curveInfo.dataset = datasetKey;
@@ -81,6 +82,7 @@ function getCurveInfo(section, datasetKey) {
             let curveInfo = new Object();
             curveInfo.name = item.name;
             curveInfo.unit = item.unit;
+            curveInfo.path = path;
             curveInfo.initValue = "abc";
             curveInfo.family = "VNU";
             curveInfo.dataset = datasetKey;
@@ -117,16 +119,22 @@ router.post('/file', upload.single('file'), function (req, res) {
             };
 
             result.forEach(function (section) {
-                if (/~WELL/g.test(section.name)) {
-                    wellInfo = getWellInfo(section);
-                }
-                else if (/~CURVE/g.test(section.name)) {
-                    curvesInfo = getCurveInfo(section, wellInfo.name);
+                if(/LABEL/g.test(section.name.toUpperCase())) {
+                    datasetInfo.name = section.content;
+                    datasetInfo.datasetKey = section.content;
+                    datasetInfo.datasetLabel = section.content;
                 }
             });
-            datasetInfo.name = wellInfo.name;
-            datasetInfo.datasetLabel = wellInfo.name;
-            datasetInfo.datasetKey = wellInfo.name;
+            result.forEach(function (section) {
+                if (/~WELL/g.test(section.name)) {
+                    wellInfo = getWellInfo(section, inDir + req.file.filename);
+                }
+                else if (/~CURVE/g.test(section.name)) {
+                    curvesInfo = getCurveInfo(section, datasetInfo.datasetLabel, inDir + req.file.filename);
+                }
+            });
+            console.log('curve info la ', JSON.stringify(curvesInfo,null,2));
+
             if (!req.body.id_well || req.body.id_well === "") {
                 importUntils.createCurvesWithProjectExist(projectInfo,wellInfo,datasetInfo, curvesInfo)
                     .then(function (result) {
@@ -166,7 +174,7 @@ router.post('/file', upload.single('file'), function (req, res) {
         }, {
             projectId: parseInt(req.body.id_project),
             wellId: "someWellId",
-            label: 'datasetLabel'
+            label:"dataLabel"
         });
     }
     else {
