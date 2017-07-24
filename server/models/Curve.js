@@ -26,9 +26,5 @@ module.exports = function (sequelize, DataTypes) {
             type:DataTypes.STRING(250),
             allowNull:false
         },
-        path:{
-            type:DataTypes.STRING(250),
-            allowNull:false
-        }
     });
 };

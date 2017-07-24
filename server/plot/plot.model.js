@@ -15,7 +15,7 @@ function createNewPlot(plotInfo, done) {
                 });
                 plot.save()
                     .then(function (plot) {
-                        done(ResponseJSON(ErrorCodes.SUCCESS,"Create new Plot success",{idPlot:plot.idPlot}));
+                        done(ResponseJSON(ErrorCodes.SUCCESS,"Create new Plot success",plot.toJSON()));
                     })
                     .catch(function (err) {
                         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Plot "+err.name));
@@ -61,7 +61,7 @@ function deletePlot(plotInfo,done) {
         })
 }
 function getPlotInfo(plot, done) {
-    Plot.findById(plot.idPlot, {include: [{all:true}]})
+    Plot.findById(plot.idPlot, {include: [{all:true,include:[{all:true}]}]})
         .then(function (plot) {
             if (!plot) throw "not exits";
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Plot success", plot));
