@@ -100,7 +100,7 @@ function getCurveInfo(curve, done) {
 function getData(param, successFunc, errorFunc) {
     Curve.findById(param.idCurve)
         .then(function(curve) {
-            successFunc( hashDir.createJSONReadStream(config.curveBasePath, curve.path + curve.dataset + curve.name, curve.name + '.enc.txt', '{\n"code": 200,\n"content":', '}\n') );
+            successFunc( hashDir.createJSONReadStream(config.curveBasePath, curve.dataset + curve.name, curve.name + '.enc.txt', '{\n"code": 200,\n"content":', '}\n') );
         })
         .catch(function() {
             errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found"));

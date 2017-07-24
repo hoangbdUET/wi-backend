@@ -4,9 +4,6 @@ var Dataset=models.Dataset;
 var Curve=models.Curve;
 
 function createCurvesWithProjectExist(projectInfo,wellInfo,datasetInfo,curvesInfo) {
-    // curvesInfo.forEach(function (curve) {
-    //     curve.path = "";//TODO
-    // });
     return Well.create({
         idProject: projectInfo.idProject,
         name: wellInfo.name,
@@ -25,9 +22,7 @@ function createCurvesWithProjectExist(projectInfo,wellInfo,datasetInfo,curvesInf
 }
 
 function createCurvesWithWellExist(wellInfo,datasetInfo,curvesInfo,option) {
-    // curvesInfo.forEach(function (curve) {
-    //     curve.path = "";//TODO
-    // });
+
     return models.sequelize.transaction(function (t) {
         return Dataset.create({
             idWell:wellInfo.idWell,
@@ -61,7 +56,6 @@ function createCurvesWithWellExist(wellInfo,datasetInfo,curvesInfo,option) {
 function createCurvesWithDatasetExist(wellInfo, datasetInfo,curvesInfo,option) {
     curvesInfo.forEach(function (item) {
         item.idDataset = datasetInfo.idDataset;
-        //item.path = "";
     });
     return models.sequelize.transaction(function (t) {
         return Curve.bulkCreate(curvesInfo,{transaction:t,individualHooks:true})
