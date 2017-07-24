@@ -18,7 +18,7 @@ var depthAxisRouter = require('./server/depth-axis/depth-axis.router');
 var uploadRouter = require('./server/upload/index');
 var datasetRouter = require('./server/dataset/dataset.router');
 var lineRouter = require('./server/line/line.router');
-var family = require('./server/family/index');
+
 
 app.use(cors());
 /**
@@ -46,7 +46,11 @@ app.use(morgan('combined', {stream: accessLogStream}));
 app.get('/', function (req, res) {
     res.send("WELCOME TO WI-SYSTEM");
 });
-
+/*
+*   Two rows beneath just run FamilyUpdater and FamilyCondition Updater
+* */
+var FamilyUpdater = require('./server/family/FamilyUpdater');
+var FamilyConditionUpdater = require('./server/family/FamilyConditionUpdater');
 app.listen(config.port,function () {
     console.log("Listening on port "+config.port);
 });

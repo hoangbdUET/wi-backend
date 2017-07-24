@@ -64,7 +64,7 @@ function createCurvesWithDatasetExist(wellInfo, datasetInfo,curvesInfo,option) {
         //item.path = "";
     });
     return models.sequelize.transaction(function (t) {
-        return Curve.bulkCreate(curvesInfo,{transaction:t})
+        return Curve.bulkCreate(curvesInfo,{transaction:t,individualHooks:true})
             .then(function (dataset) {
             if (option.overwrite) {
                 return Well.findById(wellInfo.idWell, {include: [{all: true, include: {all: true}}], transaction: t})

@@ -15,12 +15,16 @@ module.exports = function (sequelize, DataTypes) {
             allowNull:false,
             defaultValue:false
         },
-        /*minValue:{
-            type:
-        },
+        minValue:{
+            type:DataTypes.FLOAT,
+            allowNull:false,
+            defaultValue:0
+        },//Family
         maxValue:{
-            type
-        },*///TODO min max Value
+            type:DataTypes.FLOAT,
+            allowNull:false,
+            defaultValue:200
+        },//Family
         autoValueScale:{
             type:DataTypes.BOOLEAN,
             allowNull:false,
@@ -30,7 +34,7 @@ module.exports = function (sequelize, DataTypes) {
             type:DataTypes.ENUM('Line','Symbol','Both','None'),
             allowNull:false,
             defaultValue:'Line'
-        },
+        },//Family
         wrapMode:{
             type:DataTypes.ENUM('None','Left','Right','Both'),
             allowNull:false,
@@ -40,24 +44,36 @@ module.exports = function (sequelize, DataTypes) {
             type:DataTypes.ENUM('None','Start','Middle','End'),
             allowNull:false,
             defaultValue:'None'
-        },
+        },//Family
         ignoreMissingValues:{
             type:DataTypes.BOOLEAN,
             allowNull:false,
             defaultValue:false
         },
-        logLinear:{
+        displayType:{
             type:DataTypes.ENUM('Linear','Logarithmic'),
             allowNull:false,
             defaultValue:'Linear'
-        },
+        },//Family
         displayAs:{
             type:DataTypes.ENUM('Normal','Cumulative','Mirror','Pid'),
             allowNull:false,
             defaultValue:'Normal'
         },
-        // lineStyle:{
-        //
-        // }//TODO style css for Line Style
+        lineStyle:{
+            type:DataTypes.STRING(30),
+            allowNull:false,
+            defaultValue:"[0]"
+        },//Family
+        lineWidth:{
+            type:DataTypes.INTEGER,
+            allowNull:false,
+            defaultValue:1
+        },//Family
+        lineColor:{
+            type:DataTypes.STRING(30),
+            allowNull:false,
+            defaultValue:"red"
+        }//Family
     });
 };

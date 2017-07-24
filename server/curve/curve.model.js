@@ -3,9 +3,28 @@ var config = require('config');
 var Curve = models.Curve;
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
+var FamilyCondition=models.FamilyCondition;
 
 var wiImport = require('wi-import');
 var hashDir = wiImport.hashDir;
+
+Curve.hook('afterCreate',function (curve, options) {
+    ((curveName, unit) => {
+        FamilyCondition.findAll()
+            .then(conditions => {
+                var result = conditions.find(function (aCondition) {
+                    return new RegExp("^" + aCondition.curveName + "$").test(curveName) && new RegExp("^" + aCondition.unit + "$").test(unit);
+                });
+                if (!result){
+                    return;
+                }
+                result.getFamily()
+                    .then(aFamily => {
+                        curve.setLineProperty(aFamily);
+                    })
+            })
+    })(curve.name, curve.unit);
+});
 
 function createNewCurve(curveInfo,done) {
     Curve.sync()
@@ -16,7 +35,7 @@ function createNewCurve(curveInfo,done) {
                     dataset: curveInfo.dataset,
                     family: curveInfo.family,
                     unit: curveInfo.unit,
-                    path:curveInfo.path,
+                    path:"",
                     initValue: curveInfo.initValue
                 });
                 curve.save()
@@ -24,7 +43,7 @@ function createNewCurve(curveInfo,done) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Curve success", {idCurve: curve.idCurve}))
                     })
                     .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Curve "+err.name));
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Curve "+err));
                     });
             },
             function () {
