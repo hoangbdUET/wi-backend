@@ -1,12 +1,13 @@
 XLSX = require('xlsx');
-var models = require('../../family');
+var models = require('../models');
 var FamilyCondition = models.FamilyCondition;
 
+FamilyCondition.sync();
 function updateFamilyCondition(workbook, sheetName) {
     var worksheet = workbook.Sheets[sheetName];
     var range = XLSX.utils.decode_range(worksheet['!ref']);
 
-    for (var R=range.s.r+1;R<=range.e.r;++R) {
+    for (var R = range.s.r + 1; R <= range.e.r; ++R) {
         var aFamilyCondition = buildFamilyCondition(R, worksheet);
         FamilyCondition.create({
             idFamilyCondition: aFamilyCondition.idFamilyCondition,
@@ -23,6 +24,9 @@ function updateFamilyCondition(workbook, sheetName) {
 
     }
 }
+/*
+*   All columns that be taken value are appear in this function
+* */
 function buildFamilyCondition(row, sheet) {
     var newComponent = new Object();
     newComponent.idFamilyCondition = parseInt(getValueAtCell(row, 0, sheet));
@@ -31,6 +35,7 @@ function buildFamilyCondition(row, sheet) {
     newComponent.unit = getValueAtCell(row, 3, sheet);
     return newComponent;
 }
+
 function getValueAtCell(rowIndex, colIndex, sheet) {
     var cellPositionObject = {r: rowIndex, c: colIndex};
     var cellPositionString = XLSX.utils.encode_cell(cellPositionObject);
@@ -41,5 +46,5 @@ function getValueAtCell(rowIndex, colIndex, sheet) {
     return cell.v;
 }
 
-var workbook = XLSX.readFile('./Curve_family.xlsx');
+var workbook = XLSX.readFile(__dirname + '/Curve_family.xlsx');
 updateFamilyCondition(workbook, 'family_condition');

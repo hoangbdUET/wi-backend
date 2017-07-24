@@ -21,7 +21,6 @@ var models = [
     'Curve',
     'CurveData',
     'DepthAxis',
-    'Link',
     'Plot',
     'Project',
     'Property',
@@ -30,6 +29,8 @@ var models = [
     'WellData',
     'Dataset',
     'Line',
+    'Family',
+    'FamilyCondition'
 ];
 models.forEach(function (model) {
     module.exports[model] = sequelize.import(__dirname + '/' + model);
@@ -46,5 +47,8 @@ models.forEach(function (model) {
 
     m.Track.hasMany(m.Line,{foreignKey:"idTrack",onDelete:'CASCADE'});
     m.Line.belongsTo(m.Curve,{foreignKey:"idCurve",onDelete:'CASCADE'});
+
+    m.FamilyCondition.belongsTo(m.Family, {foreignKey: 'idFamily'});
+    m.Curve.belongsTo(m.Family, {as: 'LineProperty',foreignKey: 'idFamily'});
 })(module.exports);
 module.exports.sequelize = sequelize;
