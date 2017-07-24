@@ -1,0 +1,16 @@
+{
+  "Database":{
+    "dialect":"mysql",
+    "host":"localhost",
+    "port":"3306",
+    "user":"root",
+    "password":"qwertyui",
+    "dbName":"wi_backend"
+  },
+  "Application":{
+    "port":3000
+  },
+  "curveBasePath": "../data"
+}
+
+// should ignore from git
