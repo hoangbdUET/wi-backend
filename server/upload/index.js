@@ -263,7 +263,7 @@ router.post('/files', function (req, res) {
     let now = Date.now();
     var form = new formidable.IncomingForm();
     form.multiples = true;
-    form.uploadDir = 'uploads_temp';
+    form.uploadDir = 'uploads';
     form.parse(req, function (err, fields, files) {
         console.log(files);
         if (!fields.id_project || fields.id_project === "") {
