@@ -100,6 +100,7 @@ function getCurveInfo(curve, done) {
 function getData(param, successFunc, errorFunc) {
     Curve.findById(param.idCurve)
         .then(function(curve) {
+            console.log("000000000000000000", curve.dataset, curve.name, config.curveBasePath);
             successFunc( hashDir.createJSONReadStream(config.curveBasePath, curve.dataset + curve.name, curve.name + '.txt', '{\n"code": 200,\n"content":', '}\n') );
         })
         .catch(function() {
