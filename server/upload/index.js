@@ -93,6 +93,74 @@ function getCurveInfo(section, datasetKey, path) {
     return curvesInfo;
 }
 
+function extractLAS2Done(result,req, res) {
+    let projectInfo = {
+        idProject:req.body.id_project
+    };
+    let wellInfo = null;
+    let curvesInfo = null;
+    let datasetInfo = {
+        idWell: null,
+        name: "",
+        datasetKey: "",
+        datasetLabel: ""
+    };
+
+    result.forEach(function (section) {
+        if(/LABEL/g.test(section.name.toUpperCase())) {
+            datasetInfo.name = section.content;
+            datasetInfo.datasetKey = section.content;
+            datasetInfo.datasetLabel = section.content;
+        }
+    });
+    result.forEach(function (section) {
+        if (/~WELL/g.test(section.name)) {
+            wellInfo = getWellInfo(section, inDir + req.file.filename);
+        }
+        else if (/~CURVE/g.test(section.name)) {
+            curvesInfo = getCurveInfo(section, datasetInfo.datasetLabel, inDir + req.file.filename);
+        }
+    });
+    console.log('curve info la ', JSON.stringify(curvesInfo,null,2));
+
+    if (!req.body.id_well || req.body.id_well === "") {
+        importUntils.createCurvesWithProjectExist(projectInfo,wellInfo,datasetInfo, curvesInfo)
+            .then(function (result) {
+                res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, result)));
+            })
+            .catch(function (err) {
+                res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error,err)));
+            })
+    }
+    else {
+        //do something
+        //tao dataset %% curves for well exist
+        wellInfo.idWell = parseInt(req.body.id_well);
+        if (!req.body.id_dataset || req.body.id_dataset === "") {
+            importUntils.createCurvesWithWellExist(wellInfo,datasetInfo,curvesInfo,{overwrite:false})
+                .then(function (result) {
+                    res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, result)));
+                })
+                .catch(function (err) {
+                    res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error,err)));
+                })
+        }
+        else {
+            //create curves
+            datasetInfo = new Object();
+            datasetInfo.idDataset = parseInt(req.body.id_dataset);
+            importUntils.createCurvesWithDatasetExist(wellInfo,datasetInfo, curvesInfo, {overwrite:false})
+                .then(function (result) {
+                    res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, result)));
+                })
+                .catch(function (err) {
+                    res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error,err)));
+                })
+
+        }
+    }
+}
+
 router.post('/file', upload.single('file'), function (req, res) {
     // TODO:
     // Check if req.body.id_project != undefined || null
@@ -105,72 +173,8 @@ router.post('/file', upload.single('file'), function (req, res) {
     let fileFormat = list[list.length - 1];
     if (/LAS/.test(fileFormat.toUpperCase())) {
         wiImport.setBasePath(config.curveBasePath);
-        wiImport.extractLAS2(inDir + req.file.filename, function (result) {
-            let projectInfo = {
-                idProject:req.body.id_project
-            };
-            let wellInfo = null;
-            let curvesInfo = null;
-            let datasetInfo = {
-                idWell: null,
-                name: "",
-                datasetKey: "",
-                datasetLabel: ""
-            };
-
-            result.forEach(function (section) {
-                if(/LABEL/g.test(section.name.toUpperCase())) {
-                    datasetInfo.name = section.content;
-                    datasetInfo.datasetKey = section.content;
-                    datasetInfo.datasetLabel = section.content;
-                }
-            });
-            result.forEach(function (section) {
-                if (/~WELL/g.test(section.name)) {
-                    wellInfo = getWellInfo(section, inDir + req.file.filename);
-                }
-                else if (/~CURVE/g.test(section.name)) {
-                    curvesInfo = getCurveInfo(section, datasetInfo.datasetLabel, inDir + req.file.filename);
-                }
-            });
-            console.log('curve info la ', JSON.stringify(curvesInfo,null,2));
-
-            if (!req.body.id_well || req.body.id_well === "") {
-                importUntils.createCurvesWithProjectExist(projectInfo,wellInfo,datasetInfo, curvesInfo)
-                    .then(function (result) {
-                        res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, result)));
-                    })
-                    .catch(function (err) {
-                        res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error,err)));
-                    })
-            }
-            else {
-                //do something
-                //tao dataset %% curves for well exist
-                wellInfo.idWell = parseInt(req.body.id_well);
-                if (!req.body.id_dataset || req.body.id_dataset === "") {
-                    importUntils.createCurvesWithWellExist(wellInfo,datasetInfo,curvesInfo,{overwrite:false})
-                        .then(function (result) {
-                            res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, result)));
-                        })
-                        .catch(function (err) {
-                            res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error,err)));
-                        })
-                }
-                else {
-                    //create curves
-                    datasetInfo = new Object();
-                    datasetInfo.idDataset = parseInt(req.body.id_dataset);
-                    importUntils.createCurvesWithDatasetExist(wellInfo,datasetInfo, curvesInfo, {overwrite:false})
-                        .then(function (result) {
-                            res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, result)));
-                        })
-                        .catch(function (err) {
-                            res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error,err)));
-                        })
-
-                }
-            }
+        wiImport.extractLAS2(inDir + req.file.filename, function(result) {
+            extractLAS2Done(result, req, res);
         }, {
             projectId: parseInt(req.body.id_project),
             wellId: "someWellId",
@@ -305,75 +309,8 @@ router.post('/files', function (req, res) {
             let fileFormat = fileNameParts[fileNameParts.length - 1];
             if (/LAS/.test(fileFormat.toUpperCase())) {
                 wiImport.setBasePath(config.curveBasePath);
-                wiImport.extractLAS2(file.path, function (result) {
-                    fs.unlinkSync(file.path);
-                    let projectInfo = {
-                        idProject: fields.id_project
-                    };
-                    let wellInfo = null;
-                    let curvesInfo = null;
-                    let datasetInfo = {
-                        idWell: null,
-                        name: "",
-                        datasetKey: "",
-                        datasetLabel: ""
-                    };
-
-                    result.forEach(function (section) {
-                        if (/~WELL/g.test(section.name)) {
-                            wellInfo = getWellInfo(section);
-                        }
-                        else if (/~CURVE/g.test(section.name)) {
-                            curvesInfo = getCurveInfo(section, wellInfo.name);
-                        }
-                    });
-                    datasetInfo.name = wellInfo.name;
-                    datasetInfo.datasetLabel = wellInfo.name;
-                    datasetInfo.datasetKey = wellInfo.name;
-                    if (!id_wells[i] || id_wells[i] === "") {
-                        importUntils.createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, curvesInfo)
-                            .then(function (result) {
-                                results.push(result);
-                                if (i == id_wells.length - 1) {
-                                    event.emit('done-process-files');
-                                }
-                            })
-                            .catch(function (err) {
-                                res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, err)));
-                            })
-                    }
-                    else {
-                        //tao dataset %% curves for exist well
-                        wellInfo.idWell = parseInt(id_wells[i]);
-                        if (!id_datasets[i] || id_datasets[i] === "") {
-                            importUntils.createCurvesWithWellExist(wellInfo, datasetInfo, curvesInfo, { overwrite: false })
-                                .then(function (result) {
-                                    results.push(result);
-                                    if (i == id_wells.length - 1) {
-                                        event.emit('done-process-files');
-                                    }
-                                })
-                                .catch(function (err) {
-                                    res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, err)));
-                                })
-                        }
-                        else {
-                            //create curves
-                            datasetInfo = new Object();
-                            datasetInfo.idDataset = parseInt(id_datasets[i]);
-                            importUntils.createCurvesWithDatasetExist(wellInfo, datasetInfo, curvesInfo, { overwrite: false })
-                                .then(function (result) {
-                                    results.push(result);
-                                    if (i == id_wells.length - 1) {
-                                        event.emit('done-process-files');
-                                    }
-                                })
-                                .catch(function (err) {
-                                    res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, err)));
-                                })
-
-                        }
-                    }
+                wiImport.extractLAS2(file.path, function(result) {
+                    extractLAS2Done(result, req, res);
                 }, {
                         projectId: parseInt(fields.id_project),
                         wellId: 'someWellId',
