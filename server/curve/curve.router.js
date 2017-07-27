@@ -3,7 +3,8 @@
 const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
-
+var ResponseJSON = require('../response');
+var ErrorCodes = require('../../error-codes').CODES;
 let curveModel = require('./curve.model');
 
 router.use(bodyParser.json());
@@ -32,9 +33,14 @@ router.delete('/curve/delete', function (req, res) {
 });
 
 router.post('/curve/getData', function(req, res) {
-    curveModel.getData(req.body, function(resultStream) {
-        if(resultStream) resultStream.pipe(res);
-        else res.end(ResponseJSON(ErrorCodes.ERROR_CURVE_DATA_FILE_NOT_EXISTS, "Curve data file does not exist"));
+    curveModel.getData(req.body, function(err, resultStream) {
+        if(err) res.send(err);
+        else {
+            if(resultStream) {
+                res.end(JSON.stringify(ResponseJSON(ErrorCodes.SUCCESS,"Success", resultStream)));
+            }
+            else res.end(ResponseJSON(ErrorCodes.ERROR_CURVE_DATA_FILE_NOT_EXISTS, "Curve data file does not exist"));
+        }
     }, function(status) {
         res.send(status);
     });
