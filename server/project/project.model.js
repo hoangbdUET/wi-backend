@@ -79,7 +79,10 @@ function getProjectFullInfo(project, done) {
             all:true,
             include:[{
                 all:true,
-                include:{all:true}
+                include:[{
+                    all:true,
+                    include:{all:true}
+                }]
             }]
         }]
     })
