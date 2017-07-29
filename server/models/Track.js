@@ -5,6 +5,11 @@ module.exports = function (sequelize, DataTypes) {
             autoIncrement:true,
             primaryKey:true
         },
+        orderNum: {
+            type:DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
+        }
         // name:{
         //     type:DataTypes.STRING(50),
         //     allowNull:false
