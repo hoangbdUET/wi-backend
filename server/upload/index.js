@@ -309,13 +309,10 @@ function handleMultiFiles(req, res) {
     var form = new formidable.IncomingForm();
     form.multiples = true;
     form.uploadDir = '/tmp';
-    /*
-    form.parse(req, function (err, fields, files) {
-        console.log(util.inspect(files, {depth:4}));
-    });
-    */
+
     form.on('end', function() {
         var responseArray = new Array();
+        console.log('form on end:', idProject, idWells, idDatasets);
         if(isNaN(idProject)) {
             res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, 'id_project param is invalid')));
             return;
@@ -341,7 +338,7 @@ function handleMultiFiles(req, res) {
                 event.emit('done-process-file');
                 return; 
             }
-            extractLAS2File(file.path, idProject, idWells[index], idDatasets[index], function (result) {
+            extractLAS2File(f.path, idProject, idWells[index], idDatasets[index], function (result) {
                 // Success callback
                 responseData.push(
                     ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, result)
@@ -375,7 +372,8 @@ function handleMultiFiles(req, res) {
     form.on('error', function (err) {
         res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.INTERNAL_SERVER_ERROR, 'Internal server error')));
     });
-    return;
+
+    form.parse(req);
 }
 router.post('/files', handleMultiFiles);
 /*
