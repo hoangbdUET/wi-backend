@@ -331,7 +331,7 @@ function handleMultiFiles(req, res) {
         files.forEach(function(f, index) {
             if(! /\.LAS$/.test(f.name.toUpperCase())) {
                 //failure case
-                responseData.push(
+                responseArray.push(
                     ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, "not .las file")
                 );
                 event.emit('done-process-file');
@@ -339,13 +339,13 @@ function handleMultiFiles(req, res) {
             }
             extractLAS2File(f.path, idProject, idWells[index], idDatasets[index], function (result) {
                 // Success callback
-                responseData.push(
+                responseArray.push(
                     ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, result)
                 );
                 event.emit('done-process-file');
             }, function (err) {
                 // error callback
-                responseData.push(
+                responseArray.push(
                     ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, err)
                 );
                 event.emit('done-process-file');
