@@ -246,7 +246,7 @@ router.post('/file', upload.single('file'), function (req, res) {
 
 function extractLAS2File(filePath, idProject, idWell, idDataset, successCb, errorCb) {
     wiImport.setBasePath(config.curveBasePath);
-    wiImport.extractLAS2(file.path, function (result) {
+    wiImport.extractLAS2(filePath, function (result) {
         let projectInfo = {
             idProject:idProject
         };
@@ -272,7 +272,6 @@ function extractLAS2File(filePath, idProject, idWell, idDataset, successCb, erro
         datasetInfo.name = wellInfo.name;
         datasetInfo.datasetLabel = wellInfo.name;
         datasetInfo.datasetKey = wellInfo.name;
-        //if (!idWell || idWell == "") {
         if ( isNaN(idWell) ) {
             importUtils.createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, curvesInfo)
                 .then(successCb)
