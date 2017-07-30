@@ -2,6 +2,8 @@
 const express = require('express');
 const config =  require('config');
 
+const util = require('util');
+
 const fs = require('fs');
 const formidable = require('formidable');
 const EventEmitter = require('events');
@@ -17,7 +19,7 @@ let well = require('../well/well.model');
 let dataset = require('../dataset/dataset.model');
 let curve = require('../curve/curve.model');
 let ResponseJSON = require('../response');
-let importUntils = require('../import-untils/import-untils');
+let importUtils = require('../import-untils/import-untils');
 let messageNotice = {
     error: 'Import Error',
     success: 'Import Success'
@@ -92,9 +94,6 @@ function getCurveInfo(section, datasetKey) {
 }
 
 router.post('/file', upload.single('file'), function (req, res) {
-    // TODO:
-    // Check if req.body.id_project != undefined || null
-    // Check if req.body.id_project is valid
     if (!req.body.id_project || req.body.id_project === "") {
         return res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, 'idProject can not be null')));
 
@@ -129,7 +128,7 @@ router.post('/file', upload.single('file'), function (req, res) {
             datasetInfo.datasetLabel = wellInfo.name;
             datasetInfo.datasetKey = wellInfo.name;
             if (!req.body.id_well || req.body.id_well === "") {
-                importUntils.createCurvesWithProjectExist(projectInfo,wellInfo,datasetInfo, curvesInfo)
+                importUtils.createCurvesWithProjectExist(projectInfo,wellInfo,datasetInfo, curvesInfo)
                     .then(function (result) {
                         res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, result)));
                     })
@@ -142,7 +141,7 @@ router.post('/file', upload.single('file'), function (req, res) {
                 //tao dataset %% curves for well exist
                 wellInfo.idWell = parseInt(req.body.id_well);
                 if (!req.body.id_dataset || req.body.id_dataset === "") {
-                    importUntils.createCurvesWithWellExist(wellInfo,datasetInfo,curvesInfo,{overwrite:false})
+                    importUtils.createCurvesWithWellExist(wellInfo,datasetInfo,curvesInfo,{overwrite:false})
                         .then(function (result) {
                             res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, result)));
                         })
@@ -154,7 +153,7 @@ router.post('/file', upload.single('file'), function (req, res) {
                     //create curves
                     datasetInfo = new Object();
                     datasetInfo.idDataset = parseInt(req.body.id_dataset);
-                    importUntils.createCurvesWithDatasetExist(wellInfo,datasetInfo, curvesInfo, {overwrite:false})
+                    importUtils.createCurvesWithDatasetExist(wellInfo,datasetInfo, curvesInfo, {overwrite:false})
                         .then(function (result) {
                             res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, result)));
                         })
@@ -194,7 +193,7 @@ router.post('/file', upload.single('file'), function (req, res) {
             console.log('well info la ', JSON.stringify(wellsInfo,null,2));
             if (!req.body.id_well || req.body.id_well === "") {
                 async.each(wellsInfo, function (wellInfo, callback) {
-                    importUntils.createCurvesWithProjectExist(projectInfo,wellInfo.wellInfo,datasetInfo, wellInfo.wellInfo.curves)
+                    importUtils.createCurvesWithProjectExist(projectInfo,wellInfo.wellInfo,datasetInfo, wellInfo.wellInfo.curves)
                         .then(function (result) {
                             results.push(result);
                             callback();
@@ -222,7 +221,7 @@ router.post('/file', upload.single('file'), function (req, res) {
                         res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error,"File has many wells")));
                     }
                     else {
-                        importUntils.createCurvesWithWellExist(wellInfo,datasetInfo,curvesInfo,{overwrite:false})
+                        importUtils.createCurvesWithWellExist(wellInfo,datasetInfo,curvesInfo,{overwrite:false})
                             .then(function (result) {
                                 res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, result)));
                             })
@@ -245,6 +244,141 @@ router.post('/file', upload.single('file'), function (req, res) {
     //return res.end(JSON.stringify(req.file));
 });
 
+function extractLAS2File(filePath, idProject, idWell, idDataset, successCb, errorCb) {
+    wiImport.setBasePath(config.curveBasePath);
+    wiImport.extractLAS2(file.path, function (result) {
+        let projectInfo = {
+            idProject:idProject
+        };
+        let wellInfo = null;
+
+        let curvesInfo = null;
+        
+        let datasetInfo = {
+            idWell: null,
+            name: "",
+            datasetKey: "",
+            datasetLabel: ""
+        };
+
+        result.forEach(function (section) {
+            if (/~WELL/g.test(section.name)) {
+                wellInfo = getWellInfo(section);
+            }
+            else if (/~CURVE/g.test(section.name)) {
+                curvesInfo = getCurveInfo(section, wellInfo.name);
+            }
+        });
+        datasetInfo.name = wellInfo.name;
+        datasetInfo.datasetLabel = wellInfo.name;
+        datasetInfo.datasetKey = wellInfo.name;
+        //if (!idWell || idWell == "") {
+        if ( isNaN(idWell) ) {
+            importUtils.createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, curvesInfo)
+                .then(successCb)
+                .catch(errorCb)
+        }
+        else {
+            //do something
+            //tao dataset %% curves for well exist
+            wellInfo.idWell = idWell;
+            if ( isNaN(idDataset) ) {
+                importUtils.createCurvesWithWellExist(wellInfo,datasetInfo,curvesInfo,{overwrite:false})
+                    .then(successCb)
+                    .catch(errorCb)
+            }
+            else {
+                //create curves
+                datasetInfo = new Object();
+                datasetInfo.idDataset = idDataset;
+                importUtils.createCurvesWithDatasetExist(wellInfo,datasetInfo, curvesInfo, {overwrite:false})
+                    .then(successCb)
+                    .catch(errorCb);
+            }
+        }
+    });
+}
+
+function handleMultiFiles(req, res) {
+    let idProject;
+    let idWells = new Array();
+    let idDatasets = new Array();
+    let files = new Array();
+
+
+    var form = new formidable.IncomingForm();
+    form.multiples = true;
+    form.uploadDir = '/tmp';
+    /*
+    form.parse(req, function (err, fields, files) {
+        console.log(util.inspect(files, {depth:4}));
+    });
+    */
+    form.on('end', function() {
+        var responseArray = new Array();
+        if(isNaN(idProject) {
+            res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, 'id_project param is invalid')));
+            return;
+        }
+        if (files.length <= 0) {
+            res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, 'No file uploaded')));
+            return;
+        }
+
+        let event = new EventEmitter();
+        event.on('done-process-file', function(){
+            if(responseArray.length >= files.length) {
+                res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, responseArray)));
+            }
+        });
+
+        files.forEach(function(f, index) {
+            if(! /\.LAS$/.test(f.name.toUpperCase())) {
+                //failure case
+                responseData.push(
+                    ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, "not .las file")
+                );
+                event.emit('done-process-file');
+                return; 
+            }
+            extractLAS2File(file.path, idProject, idWells[index], idDatasets[index], function (result) {
+                // Success callback
+                responseData.push(
+                    ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, result)
+                );
+                event.emit('done-process-file');
+            }, function (err) {
+                // error callback
+                responseData.push(
+                    ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, err)
+                );
+                event.emit('done-process-file');
+            });
+        });
+    });
+
+    form.on('field', function(name, value) {
+        // TODO:process field
+        if(name.trim() == "id_project") {
+            idProject = parseInt(value);
+        }
+        else if (/^id_wells/.test(name)) {
+            idWells.push(parseInt(value));
+        }
+        else if (/^id_datasets/.test(name)) {
+            idDatasets.push(parseInt(value));
+        }
+    });
+    form.on('file', function(name, file) {
+        files.push(file);
+    });
+    form.on('error', function (err) {
+        res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.INTERNAL_SERVER_ERROR, 'Internal server error')));
+    });
+    return;
+}
+router.port('/files', handleMultiFiles);
+/*
 router.post('/files', function (req, res) {
     let now = Date.now();
     var form = new formidable.IncomingForm();
@@ -287,7 +421,7 @@ router.post('/files', function (req, res) {
         event.on('done-process-files', function(){
             res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, results)));
         });
-        for (var key in files) if (files.hasOwnProperty(key)) {
+        for (var key in files) {
             let keyParts = key.split(/[\[\]]/, 2);
             let i = keyParts[1];
             let file = files[key];
@@ -321,7 +455,7 @@ router.post('/files', function (req, res) {
                     datasetInfo.datasetLabel = wellInfo.name;
                     datasetInfo.datasetKey = wellInfo.name;
                     if (!id_wells[i] || id_wells[i] === "") {
-                        importUntils.createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, curvesInfo)
+                        importUtils.createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, curvesInfo)
                             .then(function (result) {
                                 results.push(result);
                                 if (i == id_wells.length - 1) {
@@ -336,7 +470,7 @@ router.post('/files', function (req, res) {
                         //tao dataset %% curves for exist well
                         wellInfo.idWell = parseInt(id_wells[i]);
                         if (!id_datasets[i] || id_datasets[i] === "") {
-                            importUntils.createCurvesWithWellExist(wellInfo, datasetInfo, curvesInfo, { overwrite: false })
+                            importUtils.createCurvesWithWellExist(wellInfo, datasetInfo, curvesInfo, { overwrite: false })
                                 .then(function (result) {
                                     results.push(result);
                                     if (i == id_wells.length - 1) {
@@ -351,7 +485,7 @@ router.post('/files', function (req, res) {
                             //create curves
                             datasetInfo = new Object();
                             datasetInfo.idDataset = parseInt(id_datasets[i]);
-                            importUntils.createCurvesWithDatasetExist(wellInfo, datasetInfo, curvesInfo, { overwrite: false })
+                            importUtils.createCurvesWithDatasetExist(wellInfo, datasetInfo, curvesInfo, { overwrite: false })
                                 .then(function (result) {
                                     results.push(result);
                                     if (i == id_wells.length - 1) {
@@ -382,5 +516,6 @@ router.post('/files', function (req, res) {
     });
     return;
 });
+*/
 
 module.exports = router;
