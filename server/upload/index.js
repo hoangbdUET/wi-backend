@@ -316,7 +316,7 @@ function handleMultiFiles(req, res) {
     */
     form.on('end', function() {
         var responseArray = new Array();
-        if(isNaN(idProject) {
+        if(isNaN(idProject)) {
             res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, 'id_project param is invalid')));
             return;
         }
@@ -377,7 +377,7 @@ function handleMultiFiles(req, res) {
     });
     return;
 }
-router.port('/files', handleMultiFiles);
+router.post('/files', handleMultiFiles);
 /*
 router.post('/files', function (req, res) {
     let now = Date.now();
