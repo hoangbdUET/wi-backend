@@ -103,7 +103,8 @@ router.post('/file', upload.single('file'), function (req, res) {
     console.log(req.file);
     if (/LAS/.test(fileFormat.toUpperCase())) {
         wiImport.setBasePath(config.curveBasePath);
-        wiImport.extractLAS2(req.file.path, function (result) {
+        wiImport.extractLAS2(req.file.path, function (err, result) {
+
             let projectInfo = {
                 idProject:req.body.id_project
             };
