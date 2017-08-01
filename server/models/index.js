@@ -7,11 +7,14 @@ const sequelize = new Sequelize(config.dbName, config.user, config.password,{
         freezeTableName: true
     },
     dialect: config.dialect,
+    port:config.port,
+    logging: config.logging,
     pool:{
         max:20,
         min:0,
         idle:200
-    }
+    },
+    storage:config.storage
 });
 sequelize.sync()
     .catch(function (err) {
@@ -37,16 +40,16 @@ models.forEach(function (model) {
 });
 
 (function (m) {
-    m.Project_Well=m.Project.hasMany(m.Well,{foreignKey:"idProject",onDelete:'CASCADE'});
-    m.Well_Dataset=m.Well.hasMany(m.Dataset, {foreignKey: "idWell", onDelete: 'CASCADE'});
-    m.Well_Plot=m.Well.hasMany(m.Plot, {foreignKey: "idWell", onDelete: 'CASCADE'});
+    m.Project_Well=m.Project.hasMany(m.Well,{foreignKey:{name:"idProject",allowNull:false},onDelete:'CASCADE'});
+    m.Well_Dataset=m.Well.hasMany(m.Dataset, {foreignKey: {name:"idWell",allowNull:false}, onDelete: 'CASCADE'});
+    m.Well_Plot=m.Well.hasMany(m.Plot, {foreignKey: {name:"idWell",allowNull:false}, onDelete: 'CASCADE'});
 
-    m.Dataset_Curve=m.Dataset.hasMany(m.Curve, {foreignKey: "idDataset", onDelete: 'CASCADE'});
-    m.Plot_Track=m.Plot.hasMany(m.Track, {foreignKey: "idPlot", onDelete: 'CASCADE'});
-    m.Plot_DepthAxis=m.Plot.hasMany(m.DepthAxis, {foreignKey: "idPlot", onDelete: 'CASCADE'});
+    m.Dataset_Curve=m.Dataset.hasMany(m.Curve, {foreignKey: {name:"idDataset",allowNull:false}, onDelete: 'CASCADE'});
+    m.Plot_Track=m.Plot.hasMany(m.Track, {foreignKey: {name:"idPlot",allowNull:false}, onDelete: 'CASCADE'});
+    m.Plot_DepthAxis=m.Plot.hasMany(m.DepthAxis, {foreignKey: {name:"idPlot",allowNull:false}, onDelete: 'CASCADE'});
 
-    m.Track.hasMany(m.Line,{foreignKey:"idTrack",onDelete:'CASCADE'});
-    m.Line.belongsTo(m.Curve,{foreignKey:"idCurve",onDelete:'CASCADE'});
+    m.Track.hasMany(m.Line,{foreignKey:{name:"idTrack",allowNull:false},onDelete:'CASCADE'});
+    m.Line.belongsTo(m.Curve,{foreignKey:{name:"idCurve",allowNull:false},onDelete:'CASCADE'});
 
     m.FamilyCondition.belongsTo(m.Family, {foreignKey: 'idFamily'});
     m.Curve.belongsTo(m.Family, {as: 'LineProperty',foreignKey: 'idFamily'});

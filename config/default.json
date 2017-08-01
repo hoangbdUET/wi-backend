@@ -1,10 +1,12 @@
 {
   "Database":{
-    "dialect":"mysql",
+    "dialect":"mysql",  // "postgres" for PostgreSql, "mysql" for MySql, "sqlite" for sqLite
     "host":"localhost",
-    "port":"3306",
+    "port":3306,
     "user":"root",
     "password":"qwertyui",
+    "logging":false,     //Logging all database query if is set "true"
+    "storage":"/home/minhtan/wi_backend", //Path to database.sqlite (used for sqlite only)
     "dbName":"wi_backend"
   },
   "Application":{
