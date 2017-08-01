@@ -15,6 +15,7 @@ function createNewLine(lineInfo, done) {
                                 Line.build({
                                     idTrack: lineInfo.idTrack,
                                     idCurve: curve.idCurve,
+                                    alias:curve.name,
                                     minValue: family.minScale,
                                     maxValue: family.maxScale,
                                     displayMode: family.displayMode,
@@ -74,6 +75,14 @@ function editLine(lineInfo, done) {
             line.wrapMode = lineInfo.wrapMode;
             line.ignoreMissingValues = lineInfo.ignoreMissingValues;
             line.displayAs = lineInfo.displayAs;
+            line.alias = lineInfo.alias;
+            line.symbolName = lineInfo.symbolName;
+            line.symbolSize = lineInfo.symbolSize;
+            line.symbolStrokeType = lineInfo.symbolStrokeType;
+            line.symbolFillStyle = lineInfo.symbolFillStyle;
+            line.symbolLineWidth = lineInfo.symbolLineWidth;
+            line.symbolLineDash = lineInfo.symbolLineDash;
+
             line.save()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Line success", lineInfo));
