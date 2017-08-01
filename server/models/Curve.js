@@ -10,14 +10,6 @@ module.exports = function (sequelize, DataTypes) {
             allowNull:false,
             unique:"name-idDataset"
         },
-        dataset:{ // propose to remove
-            type:DataTypes.STRING(250),
-            allowNull:false
-        },
-        family:{
-            type:DataTypes.STRING(250),
-            allowNull:false
-        },
         unit:{
             type:DataTypes.STRING(250),
             allowNull:false

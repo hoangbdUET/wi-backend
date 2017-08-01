@@ -32,8 +32,6 @@ function createNewCurve(curveInfo,done) {
                 var curve = Curve.build({
                     idDataset: curveInfo.idDataset,
                     name: curveInfo.name,
-                    dataset: curveInfo.dataset,
-                    family: curveInfo.family,
                     unit: curveInfo.unit,
                     initValue: curveInfo.initValue
                 });
@@ -56,8 +54,6 @@ function editCurve(curveInfo, done) {
         .then(function (curve) {
             curve.idDataset = curveInfo.idDataset;
             curve.name = curveInfo.name;
-            curve.dataset = curveInfo.dataset;
-            curve.family = curveInfo.family;
             curve.unit = curveInfo.unit;
             curve.initValue = curveInfo.initValue;
             curve.save()
@@ -100,7 +96,6 @@ function getCurveInfo(curve, done) {
 function getData(param, successFunc, errorFunc) {
     Curve.findById(param.idCurve)
         .then(function(curve) {
-            console.log("000000000000000000", curve.dataset, curve.name, config.curveBasePath);
             successFunc( hashDir.createJSONReadStream(config.curveBasePath, curve.dataset + curve.name, curve.name + '.txt', '{\n"code": 200,\n"content":', '}\n') );
         })
         .catch(function() {
