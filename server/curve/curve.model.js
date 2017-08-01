@@ -32,8 +32,6 @@ function createNewCurve(curveInfo,done) {
                 var curve = Curve.build({
                     idDataset: curveInfo.idDataset,
                     name: curveInfo.name,
-                    dataset: curveInfo.dataset,
-                    family: curveInfo.family,
                     unit: curveInfo.unit,
                     initValue: curveInfo.initValue
                 });
@@ -56,8 +54,6 @@ function editCurve(curveInfo, done) {
         .then(function (curve) {
             curve.idDataset = curveInfo.idDataset;
             curve.name = curveInfo.name;
-            curve.dataset = curveInfo.dataset;
-            curve.family = curveInfo.family;
             curve.unit = curveInfo.unit;
             curve.initValue = curveInfo.initValue;
             curve.save()
