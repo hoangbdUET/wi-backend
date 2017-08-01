@@ -33,6 +33,8 @@ router.delete('/curve/delete', function (req, res) {
 });
 
 router.post('/curve/getData', function(req, res) {
+    // Encode data curve
+    /*
     curveModel.getData(req.body, function(err, resultStream) {
         if(err) res.send(err);
         else {
@@ -41,6 +43,12 @@ router.post('/curve/getData', function(req, res) {
             }
             else res.end(ResponseJSON(ErrorCodes.ERROR_CURVE_DATA_FILE_NOT_EXISTS, "Curve data file does not exist"));
         }
+    }, function(status) {
+        res.send(status);
+    });
+    */
+    curveModel.getData(req.body, function(resultStream) {
+        if(resultStream) resultStream.pipe(res);
     }, function(status) {
         res.send(status);
     });

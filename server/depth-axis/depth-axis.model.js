@@ -7,11 +7,12 @@ function createNewDepthAxis(depthAxisInfo,done) {
     DepthAxis.sync()
         .then(function () {
             var depthAxis = DepthAxis.build({
-                idPlot:depthAxisInfo.idPlot
+                idPlot:depthAxisInfo.idPlot,
+                orderNum: depthAxisInfo.orderNum
             });
             depthAxis.save()
                 .then(function (depthAxis) {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Depth-Axis success", {idDepthAxis: depthAxis.idDepthAxis}));
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Depth-Axis success", {idDepthAxis: depthAxis.idDepthAxis, orderNum: depthAxis.orderNum}));
                 })
                 .catch(function (err) {
                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name));

@@ -8,11 +8,12 @@ function createNewTrack(trackInfo,done) {
         .then(
             function () {
                 var track = Track.build({
-                    idPlot:trackInfo.idPlot
+                    idPlot:trackInfo.idPlot,
+                    orderNum:trackInfo.orderNum
                 });
                 track.save()
                     .then(function (track) {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Track success", {idTrack: track.idTrack}));
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Track success", {idTrack: track.idTrack, orderNum: track.orderNum}));
                     })
                     .catch(function (err) {
                         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Track "+err.name));

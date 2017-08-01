@@ -101,11 +101,12 @@ function getData(param, successFunc, errorFunc) {
     Curve.findById(param.idCurve)
         .then(function(curve) {
             console.log("000000000000000000", curve.dataset, curve.name, config.curveBasePath);
-            hashDir.DeCodeData(config.curveBasePath, curve.dataset + curve.name, curve.name + '.enc.txt', function (err, data) {
-                if(err) errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found"));
-                successFunc(false, data);
-            })
-            //successFunc( hashDir.createJSONReadStream(config.curveBasePath, curve.dataset + curve.name, curve.name + '.enc.txt', '{\n"code": 200,\n"content":', '}\n') );
+            // Encode data curve
+            // hashDir.DeCodeData(config.curveBasePath, curve.dataset + curve.name, curve.name + '.enc.txt', function (err, data) {
+            //     if(err) errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found"));
+            //     successFunc(false, data);
+            // })
+            successFunc( hashDir.createJSONReadStream(config.curveBasePath, curve.dataset + curve.name, curve.name + '.txt', '{\n"code": 200,\n"content":', '}\n') );
         })
         .catch(function() {
             errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found"));
