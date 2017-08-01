@@ -7,8 +7,7 @@ module.exports = function (sequelize, DataTypes) {
         },
         name:{
             type:DataTypes.STRING(50),
-            allowNull:false,
-            unique:"name-idDataset"
+            allowNull:false
         },
         unit:{
             type:DataTypes.STRING(250),

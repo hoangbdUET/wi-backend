@@ -59,21 +59,6 @@ function editLine(lineInfo, done) {
     Line.findById(lineInfo.idLine)
         .then(function (line) {
             line.idTrack = lineInfo.idTrack;
-            line.minValue = lineInfo.minValue;
-            line.maxValue = lineInfo.maxValue;
-            line.displayMode = lineInfo.displayMode;
-            line.blockPosition = lineInfo.blockPosition;
-            line.displayType = lineInfo.displayType;
-            line.lineStyle = lineInfo.lineStyle;
-            line.lineWidth = lineInfo.lineWidth;
-            line.lineColor = lineInfo.lineColor;
-
-            line.showHeader= lineInfo.showHeader;
-            line.showDataset = lineInfo.showDataset;
-            line.autoValueScale = lineInfo.autoValueScale;
-            line.wrapMode = lineInfo.wrapMode;
-            line.ignoreMissingValues = lineInfo.ignoreMissingValues;
-            line.displayAs = lineInfo.displayAs;
             line.save()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Line success", lineInfo));
