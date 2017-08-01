@@ -32,6 +32,7 @@ function createNewCurve(curveInfo,done) {
                 var curve = Curve.build({
                     idDataset: curveInfo.idDataset,
                     name: curveInfo.name,
+                    dataset: curveInfo.dataset,
                     unit: curveInfo.unit,
                     initValue: curveInfo.initValue
                 });
@@ -54,6 +55,7 @@ function editCurve(curveInfo, done) {
         .then(function (curve) {
             curve.idDataset = curveInfo.idDataset;
             curve.name = curveInfo.name;
+            curve.dataset = curveInfo.dataset;
             curve.unit = curveInfo.unit;
             curve.initValue = curveInfo.initValue;
             curve.save()
@@ -97,11 +99,6 @@ function getData(param, successFunc, errorFunc) {
     Curve.findById(param.idCurve)
         .then(function(curve) {
             console.log("000000000000000000", curve.dataset, curve.name, config.curveBasePath);
-            // Encode data curve
-            // hashDir.DeCodeData(config.curveBasePath, curve.dataset + curve.name, curve.name + '.enc.txt', function (err, data) {
-            //     if(err) errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found"));
-            //     successFunc(false, data);
-            // })
             successFunc( hashDir.createJSONReadStream(config.curveBasePath, curve.dataset + curve.name, curve.name + '.txt', '{\n"code": 200,\n"content":', '}\n') );
         })
         .catch(function() {
