@@ -78,7 +78,7 @@ function editLine(lineInfo, done) {
             line.alias = lineInfo.alias;
             line.symbolName = lineInfo.symbolName;
             line.symbolSize = lineInfo.symbolSize;
-            line.symbolStrokeType = lineInfo.symbolStrokeType;
+            line.symbolStrokeStyle = lineInfo.symbolStrokeStyle;
             line.symbolFillStyle = lineInfo.symbolFillStyle;
             line.symbolLineWidth = lineInfo.symbolLineWidth;
             line.symbolLineDash = lineInfo.symbolLineDash;
