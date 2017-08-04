@@ -68,7 +68,7 @@ module.exports = function (sequelize, DataTypes) {
         showEndLabels:{
             type:DataTypes.BOOLEAN,
             allowNull:false,
-            defaultValue:truet
+            defaultValue:true
         }
 
         // name:{
