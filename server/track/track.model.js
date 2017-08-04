@@ -83,5 +83,6 @@ function getTrackInfo(track,done) {
 module.exports = {
     createNewTrack:createNewTrack,
     deleteTrack:deleteTrack,
+    editTrack:editTrack,
     getTrackInfo:getTrackInfo
 };

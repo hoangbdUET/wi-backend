@@ -15,10 +15,16 @@ router.post('/track/new', function (req, res) {
         res.send(status);
     })
 });
+router.post('/track/edit', function (req, res) {
+    trackModel.editTrack(req.body,function (status) {
+        res.send(status);
+    })
+});
 router.delete('/track/delete', function (req, res) {
     trackModel.deleteTrack(req.body,function (status) {
         res.send(status);
     })
 });
+
 
 module.exports = router;
