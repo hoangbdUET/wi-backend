@@ -24,6 +24,36 @@ function createNewTrack(trackInfo,done) {
             }
         )
 }
+function editTrack(trackInfo, done) {
+    Track.findById(trackInfo.idTrack)
+        .then(function (track) {
+            track.idPlot = trackInfo.idPlot;
+            track.orderNum = trackInfo.orderNum;
+            track.showTitle = trackInfo.showTitle;
+            track.title = trackInfo.title;
+            track.topJustification = trackInfo.topJustification;
+            track.bottomJustification = trackInfo.bottomJustification;
+            track.showLabels = trackInfo.showLabels;
+            track.showValueGrid = trackInfo.showValueGrid;
+            track.majorTicks = trackInfo.majorTicks;
+            track.minorTicks = trackInfo.minorTicks;
+            track.showDepthGrid = trackInfo.showDepthGrid;
+            track.width = trackInfo.width;
+            track.color = trackInfo.color;
+            track.showEndLabels = trackInfo.showEndLabels;
+
+            track.save()
+                .then(function () {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Edit track success", trackInfo));
+                })
+                .catch(function (err) {
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit track" + err.name));
+                })
+        })
+        .catch(function () {
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Track not found for edit"))
+        });
+}
 function deleteTrack(trackInfo, done) {
     Track.findById(trackInfo.idTrack)
         .then(function (track) {
