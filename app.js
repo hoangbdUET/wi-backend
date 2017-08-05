@@ -19,6 +19,15 @@ var uploadRouter = require('./server/upload/index');
 var datasetRouter = require('./server/dataset/dataset.router');
 var lineRouter = require('./server/line/line.router');
 
+var http = require('http').Server(app);
+
+var io = require('socket.io')(http);
+io.on('connection', function (socket) {
+    console.log('Connecting');
+});//TODO
+
+lineRouter.registerHooks(io);
+projectRouter.registerHooks(io);
 
 app.use(cors());
 /**
@@ -51,6 +60,7 @@ app.get('/', function (req, res) {
 * */
 var FamilyUpdater = require('./server/family/FamilyUpdater');
 var FamilyConditionUpdater = require('./server/family/FamilyConditionUpdater');
-app.listen(config.port,function () {
+
+http.listen(config.port,function () {
     console.log("Listening on port "+config.port);
 });
