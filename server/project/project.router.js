@@ -6,15 +6,15 @@ var Project=require('../models').Project;
 
 router.use(bodyParser.json());
 router.registerHooks=function (io) {
-    Project.addHook('afterUpdate', 'notifyUsers', function (project) {
-        io.emit('project-info-change', project.toJSON());
+    Project.addHook('afterUpdate', 'afterProjectUpdate', function (project) {
+        io.emit('project-change', project.toJSON());
     });
 };
 
 router.post('/project/list', function (req, res) {
     projectModel.getProjectList(req.body,function (status) {
         res.send(status);
-    })
+    });
 });
 router.post('/project/info', function (req, res) {
     projectModel.getProjectInfo(req.body,function (status) {

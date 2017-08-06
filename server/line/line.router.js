@@ -10,9 +10,9 @@ router.use(bodyParser.json());
 
 router.registerHooks = function (io) {
     // TODO: register hooks to Line model here. Hook callback function should use "io" parameter for send info back to clients
-    Line.addHook('afterUpdate', 'notifyUsers', function (line) {
-        console.log('alksdjf');
-        io.emit('line-props-changes', line.toJSON());
+    Line.addHook('afterUpdate', 'afterLineUpdate', function (line) {
+        console.log('afterLineUpdate');
+        io.emit('line-change', line.toJSON());
     });
 };
 

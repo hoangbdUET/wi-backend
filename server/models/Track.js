@@ -6,9 +6,9 @@ module.exports = function (sequelize, DataTypes) {
             primaryKey:true
         },
         orderNum: {
-            type:DataTypes.INTEGER,
+            type:DataTypes.STRING(200),
             allowNull: false,
-            defaultValue: 0
+            defaultValue: 'zz'
         },
         showTitle:{
             type:DataTypes.BOOLEAN,

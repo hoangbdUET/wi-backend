@@ -31,9 +31,9 @@ module.exports = function (sequelize, DataTypes) {
             defaultValue:60
         },
         orderNum: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING(200),
             allowNull:false,
-            defaultValue: 0
+            defaultValue: 'zz'
         }
     });
 };
