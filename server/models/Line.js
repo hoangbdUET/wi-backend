@@ -62,47 +62,47 @@ module.exports = function (sequelize, DataTypes) {
         },
         lineStyle:{
             type:DataTypes.STRING(30),
-            allowNull:false,
+            allowNull:true,
             defaultValue:"[0]"
         },//Family
         lineWidth:{
             type:DataTypes.INTEGER,
-            allowNull:false,
+            allowNull:true,
             defaultValue:1
         },//Family
         lineColor:{
             type:DataTypes.STRING(30),
-            allowNull:false,
+            allowNull:true,
             defaultValue:"red"
         },//Family
         symbolName:{
             type:DataTypes.ENUM('Circle','Cross','Diamond','Dot','Plus','Square','Star','Triangle'),
-            allowNull:false,
+            allowNull:true,
             defaultValue:'Circle'
         },
         symbolSize:{
             type:DataTypes.INTEGER,
-            allowNull:false,
+            allowNull:true,
             defaultValue:5
         },
         symbolLineWidth:{
             type:DataTypes.INTEGER,
-            allowNull:false,
+            allowNull:true,
             defaultValue:1
         },
         symbolStrokeStyle:{
             type:DataTypes.STRING(30),
-            allowNull:false,
+            allowNull:true,
             defaultValue:"blue"
         },
         symbolFillStyle:{
             type:DataTypes.STRING(30),
-            allowNull:false,
+            allowNull:true,
             defaultValue:"blue"
         },
         symbolLineDash:{
             type:DataTypes.STRING(30),
-            allowNull:false,
+            allowNull:true,
             defaultValue:"[0]"
         },
         alias:{

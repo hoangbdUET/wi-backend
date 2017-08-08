@@ -47,7 +47,7 @@ function editTrack(trackInfo, done) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit track success", trackInfo));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit track" + err.name));
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit track" + err));
                 })
         })
         .catch(function () {
