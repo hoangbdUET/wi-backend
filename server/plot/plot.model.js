@@ -63,7 +63,7 @@ function deletePlot(plotInfo,done) {
 function getPlotInfo(plot, done) {
     Plot.findById(plot.idPlot, {include: [{all:true,include:[{all:true}]}]})
         .then(function (plot) {
-            if (!plot) throw "not exits";
+            if (!plot) throw "not exists";
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Plot success", plot));
         })
         .catch(function () {

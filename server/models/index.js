@@ -33,7 +33,8 @@ var models = [
     'Dataset',
     'Line',
     'Family',
-    'FamilyCondition'
+    'FamilyCondition',
+    'Shading'
 ];
 models.forEach(function (model) {
     module.exports[model] = sequelize.import(__dirname + '/' + model);
@@ -47,11 +48,15 @@ models.forEach(function (model) {
     m.Dataset_Curve=m.Dataset.hasMany(m.Curve, {foreignKey: {name:"idDataset",allowNull:false,unique:"name-idDataset"}, onDelete: 'CASCADE'});
     m.Plot_Track=m.Plot.hasMany(m.Track, {foreignKey: {name:"idPlot",allowNull:false}, onDelete: 'CASCADE'});
     m.Plot_DepthAxis=m.Plot.hasMany(m.DepthAxis, {foreignKey: {name:"idPlot",allowNull:false}, onDelete: 'CASCADE'});
+    m.Plot.belongsTo(m.Curve, {foreignKey: 'referenceCurve'});
 
     m.Track.hasMany(m.Line,{foreignKey:{name:"idTrack",allowNull:false},onDelete:'CASCADE'});
     m.Line.belongsTo(m.Curve,{foreignKey:{name:"idCurve",allowNull:false},onDelete:'CASCADE'});
 
     m.FamilyCondition.belongsTo(m.Family, {foreignKey: 'idFamily'});
     m.Curve.belongsTo(m.Family, {as: 'LineProperty',foreignKey: 'idFamily'});
+
+    m.Shading.belongsTo(m.Line,{foreignKey:'idLeftLine', onDelete:'CASCADE'});//TODO ondelete cascade??
+    m.Shading.belongsTo(m.Line,{foreignKey:{name:'idRightLine',allowNull:false},onDelete:'CASCADE'});
 })(module.exports);
 module.exports.sequelize = sequelize;

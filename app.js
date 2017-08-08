@@ -18,6 +18,7 @@ var depthAxisRouter = require('./server/depth-axis/depth-axis.router');
 var uploadRouter = require('./server/upload/index');
 var datasetRouter = require('./server/dataset/dataset.router');
 var lineRouter = require('./server/line/line.router');
+var shadingRouter = require('./server/shading/shading.router');
 
 var http = require('http').Server(app);
 
@@ -42,6 +43,7 @@ app.use('/project/well/dataset', curveRouter);//change
 app.use('/project/well/plot', depthAxisRouter);
 app.use('/project/well/plot', trackRouter);
 app.use('/project/well/plot/track', lineRouter);
+app.use('/project/well/plot/track', shadingRouter);
 
 
 /**
@@ -59,8 +61,8 @@ app.get('/', function (req, res) {
 /*
 *   Two rows beneath just run FamilyUpdater and FamilyCondition Updater
 * */
-var FamilyUpdater = require('./server/family/FamilyUpdater');
-var FamilyConditionUpdater = require('./server/family/FamilyConditionUpdater');
+require('./server/family/FamilyUpdater');
+require('./server/family/FamilyConditionUpdater');
 
 http.listen(config.port,function () {
     console.log("Listening on port "+config.port);

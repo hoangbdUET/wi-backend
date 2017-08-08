@@ -26,6 +26,13 @@ router.post('/curve/edit', function (req, res) {
     })
 
 });
+router.post('/curve/export', function (req, res) {
+    curveModel.exportData(req.body,function (code,fileResult) {
+        res.status(code).sendFile(fileResult);
+    },function (code) {
+        res.status(code).end();
+    })
+});
 router.delete('/curve/delete', function (req, res) {
     curveModel.deleteCurve(req.body,function (status) {
         res.send(status);
