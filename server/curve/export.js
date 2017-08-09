@@ -18,11 +18,9 @@ module.exports.exportData= function (inputStream,cbForResult,option) {
     lineReader.on('close', function () {
         var ws = XLSX.utils.aoa_to_sheet(arrData);
         var wb = {SheetNames: [], Sheets: {}};
-
         wb.SheetNames.push("curve");
         wb.Sheets["curve"] = ws;
         XLSX.writeFile(wb, tempfile);
         cbForResult(200,tempfile);
-        fs.unlinkSync(tempfile)
     });
 };

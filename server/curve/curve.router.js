@@ -1,5 +1,5 @@
 'use strict';
-
+const fs = require('fs');
 const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
@@ -28,7 +28,10 @@ router.post('/curve/edit', function (req, res) {
 });
 router.post('/curve/export', function (req, res) {
     curveModel.exportData(req.body,function (code,fileResult) {
-        res.status(code).sendFile(fileResult);
+        res.status(code).sendFile(fileResult,function (err) {
+            if (err) console.log('Export curve: ' + err);
+            fs.unlinkSync(fileResult);
+        });
     },function (code) {
         res.status(code).end();
     })
