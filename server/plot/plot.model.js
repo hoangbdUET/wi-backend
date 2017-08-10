@@ -11,6 +11,7 @@ function createNewPlot(plotInfo, done) {
                 var plot = Plot.build({
                     idWell:plotInfo.idWell,
                     name: plotInfo.name,
+                    referenceCurve:plotInfo.referenceCurve,
                     option:plotInfo.option
                 });
                 plot.save()
@@ -32,6 +33,7 @@ function editPlot(plotInfo,done) {
         .then(function (plot) {
             plot.idWell = plotInfo.idWell;
             plot.name = plotInfo.name;
+            plot.referenceCurve = plotInfo.referenceCurve;
             plot.option = plotInfo.option;
             plot.save()
                 .then(function () {
