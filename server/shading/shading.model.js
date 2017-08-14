@@ -8,17 +8,16 @@ function createNewShading(shadingInfo, done) {
         .then(
             function () {
                 var shading = Shading.build({
-                    idShading: shadingInfo.idShading,
-                    shadingName: shadingInfo.shadingName,
+                    idLeftLine:shadingInfo.idLeftLine,
+                    idRightLine:shadingInfo.idRightLine,
+                    name: shadingInfo.name,
                     leftFixedValue: shadingInfo.leftFixedValue,
                     rightFixedValue: shadingInfo.rightFixedValue,
-                    shadingStyle: shadingInfo.shadingStyle,
-                    patternLeftForeground: shadingInfo.patternLeftForeground,
-                    patternLeftBackground: shadingInfo.patternLeftBackground,
-                    patternLeftName: shadingInfo.patternLeftName,
-                    patternRightForeground: shadingInfo.patternRightForeground,
-                    patternRightBackground: shadingInfo.patternRightBackground,
-                    patternRightName: shadingInfo.patternRightName
+                    isNegPosFill:shadingInfo.isNegPosFill,
+                    negativeFill:JSON.stringify(shadingInfo.negativeFill),
+                    positiveFill:JSON.stringify(shadingInfo.positiveFill),
+                    isNegPosFill:shadingInfo.isNegPosFill,
+                    selectedIdCurve:shadingInfo.selectedIdCurve
                 });
                 shading.save()
                     .then(function (shading) {
@@ -38,18 +37,9 @@ function createNewShading(shadingInfo, done) {
 function editShading(shadingInfo,done) {
     Shading.findById(shadingInfo.idShading)
         .then(function (shading) {
-            shading.shadingName = shadingInfo.shadingName;
-            shading.idLeftLine=shadingInfo.idLeftLine;
-            shading.idRightLine = shadingInfo.idRightLine;
-            shading.leftFixedValue = shadingInfo.leftFixedValue;
-            shading.rightFixedValue = shadingInfo.rightFixedValue;
-            shading.shadingStyle = shadingInfo.shadingStyle;
-            shading.patternLeftName=shadingInfo.patternLeftName;
-            shading.patternLeftForeground = shadingInfo.patternLeftForeground;
-            shading.patternLeftBackground = shadingInfo.patternLeftBackground;
-            shading.patternRightName = shadingInfo.patternRightName;
-            shading.patternRightForeground = shadingInfo.patternRightForeground;
-            shading.patternRightBackground = shadingInfo.patternRightBackground;
+            Object.keys(shadingInfo).forEach(prop => shading[prop]=shadingInfo[prop]);
+            delete shading.idShading;
+
             shading.save()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit shading success", shadingInfo));

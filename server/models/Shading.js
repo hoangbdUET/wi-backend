@@ -6,11 +6,10 @@ module.exports = function (sequelize, DataTypes) {
             allowNull:false,
             primaryKey:true
         },
-        shadingName:{
+        name:{
             type:DataTypes.STRING(150),
             allowNull:false,
         },
-
         leftFixedValue:{
             type:DataTypes.FLOAT,
             allowNull:true
@@ -19,54 +18,19 @@ module.exports = function (sequelize, DataTypes) {
             type:DataTypes.FLOAT,
             allowNull:true
         },
-
-        shadingStyle:{
+        negativeFill:{
+            type:DataTypes.TEXT,
+            allowNull:true
+        },
+        positiveFill:{
+            type:DataTypes.TEXT,
+            allowNull:false
+        },
+        isNegPosFill:{
             type:DataTypes.BOOLEAN,
             allowNull:false,
-            defaultValue:true//true is filling pattern
-        },
-        patternLeftName: {
-            type: DataTypes.STRING(30),
-            allowNull:false
-        },
-        patternLeftForeground:{
-            type:DataTypes.STRING(50),
-            allowNull:true,
-        },
-        patternLeftBackground:{
-            type:DataTypes.STRING(50),
-            allowNull:true,
-        },
-        patternRightName:{
-            type: DataTypes.STRING(30),
-            allowNull:false
-        },
-        patternRightForeground:{
-            type:DataTypes.STRING(50),
-            allowNull:true,
-        },
-        patternRightBackground:{
-            type:DataTypes.STRING(50),
-            allowNull:true,
+            defaultValue:true
         }
-        // vrMinValue: {
-        //     type:DataTypes.NUMERIC,
-        //     allowNull:true,
-        // }
-        // vrMaxValue: {
-        //
-        // },
-        // vrMaxColor: {
-        //
-        // },
-        // vrMinColor: {
-        //
-        // },
-        // vrPalete: {
-        //     type:DataTypes.STRING
-        // },
-        // vrFillColors: {
-        //     type:DataTypes.TEXT,
-        // }
+
     });
 };
