@@ -88,7 +88,7 @@ function editLine(lineInfo, done) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Line success", lineInfo));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Line "+err.name));
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Line "+err));
                 })
         })
         .catch(function () {

@@ -1,6 +1,6 @@
 {
   "Database":{
-    "dialect":"sqlite",  // "postgres" for PostgreSql, "mysql" for MySql, "sqlite" for sqLite
+    "dialect":"mysql",  // "postgres" for PostgreSql, "mysql" for MySql, "sqlite" for sqLite
     "host":"localhost",
     "port":3306,
     "user":"root",

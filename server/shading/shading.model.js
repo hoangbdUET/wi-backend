@@ -8,6 +8,7 @@ function createNewShading(shadingInfo, done) {
         .then(
             function () {
                 var shading = Shading.build({
+		    idTrack: shadingInfo.idTrack,
                     idLeftLine:shadingInfo.idLeftLine,
                     idRightLine:shadingInfo.idRightLine,
                     name: shadingInfo.name,
@@ -17,7 +18,7 @@ function createNewShading(shadingInfo, done) {
                     negativeFill:JSON.stringify(shadingInfo.negativeFill),
                     positiveFill:JSON.stringify(shadingInfo.positiveFill),
                     isNegPosFill:shadingInfo.isNegPosFill,
-                    selectedIdCurve:shadingInfo.selectedIdCurve
+                    idControlCurve:shadingInfo.idControlCurve
                 });
                 shading.save()
                     .then(function (shading) {

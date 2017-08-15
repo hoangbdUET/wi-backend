@@ -51,6 +51,7 @@ models.forEach(function (model) {
     m.Plot.belongsTo(m.Curve, {foreignKey: 'referenceCurve'});
 
     m.Track.hasMany(m.Line,{foreignKey:{name:"idTrack",allowNull:false},onDelete:'CASCADE'});
+    m.Track.hasMany(m.Shading,{foreignKey:{name:"idTrack",allowNull:false},onDelete:'CASCADE'});
     m.Line.belongsTo(m.Curve,{foreignKey:{name:"idCurve",allowNull:false},onDelete:'CASCADE'});
 
     m.FamilyCondition.belongsTo(m.Family, {foreignKey: 'idFamily'});
@@ -58,6 +59,6 @@ models.forEach(function (model) {
 
     m.Shading.belongsTo(m.Line,{foreignKey:'idLeftLine', onDelete:'CASCADE'});
     m.Shading.belongsTo(m.Line,{foreignKey:{name:'idRightLine',allowNull:false},onDelete:'CASCADE'});
-    m.Shading.belongsTo(m.Curve, {foreignKey: 'selectedIdCurve'});
+    m.Shading.belongsTo(m.Curve, {foreignKey: 'idControlCurve'});
 })(module.exports);
 module.exports.sequelize = sequelize;
