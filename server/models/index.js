@@ -34,7 +34,8 @@ var models = [
     'Line',
     'Family',
     'FamilyCondition',
-    'Shading'
+    'Shading',
+    'User'
 ];
 models.forEach(function (model) {
     module.exports[model] = sequelize.import(__dirname + '/' + model);
