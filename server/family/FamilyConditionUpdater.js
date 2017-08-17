@@ -1,12 +1,23 @@
 XLSX = require('xlsx');
 var models = require('../models');
 var FamilyCondition = models.FamilyCondition;
+var EventEmitter = require('events').EventEmitter;
 
-FamilyCondition.sync();
-function updateFamilyCondition(workbook, sheetName) {
+function updateFamilyCondition(workbook, sheetName, callback) {
     var worksheet = workbook.Sheets[sheetName];
     var range = XLSX.utils.decode_range(worksheet['!ref']);
+    var eventEmitter = new EventEmitter();
+    
+    var fcDoneCount = 0;
+    var totalFC = range.e.r - range.s.r;
 
+    eventEmitter.on('fc-done', function() {
+        fcDoneCount += 1;
+        if (fcDoneCount == totalFC) {
+            console.log("Done");
+            if( callback ) callback();
+        }
+    });
     for (var R = range.s.r + 1; R <= range.e.r; ++R) {
         var aFamilyCondition = buildFamilyCondition(R, worksheet);
         FamilyCondition.create({
@@ -16,10 +27,11 @@ function updateFamilyCondition(workbook, sheetName) {
             unit: aFamilyCondition.unit
         })
             .then(function () {
-                console.log("Insert family has idFamilyCondition" + aFamilyCondition.idFamilyCondition + " success");
+                eventEmitter.emit('fc-done');
             })
             .catch(function (err) {
                 console.log("FAIL: FamilyCondition" + aFamilyCondition.idFamilyCondition + " Error:" + err);
+                eventEmitter.emit('fc-done');
             });
 
     }
@@ -46,5 +58,10 @@ function getValueAtCell(rowIndex, colIndex, sheet) {
     return cell.v;
 }
 
-var workbook = XLSX.readFile(__dirname + '/Curve_family.xlsx');
-updateFamilyCondition(workbook, 'family_condition');
+
+module.exports = function(callback) {
+    FamilyCondition.sync().then( function() {
+        var workbook = XLSX.readFile(__dirname + '/Curve_family.xlsx');
+        updateFamilyCondition(workbook, 'family_condition', callback);
+    });
+}

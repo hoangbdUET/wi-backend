@@ -44,7 +44,7 @@ models.forEach(function (model) {
 (function (m) {
     m.Project_Well=m.Project.hasMany(m.Well,{foreignKey:{name:"idProject",allowNull:false,unique:"name-idProject"},onDelete:'CASCADE'});
     m.Well_Dataset=m.Well.hasMany(m.Dataset, {foreignKey: {name:"idWell",allowNull:false,unique:"name-idWell"}, onDelete: 'CASCADE'});
-    m.Well_Plot=m.Well.hasMany(m.Plot, {foreignKey: {name:"idWell",allowNull:false}, onDelete: 'CASCADE'});
+    m.Well_Plot=m.Well.hasMany(m.Plot, {foreignKey: {name:"idWell",allowNull:false,unique:"name-idWell"}, onDelete: 'CASCADE'});
 
     m.Dataset_Curve=m.Dataset.hasMany(m.Curve, {foreignKey: {name:"idDataset",allowNull:false,unique:"name-idDataset"}, onDelete: 'CASCADE'});
     m.Plot_Track=m.Plot.hasMany(m.Track, {foreignKey: {name:"idPlot",allowNull:false}, onDelete: 'CASCADE'});

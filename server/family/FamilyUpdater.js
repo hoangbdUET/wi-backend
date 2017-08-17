@@ -1,11 +1,22 @@
 XLSX = require('xlsx');
 var models = require('../models');
 var Family = models.Family;
-Family.sync();
+var EventEmitter = require('events').EventEmitter;
 
-function updateFamily(workbook, sheetName) {
+function updateFamily(workbook, sheetName, callback) {
     var worksheet = workbook.Sheets[sheetName];
     var range = XLSX.utils.decode_range(worksheet['!ref']);
+    var eventEmitter = new EventEmitter();
+
+    var famyCount = 0;
+    var totalFamy = range.e.r - range.s.r;
+
+    eventEmitter.on('famy-done', function() {
+        famyCount += 1;
+        if (famyCount == totalFamy ) {
+            if( callback ) callback();
+        }
+    });
 
     for (var R = range.s.r + 1; R <= range.e.r; ++R) {
         var aFamily = buildFamily(R, worksheet);
@@ -24,10 +35,11 @@ function updateFamily(workbook, sheetName) {
             lineColor: aFamily.lineColor
         })
             .then(function () {
-                console.log("Insert family has idFamily" + aFamily.idFamily + " success");
+                eventEmitter.emit('famy-done');
             })
             .catch(function (err) {
                 console.log("FAIL: Family" + aFamily.idFamily + " insert fail");
+                eventEmitter.emit('famy-done');
             })
 
     }
@@ -60,5 +72,9 @@ function getValueAtCell(rowIndex, colIndex, sheet) {
     return cell.v;
 }
 
-var workbook = XLSX.readFile(__dirname + '/Curve_family.xlsx');
-updateFamily(workbook, 'curve_family');
+module.exports = function(callback) {
+    Family.sync().then(function() {
+        var workbook = XLSX.readFile(__dirname + '/Curve_family.xlsx');
+        updateFamily(workbook, 'curve_family', callback);
+    });
+}
