@@ -3,7 +3,8 @@ module.exports = function (sequelize, DataTypes) {
         idUser:{
             type:DataTypes.INTEGER,
             autoIncrement:true,
-            allowNull:false
+            allowNull:false,
+            primaryKey:true
         },
         userName:{
             type:DataTypes.STRING(150),

@@ -29,6 +29,9 @@ function main() {
     var datasetRouter = require('./server/dataset/dataset.router');
     var lineRouter = require('./server/line/line.router');
     var shadingRouter = require('./server/shading/shading.router');
+    var zoneTrackRouter = require('./server/zone-track/zone-track.router');
+    var zoneSetRouter = require('./server/zone-set/zone-set.router');
+    var zoneRouter = require('./server/zone/zone.router');
 
     var http = require('http').Server(app);
 
@@ -56,6 +59,9 @@ function main() {
     app.use('/project/well/plot', trackRouter);
     app.use('/project/well/plot/track', lineRouter);
     app.use('/project/well/plot/track', shadingRouter);
+    app.use('/project/well/plot', zoneTrackRouter);
+    app.use('/project/well', zoneSetRouter);
+    app.use('/project/well/zone-set/', zoneRouter);
 
 
     /**
