@@ -22,9 +22,14 @@ module.exports = function (sequelize, DataTypes) {
             type:DataTypes.TEXT,
             allowNull:true
         },
+	fill:{
+            type:DataTypes.TEXT,
+            allowNull:true
+        },
+
         positiveFill:{
             type:DataTypes.TEXT,
-            allowNull:false
+            allowNull:true //truoc la false
         },
         isNegPosFill:{
             type:DataTypes.BOOLEAN,
