@@ -38,7 +38,11 @@ var models = [
     'User',
     'ZoneSet',
     'Zone',
-    'ZoneTrack'
+    'ZoneTrack',
+    'CrossPlot',
+    'Polygon',
+    'PointSet',
+    'Discrim'
 ];
 models.forEach(function (model) {
     module.exports[model] = sequelize.import(__dirname + '/' + model);
@@ -48,7 +52,8 @@ models.forEach(function (model) {
     m.Project_Well=m.Project.hasMany(m.Well,{foreignKey:{name:"idProject",allowNull:false,unique:"name-idProject"},onDelete:'CASCADE'});
     m.Well_Dataset=m.Well.hasMany(m.Dataset, {foreignKey: {name:"idWell",allowNull:false,unique:"name-idWell"}, onDelete: 'CASCADE'});
     m.Well_Plot=m.Well.hasMany(m.Plot, {foreignKey: {name:"idWell",allowNull:false,unique:"name-idWell"}, onDelete: 'CASCADE'});
-    m.Well.hasMany(m.ZoneSet, {foreignKey: {name: "idWell", allowNull: false}, onDelete: 'CASCADE'});
+    m.Well.hasMany(m.ZoneSet, {foreignKey: {name: "idWell", allowNull: false,unique:"name-idWell"}, onDelete: 'CASCADE'});
+    m.Well.hasMany(m.CrossPlot, {foreignKey: {name: "idWell", allowNull: false,unique:"name-idWell"}, onDelete: 'CASCADE'});
 
     m.Dataset_Curve=m.Dataset.hasMany(m.Curve, {foreignKey: {name:"idDataset",allowNull:false,unique:"name-idDataset"}, onDelete: 'CASCADE'});
     m.Plot_Track=m.Plot.hasMany(m.Track, {foreignKey: {name:"idPlot",allowNull:false}, onDelete: 'CASCADE'});
@@ -65,8 +70,18 @@ models.forEach(function (model) {
     m.FamilyCondition.belongsTo(m.Family, {foreignKey: 'idFamily'});
     m.Curve.belongsTo(m.Family, {as: 'LineProperty',foreignKey: 'idFamily'});
 
-    m.Shading.belongsTo(m.Line,{foreignKey:'idLeftLine', onDelete:'CASCADE'});
-    m.Shading.belongsTo(m.Line,{foreignKey:{name:'idRightLine',allowNull:false},onDelete:'CASCADE'});
+    m.Shading.belongsTo(m.Line, {foreignKey: 'idLeftLine', onDelete: 'CASCADE'});
+    m.Shading.belongsTo(m.Line, {foreignKey: {name: 'idRightLine', allowNull: false}, onDelete: 'CASCADE'});
     m.Shading.belongsTo(m.Curve, {foreignKey: 'idControlCurve'});
+
+    m.CrossPlot.hasMany(m.Polygon, {foreignKey: {name:'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
+    m.CrossPlot.hasMany(m.PointSet, {foreignKey: {name:'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
+    m.CrossPlot.hasMany(m.Discrim, {foreignKey: {name:'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
+
+    m.PointSet.belongsTo(m.Curve, {foreignKey: 'idCurveX'});
+    m.PointSet.belongsTo(m.Curve, {foreignKey: 'idCurveY'});
+    m.PointSet.belongsTo(m.Curve, {foreignKey: 'idCurveZ'});
+    m.PointSet.belongsTo(m.Well, {foreignKey: 'idWell'});
+
 })(module.exports);
 module.exports.sequelize = sequelize;

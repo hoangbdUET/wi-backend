@@ -32,6 +32,11 @@ function main() {
     var zoneTrackRouter = require('./server/zone-track/zone-track.router');
     var zoneSetRouter = require('./server/zone-set/zone-set.router');
     var zoneRouter = require('./server/zone/zone.router');
+    var crossPlotRouter = require('./server/cross-plot/cross-plot.router');
+    var pointSetRouter = require('./server/pointset/pointset.router');
+    var polygonRouter = require('./server/polygon/polygon.router');
+    var discrimRouter = require('./server/discrim/discrim.router');
+
 
     var http = require('http').Server(app);
 
@@ -62,6 +67,11 @@ function main() {
     app.use('/project/well/plot', zoneTrackRouter);
     app.use('/project/well', zoneSetRouter);
     app.use('/project/well/zone-set/', zoneRouter);
+    app.use('/project/well', crossPlotRouter);
+    app.use('/project/well/cross-plot', polygonRouter);
+    app.use('/project/well/cross-plot', pointSetRouter);
+    app.use('/project/well/cross-plot', discrimRouter);
+
 
 
     /**
