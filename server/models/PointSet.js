@@ -1,5 +1,5 @@
 module.exports = function (sequelize, DataTypes) {
-    return sequelize.define('point_set',{
+    return sequelize.define('pointset',{
         idPointSet:{
             type:DataTypes.INTEGER,
             autoIncrement:true,

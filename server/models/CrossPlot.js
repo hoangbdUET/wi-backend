@@ -1,5 +1,5 @@
 module.exports = function (sequelize, DataTypes) {
-    return sequelize.define('cross_plot', {
+    return sequelize.define('crossplot', {
         idCrossPlot:{
             type:DataTypes.INTEGER,
             primaryKey:true,
