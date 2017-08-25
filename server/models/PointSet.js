@@ -1,0 +1,99 @@
+module.exports = function (sequelize, DataTypes) {
+    return sequelize.define('pointset',{
+        idPointSet:{
+            type:DataTypes.INTEGER,
+            autoIncrement:true,
+            allowNullL:false,
+            primaryKey:true
+        },
+        left:{
+            type:DataTypes.FLOAT,
+            allowNullL:true
+        },
+        right:{
+            type:DataTypes.FLOAT,
+            allowNullL:true
+        },
+        bottom:{
+            type:DataTypes.FLOAT,
+            allowNullL:true
+        },
+        top:{
+            type:DataTypes.FLOAT,
+            allowNullL:true
+        },
+        logX:{
+            type:DataTypes.BOOLEAN,
+            allowNull:false,
+            defaultValue:false
+        },
+        logY:{
+            type:DataTypes.BOOLEAN,
+            allowNull:false,
+            defaultValue:false
+        },
+        majorX:{
+            type:DataTypes.INTEGER,
+            allowNull:true//TODO has default???:9
+        },
+        minorX:{
+            type:DataTypes.INTEGER,
+            allowNull:true//TODO has default???:9
+        },
+        majorY:{
+            type:DataTypes.INTEGER,
+            allowNull:true//TODO has default???:9
+        },
+        minorY:{
+            type:DataTypes.INTEGER,
+            allowNull:true//TODO has default???:9
+        },
+        min:{
+            type:DataTypes.INTEGER,
+            allowNull:true
+        },
+        max:{
+            type:DataTypes.INTEGER,
+            allowNull:true
+        },
+        numColor:{
+            type:DataTypes.INTEGER,
+            allowNull:true
+        },
+        pointSymbol:{
+            type:DataTypes.STRING(60),
+            allowNull:false
+        },
+        pointSize:{
+            type:DataTypes.INTEGER,
+            allowNull:false,
+            defaultValue:5
+        },
+        color:{
+            type:DataTypes.STRING(50),
+            allowNull:false,
+            defaultValue:'blue'
+        },
+        overlayLine:{
+            type:DataTypes.STRING(180),
+            allowNull:false,
+            defaultValue:'AnaDrill CDN 6.5in Den/Neu Rhof 1.0'
+        },
+        standalone:{
+            type:DataTypes.BOOLEAN,
+            allowNull:false,
+            defaultValue:false
+        },
+        showLine:{
+            type:DataTypes.BOOLEAN,
+            allowNull:false,
+            defaultValue:true
+        },
+        lineMode:{
+            type:DataTypes.BOOLEAN,
+            allowNull:false,
+            defaultValue:true//true is horizontal, false is vertical
+        }
+
+    });
+};

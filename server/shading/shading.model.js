@@ -17,12 +17,13 @@ function createNewShading(shadingInfo, done) {
                     isNegPosFill:shadingInfo.isNegPosFill,
                     negativeFill:JSON.stringify(shadingInfo.negativeFill),
                     positiveFill:JSON.stringify(shadingInfo.positiveFill),
+				    fill:JSON.stringify(shadingInfo.fill),
                     isNegPosFill:shadingInfo.isNegPosFill,
                     idControlCurve:shadingInfo.idControlCurve
                 });
                 shading.save()
-                    .then(function (shading) {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new shading success", shading.toJSON()));
+                    .then(function (result) {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new shading success", result));
                     })
                     .catch(function (err) {
                         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new shading" + err));
@@ -38,12 +39,15 @@ function createNewShading(shadingInfo, done) {
 function editShading(shadingInfo,done) {
     Shading.findById(shadingInfo.idShading)
         .then(function (shading) {
+			shadingInfo.positiveFill=JSON.stringify(shadingInfo.positiveFill);
+			shadingInfo.negativeFill=JSON.stringify(shadingInfo.negativeFill);
+			shadingInfo.fill=JSON.stringify(shadingInfo.fill);
             Object.keys(shadingInfo).forEach(prop => shading[prop]=shadingInfo[prop]);
             delete shading.idShading;
 
             shading.save()
-                .then(function () {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Edit shading success", shadingInfo));
+                .then(function (result) {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Edit shading success", result));
                 })
                 .catch(function (err) {
                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit shading" + err));
@@ -71,7 +75,7 @@ function deleteShading(shadingInfo, done) {
         })
 }
 function getShadingInfo(shading, done) {
-    Shading.findById(shading.idShading, {include: [{all: true}]})
+    Shading.findById(shading.idShading)
         .then(function (shading) {
             if (!shading) throw "not exists";
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get info shading success", shading));
