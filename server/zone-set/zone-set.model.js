@@ -64,10 +64,21 @@ function getZoneSetInfo(zoneSet,done) {
         })
 }
 
+function getZoneSetList(setInfo,done) {
+    ZoneSet.findAll({where:{idWell:setInfo.idWell}})
+        .then(function (zoneSetList) {
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Get list zoneset success", zoneSetList));
+        })
+        .catch(function () {
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "get zone-set list error"));
+        })
+}
+
 module.exports = {
     createNewZoneSet:createNewZoneSet,
     deleteZoneSet:deleteZoneSet,
     editZoneSet:editZoneSet,
-    getZoneSetInfo:getZoneSetInfo
+    getZoneSetInfo:getZoneSetInfo,
+    getZoneSetList:getZoneSetList
 };
 

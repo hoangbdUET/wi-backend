@@ -25,6 +25,11 @@ router.delete('/zone-set/delete', function (req, res) {
         res.send(status);
     })
 });
+router.post('/zone-set/list', function (req, res) {
+    zoneSetModel.getZoneSetList(req.body, function (status) {
+        res.send(status);
+    });
+});
 
 
 module.exports = router;
