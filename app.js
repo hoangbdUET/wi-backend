@@ -33,15 +33,11 @@ function main() {
     var zoneTrackRouter = require('./server/zone-track/zone-track.router');
     var zoneSetRouter = require('./server/zone-set/zone-set.router');
     var zoneRouter = require('./server/zone/zone.router');
-<<<<<<< HEAD
     var imageUpload = require('./server/image-upload');
-=======
     var crossPlotRouter = require('./server/cross-plot/cross-plot.router');
     var pointSetRouter = require('./server/pointset/pointset.router');
     var polygonRouter = require('./server/polygon/polygon.router');
     var discrimRouter = require('./server/discrim/discrim.router');
-
->>>>>>> d3147e41d2d1d119ff56fec7df4ed4825ce0f96b
 
     var http = require('http').Server(app);
 
@@ -72,17 +68,14 @@ function main() {
     app.use('/project/well/plot', zoneTrackRouter);
     app.use('/project/well', zoneSetRouter);
     app.use('/project/well/zone-set/', zoneRouter);
-<<<<<<< HEAD
-    app.use('/', imageUpload);
-    app.use(express.static(path.join(__dirname, fullConfig.imageBasePath)));
-=======
     app.use('/project/well', crossPlotRouter);
     app.use('/project/well/cross-plot', polygonRouter);
     app.use('/project/well/cross-plot', pointSetRouter);
     app.use('/project/well/cross-plot', discrimRouter);
+    app.use('/', imageUpload);
+    app.use(express.static(path.join(__dirname, fullConfig.imageBasePath)));
 
 
->>>>>>> d3147e41d2d1d119ff56fec7df4ed4825ce0f96b
 
     /**
      * Log manager
