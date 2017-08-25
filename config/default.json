@@ -12,7 +12,8 @@
   "Application":{
     "port":3000
   },
-  "curveBasePath": "../data"
+  "curveBasePath": "../data",
+  "imageBasePath": "wi-images"
 }
 
 // should ignore from git
