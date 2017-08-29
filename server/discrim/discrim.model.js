@@ -54,7 +54,6 @@ function deleteDiscrim(discrimInfo, done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Discim not found for delete"));
         });
 }
-fu
 function getDiscrimInfo(discrimInfo, done) {
     Discrim.findById(discrimInfo.idDiscrim)
         .then(function (discrim) {

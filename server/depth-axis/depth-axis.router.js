@@ -11,6 +11,7 @@ router.post('/depth-axis/info', function (req, res) {
     })
 });
 router.post('/depth-axis/new', function (req, res) {
+    //console.log(req.body);
     depthAxisModel.createNewDepthAxis(req.body,function (status) {
         res.send(status);
     });
