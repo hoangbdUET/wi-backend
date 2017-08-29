@@ -14,7 +14,7 @@ function createCurvesWithProjectExist(projectInfo,wellInfo,datasetInfo,curvesInf
             name: wellInfo.name,
             datasetKey:datasetInfo.datasetKey,
             datasetLabel:datasetInfo.datasetLabel,
-            curves:curvesInfo
+            curves: curvesInfo
         }]
     },{
         include:[{model:models.Dataset,include:[models.Curve]}]

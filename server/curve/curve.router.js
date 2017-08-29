@@ -3,46 +3,71 @@ const fs = require('fs');
 const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
+const cors = require('cors');
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 let curveModel = require('./curve.model');
 
+
 router.use(bodyParser.json());
 
+///start curve advance actions
+router.post('/curve/copy', (req, res) => {
+    console.log(req.body);
+    curveModel.copyCurve(req.body, (status) => {
+        res.send(status);
+    })
+    //res.send("Copy curve");
+});
+
+router.post('/curve/move', (req, res) => {
+    console.log(req.body);
+    curveModel.moveCurve(req.body, (status) => {
+        res.send(status);
+    })
+});
+
+router.delete('/curve/delete', function (req, res) {
+    console.log(req.body);
+    curveModel.deleteCurve(req.body, (status) => {
+        res.send(status);
+    })
+});
+///end curve advance actions
 router.post('/curve/info', function (req, res) {
-    curveModel.getCurveInfo(req.body,function (status) {
+    //console.log("Get info");
+    curveModel.getCurveInfo(req.body, function (status) {
         res.send(status);
     })
 });
 router.post('/curve/new', function (req, res) {
-    curveModel.createNewCurve(req.body,function (status) {
+    //console.log("Create curve");
+    curveModel.createNewCurve(req.body, function (status) {
         res.send(status);
     })
 
 });
 router.post('/curve/edit', function (req, res) {
-    curveModel.editCurve(req.body,function (status) {
+    //console.log("Edit curve");
+    curveModel.editCurve(req.body, function (status) {
         res.send(status);
     })
 
 });
 router.post('/curve/export', function (req, res) {
-    curveModel.exportData(req.body,function (code,fileResult) {
-        res.status(code).sendFile(fileResult,function (err) {
+    curveModel.exportData(req.body, function (code, fileResult) {
+        res.status(code).sendFile(fileResult, function (err) {
             if (err) console.log('Export curve: ' + err);
             fs.unlinkSync(fileResult);
         });
-    },function (code) {
+    }, function (code) {
         res.status(code).end();
     })
 });
-router.delete('/curve/delete', function (req, res) {
-    curveModel.deleteCurve(req.body,function (status) {
-        res.send(status);
-    })
-});
 
-router.post('/curve/getData', function(req, res) {
+
+router.post('/curve/getData', function (req, res) {
+    //console.log("Get data");
     // Encode data curve
     /*
     curveModel.getData(req.body, function(err, resultStream) {
@@ -57,9 +82,9 @@ router.post('/curve/getData', function(req, res) {
         res.send(status);
     });
     */
-    curveModel.getData(req.body, function(resultStream) {
-        if(resultStream) resultStream.pipe(res);
-    }, function(status) {
+    curveModel.getData(req.body, function (resultStream) {
+        if (resultStream) resultStream.pipe(res);
+    }, function (status) {
         res.send(status);
     });
 });
