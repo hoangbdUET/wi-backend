@@ -32,6 +32,7 @@ function editZone(zoneInfo, done) {
     Zone.findById(zoneInfo.idZone)
         .then(function (zone) {
             zone = Object.assign(zone, zoneInfo);
+            zone.fill = JSON.stringify(zone.fill);
             zone.save()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit zone success", zoneInfo));
