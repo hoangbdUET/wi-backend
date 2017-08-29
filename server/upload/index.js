@@ -25,8 +25,6 @@ let messageNotice = {
     error: 'Import Error',
     success: 'Import Success'
 };
-var fileUpload = require('express-fileupload');
-
 router.use(cors());
 
 var storage = multer.diskStorage({
