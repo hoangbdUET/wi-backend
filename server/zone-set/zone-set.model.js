@@ -14,6 +14,7 @@ function createNewZoneSet(zoneSetInfo,done) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new ZoneSet success", {idZoneSet: zoneSet.idZoneSet, orderNum: zoneSet.orderNum}));
                     })
                     .catch(function (err) {
+			console.log(err);
                         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new ZoneSet "+err.name));
                     })
             },

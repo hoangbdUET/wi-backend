@@ -16,6 +16,11 @@ router.post('/depth-axis/new', function (req, res) {
         res.send(status);
     });
 });
+router.post('/depth-axis/edit', function (req, res) {
+	depthAxisModel.editDepthAxis(req.body, function (status) {
+		res.send(status);
+	})	
+});
 router.delete('/depth-axis/delete', function (req, res) {
     depthAxisModel.deleteDepthAxis(req.body,function (status) {
         res.send(status);

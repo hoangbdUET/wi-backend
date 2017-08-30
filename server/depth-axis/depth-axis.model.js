@@ -44,6 +44,24 @@ function createNewDepthAxis(depthAxisInfo, done) {
             }
         )
 }
+function editDepthAxis(depthAxisInfo, done) {
+    DepthAxis.findById(depthAxisInfo.idDepthAxis)
+        .then(function (depthAxis) {
+            delete depthAxisInfo.idPlot;
+            delete depthAxisInfo.idDepthAxis;
+            Object.assign(depthAxis,depthAxisInfo)
+                .save()
+                .then(function (result) {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Depth Axis success",result));
+                })
+                .catch(function (err) {
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Depth Axis" + err));
+                })
+        })
+        .catch(function () {
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Depth Axis not found for edit"));
+        })
+}
 
 function deleteDepthAxis(depthAxisInfo, done) {
     DepthAxis.findById(depthAxisInfo.idDepthAxis)
@@ -76,5 +94,6 @@ function getDepthAxisInfo(depthAxis, done) {
 module.exports = {
     createNewDepthAxis: createNewDepthAxis,
     deleteDepthAxis: deleteDepthAxis,
+	editDepthAxis: editDepthAxis,
     getDepthAxisInfo: getDepthAxisInfo
 };
