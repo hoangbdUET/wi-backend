@@ -42,7 +42,8 @@ var models = [
     'CrossPlot',
     'Polygon',
     'PointSet',
-    'Discrim'
+    'Discrim',
+    'Image'
 ];
 models.forEach(function (model) {
     module.exports[model] = sequelize.import(__dirname + '/' + model);
@@ -65,6 +66,7 @@ models.forEach(function (model) {
 
     m.Track.hasMany(m.Line,{foreignKey:{name:"idTrack",allowNull:false},onDelete:'CASCADE'});
     m.Track.hasMany(m.Shading,{foreignKey:{name:"idTrack",allowNull:false},onDelete:'CASCADE'});
+    m.Track.hasMany(m.Image, {foreignKey: {name: "idTrack", allowNull: false}, onDelete: 'CASCADE'});
     m.Line.belongsTo(m.Curve,{foreignKey:{name:"idCurve",allowNull:false},onDelete:'CASCADE'});
 
     m.FamilyCondition.belongsTo(m.Family, {foreignKey: 'idFamily'});
@@ -81,7 +83,7 @@ models.forEach(function (model) {
     m.PointSet.belongsTo(m.Curve, {foreignKey: 'idCurveX'});
     m.PointSet.belongsTo(m.Curve, {foreignKey: 'idCurveY'});
     m.PointSet.belongsTo(m.Curve, {foreignKey: 'idCurveZ'});
-    m.PointSet.belongsTo(m.Well, {foreignKey: 'idWell'});
+    m.PointSet.belongsTo(m.Well, {foreignKey: {name:'idWell',allowNull:false},onDelete:'CASCADE'});
 
 })(module.exports);
 module.exports.sequelize = sequelize;

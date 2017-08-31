@@ -11,6 +11,10 @@ module.exports = function (sequelize, DataTypes) {
             allowNull:false,
             defaultValue:false
         },
+        func:{
+            type:DataTypes.STRING(5),
+            allowNull:false
+        }
 
     });
 };
