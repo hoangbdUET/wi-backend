@@ -20,19 +20,8 @@ function createNewDepthAxis(depthAxisInfo, done) {
                     geometryWidth: depthAxisInfo.geometryWidth
                 });
                 depthAxis.save()
-                    .then(function (depthAxisInfo) {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Depth-Axis success", {
-                            idPlot: depthAxisInfo.idPlot,
-                            orderNum: depthAxisInfo.orderNum,
-                            showTitle: depthAxisInfo.showTitle,
-                            trackBackground: depthAxisInfo.trackBackground,
-                            title: depthAxisInfo.title,
-                            justification: depthAxisInfo.justification,
-                            depthType: depthAxisInfo.depthType,
-                            unitType: depthAxisInfo.unitType,
-                            decimals: depthAxisInfo.decimals,
-                            geometryWidth: depthAxisInfo.geometryWidth
-                        }));
+                    .then(function (depthAxis) {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Depth-Axis success",depthAxis));
                     })
                     .catch(function (err) {
                         //console.log(err);
