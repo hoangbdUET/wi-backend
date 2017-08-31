@@ -1,7 +1,7 @@
 var models = require('../models');
 var Line = models.Line;
 var ErrorCodes = require('../../error-codes').CODES;
-var Curve=models.Curve;
+var Curve = models.Curve;
 const ResponseJSON = require('../response');
 
 function createNewLine(lineInfo, done) {
@@ -15,7 +15,7 @@ function createNewLine(lineInfo, done) {
                                 Line.build({
                                     idTrack: lineInfo.idTrack,
                                     idCurve: curve.idCurve,
-                                    alias:curve.name,
+                                    alias: curve.name,
                                     minValue: family.minScale,
                                     maxValue: family.maxScale,
                                     displayMode: family.displayMode,
@@ -32,22 +32,25 @@ function createNewLine(lineInfo, done) {
                                         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name + " idTrack not exist"));
                                     });
                             })
-                            .catch(function () {
-                                console.log("HERRR");
+                            .catch(function (err) {
+                                //console.log(err);
+                                //console.log("No family " + lineInfo.idTrack);
+                                //fix create new line error without family
                                 Line.build({
                                     idTrack: lineInfo.idTrack,
                                     idCurve: curve.idCurve,
+                                    alias: curve.name
                                 }).save()
                                     .then(function (line) {
                                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", line.toJSON()));
                                     })
                                     .catch(function (err) {
-                                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name + " idTrack not exist"));
+                                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name + err.message));
                                     });
                             });
                     })
                     .catch(function () {
-                        done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS,"Curve not found for Create New Line"));
+                        done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found for Create New Line"));
                     })
             },
             function () {
@@ -56,6 +59,7 @@ function createNewLine(lineInfo, done) {
         )
 
 }
+
 function editLine(lineInfo, done) {
     Line.findById(lineInfo.idLine)
         .then(function (line) {
@@ -69,7 +73,7 @@ function editLine(lineInfo, done) {
             line.lineWidth = lineInfo.lineWidth;
             line.lineColor = lineInfo.lineColor;
 
-            line.showHeader= lineInfo.showHeader;
+            line.showHeader = lineInfo.showHeader;
             line.showDataset = lineInfo.showDataset;
             line.autoValueScale = lineInfo.autoValueScale;
             line.wrapMode = lineInfo.wrapMode;
@@ -88,14 +92,15 @@ function editLine(lineInfo, done) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Line success", lineInfo));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Line "+err));
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Line " + err));
                 })
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS,"Line not found for edit"));
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Line not found for edit"));
         })
 }
-function deleteLine(lineInfo,done) {
+
+function deleteLine(lineInfo, done) {
     Line.findById(lineInfo.idLine)
         .then(function (line) {
             line.destroy()
@@ -103,15 +108,16 @@ function deleteLine(lineInfo,done) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Line is deleted", line));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Line"+err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Line" + err.errors[0].message));
                 })
         })
         .catch(function () {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Line not found for delete"));
         })
 }
-function getLineInfo(line,done) {
-    Line.findById(line.idLine,{include:[{all:true,include:[{all:true}]}]})
+
+function getLineInfo(line, done) {
+    Line.findById(line.idLine, {include: [{all: true, include: [{all: true}]}]})
         .then(function (line) {
             if (!line) throw "not exist";
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Line success", line));
@@ -122,8 +128,8 @@ function getLineInfo(line,done) {
 }
 
 module.exports = {
-    createNewLine:createNewLine,
-    editLine:editLine,
-    deleteLine:deleteLine,
-    getLineInfo:getLineInfo
+    createNewLine: createNewLine,
+    editLine: editLine,
+    deleteLine: deleteLine,
+    getLineInfo: getLineInfo
 };

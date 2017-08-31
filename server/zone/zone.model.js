@@ -3,7 +3,8 @@ var Zone = models.Zone;
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 
-function createNewZone(zoneInfo,done) {
+function createNewZone(zoneInfo, done) {
+    zoneInfo.fill = JSON.stringify(zoneInfo.fill);
     Zone.sync()
         .then(
             function () {
@@ -11,10 +12,14 @@ function createNewZone(zoneInfo,done) {
                 var zone = Zone.build(zoneInfo);
                 zone.save()
                     .then(function (zone) {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Zone success", {idZone: zone.idZone, orderNum: zone.orderNum}));
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Zone success", {
+                            idZone: zone.idZone,
+                            orderNum: zone.orderNum
+                        }));
                     })
                     .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Zone "+err.name));
+                        console.log(err);
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Zone " + err.name));
                     })
             },
             function () {
@@ -22,10 +27,12 @@ function createNewZone(zoneInfo,done) {
             }
         )
 }
+
 function editZone(zoneInfo, done) {
     Zone.findById(zoneInfo.idZone)
         .then(function (zone) {
             zone = Object.assign(zone, zoneInfo);
+            zone.fill = JSON.stringify(zone.fill);
             zone.save()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit zone success", zoneInfo));
@@ -38,6 +45,7 @@ function editZone(zoneInfo, done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Zone not found for edit"))
         });
 }
+
 function deleteZone(zoneInfo, done) {
     Zone.findById(zoneInfo.idZone)
         .then(function (zone) {
@@ -46,14 +54,15 @@ function deleteZone(zoneInfo, done) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Zone is deleted", zone));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Zone "+err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Zone " + err.errors[0].message));
                 })
         })
         .catch(function () {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Zone not found for delete"));
         })
 }
-function getZoneInfo(zone,done) {
+
+function getZoneInfo(zone, done) {
     Zone.findById(zone.idZone, {include: [{all: true}]})
         .then(function (zone) {
             if (!zone) throw "not exits";
@@ -65,10 +74,10 @@ function getZoneInfo(zone,done) {
 }
 
 module.exports = {
-    createNewZone:createNewZone,
-    deleteZone:deleteZone,
-    editZone:editZone,
-    getZoneInfo:getZoneInfo
+    createNewZone: createNewZone,
+    deleteZone: deleteZone,
+    editZone: editZone,
+    getZoneInfo: getZoneInfo
 };
 
 

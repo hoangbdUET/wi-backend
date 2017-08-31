@@ -20,12 +20,11 @@ let dataset = require('../dataset/dataset.model');
 let curve = require('../curve/curve.model');
 let ResponseJSON = require('../response');
 let importUntils = require('../import-untils/import-untils');
+let bodyParser = require('body-parser');
 let messageNotice = {
     error: 'Import Error',
     success: 'Import Success'
 };
-
-
 router.use(cors());
 
 var storage = multer.diskStorage({
@@ -40,6 +39,7 @@ var storage = multer.diskStorage({
 var upload = multer({storage: storage});
 
 function getWellInfo(section) {
+    //console.log("SECTION : " + section.toString());
     let wellInfo = {};
     if (section.wellInfo) {
         section.wellInfo.curves = getCurveInfo(section, section.wellInfo.name);
@@ -64,7 +64,8 @@ function getWellInfo(section) {
     return wellInfo;
 }
 
-function getCurveInfo(section, datasetKey) {
+//function getCurveInfo(section, datasetKey) {
+function getCurveInfo(section) {
     let curvesInfo = new Array();
     if (section.wellInfo) {
         section.wellInfo.curves.forEach(function (item) {
@@ -73,7 +74,7 @@ function getCurveInfo(section, datasetKey) {
             curveInfo.unit = item.unit;
             curveInfo.initValue = "abc";
             curveInfo.family = "VNU";
-            curveInfo.dataset = datasetKey;
+            //curveInfo.dataset = "hoang";
             curveInfo.idDataset = null;
             curvesInfo.push(curveInfo);
         });
@@ -85,7 +86,7 @@ function getCurveInfo(section, datasetKey) {
             curveInfo.unit = item.unit;
             curveInfo.initValue = "abc";
             curveInfo.family = "VNU";
-            curveInfo.dataset = datasetKey;
+            //curveInfo.dataset = "hoang";
             curveInfo.idDataset = null;
             curvesInfo.push(curveInfo);
         });
@@ -105,23 +106,22 @@ function extractLAS2Done(result, options, callbackGetResult) {
         datasetKey: "",
         datasetLabel: ""
     };
-
     result.forEach(function (section) {
         if (/~WELL/g.test(section.name)) {
             wellInfo = getWellInfo(section);
         }
         else if (/~CURVE/g.test(section.name)) {
-            curvesInfo = getCurveInfo(section, wellInfo.name);
+            curvesInfo = getCurveInfo(section);
         }
     });
     datasetInfo.name = wellInfo.name;
     datasetInfo.datasetLabel = wellInfo.name;
     datasetInfo.datasetKey = wellInfo.name;
     if (!options.idWell || options.idWell === "") {
+        console.log("Create curves with project exist");
         importUntils.createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, curvesInfo)
             .then(function (result) {
                 callbackGetResult(false, result);
-                //res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, result)));
             })
             .catch(function (err) {
                 callbackGetResult(err, null);
@@ -132,6 +132,7 @@ function extractLAS2Done(result, options, callbackGetResult) {
         //tao dataset %% curves for well exist
         wellInfo.idWell = parseInt(options.idWell);
         if (!options.idDataset || options.idDataset === "") {
+            console.log("Create curves with Well exist");
             importUntils.createCurvesWithWellExist(wellInfo, datasetInfo, curvesInfo, {overwrite: false})
                 .then(function (result) {
                     callbackGetResult(false, result);
@@ -144,6 +145,7 @@ function extractLAS2Done(result, options, callbackGetResult) {
             //create curves
             datasetInfo = new Object();
             datasetInfo.idDataset = parseInt(options.idDataset);
+            console.log("Create curves with dataset exist");
             importUntils.createCurvesWithDatasetExist(wellInfo, datasetInfo, curvesInfo, {overwrite: false})
                 .then(function (result) {
                     callbackGetResult(false, result);
@@ -158,6 +160,7 @@ function extractLAS2Done(result, options, callbackGetResult) {
 }
 
 router.post('/file', upload.single('file'), function (req, res) {
+    //console.log(req.body);
     if (!req.body.id_project || req.body.id_project === "") {
         return res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, 'idProject can not be null')));
 
@@ -169,6 +172,7 @@ router.post('/file', upload.single('file'), function (req, res) {
     let idDataset = parseInt(req.body.id_dataset);
     if (/LAS/.test(fileFormat.toUpperCase())) {
         wiImport.setBasePath(config.curveBasePath);
+        console.log("Call extractLAS2");
         wiImport.extractLAS2(req.file.path, function (err, result) {
             if (err) {
                 return res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, err)));
@@ -179,15 +183,14 @@ router.post('/file', upload.single('file'), function (req, res) {
                     idWell: idWell,
                     idDataset: idDataset
                 }, function (err, result) {
-                    if(err) return res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, err)));
-                    wiImport.deleteFile(req.file.path);
+                    console.log(err.stack);
+                    if (err) return res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, err)));
                     res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, result)));
                 });
             }
         });
-
     }
-    else if(/ASC/.test(fileFormat.toUpperCase())) {
+    else if (/ASC/.test(fileFormat.toUpperCase())) {
         wiImport.extractASC(inDir + req.file.filename, function (result) {
             //do something with result
             console.log(result);
@@ -215,7 +218,7 @@ router.post('/file', upload.single('file'), function (req, res) {
             console.log('well info la ', JSON.stringify(wellsInfo, null, 2));
             if (!req.body.id_well || req.body.id_well === "") {
                 async.each(wellsInfo, function (wellInfo, callback) {
-                    importUtils.createCurvesWithProjectExist(projectInfo,wellInfo.wellInfo,datasetInfo, wellInfo.wellInfo.curves)
+                    importUtils.createCurvesWithProjectExist(projectInfo, wellInfo.wellInfo, datasetInfo, wellInfo.wellInfo.curves)
                         .then(function (result) {
                             results.push(result);
                             callback();
@@ -333,16 +336,17 @@ function handleMultiFiles(req, res) {
     let idWells = new Array();
     let idDatasets = new Array();
     let files = new Array();
+    console.log(req.body);
 
 
     var form = new formidable.IncomingForm();
     form.multiples = true;
     form.uploadDir = '/tmp';
 
-    form.on('end', function() {
+    form.on('end', function () {
         var responseArray = new Array();
         console.log('form on end:', idProject, idWells, idDatasets);
-        if(isNaN(idProject)) {
+        if (isNaN(idProject)) {
             res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, 'id_project param is invalid')));
             return;
         }
@@ -352,20 +356,20 @@ function handleMultiFiles(req, res) {
         }
 
         let event = new EventEmitter();
-        event.on('done-process-file', function(){
-            if(responseArray.length >= files.length) {
+        event.on('done-process-file', function () {
+            if (responseArray.length >= files.length) {
                 res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, responseArray)));
             }
         });
 
-        files.forEach(function(f, index) {
-            if(! /\.LAS$/.test(f.name.toUpperCase())) {
+        files.forEach(function (f, index) {
+            if (!/\.LAS$/.test(f.name.toUpperCase())) {
                 //failure case
                 responseArray.push(
                     ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, "not .las file")
                 );
                 event.emit('done-process-file');
-                return; 
+                return;
             }
             extractLAS2File(f.path, idProject, idWells[index], idDatasets[index], function (result) {
                 // Success callback
@@ -383,9 +387,9 @@ function handleMultiFiles(req, res) {
         });
     });
 
-    form.on('field', function(name, value) {
+    form.on('field', function (name, value) {
         // TODO:process field
-        if(name.trim() == "id_project") {
+        if (name.trim() == "id_project") {
             idProject = parseInt(value);
         }
         else if (/^id_wells/.test(name)) {
@@ -395,7 +399,7 @@ function handleMultiFiles(req, res) {
             idDatasets.push(parseInt(value));
         }
     });
-    form.on('file', function(name, file) {
+    form.on('file', function (name, file) {
         files.push(file);
     });
     form.on('error', function (err) {
@@ -404,7 +408,118 @@ function handleMultiFiles(req, res) {
 
     form.parse(req);
 }
-router.post('/files', handleMultiFiles);
+
+router.post('/files/prepare', upload.array('file'), (req, res) => {
+    //console.log(req.files);
+    let files = req.files;
+    let response = [];
+    let event = new EventEmitter.EventEmitter();
+    event.on('done-extract-well', (rs) => {
+        response.push(rs);
+        fs.unlink(__dirname + '/../../uploads/' + rs.name, err => {
+            if (err) console.log(err);
+        });
+        if (response.length == files.length) {
+            res.send(ResponseJSON(errorCodes.CODES.SUCCESS, 'Successful', response));
+        }
+    });
+    if (files.length > 0) {
+        for (let i = 0; i < files.length; i++) {
+            let list = files[i].filename.split('.');
+            let fileFormat = list[list.length - 1];
+            if (/LAS/.test(fileFormat.toUpperCase())) {
+                //LAS file
+                wiImport.setBasePath(config.curveBasePath);
+                wiImport.extractWellLAS2(req.files[i].path, (err, result) => {
+                    if (err) {
+                        event.emit(err);
+                    } else {
+                        let fileInfo = new Object();
+                        fileInfo.name = files[i].filename;
+                        fileInfo.originalname = files[i].originalname;
+                        fileInfo.wellInfo = null;
+                        fileInfo.datasetName = null;
+                        fileInfo.curves = null;
+                        result.forEach((section) => {
+                            if (/~WELL/g.test(section.name)) {
+                                let wellInfo = getWellInfo(section);
+                                fileInfo.datasetName = wellInfo.name;
+                                fileInfo.wellInfo = wellInfo;
+                            }
+                            else if (/~CURVE/g.test(section.name)) {
+                                let curvesInfo = getCurveInfo(section);
+                                fileInfo.curves = curvesInfo;
+                            }
+                        });
+                        event.emit('done-extract-well', fileInfo);
+                    }
+                });
+            } else {
+                //another file type
+            }
+        }
+    } else {
+        res.send(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, 'No File selected'));
+    }
+});
+
+
+router.post('/files', upload.array('file'), (req, res) => {
+    if (req.files.length > 0) {
+        console.log("Files uploaded : " + req.files.length);
+        let event = new EventEmitter.EventEmitter();
+        let response = [];
+        event.on('done', function (rs) {
+            response.push(rs);
+            if (response.length == req.files.length) {
+                res.send(ResponseJSON(errorCodes.CODES.SUCCESS, 'Successful', response));
+            }
+        });
+        let idProject = parseInt(req.body.id_project);
+        let idWell = parseInt(req.body.id_well);
+        let idDataset = parseInt(req.body.id_dataset);
+        for (let i = 0; i < req.files.length; i++) {
+            let list = req.files[i].filename.split('.');
+            let fileFormat = list[list.length - 1];
+            console.log(i + " ==== " + fileFormat);
+            if (/LAS/.test(fileFormat.toUpperCase())) {
+                wiImport.setBasePath(config.curveBasePath);
+                console.log("Call extractLAS2 : " + i);
+                console.log(req.files[i].path);
+                wiImport.extractLAS2(req.files[i].path, function (err, result) {
+                    if (err) {
+                        return res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, err)));
+                    }
+                    else {
+                        extractLAS2Done(result, {
+                            idProject: idProject,
+                            idWell: idWell[i],
+                            idDataset: idDataset[i]
+                        }, function (err, result) {
+                            //emit
+                            //if (err) return res.send(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, err));
+                            //res.send(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, result));
+                            if (err) {
+                                event.emit('done', err);
+                            } else {
+                                event.emit('done', result);
+                            }
+
+                        });
+                    }
+                });
+
+            } else {
+                //another files
+            }
+        }
+    } else {
+        res.send(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, 'No file'));
+    }
+});
+
+
+//router.post('/files', handleMultiFiles);
 /*
 router.post('/files', function (req, res) {
     var form = new formidable.IncomingForm();
