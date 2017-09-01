@@ -23,7 +23,7 @@ router.post('/discrim/edit', function (req, res) {
     })
 });
 
-router.post('/discrim/delete',function (req,res) {
+router.delete('/discrim/delete',function (req,res) {
     discrimModel.deleteDiscrim(req.body, function (status) {
         res.send(status);
     });

@@ -8,7 +8,7 @@ var ErrorCodes = require('../../error-codes').CODES;
 var jwt = require('jsonwebtoken');
 
 router.use(bodyParser.json());
-router.post('/authenticate', function (req, res) {
+router.post('/login', function (req, res) {
     User.findOne({where: {userName: req.body.userName}})
         .then(function (user) {
             if (!user) {
@@ -24,3 +24,14 @@ router.post('/authenticate', function (req, res) {
         });
 
 });
+router.post('/register', function (req, res) {
+    User.create({userName:req.body.userName,password:req.body.password})
+        .then(function (result) {
+            var token = jwt.sign(req.body, 'secretKey', {expiresIn: '1h'});
+            res.send(ResponseJSON(ErrorCodes.SUCCESS, "Success", token));
+        })
+        .catch(function (err) {
+            res.send(ResponseJSON(ErrorCodes.ERROR_USER_EXISTED, "Error" + err));
+        })
+});
+module.exports = router;

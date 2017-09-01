@@ -20,6 +20,7 @@ function main() {
     var fullConfig = require('config');
     var config = fullConfig.Application;
 
+    var authenRouter = require('./server/authenticate/authenticate.router');
     var projectRouter = require('./server/project/project.router');
     var wellRouter = require('./server/well/well.router');
     var plotRouter = require('./server/plot/plot.router');
@@ -50,11 +51,14 @@ function main() {
     lineRouter.registerHooks(io);
     projectRouter.registerHooks(io);
     */
-
     app.use(cors());
     /**
-       Attach all routers to app
+     Attach all routers to app
      */
+
+    app.use('/',authenRouter);
+    var authenticate = require('./server/authenticate/authenticate');
+    //app.use(authenticate());
     app.use('/', uploadRouter);
     app.use('/', projectRouter);
     app.use('/project', wellRouter);
@@ -88,8 +92,6 @@ function main() {
     app.get('/', function (req, res) {
         res.send("WELCOME TO WI-SYSTEM");
     });
-
-
     http.listen(config.port,function () {
         console.log("Listening on port "+config.port);
     });
