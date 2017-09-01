@@ -1,5 +1,7 @@
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
+var models = require('../models');
+var CrossPlot = models.CrossPlot;
 
 
 function createNewCrossPlot(crossPlotInfo, done) {
