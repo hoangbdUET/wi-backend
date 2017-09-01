@@ -62,7 +62,8 @@ module.exports = function (sequelize, DataTypes) {
         },
         pointSymbol:{
             type:DataTypes.STRING(60),
-            allowNull:false
+            allowNull:false,
+	    defaultValue: 'circle'
         },
         pointSize:{
             type:DataTypes.INTEGER,
