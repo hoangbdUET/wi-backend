@@ -1,5 +1,5 @@
 XLSX = require('xlsx');
-var models = require('../models');
+var models = require('../models-master');
 var Family = models.Family;
 var EventEmitter = require('events').EventEmitter;
 

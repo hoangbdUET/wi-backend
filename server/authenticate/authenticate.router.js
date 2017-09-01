@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-var models = require('../models');
+var models = require('../models-master');
 var bodyParser = require('body-parser');
 var User = models.User;
 var ResponseJSON = require('../response');
@@ -12,21 +12,25 @@ router.post('/login', function (req, res) {
     User.findOne({where: {userName: req.body.userName}})
         .then(function (user) {
             if (!user) {
-                res.send(ResponseJSON(ErrorCodes.SUCCESS,"Authentiactation success"))
-            }else {
-                if (user.password!=req.body.password) {
-                    res.send(ResponseJSON(ErrorCodes.SUCCESS,"Wrong password. Authenticate fail"))
-                }else {
+                res.send(ResponseJSON(ErrorCodes.SUCCESS, "Authentiactation success"))
+            } else {
+                if (user.password != req.body.password) {
+                    res.send(ResponseJSON(ErrorCodes.SUCCESS, "Wrong password. Authenticate fail"))
+                } else {
                     var token = jwt.sign(req.body, 'secretKey', {expiresIn: '1h'});
-                    res.send(ResponseJSON(ErrorCodes.SUCCESS, "Success",token));
+                    res.send(ResponseJSON(ErrorCodes.SUCCESS, "Success", token));
                 }
             }
         });
-
 });
 router.post('/register', function (req, res) {
-    User.create({userName:req.body.userName,password:req.body.password})
+    User.create({userName: req.body.userName, password: req.body.password})
         .then(function (result) {
+            //Create user's database;
+            var sequelize = result.sequelize;
+            var dbName = 'wi_' + result.userName;
+            sequelize.query('CREATE DATABASE ' + dbName);
+            //Create token then send
             var token = jwt.sign(req.body, 'secretKey', {expiresIn: '1h'});
             res.send(ResponseJSON(ErrorCodes.SUCCESS, "Success", token));
         })

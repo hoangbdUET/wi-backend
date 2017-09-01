@@ -58,7 +58,7 @@ function main() {
 
     app.use('/',authenRouter);
     var authenticate = require('./server/authenticate/authenticate');
-    //app.use(authenticate());
+    app.use(authenticate());
     app.use('/', uploadRouter);
     app.use('/', projectRouter);
     app.use('/project', wellRouter);

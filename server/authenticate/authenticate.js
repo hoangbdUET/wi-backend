@@ -1,4 +1,6 @@
 var jwt = require('jsonwebtoken');
+var models = require('../models');
+
 module.exports = function () {
     return function (req, res, next) {
         var token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
@@ -8,7 +10,9 @@ module.exports = function () {
                 if (err) {
                     return res.json({success: false, message: 'Failed to authenticate'});
                 } else {
+                    // req.model=models(
                     req.decoded = decoded;
+                    console.log(decoded);
                     next();
                 }
 
