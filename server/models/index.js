@@ -43,7 +43,8 @@ var models = [
     'Polygon',
     'PointSet',
     'Discrim',
-    'Image'
+    'Image',
+    'Histogram'
 ];
 models.forEach(function (model) {
     module.exports[model] = sequelize.import(__dirname + '/' + model);
@@ -55,6 +56,7 @@ models.forEach(function (model) {
     m.Well_Plot=m.Well.hasMany(m.Plot, {foreignKey: {name:"idWell",allowNull:false,unique:"name-idWell"}, onDelete: 'CASCADE'});
     m.Well.hasMany(m.ZoneSet, {foreignKey: {name: "idWell", allowNull: false}, onDelete: 'CASCADE'});
     m.Well.hasMany(m.CrossPlot, {foreignKey: {name: "idWell", allowNull: false,unique:"name-idWell"}, onDelete: 'CASCADE'});
+    m.Well.hasMany(m.Histogram, {foreignKey: {name: "idWell", allowNull: false} , onDelete: 'CASCADE'});
 
     m.Dataset_Curve=m.Dataset.hasMany(m.Curve, {foreignKey: {name:"idDataset",allowNull:false,unique:"name-idDataset"}, onDelete: 'CASCADE'});
     m.Plot_Track=m.Plot.hasMany(m.Track, {foreignKey: {name:"idPlot",allowNull:false}, onDelete: 'CASCADE'});
@@ -84,6 +86,10 @@ models.forEach(function (model) {
     m.PointSet.belongsTo(m.Curve, {foreignKey: 'idCurveY'});
     m.PointSet.belongsTo(m.Curve, {foreignKey: 'idCurveZ'});
     m.PointSet.belongsTo(m.Well, {foreignKey: {name:'idWell',allowNull:false},onDelete:'CASCADE'});
+
+    m.Histogram.belongsTo(m.Curve, {foreignKey: 'idCurve'});
+    //m.Histogram.belongsTo(m.Zone, {foreignKey: {name : 'idZone', allowNull: true}});
+    m.Histogram.belongsTo(m.Well, {foreignKey: {name:'idWell',allowNull:false},onDelete:'CASCADE'});
 
 })(module.exports);
 module.exports.sequelize = sequelize;
