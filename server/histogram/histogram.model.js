@@ -1,6 +1,9 @@
 "use strict";
 var models = require('../models');
 var Histogram = models.Histogram;
+var Zone = models.Zone;
+var ZoneSet = models.ZoneSet;
+var Well = models.Well;
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 
@@ -23,7 +26,12 @@ function getAllHistogram(done) {
 }
 
 function getHistogram(histogramId, done) {
-    Histogram.findById(histogramId.idHistogram, {include: [{all: true}]}).then(rs => {
+    Histogram.findById(histogramId.idHistogram, {
+        include: [{
+            model: ZoneSet,
+            include: [{model: Zone}]
+        }, {model: Well}]
+    }).then(rs => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Failed", err.message));

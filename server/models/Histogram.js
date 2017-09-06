@@ -45,10 +45,12 @@ module.exports = function (sequelize, DataTypes) {
         leftScale: {
             type: DataTypes.DOUBLE,
             allowNull: false,
+            defaultValue: 0
         },
         rightScale: {
             type: DataTypes.DOUBLE,
-            allowNull: false
+            allowNull: false,
+            defaultValue: 0
         },
         showGaussian: {
             type: DataTypes.BOOLEAN,
