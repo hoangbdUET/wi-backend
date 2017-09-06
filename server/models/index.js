@@ -44,7 +44,8 @@ var models = [
     'PointSet',
     'Discrim',
     'Image',
-    'Histogram'
+    'Histogram',
+    'Marker'
 ];
 models.forEach(function (model) {
     module.exports[model] = sequelize.import(__dirname + '/' + model);
@@ -90,6 +91,8 @@ models.forEach(function (model) {
     m.Histogram.belongsTo(m.Curve, {foreignKey: 'idCurve'});
     m.Histogram.belongsTo(m.ZoneSet, {foreignKey: {name : 'idZoneSet', allowNull: true}});
     m.Histogram.belongsTo(m.Well, {foreignKey: {name:'idWell',allowNull:false},onDelete:'CASCADE'});
+
+    m.Marker.belongsTo(m.Plot, {foreignKey: {name: 'idPlot', allowNull: false}});
 
 })(module.exports);
 module.exports.sequelize = sequelize;
