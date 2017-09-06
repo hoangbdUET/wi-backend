@@ -28,15 +28,15 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: true
         },
         //zone set
-        zone: {
-            type: DataTypes.STRING,
-            allowNull: true
-        },
-        //zone
-        activeZone: {
-            type: DataTypes.STRING,
-            allowNull: true
-        },
+        // zone: {
+        //     type: DataTypes.STRING,
+        //     allowNull: true
+        // },
+        // //zone
+        // activeZone: {
+        //     type: DataTypes.STRING,
+        //     allowNull: true
+        // },
         divisions: {
             type: DataTypes.INTEGER,
             allowNull: false,

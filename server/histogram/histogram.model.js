@@ -30,9 +30,44 @@ function getHistogram(histogramId, done) {
     })
 }
 
+function editHistogram(histogramInfo, done) {
+    Histogram.findById(histogramInfo.idHistogram)
+        .then(function (histogram) {
+            Object.assign(histogram, histogramInfo)
+                .save()
+                .then(function (result) {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Edit histogram success", result));
+                })
+                .catch(function (err) {
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit histogram" + err));
+                })
+        })
+        .catch(function () {
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "histogram not found for edit"));
+        })
+}
+
+function deleteHistogram(histogramInfo, done) {
+    Histogram.findById(histogramInfo.idHistogram)
+        .then(function (histogram) {
+            histogram.destroy()
+                .then(function () {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Histogram is deleted", histogram));
+                })
+                .catch(function (err) {
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Histogram " + err.errors[0].message));
+                })
+        })
+        .catch(function () {
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Histogram not found for delete"))
+        })
+}
+
 module.exports = {
     createNewHistogram: createNewHistogram,
     getAllHistogram: getAllHistogram,
-    getHistogram: getHistogram
+    getHistogram: getHistogram,
+    editHistogram: editHistogram,
+    deleteHistogram: deleteHistogram
 
 };

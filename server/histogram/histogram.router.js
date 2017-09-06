@@ -23,5 +23,17 @@ router.post('/histogram/all', function (req, res) {
     })
 });
 
+router.post('/histogram/edit', function (req, res) {
+    histogramModel.editHistogram(req.body, function (status) {
+        res.send(status);
+    });
+});
+
+router.delete('/histogram/delete', function (req, res) {
+    histogramModel.deleteHistogram(req.body, function (status) {
+        res.send(status);
+    });
+});
+
 
 module.exports = router;

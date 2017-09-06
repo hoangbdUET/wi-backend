@@ -88,7 +88,7 @@ models.forEach(function (model) {
     m.PointSet.belongsTo(m.Well, {foreignKey: {name:'idWell',allowNull:false},onDelete:'CASCADE'});
 
     m.Histogram.belongsTo(m.Curve, {foreignKey: 'idCurve'});
-    //m.Histogram.belongsTo(m.Zone, {foreignKey: {name : 'idZone', allowNull: true}});
+    m.Histogram.belongsTo(m.Zone, {foreignKey: {name : 'idZone', allowNull: true}});
     m.Histogram.belongsTo(m.Well, {foreignKey: {name:'idWell',allowNull:false},onDelete:'CASCADE'});
 
 })(module.exports);
