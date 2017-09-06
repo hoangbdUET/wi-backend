@@ -76,7 +76,8 @@ models.forEach(function (model) {
     m.Curve.belongsTo(m.Family, {as: 'LineProperty',foreignKey: 'idFamily'});
 
     m.Shading.belongsTo(m.Line, {foreignKey: 'idLeftLine', onDelete: 'CASCADE'});
-    m.Shading.belongsTo(m.Line, {foreignKey: {name: 'idRightLine', allowNull: false}, onDelete: 'CASCADE'});
+    m.Shading.belongsTo(m.Line, {foreignKey: 'idRightLine', onDelete: 'CASCADE'});
+    //m.Shading.belongsTo(m.Line, {foreignKey: {name: 'idRightLine', allowNull: false}, onDelete: 'CASCADE'});
     m.Shading.belongsTo(m.Curve, {foreignKey: 'idControlCurve'});
 
     m.CrossPlot.hasMany(m.Polygon, {foreignKey: {name:'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
