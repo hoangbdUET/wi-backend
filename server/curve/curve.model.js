@@ -31,6 +31,14 @@ Curve.hook('afterCreate', function (curve, options) {
     })(curve.name, curve.unit);
 });
 
+Curve.hook('beforeDestroy', function (curve, options) {
+    Dataset.findById(curve.idDataset).then(dataset => {
+        hashDir.deleteFolder(config.curveBasePath, dataset.name + curve.name);
+    }).catch(err => {
+        console.log("ERR WHILE DELETE CURVE : " + err);
+    });
+});
+
 function createNewCurve(curveInfo, done) {
     Curve.sync()
         .then(() => {
@@ -170,7 +178,6 @@ function deleteCurve(curveInfo, done) {
                         console.log("No dataset");
                     } else {
                         /*hashDir.createJSONReadStream(config.curveBasePath, dataset.name + curve.name, curve.name + '.txt');*/
-                        hashDir.deleteFolder(config.curveBasePath, dataset.name + curve.name);
                         curve.destroy()
                             .then(() => {
                                 done(ResponseJSON(ErrorCodes.SUCCESS, "Curve is deleted", curve));
@@ -200,6 +207,8 @@ function getData(param, successFunc, errorFunc) {
             if (curve) {
                 Dataset.findById(curve.idDataset).then((dataset) => {
                     //console.log("000000000000000000", dataset.name, curve.name, config.curveBasePath);
+                    //console.log("Dataset : " + dataset.name);
+                    //console.log("Curve : " + curve.name);
                     if (!dataset) {
                         console.log("No dataset");
                     } else {
