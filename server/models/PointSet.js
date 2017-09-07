@@ -6,19 +6,19 @@ module.exports = function (sequelize, DataTypes) {
             allowNullL:false,
             primaryKey:true
         },
-        left:{
+        scaleLeft:{
             type:DataTypes.FLOAT,
             allowNullL:true
         },
-        right:{
+        scaleRight:{
             type:DataTypes.FLOAT,
             allowNullL:true
         },
-        bottom:{
+        scaleBottom:{
             type:DataTypes.FLOAT,
             allowNullL:true
         },
-        top:{
+        scaleTop:{
             type:DataTypes.FLOAT,
             allowNullL:true
         },
@@ -48,11 +48,11 @@ module.exports = function (sequelize, DataTypes) {
             type:DataTypes.INTEGER,
             allowNull:true//TODO has default???:9
         },
-        min:{
+        scaleMin:{
             type:DataTypes.INTEGER,
             allowNull:true
         },
-        max:{
+        scaleMax:{
             type:DataTypes.INTEGER,
             allowNull:true
         },
@@ -70,7 +70,7 @@ module.exports = function (sequelize, DataTypes) {
             allowNull:false,
             defaultValue:5
         },
-        color:{
+        pointColor:{
             type:DataTypes.STRING(50),
             allowNull:false,
             defaultValue:'blue'

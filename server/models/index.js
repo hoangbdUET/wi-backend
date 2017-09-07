@@ -94,6 +94,7 @@ models.forEach(function (model) {
     m.Histogram.belongsTo(m.Well, {foreignKey: {name:'idWell',allowNull:false},onDelete:'CASCADE'});
 
     m.Marker.belongsTo(m.Track, {foreignKey: {name: 'idTrack', allowNull: false}});
+	m.Track.hasMany(m.Marker, {foreignKey: {name:'idTrack', allowNull:false}, onDelete:'CASCADE'});	
 
 })(module.exports);
 module.exports.sequelize = sequelize;
