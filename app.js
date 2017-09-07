@@ -74,7 +74,7 @@ function main() {
     app.use('/project/well/plot/track', lineRouter);
     app.use('/project/well/plot/track', shadingRouter);
     app.use('/project/well/plot', zoneTrackRouter);
-    app.use('/project/well/plot', markerRouter);
+    app.use('/project/well/plot/track', markerRouter);
     app.use('/project/well', zoneSetRouter);
     app.use('/project/well/zone-set/', zoneRouter);
     app.use('/project/well', crossPlotRouter);
