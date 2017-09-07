@@ -7,7 +7,7 @@ let palettify = require('wi-palettify');
 const path = require('path');
 
 
-let dataDir = __dirname + "\\data";
+let dataDir = path.join(__dirname, 'data');
 let errorCodes = require('../../error-codes');
 let ResponseJSON = require('../response');
 let router = express.Router();
