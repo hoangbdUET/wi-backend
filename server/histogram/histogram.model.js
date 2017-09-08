@@ -8,13 +8,41 @@ var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 
 function createNewHistogram(histogramInfo, done) {
-    Histogram.create(histogramInfo).then(result => {
-        Histogram.findById(result.idHistogram).then(his => {
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
+    if (histogramInfo.idZoneSet) {
+        Histogram.create(histogramInfo).then(result => {
+            Histogram.findById(result.idHistogram).then(his => {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
+            });
+        }).catch(err => {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new histogram error", err.message));
         });
-    }).catch(err => {
-        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new histogram error", err.message));
-    });
+    } else {
+        if (!histogramInfo.intervalDepthTop) {
+            Well.findById(parseInt(histogramInfo.idWell)).then(well => {
+                histogramInfo.intervalDepthTop = well.topDepth;
+                histogramInfo.intervalDepthBottom = well.bottomDepth;
+                Histogram.create(histogramInfo).then(result => {
+                    Histogram.findById(result.idHistogram).then(his => {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
+                    });
+                }).catch(err => {
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new histogram error", err.message));
+                });
+            }).catch(err => {
+                console.log(err);
+            });
+        } else {
+            Histogram.create(histogramInfo).then(result => {
+                Histogram.findById(result.idHistogram).then(his => {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
+                });
+            }).catch(err => {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new histogram error", err.message));
+            });
+        }
+    }
+
+
 }
 
 function getAllHistogram(done) {
@@ -32,7 +60,11 @@ function getHistogram(histogramId, done) {
             include: [{model: Zone}]
         }, {model: Well}]
     }).then(rs => {
-        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
+        if (rs) {
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram not exists"));
+        }
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Failed", err.message));
     })

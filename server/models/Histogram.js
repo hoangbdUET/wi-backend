@@ -33,10 +33,11 @@ module.exports = function (sequelize, DataTypes) {
         //     allowNull: true
         // },
         // //zone
-        // activeZone: {
-        //     type: DataTypes.STRING,
-        //     allowNull: true
-        // },
+        activeZone: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: "All"
+        },
         divisions: {
             type: DataTypes.INTEGER,
             allowNull: false,
