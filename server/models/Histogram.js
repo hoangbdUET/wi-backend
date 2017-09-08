@@ -68,6 +68,11 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: false
         },
+        showCumulative: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true
+        },
         flipHorizontal: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
@@ -82,6 +87,11 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING(20),
             allowNull: false,
             defaultValue: 'Blue'
+        },
+        plot: {
+            type: DataTypes.ENUM('Bar', 'Curve'),
+            allowNull: 'false',
+            defaultValue: 'Bar'
         },
         plotType: {
             type: DataTypes.ENUM('Frequency', 'Percent'),
