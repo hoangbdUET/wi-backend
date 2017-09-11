@@ -80,7 +80,7 @@ function main() {
     app.use('/project/well', crossPlotRouter);
     app.use('/project/well/cross-plot', polygonRouter);
     app.use('/project/well/cross-plot', pointSetRouter);
-    app.use('/project/well/cross-plot', discrimRouter);
+    app.use('/project/well/', discrimRouter);
     app.use('/project/well/', histogramRouter);
     app.use('/', imageUpload);
     app.use(express.static(path.join(__dirname, fullConfig.imageBasePath)));

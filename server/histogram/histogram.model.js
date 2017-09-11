@@ -58,7 +58,7 @@ function getHistogram(histogramId, done) {
         include: [{
             model: ZoneSet,
             include: [{model: Zone}]
-        }, {model: Well}]
+        }]
     }).then(rs => {
         if (rs) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
