@@ -1,9 +1,10 @@
 XLSX = require('xlsx');
-var models = require('../models-master');
-var Family = models.Family;
+// var models = require('../models-master');
+// var Family = models.Family;
 var EventEmitter = require('events').EventEmitter;
 
-function updateFamily(workbook, sheetName, callback) {
+function updateFamily(workbook, sheetName, callback,dbConnection) {
+    var Family = dbConnection.Family;
     var worksheet = workbook.Sheets[sheetName];
     var range = XLSX.utils.decode_range(worksheet['!ref']);
     var eventEmitter = new EventEmitter();
@@ -72,9 +73,10 @@ function getValueAtCell(rowIndex, colIndex, sheet) {
     return cell.v;
 }
 
-module.exports = function(callback) {
+module.exports = function(dbConnection, callback) {
+    var Family = dbConnection.Family;
     Family.sync().then(function() {
         var workbook = XLSX.readFile(__dirname + '/Curve_family.xlsx');
-        updateFamily(workbook, 'curve_family', callback);
+        updateFamily(workbook, 'curve_family', callback,dbConnection);
     });
 }

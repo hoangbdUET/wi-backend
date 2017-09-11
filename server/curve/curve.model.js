@@ -2,36 +2,19 @@
 
 var models = require('../models');
 var config = require('config');
-var Curve = models.Curve;
-var Dataset = models.Dataset;
-var Well = models.Well;
+// var Curve = models.Curve;
+// var Dataset = models.Dataset;
 var exporter = require('./export');
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
-var FamilyCondition = models.FamilyCondition;
+// var FamilyCondition = models.FamilyCondition;
 
 var wiImport = require('wi-import');
 var hashDir = wiImport.hashDir;
 
-Curve.hook('afterCreate', function (curve, options) {
-    ((curveName, unit) => {
-        FamilyCondition.findAll()
-            .then(conditions => {
-                var result = conditions.find(function (aCondition) {
-                    return new RegExp("^" + aCondition.curveName + "$").test(curveName) && new RegExp("^" + aCondition.unit + "$").test(unit);
-                });
-                if (!result) {
-                    return;
-                }
-                result.getFamily()
-                    .then(aFamily => {
-                        curve.setLineProperty(aFamily);
-                    })
-            })
-    })(curve.name, curve.unit);
-});
 
-function createNewCurve(curveInfo, done) {
+function createNewCurve(curveInfo, done,dbConnection) {
+    var Curve = dbConnection.Curve;
     Curve.sync()
         .then(() => {
                 var curve = Curve.build({
@@ -56,7 +39,8 @@ function createNewCurve(curveInfo, done) {
 
 }
 
-function editCurve(curveInfo, done) {
+function editCurve(curveInfo, done,dbConnection) {
+    var Curve = dbConnection.Curve;
     Curve.findById(curveInfo.idCurve)
         .then(curve => {
             curve.idDataset = curveInfo.idDataset;
@@ -78,7 +62,8 @@ function editCurve(curveInfo, done) {
 }
 
 
-function getCurveInfo(curve, done) {
+function getCurveInfo(curve, done,dbConnection) {
+    var Curve = dbConnection.Curve;
     Curve.findById(curve.idCurve, {include: [{all: true}]})
         .then(curve => {
             if (!curve) throw "not exits";
@@ -91,7 +76,8 @@ function getCurveInfo(curve, done) {
 
 ///curve advance acrions
 
-function copyCurve(param, rs) {
+function copyCurve(param, rs,dbConnection) {
+    var Curve = dbConnection.Curve;
     Curve.findById(param.idCurve).then(curve => {
         if (curve) {
             Dataset.findById(curve.idDataset).then(srcDataset => {
@@ -124,7 +110,8 @@ function copyCurve(param, rs) {
 
 }
 
-function moveCurve(param, rs) {
+function moveCurve(param, rs,dbConnection) {
+    var Curve = dbConnection.Curve;
     Curve.findById(param.idCurve).then(curve => {
         if (curve) {
             Dataset.findById(curve.idDataset).then(srcDataset => {
@@ -161,7 +148,8 @@ function moveCurve(param, rs) {
     });
 }
 
-function deleteCurve(curveInfo, done) {
+function deleteCurve(curveInfo, done,dbConnection) {
+    var Curve = dbConnection.Curve;
     Curve.findById(curveInfo.idCurve)
         .then(curve => {
             if (curve) {
@@ -193,8 +181,9 @@ function deleteCurve(curveInfo, done) {
 
 ///curve advance acrions end
 
-function getData(param, successFunc, errorFunc) {
+function getData(param, successFunc, errorFunc,dbConnection) {
     //console.log("GET DATA");
+    var Curve = dbConnection.Curve;
     Curve.findById(param.idCurve)
         .then(curve => {
             if (curve) {
@@ -219,7 +208,8 @@ function getData(param, successFunc, errorFunc) {
         });
 }
 
-function exportData(param, successFunc, errorFunc) {
+function exportData(param, successFunc, errorFunc,dbConnection) {
+    var Curve = dbConnection.Curve;
     Curve.findById(param.idCurve)
         .then(function (curve) {
             if (curve) {

@@ -6,25 +6,25 @@ var bodyParser = require('body-parser');
 
 router.use(bodyParser.json());
 router.post('/plot/info', function (req, res) {
-    plotModel.getPlotInfo(req.body,function (status) {
+    plotModel.getPlotInfo(req.body, function (status) {
         res.send(status);
-    })
+    }, req.dbConnection);
 
 });
 router.post('/plot/new', function (req, res) {
     plotModel.createNewPlot(req.body,function (status) {
         res.send(status);
-    })
+    }, req.dbConnection)
 });
 router.post('/plot/edit', function (req, res) {
     plotModel.editPlot(req.body,function (status) {
         res.send(status);
-    })
+    }, req.dbConnection)
 });
 router.delete('/plot/delete', function (req, res) {
     plotModel.deletePlot(req.body, function (status) {
         res.send(status);
-    })
+    }, req.dbConnection)
 });
 
 module.exports = router;

@@ -1,9 +1,9 @@
-var models = require('../models');
-var Well=models.Well;
-var Dataset=models.Dataset;
-var Curve=models.Curve;
+// var models = require('../models');
+// var Well=models.Well;
+// var Dataset=models.Dataset;
+// var Curve=models.Curve;
 
-function createCurvesWithProjectExist(projectInfo,wellInfo,datasetInfo,curvesInfo) {
+function createCurvesWithProjectExist(projectInfo,wellInfo,datasetInfo,curvesInfo,dbConnection) {
     return Well.create({
         idProject: projectInfo.idProject,
         name: wellInfo.name,
@@ -21,7 +21,7 @@ function createCurvesWithProjectExist(projectInfo,wellInfo,datasetInfo,curvesInf
     });
 }
 
-function createCurvesWithWellExist(wellInfo,datasetInfo,curvesInfo,option) {
+function createCurvesWithWellExist(wellInfo,datasetInfo,curvesInfo,option,dbConnection) {
 
     return models.sequelize.transaction(function (t) {
         return Dataset.create({
@@ -53,7 +53,7 @@ function createCurvesWithWellExist(wellInfo,datasetInfo,curvesInfo,option) {
 
 }
 
-function createCurvesWithDatasetExist(wellInfo, datasetInfo,curvesInfo,option) {
+function createCurvesWithDatasetExist(wellInfo, datasetInfo,curvesInfo,option,dbConnection) {
     curvesInfo.forEach(function (item) {
         item.idDataset = datasetInfo.idDataset;
     });

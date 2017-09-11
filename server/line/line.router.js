@@ -19,25 +19,25 @@ router.registerHooks = function (io) {
 router.post('/line/info', function (req, res) {
     lineModel.getLineInfo(req.body, function (status) {
         res.send(status);
-    });
+    },req.dbConnection);
 });
 
 router.post('/line/new', function (req, res) {
     lineModel.createNewLine(req.body, function(status) {
         res.send(status);
-    });
+    },req.dbConnection);
 });
 
 router.post('/line/edit', function (req, res) {
     lineModel.editLine(req.body, function (status) {
         res.send(status);
-    });
+    },req.dbConnection);
 });
 
 router.delete('/line/delete', function (req, res) {
     lineModel.deleteLine(req.body, function (status) {
         res.send(status);
-    });
+    },req.dbConnection);
 });
 
 module.exports = router;

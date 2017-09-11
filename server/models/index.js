@@ -1,7 +1,7 @@
 var Sequelize = require('sequelize');
 var config=require('config').Database;
 
-module.exports=function (dbName) {
+module.exports=function (dbName,callback) {
     var object = new Object();
     const sequelize = new Sequelize(dbName, config.user, config.password,{
         define: {
@@ -87,7 +87,37 @@ module.exports=function (dbName) {
 
     })(object);
     object.sequelize = sequelize;
-    console.log(sequelize.modelManager);
+
+    var familyUpdate = require('../family/FamilyUpdater');
+    var familyConditionUpdate = require('../family/FamilyConditionUpdater');
+
+    familyUpdate(object,function() {
+        familyConditionUpdate(object,function(){
+            // main();
+        });
+    });
+    //Register hook
+    var Curve=object.Curve;
+    var FamilyCondition = object.FamilyCondition;
+    var Family=object.Family;
+    Curve.hook('afterCreate', function (curve, options) {
+        ((curveName, unit) => {
+            FamilyCondition.findAll()
+                .then(conditions => {
+                    var result = conditions.find(function (aCondition) {
+                        return new RegExp("^" + aCondition.curveName + "$").test(curveName) && new RegExp("^" + aCondition.unit + "$").test(unit);
+                    });
+                    if (!result) {
+                        return;
+                    }
+                    result.getFamily()
+                        .then(aFamily => {
+                            curve.setLineProperty(aFamily);
+                        })
+                })
+        })(curve.name, curve.unit);
+    });
+    //End register hook
     return object;
 };
 

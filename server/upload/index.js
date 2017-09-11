@@ -218,7 +218,7 @@ router.post('/file', upload.single('file'), function (req, res) {
             console.log('well info la ', JSON.stringify(wellsInfo, null, 2));
             if (!req.body.id_well || req.body.id_well === "") {
                 async.each(wellsInfo, function (wellInfo, callback) {
-                    importUtils.createCurvesWithProjectExist(projectInfo, wellInfo.wellInfo, datasetInfo, wellInfo.wellInfo.curves)
+                    importUtils.createCurvesWithProjectExist(projectInfo, wellInfo.wellInfo, datasetInfo, wellInfo.wellInfo.curves,req.dbConnection)
                         .then(function (result) {
                             results.push(result);
                             callback();
@@ -246,7 +246,7 @@ router.post('/file', upload.single('file'), function (req, res) {
                         res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, "File has many wells")));
                     }
                     else {
-                        importUntils.createCurvesWithWellExist(wellInfo, datasetInfo, curvesInfo, {overwrite: false})
+                        importUntils.createCurvesWithWellExist(wellInfo, datasetInfo, curvesInfo, {overwrite: false},req.dbConnection)
 
                             .then(function (result) {
                                 res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, result)));

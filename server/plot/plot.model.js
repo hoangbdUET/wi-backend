@@ -1,10 +1,11 @@
-var models = require('../models');
-var Plot = models.Plot;
+// var models = require('../models');
+// var Plot = models.Plot;
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 
 
-function createNewPlot(plotInfo, done) {
+function createNewPlot(plotInfo, done,dbConnection) {
+    var Plot = dbConnection.Plot;
     Plot.sync()
         .then(
             function () {
@@ -28,7 +29,8 @@ function createNewPlot(plotInfo, done) {
         )
 }
 
-function editPlot(plotInfo,done) {
+function editPlot(plotInfo,done,dbConnection) {
+    var Plot = dbConnection.Plot;
     Plot.findById(plotInfo.idPlot)
         .then(function (plot) {
             plot.idWell = plotInfo.idWell;
@@ -47,7 +49,8 @@ function editPlot(plotInfo,done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS,"Plot not found for edit"));
         })
 }
-function deletePlot(plotInfo,done) {
+function deletePlot(plotInfo,done,dbConnection) {
+    var Plot = dbConnection.Plot;
     Plot.findById(plotInfo.idPlot)
         .then(function (plot) {
             plot.destroy()
@@ -62,7 +65,8 @@ function deletePlot(plotInfo,done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Plot not found for delete"));
         })
 }
-function getPlotInfo(plot, done) {
+function getPlotInfo(plot, done,dbConnection) {
+    var Plot = dbConnection.Plot;
     Plot.findById(plot.idPlot, {include: [{all:true,include:[{all:true}]}]})
         .then(function (plot) {
             if (!plot) throw "not exists";

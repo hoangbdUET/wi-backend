@@ -1,9 +1,10 @@
-var models = require('../models');
-var ZoneTrack = models.ZoneTrack;
+// var models = require('../models');
+// var ZoneTrack = models.ZoneTrack;
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 
-function createNewZoneTrack(zoneTrackInfo,done) {
+function createNewZoneTrack(zoneTrackInfo,done,dbConnection) {
+    var ZoneTrack = dbConnection.ZoneTrack;
     ZoneTrack.sync()
         .then(
             function () {
@@ -22,7 +23,8 @@ function createNewZoneTrack(zoneTrackInfo,done) {
             }
         )
 }
-function editZoneTrack(zoneTrackInfo, done) {
+function editZoneTrack(zoneTrackInfo, done,dbConnection) {
+    var ZoneTrack = dbConnection.ZoneTrack;
     ZoneTrack.findById(zoneTrackInfo.idZoneTrack)
         .then(function (zoneTrack) {
             zoneTrack = Object.assign(zoneTrack, zoneTrackInfo);
@@ -38,7 +40,8 @@ function editZoneTrack(zoneTrackInfo, done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "ZoneTrack not found for edit"))
         });
 }
-function deleteZoneTrack(zoneTrackInfo, done) {
+function deleteZoneTrack(zoneTrackInfo, done,dbConnection) {
+    var ZoneTrack = dbConnection.ZoneTrack;
     ZoneTrack.findById(zoneTrackInfo.idZoneTrack)
         .then(function (zoneTrack) {
             zoneTrack.destroy()
@@ -53,7 +56,8 @@ function deleteZoneTrack(zoneTrackInfo, done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "ZoneTrack not found for delete"));
         })
 }
-function getZoneTrackInfo(zoneTrack,done) {
+function getZoneTrackInfo(zoneTrack,done,dbConnection) {
+    var ZoneTrack=dbConnection.ZoneTrack;
     ZoneTrack.findById(zoneTrack.idZoneTrack, {include: [{all: true}]})
         .then(function (zoneTrack) {
             if (!zoneTrack) throw "not exits";

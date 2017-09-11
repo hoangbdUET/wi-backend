@@ -1,9 +1,10 @@
-var models = require('../models');
-var Shading=models.Shading;
+// var models = require('../models');
+// var Shading=models.Shading;
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 
-function createNewShading(shadingInfo, done) {
+function createNewShading(shadingInfo, done,dbConnection) {
+    var Shading = dbConnection.Shading;
     Shading.sync()
         .then(
             function () {
@@ -36,7 +37,8 @@ function createNewShading(shadingInfo, done) {
         )
 }
 
-function editShading(shadingInfo,done) {
+function editShading(shadingInfo,done,dbConnection) {
+    var Shading = dbConnection.Shading;
     Shading.findById(shadingInfo.idShading)
         .then(function (shading) {
 			shadingInfo.positiveFill=JSON.stringify(shadingInfo.positiveFill);
@@ -59,7 +61,8 @@ function editShading(shadingInfo,done) {
 
 
 }
-function deleteShading(shadingInfo, done) {
+function deleteShading(shadingInfo, done,dbConnection) {
+    var Shading = dbConnection.Shading;
     Shading.findById(shadingInfo.idShading)
         .then(function (shading) {
             shading.destroy()
@@ -74,7 +77,8 @@ function deleteShading(shadingInfo, done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS,"Shading not found for delete"))
         })
 }
-function getShadingInfo(shading, done) {
+function getShadingInfo(shading, done,dbConnection) {
+    var Shading = dbConnection.Shading;
     Shading.findById(shading.idShading)
         .then(function (shading) {
             if (!shading) throw "not exists";

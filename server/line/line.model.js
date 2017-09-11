@@ -1,10 +1,12 @@
-var models = require('../models');
-var Line = models.Line;
+// var models = require('../models');
+// var Line = models.Line;
 var ErrorCodes = require('../../error-codes').CODES;
-var Curve = models.Curve;
+// var Curve = models.Curve;
 const ResponseJSON = require('../response');
 
-function createNewLine(lineInfo, done) {
+function createNewLine(lineInfo, done,dbConnection) {
+    var Line = dbConnection.Line;
+    var Curve = dbConnection.Curve;
     Line.sync()
         .then(
             function () {
@@ -60,7 +62,8 @@ function createNewLine(lineInfo, done) {
 
 }
 
-function editLine(lineInfo, done) {
+function editLine(lineInfo, done,dbConnection) {
+    var Line = dbConnection.Line;
     Line.findById(lineInfo.idLine)
         .then(function (line) {
             line.idTrack = lineInfo.idTrack;
@@ -100,7 +103,8 @@ function editLine(lineInfo, done) {
         })
 }
 
-function deleteLine(lineInfo, done) {
+function deleteLine(lineInfo, done,dbConnection) {
+    var Line = dbConnection.Line;
     Line.findById(lineInfo.idLine)
         .then(function (line) {
             line.destroy()
@@ -116,7 +120,8 @@ function deleteLine(lineInfo, done) {
         })
 }
 
-function getLineInfo(line, done) {
+function getLineInfo(line, done,dbConnection) {
+    var Line = dbConnection.Line;
     Line.findById(line.idLine, {include: [{all: true, include: [{all: true}]}]})
         .then(function (line) {
             if (!line) throw "not exist";

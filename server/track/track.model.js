@@ -1,9 +1,10 @@
-var models = require('../models');
-var Track = models.Track;
+// var models = require('../models');
+// var Track = models.Track;
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 
-function createNewTrack(trackInfo,done) {
+function createNewTrack(trackInfo,done,dbConnection) {
+    var Track = dbConnection.Track;
     Track.sync()
         .then(
             function () {
@@ -24,7 +25,8 @@ function createNewTrack(trackInfo,done) {
             }
         )
 }
-function editTrack(trackInfo, done) {
+function editTrack(trackInfo, done,dbConnection) {
+    var Track=dbConnection.Track;
     Track.findById(trackInfo.idTrack)
         .then(function (track) {
             track.idPlot = trackInfo.idPlot;
@@ -54,7 +56,8 @@ function editTrack(trackInfo, done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Track not found for edit"))
         });
 }
-function deleteTrack(trackInfo, done) {
+function deleteTrack(trackInfo, done,dbConnection) {
+    var Track=dbConnection.Track;
     Track.findById(trackInfo.idTrack)
         .then(function (track) {
             track.destroy()
@@ -69,7 +72,8 @@ function deleteTrack(trackInfo, done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Track not found for delete"));
         })
 }
-function getTrackInfo(track,done) {
+function getTrackInfo(track,done,dbConnection) {
+    var Track=dbConnection.Track;
     Track.findById(track.idTrack, {include: [{all: true}]})
         .then(function (track) {
             if (!track) throw "not exits";

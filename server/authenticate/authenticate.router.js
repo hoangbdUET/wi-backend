@@ -12,7 +12,7 @@ router.post('/login', function (req, res) {
     User.findOne({where: {userName: req.body.userName}})
         .then(function (user) {
             if (!user) {
-                res.send(ResponseJSON(ErrorCodes.SUCCESS, "Authentiactation success"))
+                res.send(ResponseJSON(ErrorCodes.SUCCESS, "Authentication success"))
             } else {
                 if (user.password != req.body.password) {
                     res.send(ResponseJSON(ErrorCodes.SUCCESS, "Wrong password. Authenticate fail"))

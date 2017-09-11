@@ -1,9 +1,10 @@
-var models = require('../models');
-var Dataset = models.Dataset;
+// var models = require('../models');
+// var Dataset = models.Dataset;
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 
-function createNewDataset(datasetInfo, done) {
+function createNewDataset(datasetInfo, done,dbConnection) {
+    var Dataset = dbConnection.Dataset;
     Dataset.sync()
         .then(function () {
                 var dataset = Dataset.build({
@@ -25,7 +26,8 @@ function createNewDataset(datasetInfo, done) {
             }
         );
 }
-function editDataset(datasetInfo, done) {
+function editDataset(datasetInfo, done,dbConnection) {
+    var Dataset = dbConnection.Dataset;
     Dataset.findById(datasetInfo.idDataset)
         .then(function (dataset) {
             dataset.name = datasetInfo.name;
@@ -45,7 +47,8 @@ function editDataset(datasetInfo, done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Dataset not found for edit"))
         });
 }
-function deleteDataset(datasetInfo, done) {
+function deleteDataset(datasetInfo, done,dbConnection) {
+    var Dataset = dbConnection.Dataset;
     Dataset.findById(datasetInfo.idDataset)
         .then(function (dataset) {
             dataset.destroy()
@@ -60,7 +63,8 @@ function deleteDataset(datasetInfo, done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Dataset not found for delete"));
         });
 }
-function getDatasetInfo(dataset, done) {
+function getDatasetInfo(dataset, done,dbConnection) {
+    var Dataset = dbConnection.Dataset;
     Dataset.findById(dataset.idDataset, {include: [{all: true}]})
         .then(function (dataset) {
             if (!dataset) throw "not exist";

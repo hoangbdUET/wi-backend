@@ -1,9 +1,10 @@
-var models = require('../models');
-var Zone = models.Zone;
+// var models = require('../models');
+// var Zone = models.Zone;
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 
-function createNewZone(zoneInfo, done) {
+function createNewZone(zoneInfo, done,dbConnection) {
+    var Zone=dbConnection.Zone;
     zoneInfo.fill = JSON.stringify(zoneInfo.fill);
     Zone.sync()
         .then(
@@ -28,7 +29,8 @@ function createNewZone(zoneInfo, done) {
         )
 }
 
-function editZone(zoneInfo, done) {
+function editZone(zoneInfo, done,dbConnection) {
+    var Zone=dbConnection.Zone;
     Zone.findById(zoneInfo.idZone)
         .then(function (zone) {
             zone = Object.assign(zone, zoneInfo);
@@ -46,7 +48,8 @@ function editZone(zoneInfo, done) {
         });
 }
 
-function deleteZone(zoneInfo, done) {
+function deleteZone(zoneInfo, done,dbConnection) {
+    var Zone=dbConnection.Zone;
     Zone.findById(zoneInfo.idZone)
         .then(function (zone) {
             zone.destroy()
@@ -62,7 +65,8 @@ function deleteZone(zoneInfo, done) {
         })
 }
 
-function getZoneInfo(zone, done) {
+function getZoneInfo(zone, done,dbConnection) {
+    var Zone = dbConnection.Zone;
     Zone.findById(zone.idZone, {include: [{all: true}]})
         .then(function (zone) {
             if (!zone) throw "not exits";

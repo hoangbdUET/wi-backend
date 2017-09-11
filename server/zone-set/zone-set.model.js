@@ -1,9 +1,10 @@
-var models = require('../models');
-var ZoneSet = models.ZoneSet;
+// var models = require('../models');
+// var ZoneSet = models.ZoneSet;
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 
-function createNewZoneSet(zoneSetInfo,done) {
+function createNewZoneSet(zoneSetInfo,done,dbConnection) {
+    var ZoneSet=dbConnection.ZoneSet;
     ZoneSet.sync()
         .then(
             function () {
@@ -23,7 +24,8 @@ function createNewZoneSet(zoneSetInfo,done) {
             }
         )
 }
-function editZoneSet(zoneSetInfo, done) {
+function editZoneSet(zoneSetInfo, done,dbConnection) {
+    var ZoneSet = dbConnection.ZoneSet;
     ZoneSet.findById(zoneSetInfo.idZoneSet)
         .then(function (zoneSet) {
             zoneSet = Object.assign(zoneSet, zoneSetInfo);
@@ -39,7 +41,8 @@ function editZoneSet(zoneSetInfo, done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "ZoneSet not found for edit"))
         });
 }
-function deleteZoneSet(zoneSetInfo, done) {
+function deleteZoneSet(zoneSetInfo, done,dbConnection) {
+    var ZoneSet=dbConnection.ZoneSet;
     ZoneSet.findById(zoneSetInfo.idZoneSet)
         .then(function (zoneSet) {
             zoneSet.destroy()
@@ -54,7 +57,8 @@ function deleteZoneSet(zoneSetInfo, done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "ZoneSet not found for delete"));
         })
 }
-function getZoneSetInfo(zoneSet,done) {
+function getZoneSetInfo(zoneSet,done,dbConnection) {
+    var ZoneSet = dbConnection.ZoneSet;
     ZoneSet.findById(zoneSet.idZoneSet, {include: [{all: true}]})
         .then(function (zoneSet) {
             if (!zoneSet) throw "not exits";
@@ -65,7 +69,8 @@ function getZoneSetInfo(zoneSet,done) {
         })
 }
 
-function getZoneSetList(setInfo,done) {
+function getZoneSetList(setInfo,done,dbConnection) {
+    var ZoneSet = dbConnection.ZoneSet;
     ZoneSet.findAll({where:{idWell:setInfo.idWell}})
         .then(function (zoneSetList) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get list zoneset success", zoneSetList));

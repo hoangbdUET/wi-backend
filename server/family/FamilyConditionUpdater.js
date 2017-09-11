@@ -1,9 +1,10 @@
 XLSX = require('xlsx');
-var models = require('../models-master');
-var FamilyCondition = models.FamilyCondition;
+// var models = require('../models-master');
+// var FamilyCondition = models.FamilyCondition;
 var EventEmitter = require('events').EventEmitter;
 
-function updateFamilyCondition(workbook, sheetName, callback) {
+function updateFamilyCondition(workbook, sheetName, callback,dbConnection) {
+    var FamilyCondition = dbConnection.FamilyCondition;
     var worksheet = workbook.Sheets[sheetName];
     var range = XLSX.utils.decode_range(worksheet['!ref']);
     var eventEmitter = new EventEmitter();
@@ -59,9 +60,10 @@ function getValueAtCell(rowIndex, colIndex, sheet) {
 }
 
 
-module.exports = function(callback) {
+module.exports = function(dbConnection,callback) {
+    var FamilyCondition = dbConnection.FamilyCondition;
     FamilyCondition.sync().then( function() {
         var workbook = XLSX.readFile(__dirname + '/Curve_family.xlsx');
-        updateFamilyCondition(workbook, 'family_condition', callback);
+        updateFamilyCondition(workbook, 'family_condition', callback,dbConnection);
     });
 }

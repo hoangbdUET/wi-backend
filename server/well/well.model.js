@@ -1,9 +1,10 @@
-var models = require('../models');
-var Well = models.Well;
+// var models = require('../models');
+// var Well = models.Well;
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 
-function createNewWell(wellInfo, done) {
+function createNewWell(wellInfo, done,dbConnection) {
+    var Well = dbConnection.Well;
     Well.sync()
         .then(
             function () {
@@ -28,7 +29,8 @@ function createNewWell(wellInfo, done) {
         )
 
 }
-function editWell(wellInfo, done) {
+function editWell(wellInfo, done,dbConnection) {
+    var Well = dbConnection.Well;
     Well.findById(wellInfo.idWell)
         .then(function (well) {
             well.idProject = wellInfo.idProject;
@@ -48,7 +50,8 @@ function editWell(wellInfo, done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS,"Well not found for edit"));
         })
 }
-function deleteWell(wellInfo,done) {
+function deleteWell(wellInfo,done,dbConnection) {
+    var Well = dbConnection.Well;
     Well.findById(wellInfo.idWell)
         .then(function (well) {
             well.destroy()
@@ -63,7 +66,8 @@ function deleteWell(wellInfo,done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Well not found for delete"));
         })
 }
-function getWellInfo(well,done) {
+function getWellInfo(well,done,dbConnection) {
+    var Well = dbConnection.Well;
     Well.findById(well.idWell,{include:[{all:true,include:[{all:true}]}]})
         .then(function (well) {
             if (!well) throw "not exist";

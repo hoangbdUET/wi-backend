@@ -1,9 +1,10 @@
-var models = require('../models');
-var PointSet = models.PointSet;
+// var models = require('../models');
+// var PointSet = models.PointSet;
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 
-function createNewPointSet(pointSetInfo, done) {
+function createNewPointSet(pointSetInfo, done,dbConnection) {
+    var PointSet = dbConnection.PointSet;
     PointSet.sync()
         .then(function () {
             delete pointSetInfo.idPointSet;
@@ -19,7 +20,8 @@ function createNewPointSet(pointSetInfo, done) {
             done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
         });
 }
-function editPointSet(pointSetInfo, done) {
+function editPointSet(pointSetInfo, done,dbConnection) {
+    var PointSet = dbConnection.PointSet;
     PointSet.findById(pointSetInfo.idPointSet)
         .then(function (pointSet) {
             delete pointSetInfo.idPointSet;
@@ -37,7 +39,8 @@ function editPointSet(pointSetInfo, done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "PointSet not found for edit"));
         })
 }
-function deletePointSet(pointSetInfo, done) {
+function deletePointSet(pointSetInfo, done,dbConnection) {
+    var PointSet = dbConnection.PointSet;
     PointSet.findById(pointSetInfo.idPointSet)
         .then(function (pointSet) {
             pointSet.destroy()
@@ -52,7 +55,8 @@ function deletePointSet(pointSetInfo, done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS,"PointSet not found for delete"))
         })
 }
-function getPointSetInfo(pointSetInfo, done) {
+function getPointSetInfo(pointSetInfo, done,dbConnection) {
+    var PointSet = dbConnection.PointSet;
     PointSet.findById(pointSetInfo.idPointSet)
         .then(function (pointSet) {
             if (!pointSet) throw 'not exists';

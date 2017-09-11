@@ -1,9 +1,10 @@
-var models = require('../models');
-var Discrim=models.Discrim;
+// var models = require('../models');
+// var Discrim=models.Discrim;
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 
-function createNewDiscrim(discrimInfo,done) {
+function createNewDiscrim(discrimInfo,done,dbConnection) {
+    var Discrim = dbConnection.Discrim;
     Discrim.sync()
         .then(function () {
             delete discrimInfo.idDiscrim;
@@ -19,7 +20,8 @@ function createNewDiscrim(discrimInfo,done) {
             done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
         })
 }
-function editDiscim(discrimInfo, done) {
+function editDiscim(discrimInfo, done,dbConnection) {
+    var Discrim = dbConnection.Discrim;
     Discrim.findById(discrimInfo.idDiscrim)
         .then(function (discrim) {
             delete discrimInfo.idDiscrim;
@@ -39,7 +41,8 @@ function editDiscim(discrimInfo, done) {
         })
 }
 
-function deleteDiscrim(discrimInfo, done) {
+function deleteDiscrim(discrimInfo, done,dbConnection) {
+    var Discrim = dbConnection.Discrim;
     Discrim.findById(discrimInfo.idDiscrim)
         .then(function (discrim) {
             discrim.destroy()
@@ -54,7 +57,8 @@ function deleteDiscrim(discrimInfo, done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Discim not found for delete"));
         });
 }
-function getDiscrimInfo(discrimInfo, done) {
+function getDiscrimInfo(discrimInfo, done,dbConnection) {
+    var Discrim = dbConnection.Discrim;
     Discrim.findById(discrimInfo.idDiscrim)
         .then(function (discrim) {
             if (!discrim) throw 'not exists';

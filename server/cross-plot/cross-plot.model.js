@@ -2,7 +2,8 @@ var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 
 
-function createNewCrossPlot(crossPlotInfo, done) {
+function createNewCrossPlot(crossPlotInfo, done,dbConnection) {
+    var CrossPlot=dbConnection.CrossPlot;
     CrossPlot.sync()
         .then(
             function () {
@@ -25,6 +26,7 @@ function createNewCrossPlot(crossPlotInfo, done) {
 }
 
 function editCrossPlot(crossPlotInfo,done) {
+    var CrossPlot=dbConnection.CrossPlot;
     CrossPlot.findById(crossPlotInfo.idCrossPlot)
         .then(function (crossPlot) {
             crossPlot.idWell = crossPlotInfo.idWell;
@@ -42,6 +44,7 @@ function editCrossPlot(crossPlotInfo,done) {
         })
 }
 function deleteCrossPlot(crossPlotInfo,done) {
+    var CrossPlot=dbConnection.CrossPlot;
     CrossPlot.findById(crossPlotInfo.idCrossPlot)
         .then(function (crossPlot) {
             crossPlot.destroy()
@@ -57,6 +60,7 @@ function deleteCrossPlot(crossPlotInfo,done) {
         })
 }
 function getCrossPlotInfo(crossPlot, done) {
+    var CrossPlot=dbConnection.CrossPlot;
     CrossPlot.findById(crossPlot.idCrossPlot, {include: [{all:true,include:[{all:true}]}]})
         .then(function (crossPlot) {
             if (!crossPlot) throw "not exists";

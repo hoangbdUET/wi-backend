@@ -1,9 +1,10 @@
-var models = require('../models');
-var Polygon=models.Polygon;
+// var models = require('../models');
+// var Polygon=models.Polygon;
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 
-function createNewPolygon(polygonInfo, done) {
+function createNewPolygon(polygonInfo, done,dbConnection) {
+    var Polygon = dbConnection.Polygon;
     Polygon.sync()
         .then(function () {
             delete polygonInfo.idPolygon;
@@ -20,7 +21,8 @@ function createNewPolygon(polygonInfo, done) {
             done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
         })
 }
-function editPolygon(polygonInfo, done) {
+function editPolygon(polygonInfo, done,dbConnection) {
+    var Polygon = dbConnection.Polygon;
     Polygon.findById(polygonInfo.idPolygon)
         .then(function (polygon) {
             delete polygonInfo.idPolygon;
@@ -39,7 +41,8 @@ function editPolygon(polygonInfo, done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Polygon not found for edit"));
         })
 }
-function deletePolygon(polygonInfo, done) {
+function deletePolygon(polygonInfo, done,dbConnection) {
+    var Polygon = dbConnection.Polygon;
     Polygon.findById(polygonInfo.idPolygon)
         .then(function (polygon) {
             polygon.destroy()
@@ -54,7 +57,8 @@ function deletePolygon(polygonInfo, done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Polygon not found for delete"));
         })
 }
-function getPolygonInfo(polygonInfo, done) {
+function getPolygonInfo(polygonInfo, done,dbConnection) {
+    var Polygon = dbConnection.Polygon;
     Polygon.findById(polygonInfo.idPolygon)
         .then(function (polygon) {
             if (!polygon) throw 'not exists';

@@ -1,15 +1,15 @@
 /**
  * Created by minhtan on 20/06/2017.
  */
-var familyUpdate = require('./server/family/FamilyUpdater');
-var familyConditionUpdate = require('./server/family/FamilyConditionUpdater');
-
-familyUpdate(function() {
-    familyConditionUpdate(function(){
-        main();
-    });
-});
-
+// var familyUpdate = require('./server/family/FamilyUpdater');
+// var familyConditionUpdate = require('./server/family/FamilyConditionUpdater');
+//
+// familyUpdate(function() {
+//     familyConditionUpdate(function(){
+//         main();
+//     });
+// });
+main();
 function main() {
     var express = require('express');
     var app = express();
