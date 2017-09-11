@@ -1,9 +1,11 @@
+"use strict";
+
 var models = require('../models');
-var Discrim=models.Discrim;
+var Discrim = models.Discrim;
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 
-function createNewDiscrim(discrimInfo,done) {
+function createNewDiscrim(discrimInfo, done) {
     Discrim.sync()
         .then(function () {
             delete discrimInfo.idDiscrim;
@@ -15,16 +17,17 @@ function createNewDiscrim(discrimInfo,done) {
                 .catch(function (err) {
                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Discrim" + err));
                 })
-        },function () {
+        }, function () {
             done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
         })
 }
+
 function editDiscim(discrimInfo, done) {
     Discrim.findById(discrimInfo.idDiscrim)
         .then(function (discrim) {
             delete discrimInfo.idDiscrim;
             delete discrimInfo.idCrossPlot;
-            Object.assign(discrim,discrimInfo)
+            Object.assign(discrim, discrimInfo)
                 .save()
                 .then(function (result) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Discrim success", result));
@@ -54,6 +57,7 @@ function deleteDiscrim(discrimInfo, done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Discim not found for delete"));
         });
 }
+
 function getDiscrimInfo(discrimInfo, done) {
     Discrim.findById(discrimInfo.idDiscrim)
         .then(function (discrim) {
@@ -65,9 +69,28 @@ function getDiscrimInfo(discrimInfo, done) {
         })
 }
 
+function getListDiscrim(req, done) {
+    if (req.list == 'histogram') {
+        Discrim.findAll({where: {idHistogram: !null}}).then(function (discrims) {
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Get list Discrim of histogram success", discrims));
+        }).catch(function (err) {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Get list Discrim of histogram failed", err.message));
+        });
+    } else if (req.list == 'cross-plot') {
+        Discrim.findAll({where: {idCrossPlot: !null}}).then(function (discrims) {
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Get list Discrim of cross-plot success", discrims));
+        }).catch(function (err) {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Get list Discrim of cross-plot failed", err.message));
+        });
+    } else {
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Get list Discrim Failed, Can't read body"));
+    }
+}
+
 module.exports = {
     createNewDiscrim: createNewDiscrim,
     editDiscim: editDiscim,
     deleteDiscrim: deleteDiscrim,
-    getDiscrimInfo: getDiscrimInfo
+    getDiscrimInfo: getDiscrimInfo,
+    getListDiscrim: getListDiscrim
 };

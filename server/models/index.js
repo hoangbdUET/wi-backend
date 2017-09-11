@@ -82,8 +82,8 @@ models.forEach(function (model) {
 
     m.CrossPlot.hasMany(m.Polygon, {foreignKey: {name:'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
     m.CrossPlot.hasMany(m.PointSet, {foreignKey: {name:'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
-    //m.CrossPlot.hasMany(m.Discrim, {foreignKey: {name:'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
-    m.CrossPlot.hasMany(m.Discrim, {foreignKey: {name: 'idCrossPlot', allowNull: true}});
+    m.CrossPlot.hasMany(m.Discrim, {foreignKey: {name:'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
+    //m.CrossPlot.hasMany(m.Discrim, {foreignKey: {name: 'idCrossPlot', allowNull: true}});
 
     m.PointSet.belongsTo(m.Curve, {foreignKey: 'idCurveX'});
     m.PointSet.belongsTo(m.Curve, {foreignKey: 'idCurveY'});
@@ -93,10 +93,13 @@ models.forEach(function (model) {
     m.Histogram.belongsTo(m.Curve, {foreignKey: 'idCurve'});
     m.Histogram.belongsTo(m.ZoneSet, {foreignKey: {name : 'idZoneSet', allowNull: true}});
     //m.Histogram.belongsTo(m.Well, {foreignKey: {name:'idWell',allowNull:false},onDelete:'CASCADE'});
-    m.Histogram.hasMany(m.Discrim, {foreignKey: {name: 'idHistogram', allowNull: true}});
+    m.Histogram.hasMany(m.Discrim, {foreignKey: {name: 'idHistogram', allowNull: true, onDelete:'CASCADE'}});
 
     m.Marker.belongsTo(m.Track, {foreignKey: {name: 'idTrack', allowNull: false}});
-	m.Track.hasMany(m.Marker, {foreignKey: {name:'idTrack', allowNull:false}, onDelete:'CASCADE'});	
+	m.Track.hasMany(m.Marker, {foreignKey: {name:'idTrack', allowNull:false}, onDelete:'CASCADE'});
+
+	m.Discrim.belongsTo(m.Curve, {foreignKey: {name: 'idCurveLeft', allowNull: false}});
+	m.Discrim.belongsTo(m.Curve, {foreignKey: {name: 'idCurveRight', allowNull: true}});
 
 })(module.exports);
 module.exports.sequelize = sequelize;
