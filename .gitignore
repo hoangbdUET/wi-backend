@@ -5,6 +5,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+#IntelliJ
+wi-backend.iml
+
 # Runtime data
 pids
 *.pid

@@ -68,18 +68,37 @@ function createNewCurve(curveInfo, done) {
 function editCurve(curveInfo, done) {
     Curve.findById(curveInfo.idCurve)
         .then(curve => {
-            curve.idDataset = curveInfo.idDataset;
-            curve.name = curveInfo.name;
-            curve.dataset = curveInfo.dataset;
-            curve.unit = curveInfo.unit;
-            curve.initValue = curveInfo.initValue;
-            curve.save()
-                .then(() => {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Curve success", curveInfo));
-                })
-                .catch(err => {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Curve " + err.name));
-                })
+            if (curve.name != curveInfo.name) {
+                console.log("EDIT NAME");
+                Dataset.findById(curve.idDataset).then(dataset => {
+                    let curveName = curve.name;
+                    let path = hashDir.createPath(config.curveBasePath, dataset.name + curveName, curveName + '.txt');
+                    let newPath = hashDir.createPath(config.curveBasePath, dataset.name + curveInfo.name, curveInfo.name + '.txt');
+                    var copy = fs.createReadStream(path).pipe(fs.createWriteStream(newPath));
+                    copy.on('close', function () {
+                        hashDir.deleteFolder(config.curveBasePath, dataset.name + curveName);
+                    });
+                    copy.on('error', function (err) {
+                        return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit Curve name", err));
+                    });
+                    curve.idDataset = curveInfo.idDataset;
+                    curve.name = curveInfo.name;
+                    curve.dataset = curveInfo.dataset;
+                    curve.unit = curveInfo.unit;
+                    curve.initValue = curveInfo.initValue;
+                    curve.save()
+                        .then(() => {
+                            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Curve success", curveInfo));
+                        })
+                        .catch(err => {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Curve " + err.name));
+                        })
+                }).catch(err => {
+                    console.log(err);
+                });
+            } else {
+
+            }
         })
         .catch(() => {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found for edit"));

@@ -1,16 +1,23 @@
+"use strict";
 var models = require('../models');
 var Dataset = models.Dataset;
+var Curve = models.Curve;
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
+var wiImport = require('wi-import');
+var hashDir = wiImport.hashDir;
+var config = require('config');
+var fs = require('fs');
+
 
 function createNewDataset(datasetInfo, done) {
     Dataset.sync()
         .then(function () {
                 var dataset = Dataset.build({
-                    idWell:datasetInfo.idWell,
+                    idWell: datasetInfo.idWell,
                     name: datasetInfo.name,
-                    datasetKey:datasetInfo.datasetKey,
-                    datasetLabel:datasetInfo.datasetLabel
+                    datasetKey: datasetInfo.datasetKey,
+                    datasetLabel: datasetInfo.datasetLabel
                 });
                 dataset.save()
                     .then(function (dataset) {
@@ -25,26 +32,47 @@ function createNewDataset(datasetInfo, done) {
             }
         );
 }
+
 function editDataset(datasetInfo, done) {
     Dataset.findById(datasetInfo.idDataset)
         .then(function (dataset) {
-            dataset.name = datasetInfo.name;
-            dataset.idWell = datasetInfo.idWell;
-            dataset.datasetKey = datasetInfo.datasetKey;
-            dataset.datasetLabel = datasetInfo.datasetLabel;
-
-            dataset.save()
-                .then(function () {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Dataset success", datasetInfo));
-                })
-                .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name));
-                })
+            Curve.findAll({where: {idDataset: datasetInfo.idDataset}}).then(curves => {
+                curves.forEach(function (curve) {
+                    let datasetname = dataset.name;
+                    let path = hashDir.createPath(config.curveBasePath, dataset.name + curve.name, curve.name + '.txt');
+                    let newPath = hashDir.createPath(config.curveBasePath, datasetInfo.name + curve.name, curve.name + '.txt');
+                    try {
+                        var copy = fs.createReadStream(path).pipe(fs.createWriteStream(newPath));
+                        copy.on('close', function () {
+                            hashDir.deleteFolder(config.curveBasePath, datasetname + curve.name);
+                        });
+                        copy.on('error', function (err) {
+                            return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit dataset name", err));
+                        });
+                    } catch (err){
+                        return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit dataset name", err));
+                    }
+                });
+                dataset.name = datasetInfo.name;
+                dataset.idWell = datasetInfo.idWell;
+                dataset.datasetKey = datasetInfo.datasetKey;
+                dataset.datasetLabel = datasetInfo.datasetLabel;
+                dataset.save()
+                    .then(function () {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Dataset success", datasetInfo));
+                    })
+                    .catch(function (err) {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name));
+                    })
+            }).catch(err => {
+                console.log(err);
+            });
         })
         .catch(function () {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Dataset not found for edit"))
         });
 }
+
 function deleteDataset(datasetInfo, done) {
     Dataset.findById(datasetInfo.idDataset)
         .then(function (dataset) {
@@ -60,6 +88,7 @@ function deleteDataset(datasetInfo, done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Dataset not found for delete"));
         });
 }
+
 function getDatasetInfo(dataset, done) {
     Dataset.findById(dataset.idDataset, {include: [{all: true}]})
         .then(function (dataset) {
@@ -72,8 +101,8 @@ function getDatasetInfo(dataset, done) {
 }
 
 module.exports = {
-    createNewDataset:createNewDataset,
-    editDataset:editDataset,
-    deleteDataset:deleteDataset,
-    getDatasetInfo:getDatasetInfo
+    createNewDataset: createNewDataset,
+    editDataset: editDataset,
+    deleteDataset: deleteDataset,
+    getDatasetInfo: getDatasetInfo
 };

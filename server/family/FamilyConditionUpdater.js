@@ -30,7 +30,7 @@ function updateFamilyCondition(workbook, sheetName, callback) {
                 eventEmitter.emit('fc-done');
             })
             .catch(function (err) {
-                console.log("FAIL: FamilyCondition" + aFamilyCondition.idFamilyCondition + " Error:" + err);
+                //console.log("FAIL: FamilyCondition" + aFamilyCondition.idFamilyCondition + " Error:" + err);
                 eventEmitter.emit('fc-done');
             });
 
