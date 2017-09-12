@@ -3,6 +3,7 @@ var models = require('../models');
 var Histogram = models.Histogram;
 var Zone = models.Zone;
 var ZoneSet = models.ZoneSet;
+var Curve = models.Curve;
 var Well = models.Well;
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
@@ -58,7 +59,9 @@ function getHistogram(histogramId, done) {
         include: [{
             model: ZoneSet,
             include: [{model: Zone}]
-        }]
+        },{
+	    model: Curve
+	}]
     }).then(rs => {
         if (rs) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));

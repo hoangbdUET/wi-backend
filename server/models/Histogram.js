@@ -100,7 +100,11 @@ module.exports = function (sequelize, DataTypes) {
         },
         plotType: {
             type: DataTypes.ENUM('Frequency', 'Percent'),
-            defaultValue: 'Frequency'
+            defaultValue: 'Frequency',
+	    validate : {
+		isIn: [['Frequency','Percent']]
+	    },
+	    allowNull: false
         },
         color: {
             type: DataTypes.STRING(20),
