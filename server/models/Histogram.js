@@ -96,7 +96,10 @@ module.exports = function (sequelize, DataTypes) {
         plot: {
             type: DataTypes.ENUM('Bar', 'Curve'),
             allowNull: 'false',
-            defaultValue: 'Bar'
+            defaultValue: 'Bar',
+	    validate : {
+		isIn: [['Bar', 'Curve']]
+	    }		
         },
         plotType: {
             type: DataTypes.ENUM('Frequency', 'Percent'),
