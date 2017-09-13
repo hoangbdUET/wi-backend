@@ -42,6 +42,7 @@ function main() {
     var discrimRouter = require('./server/discrim/discrim.router');
     var histogramRouter = require('./server/histogram/histogram.router');
     var palRouter = require('./server/pal/index');
+    var customFillRouter = require('./server/custom-fill/index');
 
     var http = require('http').Server(app);
 
@@ -65,6 +66,7 @@ function main() {
     app.use('/', projectRouter);
     //app.use(authenticate());
     app.use('/pal', palRouter);
+    app.use('/custom-fill', customFillRouter);
     app.use('/project', wellRouter);
     app.use('/project/well', plotRouter);
     app.use('/project/well', datasetRouter);
