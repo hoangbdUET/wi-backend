@@ -9,7 +9,7 @@ var jwt = require('jsonwebtoken');
 
 router.use(bodyParser.json());
 router.post('/login', function (req, res) {
-    User.findOne({where: {userName: req.body.userName}})
+    User.findOne({where: {username: req.body.username}})
         .then(function (user) {
             if (!user) {
                 res.send(ResponseJSON(ErrorCodes.SUCCESS, "Authentication success"))
@@ -24,11 +24,11 @@ router.post('/login', function (req, res) {
         });
 });
 router.post('/register', function (req, res) {
-    User.create({userName: req.body.userName, password: req.body.password})
+    User.create({username: req.body.username, password: req.body.password})
         .then(function (result) {
             //Create user's database;
             var sequelize = result.sequelize;
-            var dbName = 'wi_' + result.userName;
+            var dbName = 'wi_' + result.username;
             sequelize.query('CREATE DATABASE ' + dbName);
             //Create token then send
             var token = jwt.sign(req.body, 'secretKey', {expiresIn: '1h'});

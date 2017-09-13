@@ -6,7 +6,7 @@ module.exports = function (sequelize, DataTypes) {
             allowNull:false,
             primaryKey:true
         },
-        userName:{
+        username:{
             type:DataTypes.STRING(150),
             allowNull:false,
             unique:true
