@@ -1,3 +1,4 @@
+"use strict";
 var models = require('../models');
 var Well = models.Well;
 var Dataset = models.Dataset;
@@ -76,6 +77,41 @@ function createCurvesWithDatasetExist(wellInfo, datasetInfo, curvesInfo, option)
     })
 }
 
+function createCurvesWithWellExistLAS3(wellInfo, datasetInfo, option, callback) {
+    datasetInfo.forEach(function (dataset) {
+        dataset.idWell = wellInfo.idWell;
+        Dataset.create(dataset).then(rs => {
+            dataset.curves.forEach(function (curve) {
+                curve.idDataset = rs.idDataset;
+                Curve.create(curve).then(rss => {
+                    callback(false, Well.findById(wellInfo.idWell, {
+                        include: [{all: true}, {include: {all: true}}]
+                    }));
+                }).catch(err => {
+                    console.log("Create curve err : " + err.message);
+                    callback(err, null);
+                })
+            });
+        }).catch(err => {
+            console.log("Create dataset err : " + err.message);
+            callback(err, null);
+        });
+    });
+}
+
+function createCurvesWithDatasetExistLAS3(wellInfo, datasetInfo, option, callback) {
+    datasetInfo[0].curves.forEach(function (curve) {
+        curve.idDataset = datasetInfo[0].idDataset;
+        Curve.create(curve).then(rs => {
+            callback(false, Well.findById(wellInfo.idWell, {include: [{all: true}, {include: {all: true}}]}));
+        }).catch(err => {
+            callback(err, null);
+        })
+    });
+}
+
+module.exports.createCurvesWithDatasetExistLAS3 = createCurvesWithDatasetExistLAS3;
+module.exports.createCurvesWithWellExistLAS3 = createCurvesWithWellExistLAS3;
 module.exports.createCurvesWithProjectExist = createCurvesWithProjectExist;
 module.exports.createCurvesWithWellExist = createCurvesWithWellExist;
 module.exports.createCurvesWithDatasetExist = createCurvesWithDatasetExist;
