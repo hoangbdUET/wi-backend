@@ -70,3 +70,4 @@ package-lock.json
 data/*
 
 config/production.json
+server/custom-fill/data.json
