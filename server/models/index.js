@@ -45,7 +45,8 @@ var models = [
     'Discrim',
     'Image',
     'Histogram',
-    'Marker'
+    'Marker',
+    'UserDefineLine'
 ];
 models.forEach(function (model) {
     module.exports[model] = sequelize.import(__dirname + '/' + model);
@@ -83,6 +84,7 @@ models.forEach(function (model) {
     m.CrossPlot.hasMany(m.Polygon, {foreignKey: {name:'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
     m.CrossPlot.hasMany(m.PointSet, {foreignKey: {name:'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
     m.CrossPlot.hasMany(m.Discrim, {foreignKey: {name:'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
+    m.CrossPlot.hasMany(m.UserDefineLine, {foreignKey: {name: 'idCrossPlot', allowNull: false, onDelete: 'CASCADE'}});
     //m.CrossPlot.hasMany(m.Discrim, {foreignKey: {name: 'idCrossPlot', allowNull: true}});
 
     m.PointSet.belongsTo(m.Curve, {foreignKey: 'idCurveX'});

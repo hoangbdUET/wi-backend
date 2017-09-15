@@ -43,6 +43,7 @@ function main() {
     var histogramRouter = require('./server/histogram/histogram.router');
     var palRouter = require('./server/pal/index');
     var customFillRouter = require('./server/custom-fill/index');
+    var userDefineLineRouter = require('./server/line-user-define/user-line.router');
 
     var http = require('http').Server(app);
 
@@ -82,6 +83,7 @@ function main() {
     app.use('/project/well', crossPlotRouter);
     app.use('/project/well/cross-plot', polygonRouter);
     app.use('/project/well/cross-plot', pointSetRouter);
+    app.use('/project/well/cross-plot', userDefineLineRouter);
     app.use('/project/well/', discrimRouter);
     app.use('/project/well/', histogramRouter);
     app.use('/', imageUpload);
