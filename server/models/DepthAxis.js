@@ -49,9 +49,9 @@ module.exports = function (sequelize, DataTypes) {
             defaultValue: 'rgba(255,255,255,0)'
         },
         geometryWidth: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.FLOAT,
             allowNull: false,
-            defaultValue: 60
+            defaultValue: 0.6
         },
         orderNum: {
             type: DataTypes.STRING(200),

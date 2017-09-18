@@ -1,5 +1,7 @@
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
+var models = require('../models');
+var CrossPlot = models.CrossPlot;
 
 
 function createNewCrossPlot(crossPlotInfo, done,dbConnection) {
@@ -25,7 +27,7 @@ function createNewCrossPlot(crossPlotInfo, done,dbConnection) {
         )
 }
 
-function editCrossPlot(crossPlotInfo,done) {
+function editCrossPlot(crossPlotInfo,done,dbConnection) {
     var CrossPlot=dbConnection.CrossPlot;
     CrossPlot.findById(crossPlotInfo.idCrossPlot)
         .then(function (crossPlot) {
@@ -43,7 +45,7 @@ function editCrossPlot(crossPlotInfo,done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS,"CrossPlot not found for edit"));
         })
 }
-function deleteCrossPlot(crossPlotInfo,done) {
+function deleteCrossPlot(crossPlotInfo,done,dbConnection) {
     var CrossPlot=dbConnection.CrossPlot;
     CrossPlot.findById(crossPlotInfo.idCrossPlot)
         .then(function (crossPlot) {
@@ -59,7 +61,7 @@ function deleteCrossPlot(crossPlotInfo,done) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "CrossPlot not found for delete"));
         })
 }
-function getCrossPlotInfo(crossPlot, done) {
+function getCrossPlotInfo(crossPlot, done,dbConnection) {
     var CrossPlot=dbConnection.CrossPlot;
     CrossPlot.findById(crossPlot.idCrossPlot, {include: [{all:true,include:[{all:true}]}]})
         .then(function (crossPlot) {

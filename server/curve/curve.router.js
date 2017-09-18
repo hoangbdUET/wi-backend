@@ -4,12 +4,25 @@ const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const multer = require('multer');
+
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 let curveModel = require('./curve.model');
 
-
 router.use(bodyParser.json());
+
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/');
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname);
+    }
+});
+
+var upload = multer({storage: storage});
+
 
 ///start curve advance actions
 router.post('/curve/copy', (req, res) => {
@@ -87,6 +100,13 @@ router.post('/curve/getData', function (req, res) {
     }, function (status) {
         res.send(status);
     },req.dbConnection);
+});
+
+router.post('/curve/updateData', upload.single('data'), function (req, res) {
+    //console.log(req.file);
+    curveModel.updateData(req, function (result) {
+        res.send(result);
+    });
 });
 
 module.exports = router;

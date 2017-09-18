@@ -1,38 +1,34 @@
-// var models = require('../models');
-// var Well=models.Well;
-// var Dataset=models.Dataset;
-// var Curve=models.Curve;
+"use strict";
 
-function createCurvesWithProjectExist(projectInfo,wellInfo,datasetInfo,curvesInfo,dbConnection) {
+
+function createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo,dbConnection) {
+    var Well = dbConnection.Well;
     return Well.create({
         idProject: projectInfo.idProject,
         name: wellInfo.name,
         topDepth: wellInfo.topDepth,
         bottomDepth: wellInfo.bottomDepth,
         step: wellInfo.step,
-        datasets: [{
-            name: wellInfo.name,
-            datasetKey:datasetInfo.datasetKey,
-            datasetLabel:datasetInfo.datasetLabel,
-            curves: curvesInfo
-        }]
-    },{
-        include:[{model:models.Dataset,include:[models.Curve]}]
+        datasets: datasetInfo
+    }, {
+        include: [{model: models.Dataset, include: [models.Curve]}]
     });
 }
 
-function createCurvesWithWellExist(wellInfo,datasetInfo,curvesInfo,option,dbConnection) {
-
+function createCurvesWithWellExist(wellInfo, datasetInfo, option,dbConnection) {
+    var Dataset = dbConnection.Dataset;
+    var Well = dbConnection.Well;
+    var Curve = dbConnection.Curve;
     return models.sequelize.transaction(function (t) {
         return Dataset.create({
-            idWell:wellInfo.idWell,
-            name:wellInfo.name,
-            datasetKey:datasetInfo.datasetKey,
-            datasetLabel:datasetInfo.datasetLabel,
-            curves:curvesInfo
-        },{
-            include:[models.Curve],
-            transaction:t
+            idWell: wellInfo.idWell,
+            name: wellInfo.name,
+            datasetKey: datasetInfo.datasetKey,
+            datasetLabel: datasetInfo.datasetLabel,
+            curves: datasetInfo.curves
+        }, {
+            include: [models.Curve],
+            transaction: t
         }).then(function (dataset) {
             if (option.overwrite) {
                 return Well.findById(wellInfo.idWell, {include: [{all: true, include: {all: true}}], transaction: t})
@@ -41,16 +37,14 @@ function createCurvesWithWellExist(wellInfo,datasetInfo,curvesInfo,option,dbConn
                         well.topDepth = wellInfo.topDepth;
                         well.bottomDepth = wellInfo.bottomDepth;
                         well.step = wellInfo.step;
-                        return well.save({transaction:t});
+                        return well.save({transaction: t});
                     });
             }
             else {
-                return Well.findById(wellInfo.idWell,{include: [{all: true, include: {all: true}}], transaction: t})
+                return Well.findById(wellInfo.idWell, {include: [{all: true, include: {all: true}}], transaction: t})
             }
         })
     })
-
-
 }
 
 function createCurvesWithDatasetExist(wellInfo, datasetInfo,curvesInfo,option,dbConnection) {
@@ -58,86 +52,71 @@ function createCurvesWithDatasetExist(wellInfo, datasetInfo,curvesInfo,option,db
         item.idDataset = datasetInfo.idDataset;
     });
     return models.sequelize.transaction(function (t) {
-        return Curve.bulkCreate(curvesInfo,{transaction:t,individualHooks:true})
+        return Curve.bulkCreate(curvesInfo, {transaction: t, individualHooks: true})
             .then(function (dataset) {
-            if (option.overwrite) {
-                return Well.findById(wellInfo.idWell, {include: [{all: true, include: {all: true}}], transaction: t})
-                    .then(function (well) {
-                        well.name = wellInfo.name;
-                        well.topDepth = wellInfo.topDepth;
-                        well.bottomDepth = wellInfo.bottomDepth;
-                        well.step = wellInfo.step;
-                        return well.save({transaction:t});
-                    });
-            }
-            else {
-                return Well.findById(wellInfo.idWell,{include: [{all: true, include: {all: true}}], transaction: t})
-            }
-        })
+                if (option.overwrite) {
+                    return Well.findById(wellInfo.idWell, {
+                        include: [{all: true, include: {all: true}}],
+                        transaction: t
+                    })
+                        .then(function (well) {
+                            well.name = wellInfo.name;
+                            well.topDepth = wellInfo.topDepth;
+                            well.bottomDepth = wellInfo.bottomDepth;
+                            well.step = wellInfo.step;
+                            return well.save({transaction: t});
+                        });
+                }
+                else {
+                    return Well.findById(wellInfo.idWell, {
+                        include: [{all: true, include: {all: true}}],
+                        transaction: t
+                    })
+                }
+            })
     })
 }
 
-//example***************************************
+function createCurvesWithWellExistLAS3(wellInfo, datasetInfo, option, callback,dbConnection) {
+    var Dataset = dbConnection.Dataset;
+    var Curve = dbConnection.Curve;
+    var Well = dbConnection.Well;
+    datasetInfo.forEach(function (dataset) {
+        dataset.idWell = wellInfo.idWell;
+        Dataset.create(dataset).then(rs => {
+            dataset.curves.forEach(function (curve) {
+                curve.idDataset = rs.idDataset;
+                Curve.create(curve).then(rss => {
+                    callback(false, Well.findById(wellInfo.idWell, {
+                        include: [{all: true}, {include: {all: true}}]
+                    }));
+                }).catch(err => {
+                    console.log("Create curve err : " + err.message);
+                    callback(err, null);
+                })
+            });
+        }).catch(err => {
+            console.log("Create dataset err : " + err.message);
+            callback(err, null);
+        });
+    });
+}
 
-// var curves = [{
-//     "name":"Ex-Curve",
-//     "dataset": "",
-//     "family":"Rate of opreration",
-//     "unit": "mn/m",
-//     "initValue":"30"
-// },{
-//     "name":"Ex-Curve",
-//     "dataset": "",
-//     "family":"Rate of opreration",
-//     "unit": "mn/m",
-//     "initValue":"30"
-// },{
-//     "name":"Ex-Curve",
-//     "dataset": "",
-//     "family":"Rate of opreration",
-//     "unit": "mn/m",
-//     "initValue":"30"
-// }];
-// var project = {
-//     idProject:1
-// };
-// var well = {
-//     "idWell":2,//createCurves with Project exist khong can idWell
-//     "name": "Ex-Hoang-Thanh",
-//     "topDepth": "10",
-//     "bottomDepth": "50",
-//     "step": "30"
-// };
-// var dataset = {
-//     idDataset:6
-// };
-// createCurvesWithProjectExist(project, well, curves)
-//     .then(function (result) {
-//         console.log("thanh cong ");
-//         // console.log(result.dataValues.idWell);
-//         console.log(result.toJSON());
-//         //
-//         Well.findById(result.dataValues.idWell, {include: [{all: true}]})
-//             .then(function (aWell) {
-//             })
-//     })
-//
-//     .catch(function (err) {
-//         console.log("THAWT BAI");
-//         console.log(err);
-//     });
+function createCurvesWithDatasetExistLAS3(wellInfo, datasetInfo, option, callback,dbConnection) {
+    var Curve = dbConnection.Curve;
+    var Well = dbConnection.Well;
+    datasetInfo[0].curves.forEach(function (curve) {
+        curve.idDataset = datasetInfo[0].idDataset;
+        Curve.create(curve).then(rs => {
+            callback(false, Well.findById(wellInfo.idWell, {include: [{all: true}, {include: {all: true}}]}));
+        }).catch(err => {
+            callback(err, null);
+        })
+    });
+}
 
-// createCurvesWithWellExist(well, curves, {overwrite: true})
-//     .then(function (result) {
-//         console.log(result.toJSON());
-//     });
-//
-// createCurvesWithDatasetExist(dataset, curves,{overwrite:false})
-//     .then(function (result) {
-//         console.log(result.toJSON());
-//
-//     })
-
+module.exports.createCurvesWithDatasetExistLAS3 = createCurvesWithDatasetExistLAS3;
+module.exports.createCurvesWithWellExistLAS3 = createCurvesWithWellExistLAS3;
 module.exports.createCurvesWithProjectExist = createCurvesWithProjectExist;
 module.exports.createCurvesWithWellExist = createCurvesWithWellExist;
 module.exports.createCurvesWithDatasetExist = createCurvesWithDatasetExist;

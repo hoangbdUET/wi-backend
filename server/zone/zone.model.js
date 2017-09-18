@@ -20,7 +20,7 @@ function createNewZone(zoneInfo, done,dbConnection) {
                     })
                     .catch(function (err) {
                         console.log(err);
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Zone " + err.name));
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Zone " + err));
                     })
             },
             function () {

@@ -39,7 +39,7 @@ function updateFamily(workbook, sheetName, callback,dbConnection) {
                 eventEmitter.emit('famy-done');
             })
             .catch(function (err) {
-                console.log("FAIL: Family" + aFamily.idFamily + " insert fail");
+                //console.log("FAIL: Family" + aFamily.idFamily + " insert fail");
                 eventEmitter.emit('famy-done');
             })
 
