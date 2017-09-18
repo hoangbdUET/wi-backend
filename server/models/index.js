@@ -182,11 +182,11 @@ module.exports=function (dbName,callback) {
     var familyUpdate = require('../family/FamilyUpdater');
     var familyConditionUpdate = require('../family/FamilyConditionUpdater');
 
-    familyUpdate(object,function() {
-        familyConditionUpdate(object,function(){
-            // main();
-        });
-    });
+    // familyUpdate(object,function() {
+    //     familyConditionUpdate(object,function(){
+    //         // main();
+    //     });
+    // });//TODO
     //Register hook
     var Curve=object.Curve;
     var FamilyCondition = object.FamilyCondition;

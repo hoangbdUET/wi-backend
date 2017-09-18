@@ -5,7 +5,7 @@ module.exports = function () {
     return function (req, res, next) {
         var token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
         if (token){
-            jwt.verify(token, 'secretKey', function (err, decoded) {
+            /*jwt.verify(token, 'secretKey', function (err, decoded) {
                 if (err) {
                     return res.json({success: false, message: 'Failed to authenticate'});
                 } else {
@@ -14,7 +14,11 @@ module.exports = function () {
                     next();
                 }
 
-            });
+            });*/
+
+            req.dbConnection = models('wi_hoangbd');
+            // req.decoded = decoded;
+            next();//TODO
         } else {
             return res.status(403).send({
                 success:false,

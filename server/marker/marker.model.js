@@ -4,18 +4,19 @@
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 
-function createNewMarker(markerInfo, done,dbConnection) {
+function createNewMarker(markerInfo, done, dbConnection) {
     var Marker = dbConnection.Marker;
     Marker.create(markerInfo).then(result => {
-        Marker.findById(result.idMarker).then(marker => {
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Marker success", marker));
-        });
+        // Marker.findById(result.idMarker).then(marker => {
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Marker success", result));
+        // });
     }).catch(err => {
-        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Marker error", err.message));
+        console.log(err);
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Marker error", err));
     });
 }
 
-function getMarkerInfo(markerID, done,dbConnection) {
+function getMarkerInfo(markerID, done, dbConnection) {
     var Marker = dbConnection.Marker;
     Marker.findById(markerID.idMarker, {
         include: [{all: true}]
@@ -26,7 +27,7 @@ function getMarkerInfo(markerID, done,dbConnection) {
     })
 }
 
-function editMarker(markerInfo, done,dbConnection) {
+function editMarker(markerInfo, done, dbConnection) {
     var Marker = dbConnection.Marker;
     Marker.findById(markerInfo.idMarker)
         .then(function (marker) {
@@ -44,7 +45,7 @@ function editMarker(markerInfo, done,dbConnection) {
         })
 }
 
-function deleteMarker(markerInfo, done,dbConnection) {
+function deleteMarker(markerInfo, done, dbConnection) {
     var Marker = dbConnection.Marker;
     Marker.findById(markerInfo.idMarker)
         .then(function (marker) {
