@@ -160,6 +160,7 @@ var upload = multer({storage: storage});
 
 function extractLAS2Done(result, options, callback,dbConnection) {
     //console.log(JSON.stringify(result));
+
     let projectInfo = {
         idProject: options.idProject
     }
@@ -172,8 +173,8 @@ function extractLAS2Done(result, options, callback,dbConnection) {
     let datasetInfo = result.datasetInfo;
     let curvesInfo = result.datasetInfo[0].curves;
     if (!options.idWell || options.idWell == "") {
-
-        importUntils.createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo,dbConnection).then(rs => {
+        console.log("CREATE CURVES WITH PROJECT EXIST");
+        importUntils.createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo[0],dbConnection).then(rs => {
             callback(false, rs);
         }).catch(err => {
             callback(err, null);
@@ -182,18 +183,34 @@ function extractLAS2Done(result, options, callback,dbConnection) {
     } else {
         wellInfo.idWell = options.idWell;
         if (!options.idDataset || options.idDataset == "") {
-            importUntils.createCurvesWithWellExist(wellInfo, datasetInfo[0], {overwrite: false},dbConnection).then(rs => {
-                callback(false, rs);
-            }).catch(err => {
-                callback(err, null);
-            });
+            console.log("CREATE CURVES WITH WELL EXIST");
+            // importUntils.createCurvesWithWellExist(wellInfo, datasetInfo[0], {overwrite: false}).then(rs => {
+            //     callback(false, rs);
+            // }).catch(err => {
+            //     callback(err, null);
+            // });
+            importUntils.createCurvesWithWellExistLAS3(wellInfo, datasetInfo, {overwrite: false}, function (err, result) {
+                if (err) {
+                    callback(err, null);
+                } else {
+                    callback(false, result);
+                }
+            },dbConnection);
         } else {
             datasetInfo[0].idDataset = options.idDataset;
-            importUntils.createCurvesWithDatasetExist(wellInfo, datasetInfo[0], curvesInfo, {overwrite: false},dbConnection).then(rs => {
-                callback(false, rs);
-            }).catch(err => {
-                callback(err, null);
-            });
+            console.log("CREATE CURVES WITH DATASET EXIST");
+            // importUntils.createCurvesWithDatasetExist(wellInfo, datasetInfo[0], curvesInfo, {overwrite: false}).then(rs => {
+            //     callback(false, rs);
+            // }).catch(err => {
+            //     callback(err, null);
+            // });
+            importUntils.createCurvesWithDatasetExistLAS3(wellInfo, datasetInfo, {overwrite: false}, function (err, result) {
+                if (err) {
+                    callback(err, null);
+                } else {
+                    callback(false, result);
+                }
+            },dbConnection);
         }
     }
 
@@ -612,11 +629,8 @@ router.post('/files', upload.array('file'), (req, res) => {
                 for (let i = 0; i < req.files.length; i++) {
                     let list = req.files[i].filename.split('.');
                     let fileFormat = list[list.length - 1];
-                    //console.log(i + " ==== " + fileFormat);
                     if (/LAS/.test(fileFormat.toUpperCase())) {
                         wiImport.setBasePath(config.curveBasePath);
-                        //console.log("Call extractLAS2 : " + i);
-                        //console.log(req.files[i].path);
                         wiImport.extractLAS2(req.files[i].path, moreUploadData, function (err, result) {
                             if (err) {
                                 return res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, err)));

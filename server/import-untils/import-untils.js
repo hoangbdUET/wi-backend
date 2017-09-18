@@ -31,7 +31,10 @@ function createCurvesWithWellExist(wellInfo, datasetInfo, option,dbConnection) {
             transaction: t
         }).then(function (dataset) {
             if (option.overwrite) {
-                return Well.findById(wellInfo.idWell, {include: [{all: true, include: {all: true}}], transaction: t})
+                return Well.findById(wellInfo.idWell, {
+                    include: [{all: true, include: {all: true}}],
+                    transaction: t
+                })
                     .then(function (well) {
                         well.name = wellInfo.name;
                         well.topDepth = wellInfo.topDepth;
@@ -41,10 +44,13 @@ function createCurvesWithWellExist(wellInfo, datasetInfo, option,dbConnection) {
                     });
             }
             else {
-                return Well.findById(wellInfo.idWell, {include: [{all: true, include: {all: true}}], transaction: t})
+                return Well.findById(wellInfo.idWell, {
+                    include: [{all: true, include: {all: true}}],
+                    transaction: t
+                })
             }
         })
-    })
+    });
 }
 
 function createCurvesWithDatasetExist(wellInfo, datasetInfo,curvesInfo,option,dbConnection) {
@@ -74,45 +80,56 @@ function createCurvesWithDatasetExist(wellInfo, datasetInfo,curvesInfo,option,db
                     })
                 }
             })
-    })
+    });
+
 }
 
 function createCurvesWithWellExistLAS3(wellInfo, datasetInfo, option, callback,dbConnection) {
-    var Dataset = dbConnection.Dataset;
+    var Dataset=dbConnection.Dataset;
     var Curve = dbConnection.Curve;
     var Well = dbConnection.Well;
-    datasetInfo.forEach(function (dataset) {
-        dataset.idWell = wellInfo.idWell;
-        Dataset.create(dataset).then(rs => {
-            dataset.curves.forEach(function (curve) {
-                curve.idDataset = rs.idDataset;
-                Curve.create(curve).then(rss => {
-                    callback(false, Well.findById(wellInfo.idWell, {
-                        include: [{all: true}, {include: {all: true}}]
-                    }));
-                }).catch(err => {
-                    console.log("Create curve err : " + err.message);
-                    callback(err, null);
-                })
+
+    if (option.overwrite) {
+
+    } else {
+        datasetInfo.forEach(function (dataset) {
+            dataset.idWell = wellInfo.idWell;
+            Dataset.findOrCreate({where: {idDataset: dataset.idDataset}, defaults: dataset}).then(rs => {
+                dataset.curves.forEach(function (curve) {
+                    curve.idDataset = rs.idDataset;
+                    Curve.findOrCreate({where: {idCurve: curve.idCurve}, defaults: curve}).then(rss => {
+                        callback(false, Well.findById(wellInfo.idWell, {
+                            include: [{all: true}, {include: {all: true}}]
+                        }));
+                    }).catch(err => {
+                        console.log("Create curve err : " + err.message);
+                        callback(err, null);
+                    })
+                });
+            }).catch(err => {
+                console.log("Create dataset err : " + err.message);
+                callback(err, null);
             });
-        }).catch(err => {
-            console.log("Create dataset err : " + err.message);
-            callback(err, null);
         });
-    });
+    }
 }
 
 function createCurvesWithDatasetExistLAS3(wellInfo, datasetInfo, option, callback,dbConnection) {
+    var Dataset=dbConnection.Dataset;
     var Curve = dbConnection.Curve;
     var Well = dbConnection.Well;
-    datasetInfo[0].curves.forEach(function (curve) {
-        curve.idDataset = datasetInfo[0].idDataset;
-        Curve.create(curve).then(rs => {
-            callback(false, Well.findById(wellInfo.idWell, {include: [{all: true}, {include: {all: true}}]}));
-        }).catch(err => {
-            callback(err, null);
-        })
-    });
+    if (option.overwrite) {
+
+    } else {
+        datasetInfo[0].curves.forEach(function (curve) {
+            curve.idDataset = datasetInfo[0].idDataset;
+            Curve.findOrCreate({where: {idCurve: curve.idCurve}, defaults: curve}).then(rs => {
+                callback(false, Well.findById(wellInfo.idWell, {include: [{all: true}]}));
+            }).catch(err => {
+                callback(err, null);
+            })
+        });
+    }
 }
 
 module.exports.createCurvesWithDatasetExistLAS3 = createCurvesWithDatasetExistLAS3;
