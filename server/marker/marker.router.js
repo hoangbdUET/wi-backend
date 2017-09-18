@@ -8,7 +8,7 @@ router.use(bodyParser.json());
 router.post('/marker/new', function (req, res) {
     markerModel.createNewMarker(req.body, function (status) {
         res.send(status);
-    },,req.dbConnection);
+    },req.dbConnection);
 });
 
 router.post('/marker/info', function (req, res) {
