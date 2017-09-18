@@ -12,10 +12,10 @@ router.post('/login', function (req, res) {
     User.findOne({where: {username: req.body.username}})
         .then(function (user) {
             if (!user) {
-                res.send(ResponseJSON(ErrorCodes.SUCCESS, "Authentication success"))
+                res.send(ResponseJSON(ErrorCodes.ERROR_USER_NOT_EXISTS, "User not exist"))
             } else {
                 if (user.password != req.body.password) {
-                    res.send(ResponseJSON(ErrorCodes.SUCCESS, "Wrong password. Authenticate fail"))
+                    res.send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Wrong password. Authenticate fail"))
                 } else {
                     var token = jwt.sign(req.body, 'secretKey', {expiresIn: '1h'});
                     res.send(ResponseJSON(ErrorCodes.SUCCESS, "Success", token));
