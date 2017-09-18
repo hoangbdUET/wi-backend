@@ -40,124 +40,6 @@ var storage = multer.diskStorage({
 
 var upload = multer({storage: storage});
 
-// function getWellInfo(section) {
-//     let wellInfo = {};
-//     if (section.wellInfo) {
-//         section.wellInfo.curves = getCurveInfo(section, section.wellInfo.name);
-//         wellInfo = section.wellInfo;
-//     }
-//     else {
-//         section.content.forEach(function (item) {
-//             if (/STRT/g.test(item.name.toUpperCase())) {
-//                 wellInfo.topDepth = item.data;
-//             }
-//             if (/STOP/g.test(item.name.toUpperCase())) {
-//                 wellInfo.bottomDepth = item.data;
-//             }
-//             if (/STEP/g.test(item.name.toUpperCase())) {
-//                 wellInfo.step = item.data;
-//             }
-//             if (/WELL/g.test(item.name.toUpperCase())) {
-//                 wellInfo.name = item.data;
-//             }
-//         });
-//     }
-//     return wellInfo;
-// }
-//
-// //function getCurveInfo(section, datasetKey) {
-// function getCurveInfo(section) {
-//     let curvesInfo = new Array();
-//     if (section.wellInfo) {
-//         section.wellInfo.curves.forEach(function (item) {
-//             let curveInfo = new Object();
-//             curveInfo.name = item.name;
-//             curveInfo.unit = item.unit;
-//             curveInfo.initValue = "abc";
-//             curveInfo.family = "VNU";
-//             //curveInfo.dataset = "hoang";
-//             curveInfo.idDataset = null;
-//             curvesInfo.push(curveInfo);
-//         });
-//     }
-//     else {
-//         section.content.forEach(function (item) {
-//             let curveInfo = new Object();
-//             curveInfo.name = item.name;
-//             curveInfo.unit = item.unit;
-//             curveInfo.initValue = "abc";
-//             curveInfo.family = "VNU";
-//             //curveInfo.dataset = "hoang";
-//             curveInfo.idDataset = null;
-//             curvesInfo.push(curveInfo);
-//         });
-//     }
-//     return curvesInfo;
-// }
-//
-// function extractLAS2Done_(result, options, callbackGetResult) {
-//     let projectInfo = {
-//         idProject: options.idProject
-//     };
-//     let wellInfo = null;
-//     let curvesInfo = null;
-//     let datasetInfo = {
-//         idWell: null,
-//         name: "",
-//         datasetKey: "",
-//         datasetLabel: ""
-//     };
-//     result.forEach(function (section) {
-//         if (/~WELL/g.test(section.name)) {
-//             wellInfo = getWellInfo(section);
-//         }
-//         else if (/~CURVE/g.test(section.name)) {
-//             curvesInfo = getCurveInfo(section);
-//         }
-//     });
-//     datasetInfo.name = wellInfo.name;
-//     datasetInfo.datasetLabel = wellInfo.name;
-//     datasetInfo.datasetKey = wellInfo.name;
-//     if (!options.idWell || options.idWell === "") {
-//         console.log("Create curves with project exist");
-//         importUntils.createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, curvesInfo)
-//             .then(function (result) {
-//                 callbackGetResult(false, result);
-//             })
-//             .catch(function (err) {
-//                 callbackGetResult(err, null);
-//             })
-//     }
-//     else {
-//         wellInfo.idWell = parseInt(options.idWell);
-//         if (!options.idDataset || options.idDataset === "") {
-//             console.log("Create curves with Well exist");
-//             importUntils.createCurvesWithWellExist(wellInfo, datasetInfo, curvesInfo, {overwrite: false})
-//                 .then(function (result) {
-//                     callbackGetResult(false, result);
-//                 })
-//                 .catch(function (err) {
-//                     callbackGetResult(err, result);
-//                 })
-//         }
-//         else {
-//             //create curves
-//             datasetInfo = new Object();
-//             datasetInfo.idDataset = parseInt(options.idDataset);
-//             console.log("Create curves with dataset exist");
-//             importUntils.createCurvesWithDatasetExist(wellInfo, datasetInfo, curvesInfo, {overwrite: false})
-//                 .then(function (result) {
-//                     callbackGetResult(false, result);
-//                 })
-//                 .catch(function (err) {
-//                     callbackGetResult(err, result);
-//                 })
-//
-//         }
-//     }
-//
-// }
-
 function extractLAS2Done(result, options, callback) {
     //console.log(JSON.stringify(result));
     let projectInfo = {
@@ -172,8 +54,8 @@ function extractLAS2Done(result, options, callback) {
     let datasetInfo = result.datasetInfo;
     let curvesInfo = result.datasetInfo[0].curves;
     if (!options.idWell || options.idWell == "") {
-
-        importUntils.createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo).then(rs => {
+        console.log("CREATE CURVES WITH PROJECT EXIST");
+        importUntils.createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo[0]).then(rs => {
             callback(false, rs);
         }).catch(err => {
             callback(err, null);
@@ -182,17 +64,33 @@ function extractLAS2Done(result, options, callback) {
     } else {
         wellInfo.idWell = options.idWell;
         if (!options.idDataset || options.idDataset == "") {
-            importUntils.createCurvesWithWellExist(wellInfo, datasetInfo[0], {overwrite: false}).then(rs => {
-                callback(false, rs);
-            }).catch(err => {
-                callback(err, null);
+            console.log("CREATE CURVES WITH WELL EXIST");
+            // importUntils.createCurvesWithWellExist(wellInfo, datasetInfo[0], {overwrite: false}).then(rs => {
+            //     callback(false, rs);
+            // }).catch(err => {
+            //     callback(err, null);
+            // });
+            importUntils.createCurvesWithWellExistLAS3(wellInfo, datasetInfo, {overwrite: false}, function (err, result) {
+                if (err) {
+                    callback(err, null);
+                } else {
+                    callback(false, result);
+                }
             });
         } else {
             datasetInfo[0].idDataset = options.idDataset;
-            importUntils.createCurvesWithDatasetExist(wellInfo, datasetInfo[0], curvesInfo, {overwrite: false}).then(rs => {
-                callback(false, rs);
-            }).catch(err => {
-                callback(err, null);
+            console.log("CREATE CURVES WITH DATASET EXIST");
+            // importUntils.createCurvesWithDatasetExist(wellInfo, datasetInfo[0], curvesInfo, {overwrite: false}).then(rs => {
+            //     callback(false, rs);
+            // }).catch(err => {
+            //     callback(err, null);
+            // });
+            importUntils.createCurvesWithDatasetExistLAS3(wellInfo, datasetInfo, {overwrite: false}, function (err, result) {
+                if (err) {
+                    callback(err, null);
+                } else {
+                    callback(false, result);
+                }
             });
         }
     }
@@ -486,11 +384,8 @@ router.post('/files', upload.array('file'), (req, res) => {
                 for (let i = 0; i < req.files.length; i++) {
                     let list = req.files[i].filename.split('.');
                     let fileFormat = list[list.length - 1];
-                    //console.log(i + " ==== " + fileFormat);
                     if (/LAS/.test(fileFormat.toUpperCase())) {
                         wiImport.setBasePath(config.curveBasePath);
-                        //console.log("Call extractLAS2 : " + i);
-                        //console.log(req.files[i].path);
                         wiImport.extractLAS2(req.files[i].path, moreUploadData, function (err, result) {
                             if (err) {
                                 return res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, err)));
