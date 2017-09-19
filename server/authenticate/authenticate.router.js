@@ -6,6 +6,7 @@ var User = models.User;
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 var jwt = require('jsonwebtoken');
+var models = require('../models');
 
 router.use(bodyParser.json());
 router.post('/login', function (req, res) {
@@ -30,6 +31,21 @@ router.post('/register', function (req, res) {
             var sequelize = result.sequelize;
             var dbName = 'wi_' + result.username;
             sequelize.query('CREATE DATABASE ' + dbName);
+            //Create all tables then update family, family-condition
+            var dbConnection = models(dbName);
+            dbConnection.sequelize.sync()
+                .then(function () {
+                    var familyUpdate = require('../family/FamilyUpdater');
+                    var familyConditionUpdate = require('../family/FamilyConditionUpdater');
+                    familyUpdate(dbConnection,function() {
+                        familyConditionUpdate(dbConnection,function(){
+                            // main();
+                        });
+                    });
+                })
+                .catch(function (err) {
+                    console.log(dbName + err);
+                });
             //Create token then send
             var token = jwt.sign(req.body, 'secretKey', {expiresIn: '1h'});
             res.send(ResponseJSON(ErrorCodes.SUCCESS, "Success", token));

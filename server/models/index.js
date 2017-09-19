@@ -51,31 +51,6 @@ module.exports=function (dbName,callback) {
     models.forEach(function (model) {
         object[model] = sequelize.import(__dirname + '/' + model);
     });
-// <<<<<<< HEAD
-//
-//     (function (m) {
-//         m.Project_Well=m.Project.hasMany(m.Well,{foreignKey:{name:"idProject",allowNull:false,unique:"name-idProject"},onDelete:'CASCADE'});
-//         m.Well_Dataset=m.Well.hasMany(m.Dataset, {foreignKey: {name:"idWell",allowNull:false,unique:"name-idWell"}, onDelete: 'CASCADE'});
-//         m.Well_Plot=m.Well.hasMany(m.Plot, {foreignKey: {name:"idWell",allowNull:false,unique:"name-idWell"}, onDelete: 'CASCADE'});
-//         m.Well.hasMany(m.ZoneSet, {foreignKey: {name: "idWell", allowNull: false}, onDelete: 'CASCADE'});
-//         m.Well.hasMany(m.CrossPlot, {foreignKey: {name: "idWell", allowNull: false,unique:"name-idWell"}, onDelete: 'CASCADE'});
-//
-//         m.Dataset_Curve=m.Dataset.hasMany(m.Curve, {foreignKey: {name:"idDataset",allowNull:false,unique:"name-idDataset"}, onDelete: 'CASCADE'});
-//         m.Plot_Track=m.Plot.hasMany(m.Track, {foreignKey: {name:"idPlot",allowNull:false}, onDelete: 'CASCADE'});
-//         m.Plot_DepthAxis=m.Plot.hasMany(m.DepthAxis, {foreignKey: {name:"idPlot",allowNull:false}, onDelete: 'CASCADE'});
-//         m.Plot.hasMany(m.ZoneTrack, {foreignKey: {name: "idPlot", allowNull: false}, onDelete: 'CASCADE'});
-//         m.ZoneTrack.belongsTo(m.ZoneSet, {foreignKey: {name: "idZoneSet", allowNull: true}});//TODO allowNull??
-//         m.ZoneSet.hasMany(m.Zone, {foreignKey: {name: "idZoneSet", allowNull: false}, onDelete: 'CASCADE'});
-//         m.Plot.belongsTo(m.Curve, {foreignKey: 'referenceCurve'});
-//
-//         m.Track.hasMany(m.Line,{foreignKey:{name:"idTrack",allowNull:false},onDelete:'CASCADE'});
-//         m.Track.hasMany(m.Shading,{foreignKey:{name:"idTrack",allowNull:false},onDelete:'CASCADE'});
-//         m.Track.hasMany(m.Image, {foreignKey: {name: "idTrack", allowNull: false}, onDelete: 'CASCADE'});
-//         m.Line.belongsTo(m.Curve,{foreignKey:{name:"idCurve",allowNull:false},onDelete:'CASCADE'});
-//
-//         m.FamilyCondition.belongsTo(m.Family, {foreignKey: 'idFamily'});
-//         m.Curve.belongsTo(m.Family, {as: 'LineProperty',foreignKey: 'idFamily'});
-// =======
 
 (function (m) {
     /*m.Project_Well=m.Project.hasMany(m.Well,{foreignKey:{name:"idProject",allowNull:false,unique:"name-idProject"},onDelete:'CASCADE'});
@@ -191,6 +166,9 @@ module.exports=function (dbName,callback) {
     var Curve=object.Curve;
     var FamilyCondition = object.FamilyCondition;
     var Family=object.Family;
+    var Dataset=object.Dataset;
+    var Well=object.Well;
+    var Project = object.Project;
     Curve.hook('afterCreate', function (curve, options) {
         ((curveName, unit) => {
             FamilyCondition.findAll()
@@ -207,6 +185,19 @@ module.exports=function (dbName,callback) {
                         })
                 })
         })(curve.name, curve.unit);
+    });
+
+    Curve.hook('beforeDestroy', function (curve, options) {
+        Dataset.findById(curve.idDataset).then(dataset => {
+            Well.findById(dataset.idWell).then(well => {
+                Project.findById(well.idProject).then(project => {
+                    hashDir.deleteFolder(config.curveBasePath, project.name + well.name + dataset.name + curve.name);
+                });
+            });
+
+        }).catch(err => {
+            console.log("ERR WHILE DELETE CURVE : " + err);
+        });
     });
     //End register hook
     return object;

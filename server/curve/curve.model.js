@@ -14,18 +14,6 @@ var hashDir = wiImport.hashDir;
 
 function createNewCurve(curveInfo, done, dbConnection) {
     var Curve = dbConnection.Curve;
-// Curve.hook('beforeDestroy', function (curve, options) {
-//     Dataset.findById(curve.idDataset).then(dataset => {
-//         Well.findById(dataset.idWell).then(well => {
-//             Project.findById(well.idProject).then(project => {
-//                 hashDir.deleteFolder(config.curveBasePath, project.name + well.name + dataset.name + curve.name);
-//             });
-//         });
-//
-//     }).catch(err => {
-//         console.log("ERR WHILE DELETE CURVE : " + err);
-//     });
-// });
     Curve.sync()
         .then(() => {
                 var curve = Curve.build({
