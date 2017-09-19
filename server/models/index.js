@@ -1,5 +1,9 @@
 var Sequelize = require('sequelize');
 var config=require('config').Database;
+var configCommon = require('config');
+
+var wiImport = require('wi-import');
+var hashDir = wiImport.hashDir;
 
 module.exports=function (dbName,callback) {
     var object = new Object();
@@ -191,7 +195,7 @@ module.exports=function (dbName,callback) {
         Dataset.findById(curve.idDataset).then(dataset => {
             Well.findById(dataset.idWell).then(well => {
                 Project.findById(well.idProject).then(project => {
-                    hashDir.deleteFolder(config.curveBasePath, project.name + well.name + dataset.name + curve.name);
+                    hashDir.deleteFolder(configCommon.curveBasePath, project.name + well.name + dataset.name + curve.name);
                 });
             });
 
