@@ -29,7 +29,7 @@ setInterval(function () {
     //watchDog
     Object.keys(__CACHE).forEach(function (cache) {
         let dbConnect = __CACHE.get(cache);
-        if (Date.now() - dbConnect.timestamp > 1000 * 5 * 60) {
+        if (Date.now() - dbConnect.timestamp > 1000 * 15 * 60) {
             //delete cache and close sequelize connection if not working for 5 mins
             __CACHE.remove(cache);
             console.log("CLOSED CONNECTION TO : " + cache);
@@ -69,7 +69,7 @@ function newDbInstance(dbName, callback) {
         port: config.port,
         logging: config.logging,
         pool: {
-            max: 20,
+            max: 2,
             min: 0,
             idle: 200
         },

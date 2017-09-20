@@ -29,7 +29,7 @@ router.post('/register', function (req, res) {
         .then(function (result) {
             //Create user's database;
             var sequelize = result.sequelize;
-            var dbName = 'wi_' + result.username;
+            var dbName = 'wi_' + result.username.toLowerCase();
             sequelize.query('CREATE DATABASE ' + dbName);
             //Create all tables then update family, family-condition
             var dbConnection = models(dbName);

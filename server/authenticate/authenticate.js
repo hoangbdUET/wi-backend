@@ -9,7 +9,7 @@ module.exports = function () {
                 if (err) {
                     return res.json({success: false, message: 'Failed to authenticate'});
                 } else {
-                    req.dbConnection = models('wi_' + decoded.username);
+                    req.dbConnection = models('wi_' + decoded.username.toLowerCase());
                     req.decoded = decoded;
                     next();
                 }
