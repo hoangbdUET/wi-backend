@@ -5,25 +5,25 @@ var bodyParser = require('body-parser');
 
 router.use(bodyParser.json());
 
-router.post('/dataset/info', function (req,res) {
+router.post('/dataset/info', function (req, res) {
     datasetModel.getDatasetInfo(req.body, function (status) {
         res.send(status);
-    },req.dbConnection);
+    }, req.dbConnection);
 });
-router.post('/dataset/new', function (req,res) {
+router.post('/dataset/new', function (req, res) {
     datasetModel.createNewDataset(req.body, function (status) {
         res.send(status);
-    },req.dbConnection);
+    }, req.dbConnection);
 });
-router.post('/dataset/edit', function (req,res) {
-    datasetModel.editDataset(req.body,function (status) {
+router.post('/dataset/edit', function (req, res) {
+    datasetModel.editDataset(req.body, function (status) {
         res.send(status);
-    },req.dbConnection)
+    }, req.dbConnection, req.decoded.username);
 });
-router.delete('/dataset/delete', function (req,res) {
-    datasetModel.deleteDataset(req.body,function (status) {
+router.delete('/dataset/delete', function (req, res) {
+    datasetModel.deleteDataset(req.body, function (status) {
         res.send(status);
-    },req.dbConnection)
+    }, req.dbConnection)
 });
 
 module.exports = router;

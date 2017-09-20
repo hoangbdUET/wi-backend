@@ -29,7 +29,7 @@ router.post('/curve/copy', (req, res) => {
     console.log(req.body);
     curveModel.copyCurve(req.body, (status) => {
         res.send(status);
-    },req.dbConnection)
+    }, req.dbConnection, req.decoded.username);
     //res.send("Copy curve");
 });
 
@@ -37,34 +37,34 @@ router.post('/curve/move', (req, res) => {
     console.log(req.body);
     curveModel.moveCurve(req.body, (status) => {
         res.send(status);
-    },req.dbConnection)
+    }, req.dbConnection, req.decoded.username);
 });
 
 router.delete('/curve/delete', function (req, res) {
     console.log(req.body);
     curveModel.deleteCurve(req.body, (status) => {
         res.send(status);
-    },req.dbConnection)
+    }, req.dbConnection, req.decoded.username);
 });
 ///end curve advance actions
 router.post('/curve/info', function (req, res) {
     //console.log("Get info");
     curveModel.getCurveInfo(req.body, function (status) {
         res.send(status);
-    },req.dbConnection)
+    }, req.dbConnection, req.decoded.username);
 });
 router.post('/curve/new', function (req, res) {
     //console.log("Create curve");
     curveModel.createNewCurve(req.body, function (status) {
         res.send(status);
-    },req.dbConnection)
+    }, req.dbConnection)
 
 });
 router.post('/curve/edit', function (req, res) {
     //console.log("Edit curve");
     curveModel.editCurve(req.body, function (status) {
         res.send(status);
-    },req.dbConnection)
+    }, req.dbConnection, req.decoded.username)
 
 });
 router.post('/curve/export', function (req, res) {
@@ -75,7 +75,7 @@ router.post('/curve/export', function (req, res) {
         });
     }, function (code) {
         res.status(code).end();
-    },req.dbConnection)
+    }, req.dbConnection, req.decoded.username)
 });
 
 
@@ -99,7 +99,7 @@ router.post('/curve/getData', function (req, res) {
         if (resultStream) resultStream.pipe(res);
     }, function (status) {
         res.send(status);
-    },req.dbConnection);
+    }, req.dbConnection, req.decoded.username);
 });
 
 router.post('/curve/updateData', upload.single('data'), function (req, res) {

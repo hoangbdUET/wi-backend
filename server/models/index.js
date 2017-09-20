@@ -230,12 +230,12 @@ function newDbInstance(dbName, callback) {
                 })
         })(curve.name, curve.unit);
     });
-
+    let username = dbName.substring(dbName.indexOf("_") + 1);
     Curve.hook('beforeDestroy', function (curve, options) {
         Dataset.findById(curve.idDataset).then(dataset => {
             Well.findById(dataset.idWell).then(well => {
                 Project.findById(well.idProject).then(project => {
-                    hashDir.deleteFolder(configCommon.curveBasePath, project.name + well.name + dataset.name + curve.name);
+                    hashDir.deleteFolder(configCommon.curveBasePath, username + project.name + well.name + dataset.name + curve.name);
                 });
             });
 

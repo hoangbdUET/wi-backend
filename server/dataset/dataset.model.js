@@ -7,7 +7,7 @@ var config = require('config');
 var fs = require('fs');
 
 
-function createNewDataset(datasetInfo, done,dbConnection) {
+function createNewDataset(datasetInfo, done, dbConnection) {
     var Dataset = dbConnection.Dataset;
     Dataset.sync()
         .then(function () {
@@ -30,48 +30,59 @@ function createNewDataset(datasetInfo, done,dbConnection) {
             }
         );
 }
-function editDataset(datasetInfo, done,dbConnection) {
+
+function editDataset(datasetInfo, done, dbConnection, username) {
+    console.log(datasetInfo.name);
     var Dataset = dbConnection.Dataset;
     var Curve = dbConnection.Curve;
-    Dataset.findById(datasetInfo.idDataset)
-        .then(function (dataset) {
-            Curve.findAll({where: {idDataset: datasetInfo.idDataset}}).then(curves => {
-                curves.forEach(function (curve) {
-                    let datasetname = dataset.name;
-                    let path = hashDir.createPath(config.curveBasePath, dataset.name + curve.name, curve.name + '.txt');
-                    let newPath = hashDir.createPath(config.curveBasePath, datasetInfo.name + curve.name, curve.name + '.txt');
-                    try {
-                        var copy = fs.createReadStream(path).pipe(fs.createWriteStream(newPath));
-                        copy.on('close', function () {
-                            hashDir.deleteFolder(config.curveBasePath, datasetname + curve.name);
-                        });
-                        copy.on('error', function (err) {
+    var Well = dbConnection.Well;
+    var Project = dbConnection.Project;
+    Dataset.findById(datasetInfo.idDataset).then(function (dataset) {
+        Well.findById(dataset.idWell).then(well => {
+            Project.findById(well.idProject).then(project => {
+                Curve.findAll({where: {idDataset: datasetInfo.idDataset}}).then(curves => {
+                    curves.forEach(function (curve) {
+                        let datasetname = dataset.name;
+                        let path = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+                        let newPath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + datasetInfo.name + curve.name, curve.name + '.txt');
+                        try {
+                            var copy = fs.createReadStream(path).pipe(fs.createWriteStream(newPath));
+                            copy.on('close', function () {
+                                hashDir.deleteFolder(config.curveBasePath, username + project.name + well.name + datasetname + curve.name);
+                                dataset.name = datasetInfo.name;
+                                dataset.idWell = datasetInfo.idWell;
+                                dataset.datasetKey = datasetInfo.datasetKey;
+                                dataset.datasetLabel = datasetInfo.datasetLabel;
+                                dataset.save()
+                                    .then(function () {
+                                        done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Dataset success", datasetInfo));
+                                    })
+                                    .catch(function (err) {
+                                        //done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name));
+                                        console.log(err.message);
+                                    })
+                            });
+                            copy.on('error', function (err) {
+                                return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit dataset name", err));
+                                //console.log(err);
+                            });
+                        } catch (err) {
+                            console.log(err);
                             return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit dataset name", err));
-                        });
-                    } catch (err){
-                        return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit dataset name", err));
-                    }
-                });
-                dataset.name = datasetInfo.name;
-                dataset.idWell = datasetInfo.idWell;
-                dataset.datasetKey = datasetInfo.datasetKey;
-                dataset.datasetLabel = datasetInfo.datasetLabel;
-                dataset.save()
-                    .then(function () {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Dataset success", datasetInfo));
-                    })
-                    .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name));
-                    })
-            }).catch(err => {
-                console.log(err);
-            });
-        })
+                        }
+                    });
+                })
+            })
+        }).catch(err => {
+            console.log(err);
+        });
+    })
         .catch(function () {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Dataset not found for edit"))
         });
 }
-function deleteDataset(datasetInfo, done,dbConnection) {
+
+function deleteDataset(datasetInfo, done, dbConnection) {
     var Dataset = dbConnection.Dataset;
     Dataset.findById(datasetInfo.idDataset)
         .then(function (dataset) {
@@ -87,7 +98,8 @@ function deleteDataset(datasetInfo, done,dbConnection) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Dataset not found for delete"));
         });
 }
-function getDatasetInfo(dataset, done,dbConnection) {
+
+function getDatasetInfo(dataset, done, dbConnection) {
     var Dataset = dbConnection.Dataset;
     Dataset.findById(dataset.idDataset, {include: [{all: true}]})
         .then(function (dataset) {

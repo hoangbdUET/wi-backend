@@ -1,9 +1,9 @@
 "use strict";
 
 
-function createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo,dbConnection) {
+function createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, dbConnection) {
     var Well = dbConnection.Well;
-    var Dataset=dbConnection.Dataset;
+    var Dataset = dbConnection.Dataset;
     var Curve = dbConnection.Curve;
     return Well.create({
         idProject: projectInfo.idProject,
@@ -17,7 +17,7 @@ function createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo,dbConne
     });
 }
 
-function createCurvesWithWellExist(wellInfo, datasetInfo, option,dbConnection) {
+function createCurvesWithWellExist(wellInfo, datasetInfo, option, dbConnection) {
     var Dataset = dbConnection.Dataset;
     var Well = dbConnection.Well;
     var Curve = dbConnection.Curve;
@@ -55,7 +55,7 @@ function createCurvesWithWellExist(wellInfo, datasetInfo, option,dbConnection) {
     });
 }
 
-function createCurvesWithDatasetExist(wellInfo, datasetInfo,curvesInfo,option,dbConnection) {
+function createCurvesWithDatasetExist(wellInfo, datasetInfo, curvesInfo, option, dbConnection) {
     curvesInfo.forEach(function (item) {
         item.idDataset = datasetInfo.idDataset;
     });
@@ -86,28 +86,36 @@ function createCurvesWithDatasetExist(wellInfo, datasetInfo,curvesInfo,option,db
 
 }
 
-function createCurvesWithWellExistLAS3(wellInfo, datasetInfo, option, callback,dbConnection) {
-    var Dataset=dbConnection.Dataset;
+function createCurvesWithWellExistLAS3(wellInfo, datasetInfo, option, callback, dbConnection) {
+    var Dataset = dbConnection.Dataset;
     var Curve = dbConnection.Curve;
     var Well = dbConnection.Well;
-
     if (option.overwrite) {
 
     } else {
+        let count = 0;
         datasetInfo.forEach(function (dataset) {
             dataset.idWell = wellInfo.idWell;
-            Dataset.findOrCreate({where: {idDataset: dataset.idDataset}, defaults: dataset}).then(rs => {
+            Dataset.findOrCreate({where: {name: dataset.name, idWell: wellInfo.idWell}, defaults: dataset}).then(rs => {
                 dataset.curves.forEach(function (curve) {
-                    curve.idDataset = rs.idDataset;
-                    Curve.findOrCreate({where: {idCurve: curve.idCurve}, defaults: curve}).then(rss => {
-                        callback(false, Well.findById(wellInfo.idWell, {
-                            include: [{all: true}, {include: {all: true}}]
-                        }));
+                    curve.idDataset = rs[0].idDataset;
+                    Curve.findOrCreate({
+                        where: {name: curve.name, idDataset: curve.idDataset},
+                        defaults: curve
+                    }).then(rss => {
+                        count++;
+                        if (count == dataset.curves.length) {
+                            callback(false, Well.findById(wellInfo.idWell, {
+                                include: [{all: true}, {include: {all: true}}]
+                            }));
+                            count = 0;
+                        }
                     }).catch(err => {
                         console.log("Create curve err : " + err.message);
                         callback(err, null);
                     })
                 });
+
             }).catch(err => {
                 console.log("Create dataset err : " + err.message);
                 callback(err, null);
@@ -116,8 +124,8 @@ function createCurvesWithWellExistLAS3(wellInfo, datasetInfo, option, callback,d
     }
 }
 
-function createCurvesWithDatasetExistLAS3(wellInfo, datasetInfo, option, callback,dbConnection) {
-    var Dataset=dbConnection.Dataset;
+function createCurvesWithDatasetExistLAS3(wellInfo, datasetInfo, option, callback, dbConnection) {
+    var Dataset = dbConnection.Dataset;
     var Curve = dbConnection.Curve;
     var Well = dbConnection.Well;
     if (option.overwrite) {
