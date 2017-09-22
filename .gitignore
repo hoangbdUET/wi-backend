@@ -68,6 +68,6 @@ node_modules/*
 uploads/*
 package-lock.json
 data/*
-
+wi-images/*
 config/production.json
 server/custom-fill/data.json

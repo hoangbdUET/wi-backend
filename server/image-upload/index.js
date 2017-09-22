@@ -1,6 +1,7 @@
 'use strict';
 const express = require('express');
 const config = require('config');
+const path = require('path');
 
 const cors = require('cors');
 const fs = require('fs');
@@ -15,35 +16,38 @@ router.use(cors());
 
 router.post('/image-upload', imageUpload);
 
-let saveDir = __dirname + '/../../wi-images/';
+let saveDir = path.join(__dirname, '../..', config.imageBasePath);
 
 function imageUpload(req, res) {
-  var form = new formidable.IncomingForm();
-  form.multiples = false;
-  form.uploadDir = '/tmp';
+    //console.log("DIR NAME : " + saveDir);
+    var form = new formidable.IncomingForm();
+    form.multiples = false;
+    form.uploadDir = config.imageBasePath;
 
-  form.on('end', function () {
+    form.on('end', function () {
 
-  });
-
-  form.on('field', function (name, value) {
-
-  });
-  form.on('file', function (name, file) {
-    let fileHashDir = hashDir.createPath(saveDir, file.path, file.name);
-    fs.rename(file.path, fileHashDir, function (err) {
-      if ( err ) {
-        res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.INTERNAL_SERVER_ERROR, 'Upload image failed!')));        
-      }
-      let fileDir = fileHashDir.replace(saveDir, '');
-      res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, "Upload success", fileDir)));
     });
-  });
-  form.on('error', function (err) {
 
-  });
+    form.on('field', function (name, value) {
 
-  form.parse(req);
+    });
+    form.on('file', function (name, file) {
+        let fileHashDir = hashDir.createPath(saveDir, file.path, file.name);
+        fs.rename(file.path, fileHashDir, function (err) {
+            if (err) {
+                //console.log(err);
+                res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.INTERNAL_SERVER_ERROR, 'Upload image failed!', '/NaN')));
+            } else {
+                let fileDir = fileHashDir.replace(saveDir, '');
+                res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, "Upload success", fileDir)));
+            }
+        });
+    });
+    form.on('error', function (err) {
+
+    });
+
+    form.parse(req);
 
 }
 

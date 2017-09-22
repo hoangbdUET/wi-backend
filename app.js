@@ -36,6 +36,7 @@ function main() {
     var zoneSetRouter = require('./server/zone-set/zone-set.router');
     var zoneRouter = require('./server/zone/zone.router');
     var imageUpload = require('./server/image-upload');
+    var imageRouter = require('./server/image/image.router');
     var crossPlotRouter = require('./server/cross-plot/cross-plot.router');
     var pointSetRouter = require('./server/pointset/pointset.router');
     var polygonRouter = require('./server/polygon/polygon.router');
@@ -78,6 +79,7 @@ function main() {
     app.use('/project/well/plot/track', shadingRouter);
     app.use('/project/well/plot', zoneTrackRouter);
     app.use('/project/well/plot/track', markerRouter);
+    app.use('/project/well/plot/track', imageRouter);
     app.use('/project/well', zoneSetRouter);
     app.use('/project/well/zone-set/', zoneRouter);
     app.use('/project/well', crossPlotRouter);
