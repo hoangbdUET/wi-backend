@@ -12,18 +12,19 @@ router.post('/image/info', function (req, res) {
 });
 
 router.post('/image/new', function (req, res) {
-    imageModel.createNewImage(req, body, function (status) {
+    imageModel.createNewImage(req.body, function (status) {
         res.send(status);
     })
 });
 
 router.post('/image/edit', function (req, res) {
-    imageModel.editImage(req.body,function (status) {
+    imageModel.editImage(req.body, function (status) {
         res.send(status);
     })
 });
 
 router.delete('/image/delete', function (req, res) {
+    //TODO : Hooks after delete
     imageModel.deleteImage(req.body, function (status) {
         res.send(status);
     })
