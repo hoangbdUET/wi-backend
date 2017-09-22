@@ -104,8 +104,7 @@ function newDbInstance(dbName, callback) {
         'Image',
         'Histogram',
         'Marker',
-        'UserDefineLine',
-        'Annotation'
+        'UserDefineLine'
     ];
     models.forEach(function (model) {
         object[model] = sequelize.import(__dirname + '/' + model);
