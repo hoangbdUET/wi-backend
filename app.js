@@ -62,6 +62,7 @@ function main() {
      Attach all routers to app
      */
 
+    app.use(express.static(path.join(__dirname, fullConfig.imageBasePath)));
     app.use('/', authenRouter);
     var authenticate = require('./server/authenticate/authenticate');
     app.use(authenticate());
@@ -89,7 +90,6 @@ function main() {
     app.use('/project/well/', discrimRouter);
     app.use('/project/well/', histogramRouter);
     app.use('/', imageUpload);
-    app.use(express.static(path.join(__dirname, fullConfig.imageBasePath)));
 
 
     /**
