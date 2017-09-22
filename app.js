@@ -10,6 +10,7 @@
 //     });
 // });
 main();
+
 function main() {
     var express = require('express');
     var app = express();
@@ -45,6 +46,7 @@ function main() {
     var palRouter = require('./server/pal/index');
     var customFillRouter = require('./server/custom-fill/index');
     var userDefineLineRouter = require('./server/line-user-define/user-line.router');
+    var annotationRouter = require('./server/annotation/annotation.router');
 
     var http = require('http').Server(app);
 
@@ -81,6 +83,7 @@ function main() {
     app.use('/project/well/plot', zoneTrackRouter);
     app.use('/project/well/plot/track', markerRouter);
     app.use('/project/well/plot/track', imageRouter);
+    app.use('/project/well/plot/track', annotationRouter);
     app.use('/project/well', zoneSetRouter);
     app.use('/project/well/zone-set/', zoneRouter);
     app.use('/project/well', crossPlotRouter);

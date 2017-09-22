@@ -104,7 +104,8 @@ function newDbInstance(dbName, callback) {
         'Image',
         'Histogram',
         'Marker',
-        'UserDefineLine'
+        'UserDefineLine',
+        'Annotation'
     ];
     models.forEach(function (model) {
         object[model] = sequelize.import(__dirname + '/' + model);
@@ -156,6 +157,8 @@ function newDbInstance(dbName, callback) {
         m.Track.hasMany(m.Line, {foreignKey: {name: "idTrack", allowNull: false}, onDelete: 'CASCADE'});
         m.Track.hasMany(m.Shading, {foreignKey: {name: "idTrack", allowNull: false}, onDelete: 'CASCADE'});
         m.Track.hasMany(m.Image, {foreignKey: {name: "idTrack", allowNull: false}, onDelete: 'CASCADE'});
+        m.Track.hasMany(m.Marker, {foreignKey: {name: 'idTrack', allowNull: false}, onDelete: 'CASCADE'});
+        m.Track.hasMany(m.Annotation, {foreignKey: {name: 'idTrack', allowNull: false}, onDelete: 'CASCADE'});
         m.Line.belongsTo(m.Curve, {foreignKey: {name: "idCurve", allowNull: false}, onDelete: 'CASCADE'});
 
         m.FamilyCondition.belongsTo(m.Family, {foreignKey: 'idFamily'});
@@ -182,7 +185,7 @@ function newDbInstance(dbName, callback) {
         m.PointSet.belongsTo(m.Curve, {foreignKey: 'idCurveY'});
         m.PointSet.belongsTo(m.Curve, {foreignKey: 'idCurveZ'});
         m.PointSet.belongsTo(m.Well, {foreignKey: {name: 'idWell', allowNull: false}, onDelete: 'CASCADE'});
-        m.PointSet.belongsTo(m.ZoneSet, {foreignKey: {name : 'idZoneSet', allowNull: true}});
+        m.PointSet.belongsTo(m.ZoneSet, {foreignKey: {name: 'idZoneSet', allowNull: true}});
 
         m.Histogram.belongsTo(m.Curve, {foreignKey: 'idCurve'});
         m.Histogram.belongsTo(m.ZoneSet, {foreignKey: {name: 'idZoneSet', allowNull: true}});
@@ -190,7 +193,6 @@ function newDbInstance(dbName, callback) {
         m.Histogram.hasMany(m.Discrim, {foreignKey: {name: 'idHistogram', allowNull: true}, onDelete: 'CASCADE'});
 
         //m.Marker.belongsTo(m.Track, {foreignKey: {name: 'idTrack', allowNull: false, onDelete: 'CASCADE'}});
-        m.Track.hasMany(m.Marker, {foreignKey: {name: 'idTrack', allowNull: false}, onDelete: 'CASCADE'});
 
         m.Discrim.belongsTo(m.Curve, {foreignKey: {name: 'idCurveLeft', allowNull: false}});
         m.Discrim.belongsTo(m.Curve, {foreignKey: {name: 'idCurveRight', allowNull: true}});
