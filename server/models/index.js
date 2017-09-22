@@ -187,9 +187,9 @@ function newDbInstance(dbName, callback) {
         m.Histogram.belongsTo(m.Curve, {foreignKey: 'idCurve'});
         m.Histogram.belongsTo(m.ZoneSet, {foreignKey: {name: 'idZoneSet', allowNull: true}});
         //m.Histogram.belongsTo(m.Well, {foreignKey: {name:'idWell',allowNull:false},onDelete:'CASCADE'});
-        m.Histogram.hasMany(m.Discrim, {foreignKey: {name: 'idHistogram', allowNull: true, onDelete: 'CASCADE'}});
+        m.Histogram.hasMany(m.Discrim, {foreignKey: {name: 'idHistogram', allowNull: true}, onDelete: 'CASCADE'});
 
-        m.Marker.belongsTo(m.Track, {foreignKey: {name: 'idTrack', allowNull: false, onDelete: 'CASCADE'}});
+        //m.Marker.belongsTo(m.Track, {foreignKey: {name: 'idTrack', allowNull: false, onDelete: 'CASCADE'}});
         m.Track.hasMany(m.Marker, {foreignKey: {name: 'idTrack', allowNull: false}, onDelete: 'CASCADE'});
 
         m.Discrim.belongsTo(m.Curve, {foreignKey: {name: 'idCurveLeft', allowNull: false}});
