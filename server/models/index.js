@@ -104,7 +104,8 @@ function newDbInstance(dbName, callback) {
         'Image',
         'Histogram',
         'Marker',
-        'UserDefineLine'
+        'UserDefineLine',
+        'Annotation'
     ];
     models.forEach(function (model) {
         object[model] = sequelize.import(__dirname + '/' + model);
@@ -189,7 +190,7 @@ function newDbInstance(dbName, callback) {
         //m.Histogram.belongsTo(m.Well, {foreignKey: {name:'idWell',allowNull:false},onDelete:'CASCADE'});
         m.Histogram.hasMany(m.Discrim, {foreignKey: {name: 'idHistogram', allowNull: true, onDelete: 'CASCADE'}});
 
-        m.Marker.belongsTo(m.Track, {foreignKey: {name: 'idTrack', allowNull: false}});
+        m.Marker.belongsTo(m.Track, {foreignKey: {name: 'idTrack', allowNull: false, onDelete: 'CASCADE'}});
         m.Track.hasMany(m.Marker, {foreignKey: {name: 'idTrack', allowNull: false}, onDelete: 'CASCADE'});
 
         m.Discrim.belongsTo(m.Curve, {foreignKey: {name: 'idCurveLeft', allowNull: false}});
