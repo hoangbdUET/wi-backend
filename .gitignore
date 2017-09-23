@@ -71,3 +71,6 @@ data/*
 wi-images/*
 config/production.json
 server/custom-fill/data.json
+
+#yarn
+yarn.lock
