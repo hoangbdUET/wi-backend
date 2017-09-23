@@ -69,8 +69,12 @@ module.exports = function (sequelize, DataTypes) {
             type:DataTypes.BOOLEAN,
             allowNull:false,
             defaultValue:true
-        }
-
+        },
+	labelFormat:{
+	    type: DataTypes.STRING(150),
+	    allowNull: true
+	}
+        
         // name:{
         //     type:DataTypes.STRING(50),
         //     allowNull:false

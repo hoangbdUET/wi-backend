@@ -68,6 +68,9 @@ function newDbInstance(dbName, callback) {
         dialect: config.dialect,
         port: config.port,
         logging: config.logging,
+	dialectOptions: {
+            charset: 'utf8'
+        },
         pool: {
             max: 2,
             min: 0,

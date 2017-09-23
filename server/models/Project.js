@@ -14,19 +14,19 @@ module.exports = function (sequelize, DataTypes) {
         },
         location:{
             type:DataTypes.STRING(250),
-            allowNull:false
+            allowNull:true
         },
         company:{
             type:DataTypes.STRING(250),
-            allowNull:false
+            allowNull:true
         },
         department:{
             type:DataTypes.STRING(250),
-            allowNull:false
+            allowNull:true
         },
         description:{
             type:DataTypes.STRING(250),
-            allowNull:false
+            allowNull:true
         }
     });
 };

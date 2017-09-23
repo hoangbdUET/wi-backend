@@ -18,7 +18,7 @@ router.post('/login', function (req, res) {
                 if (user.password != req.body.password) {
                     res.send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Wrong password. Authenticate fail"))
                 } else {
-                    var token = jwt.sign(req.body, 'secretKey', {expiresIn: '1h'});
+                    var token = jwt.sign(req.body, 'secretKey', {expiresIn: '12h'});
                     res.send(ResponseJSON(ErrorCodes.SUCCESS, "Success", token));
                 }
             }
