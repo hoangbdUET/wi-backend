@@ -184,9 +184,9 @@ function newDbInstance(dbName, callback) {
         });
         //m.CrossPlot.hasMany(m.Discrim, {foreignKey: {name: 'idCrossPlot', allowNull: true}});
 
-        m.PointSet.belongsTo(m.Curve, {foreignKey: 'idCurveX'});
-        m.PointSet.belongsTo(m.Curve, {foreignKey: 'idCurveY'});
-        m.PointSet.belongsTo(m.Curve, {foreignKey: 'idCurveZ'});
+        m.PointSet.belongsTo(m.Curve, {foreignKey: {name: 'idCurveX', allowNull: true}});
+        m.PointSet.belongsTo(m.Curve, {foreignKey: {name: 'idCurveY', allowNull: true}});
+        m.PointSet.belongsTo(m.Curve, {foreignKey: {name: 'idCurveZ', allowNull: true}});
         m.PointSet.belongsTo(m.Well, {foreignKey: {name: 'idWell', allowNull: false}, onDelete: 'CASCADE'});
         m.PointSet.belongsTo(m.ZoneSet, {foreignKey: {name: 'idZoneSet', allowNull: true}});
 
