@@ -47,6 +47,7 @@ function main() {
     var customFillRouter = require('./server/custom-fill/index');
     var userDefineLineRouter = require('./server/line-user-define/user-line.router');
     var annotationRouter = require('./server/annotation/annotation.router');
+    var regressionLineRouter = require('./server/regression-line/regression-line.route');
 
     var http = require('http').Server(app);
 
@@ -92,6 +93,7 @@ function main() {
     app.use('/project/well/cross-plot', userDefineLineRouter);
     app.use('/project/well/', discrimRouter);
     app.use('/project/well/', histogramRouter);
+    app.use('/project/well/cross-plot', regressionLineRouter);
     app.use('/', imageUpload);
 
 
