@@ -204,11 +204,11 @@ function newDbInstance(dbName, callback) {
 
         m.Polygon.belongsToMany(m.RegressionLine, {
             through: 'Polygon_RegressionLine',
-            foreignKey: 'polygonId'
+            foreignKey: 'idPolygon'
         });
         m.RegressionLine.belongsToMany(m.Polygon, {
             through: 'Polygon_RegressionLine',
-            foreignKey: 'regressionLineId'
+            foreignKey: 'idRegressionLine'
         })
 
     })(object);
