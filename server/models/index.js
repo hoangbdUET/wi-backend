@@ -108,7 +108,8 @@ function newDbInstance(dbName, callback) {
         'Histogram',
         'Marker',
         'UserDefineLine',
-        'Annotation'
+        'Annotation',
+        'RegressionLine'
     ];
     models.forEach(function (model) {
         object[model] = sequelize.import(__dirname + '/' + model);
@@ -173,6 +174,7 @@ function newDbInstance(dbName, callback) {
         m.Shading.belongsTo(m.Curve, {foreignKey: 'idControlCurve'});
 
         m.CrossPlot.hasMany(m.Polygon, {foreignKey: {name: 'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
+        m.CrossPlot.hasMany(m.RegressionLine, {foreignKey: {name: 'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
         m.CrossPlot.hasMany(m.PointSet, {foreignKey: {name: 'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
         m.CrossPlot.hasMany(m.Discrim, {foreignKey: {name: 'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
         m.CrossPlot.hasMany(m.UserDefineLine, {
@@ -199,6 +201,15 @@ function newDbInstance(dbName, callback) {
 
         m.Discrim.belongsTo(m.Curve, {foreignKey: {name: 'idCurveLeft', allowNull: false}});
         m.Discrim.belongsTo(m.Curve, {foreignKey: {name: 'idCurveRight', allowNull: true}});
+
+        m.Polygon.belongsToMany(m.RegressionLine, {
+            through: 'Polygon_RegressionLine',
+            foreignKey: 'idPolygon'
+        });
+        m.RegressionLine.belongsToMany(m.Polygon, {
+            through: 'Polygon_RegressionLine',
+            foreignKey: 'idRegressionLine'
+        })
 
     })(object);
 

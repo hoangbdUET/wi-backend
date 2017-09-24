@@ -7,7 +7,7 @@ module.exports = function () {
         if (token) {
             jwt.verify(token, 'secretKey', function (err, decoded) {
                 if (err) {
-                    return res.json({success: false, message: 'Failed to authenticate'});
+                    return res.json({code: 401, success: false, message: 'Failed to authenticate'});
                 } else {
                     req.dbConnection = models('wi_' + decoded.username.toLowerCase());
                     req.decoded = decoded;
@@ -21,6 +21,7 @@ module.exports = function () {
             next();//TODO*/
         } else {
             return res.status(403).send({
+                code: 403,
                 success: false,
                 message: 'No token provided.'
             })
