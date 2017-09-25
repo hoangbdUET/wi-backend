@@ -3,7 +3,7 @@ module.exports = function (sequelize, DataTypes) {
         idPointSet: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
-            allowNullL: false,
+            allowNull: false,
             primaryKey: true
         },
         scaleLeft: {

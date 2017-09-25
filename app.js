@@ -48,6 +48,7 @@ function main() {
     var userDefineLineRouter = require('./server/line-user-define/user-line.router');
     var annotationRouter = require('./server/annotation/annotation.router');
     var regressionLineRouter = require('./server/regression-line/regression-line.route');
+    var familyRouter = require('./server/family/family.router');
 
     var http = require('http').Server(app);
 
@@ -71,6 +72,7 @@ function main() {
     app.use(authenticate());
     app.use('/', uploadRouter);
     app.use('/', projectRouter);
+    app.use('/', familyRouter);
     app.use('/pal', palRouter);
     app.use('/custom-fill', customFillRouter);
     app.use('/project', wellRouter);

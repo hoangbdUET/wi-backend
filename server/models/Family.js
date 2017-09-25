@@ -3,6 +3,7 @@ module.exports = function (sequelize, DataTypes) {
         idFamily:{
             type:DataTypes.INTEGER,
             primaryKey:true,
+            autoIncrement:true,
             unique:true
         },
         name:{
