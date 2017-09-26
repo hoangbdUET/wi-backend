@@ -137,6 +137,7 @@ router.post('/curve/scale', function (req, res) {
                                         arrY.push(arrXY[0]);
                                     });
                                     lineReader.on('close', function () {
+					arrY=arrY.filter((element)=> element!=null);
                                         let min = Math.min(...arrY);
                                         let max = Math.max(...arrY);
                                         res.send(ResponseJSON(ErrorCodes.SUCCESS, "min max curve success",{minScale:min,maxScale:max}));
