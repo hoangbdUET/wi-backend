@@ -112,7 +112,7 @@ router.post('/curve/updateData', upload.single('data'), function (req, res) {
     });
 });
 
-router.post('/curve/minmaxScale', function (req, res) {
+router.post('/curve/scale', function (req, res) {
     var Curve = req.dbConnection.Curve;
     var Dataset = req.dbConnection.Dataset;
     var Project = req.dbConnection.Project;
