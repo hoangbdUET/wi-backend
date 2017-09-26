@@ -136,11 +136,22 @@ router.post('/curve/scale', function (req, res) {
                                         let arrXY = line.split(/\s+/g).slice(1, 2);
                                         arrY.push(arrXY[0]);
                                     });
+
                                     lineReader.on('close', function () {
-					arrY=arrY.filter((element)=> element!=null);
-                                        let min = Math.min(...arrY);
-                                        let max = Math.max(...arrY);
-                                        res.send(ResponseJSON(ErrorCodes.SUCCESS, "min max curve success",{minScale:min,maxScale:max}));
+                                        console.log(arrY);
+                                        let min = 99999;
+                                        let max = 0;
+                                        arrY.forEach(function (element, i) {
+                                            if (element != 'null') {
+                                                element = parseFloat(element);
+                                                if (element < min) min = element;
+                                                if (element > max) max = element;
+                                            }
+                                        });
+                                        res.send(ResponseJSON(ErrorCodes.SUCCESS, "min max curve success", {
+                                            minScale: min,
+                                            maxScale: max
+                                        }));
                                     });
                                 });
                             }
