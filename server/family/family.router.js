@@ -28,7 +28,7 @@ router.delete('/family/delete', function (req, res) {
     }, req.dbConnection);
 });
 
-router.get('/family/list', function (req, res) {
+router.post('/family/list', function (req, res) {
     familyModel.getFamilyList(function (status) {
         res.send(status);
     }, req.dbConnection);
