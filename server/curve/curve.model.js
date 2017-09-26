@@ -60,15 +60,17 @@ function editCurve(curveInfo, done, dbConnection, username) {
                             copy.on('error', function (err) {
                                 return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit Curve name", err));
                             });
-                            curve.idDataset = curveInfo.idDataset;
-                            curve.name = curveInfo.name;
-                            curve.dataset = curveInfo.dataset;
-                            curve.unit = curveInfo.unit;
-                            curve.initValue = curveInfo.initValue;
-                            curve.idFamily = curveInfo.idFamily;//Moi them
-                            curve.save()
+                            // curve.idDataset = curveInfo.idDataset;
+                            // curve.name = curveInfo.name;
+                            // curve.dataset = curveInfo.dataset;
+                            // curve.unit = curveInfo.unit;
+                            // curve.initValue = curveInfo.initValue;
+                            // curve.idFamily = curveInfo.idFamily;//Moi them
+                            Object.assign(curve,curveInfo)
+                            // curve.save()
+                                .save()
                                 .then(() => {
-                                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Curve success", curveInfo));
+                                    done(ResponseJSON(ErrorCodes.SUCCESS, "Edit curve success", curveInfo));
                                 })
                                 .catch(err => {
                                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Curve " + err.name));
