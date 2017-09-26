@@ -22,7 +22,7 @@ router.post('/well/new', function (req, res) {
 router.post('/well/edit', function (req, res) {
     wellModel.editWell(req.body, function (status) {
         res.send(status);
-    },req.dbConnection);
+    },req.dbConnection, req.decoded.username);
 });
 
 router.delete('/well/delete', function (req, res) {
