@@ -108,6 +108,14 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING,
             allowNull: true,
             defaultValue: "All"
+        },
+        zAxes: {
+            type: DataTypes.ENUM("Curve", "Zone"),
+            allowNull: false,
+            defaultValue: "Curve",
+            validate: {
+                isIn: [['Curve', 'Zone']]
+            }
         }
     });
 };
