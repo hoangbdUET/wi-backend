@@ -39,6 +39,7 @@ function createNewCurve(curveInfo, done, dbConnection) {
 }
 
 function editCurve(curveInfo, done, dbConnection, username) {
+    //console.log(curveInfo);
     var Curve = dbConnection.Curve;
     var Dataset = dbConnection.Dataset;
     var Well = dbConnection.Well;
@@ -46,7 +47,7 @@ function editCurve(curveInfo, done, dbConnection, username) {
     Curve.findById(curveInfo.idCurve)
         .then(curve => {
             if (curve.name != curveInfo.name) {
-                console.log("EDIT NAME");
+                console.log("EDIT CURVE NAME");
                 Dataset.findById(curve.idDataset).then(dataset => {
                     Well.findById(dataset.idWell).then(well => {
                         Project.findById(well.idProject).then(project => {
@@ -60,15 +61,12 @@ function editCurve(curveInfo, done, dbConnection, username) {
                             copy.on('error', function (err) {
                                 return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit Curve name", err));
                             });
-                            // curve.idDataset = curveInfo.idDataset;
-                            // curve.name = curveInfo.name;
-                            // curve.dataset = curveInfo.dataset;
-                            // curve.unit = curveInfo.unit;
-                            // curve.initValue = curveInfo.initValue;
-                            // curve.idFamily = curveInfo.idFamily;//Moi them
-                            Object.assign(curve,curveInfo)
-                            // curve.save()
-                                .save()
+                            curve.idDataset = curveInfo.idDataset;
+                            curve.name = curveInfo.name;
+                            curve.dataset = curveInfo.dataset;
+                            curve.unit = curveInfo.unit;
+                            curve.initValue = curveInfo.initValue;
+                            curve.save()
                                 .then(() => {
                                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit curve success", curveInfo));
                                 })
@@ -81,8 +79,17 @@ function editCurve(curveInfo, done, dbConnection, username) {
                     console.log(err);
                 });
             } else {
-
+                console.log("EDIT CURVE");
+                Object.assign(curve, curveInfo)
+                    .save()
+                    .then(() => {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Edit curve success", curveInfo));
+                    })
+                    .catch(err => {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Curve " + err.name));
+                    })
             }
+
         })
         .catch(() => {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found for edit"));
