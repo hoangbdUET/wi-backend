@@ -65,6 +65,7 @@ function editCurve(curveInfo, done, dbConnection, username) {
                             curve.dataset = curveInfo.dataset;
                             curve.unit = curveInfo.unit;
                             curve.initValue = curveInfo.initValue;
+                            curve.idFamily = curveInfo.idFamily;//Moi them
                             curve.save()
                                 .then(() => {
                                     done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Curve success", curveInfo));

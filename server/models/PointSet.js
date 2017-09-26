@@ -8,19 +8,19 @@ module.exports = function (sequelize, DataTypes) {
         },
         scaleLeft: {
             type: DataTypes.FLOAT,
-            allowNullL: true
+            allowNull: true
         },
         scaleRight: {
             type: DataTypes.FLOAT,
-            allowNullL: true
+            allowNull: true
         },
         scaleBottom: {
             type: DataTypes.FLOAT,
-            allowNullL: true
+            allowNull: true
         },
         scaleTop: {
             type: DataTypes.FLOAT,
-            allowNullL: true
+            allowNull: true
         },
         logX: {
             type: DataTypes.BOOLEAN,

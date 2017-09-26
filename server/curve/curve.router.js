@@ -5,6 +5,9 @@ const router = express.Router();
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const multer = require('multer');
+const config = require('config');
+var wiImport = require('wi-import');
+var hashDir = wiImport.hashDir;
 
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
@@ -107,6 +110,55 @@ router.post('/curve/updateData', upload.single('data'), function (req, res) {
     curveModel.updateData(req, function (result) {
         res.send(result);
     });
+});
+
+router.post('/curve/minmaxScale', function (req, res) {
+    var Curve = req.dbConnection.Curve;
+    var Dataset = req.dbConnection.Dataset;
+    var Project = req.dbConnection.Project;
+    var Well = req.dbConnection.Well;
+    Curve.findById(req.body.idCurve)
+        .then(function (curve) {
+            if (curve) {
+                Dataset.findById(curve.idDataset).then((dataset) => {
+                    if (!dataset) {
+                        console.log("No dataset");
+                    } else {
+                        Well.findById(dataset.idWell).then(well => {
+                            if (well) {
+                                Project.findById(well.idProject).then(project => {
+                                    let inputStream = hashDir.createReadStream(config.curveBasePath, req.decoded.username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+                                    let lineReader = require('readline').createInterface({
+                                        input: inputStream
+                                    });
+                                    let arrY = [];
+                                    lineReader.on('line', function (line) {
+                                        let arrXY = line.split(/\s+/g).slice(1, 2);
+                                        arrY.push(arrXY[0]);
+                                    });
+                                    lineReader.on('close', function () {
+                                        let min = Math.min(...arrY);
+                                        let max = Math.max(...arrY);
+                                        res.send(ResponseJSON(ErrorCodes.SUCCESS, "min max curve success",{minScale:min,maxScale:max}));
+                                    });
+                                });
+                            }
+                        });
+
+                    }
+                }).catch(err => {
+                    res.send(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Dataset for curve not found"));
+                });
+
+            } else {
+
+            }
+
+        })
+        .catch(function () {
+            res.status(404).end();
+        })
+
 });
 
 module.exports = router;
