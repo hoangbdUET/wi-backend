@@ -315,40 +315,40 @@ router.post('/files', upload.array('file'), (req, res) => {
         moreUploadData.crWellDup = null;
         moreUploadData.crDatasetDup = null;
         moreUploadData.useUWI = null;
-        // uploadModel.getProjectById(idProject, (err, projectName) => {
-        //     if (!err) {
-        //         moreUploadData.projectName = req.decoded.username + projectName;
-        //         for (let i = 0; i < req.files.length; i++) {
-        //             let list = req.files[i].filename.split('.');
-        //             let fileFormat = list[list.length - 1];
-        //             if (/LAS/.test(fileFormat.toUpperCase())) {
-        //                 wiImport.setBasePath(config.curveBasePath);
-        //                 wiImport.extractLAS2(req.files[i].path, moreUploadData, function (err, result) {
-        //                     if (err) {
-        //                         return res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, err)));
-        //                     }
-        //                     else {
-        //                         extractLAS2Done(result, {
-        //                             idProject: idProject,
-        //                             idWell: idWell[i],
-        //                             idDataset: idDataset[i]
-        //                         }, function (err, result) {
-        //                             if (err) {
-        //                                 event.emit('done', err);
-        //                             } else {
-        //                                 event.emit('done', result);
-        //                             }
-        //
-        //                         }, req.dbConnection);
-        //                     }
-        //                 });
-        //
-        //             } else {
-        //                 //another files
-        //             }
-        //         }
-        //     }
-        // }, req.dbConnection);
+         uploadModel.getProjectById(idProject, (err, projectName) => {
+             if (!err) {
+                 moreUploadData.projectName = req.decoded.username + projectName;
+                 for (let i = 0; i < req.files.length; i++) {
+                     let list = req.files[i].filename.split('.');
+                     let fileFormat = list[list.length - 1];
+                     if (/LAS/.test(fileFormat.toUpperCase())) {
+                         wiImport.setBasePath(config.curveBasePath);
+                         wiImport.extractLAS2(req.files[i].path, moreUploadData, function (err, result) {
+                             if (err) {
+                                 return res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, err)));
+                             }
+                             else {
+                                 extractLAS2Done(result, {
+                                     idProject: idProject,
+                                     idWell: idWell[i],
+                                     idDataset: idDataset[i]
+                                 }, function (err, result) {
+                                     if (err) {
+                                         event.emit('done', err);
+                                     } else {
+                                         event.emit('done', result);
+                                     }
+        
+                                 }, req.dbConnection);
+                             }
+                         });
+        
+                     } else {
+                         //another files
+                     }
+                 }
+             }
+         }, req.dbConnection);
 
     } else {
         res.send(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, 'No file'));
