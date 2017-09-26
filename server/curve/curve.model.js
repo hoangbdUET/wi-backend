@@ -39,7 +39,6 @@ function createNewCurve(curveInfo, done, dbConnection) {
 }
 
 function editCurve(curveInfo, done, dbConnection, username) {
-    //console.log(curveInfo);
     var Curve = dbConnection.Curve;
     var Dataset = dbConnection.Dataset;
     var Well = dbConnection.Well;
