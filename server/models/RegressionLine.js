@@ -7,7 +7,7 @@ module.exports = function (sequelize, DataTypes) {
             allowNull:false
         },
         lineStyle:{
-            type:DataTypes.STRING(60),
+            type:DataTypes.STRING,
             allowNull:false,
             defaultValue: "{color: 'Blue', width: 1, style: []}"
         },
