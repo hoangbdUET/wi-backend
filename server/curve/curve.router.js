@@ -138,7 +138,7 @@ router.post('/curve/scale', function (req, res) {
                                     });
 
                                     lineReader.on('close', function () {
-                                        console.log(arrY);
+                                        //console.log(arrY);
                                         let min = 99999;
                                         let max = 0;
                                         arrY.forEach(function (element, i) {
