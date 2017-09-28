@@ -4,9 +4,92 @@ var ErrorCodes = require('../../error-codes').CODES;
 // var Curve = models.Curve;
 const ResponseJSON = require('../response');
 
-function createNewLine(lineInfo, done,dbConnection) {
+function getWellIdByTrack(idTrack, dbConnection, callback) {
+    let Track = dbConnection.Track;
+    let Plot = dbConnection.Plot;
+    Track.findById(idTrack).then(track => {
+        Plot.findById(track.idPlot).then(plot => {
+            callback(null, plot.idWell);
+        }).catch(err => {
+            callback(err, null);
+        });
+    }).catch(err => {
+        callback(err, null);
+    });
+}
+
+//TODO: GIU CAI NAY LAI DE SAU NAY DUNG :D
+// function createNewLine_(lineInfo, done, dbConnection) {
+//     var Line = dbConnection.Line;
+//     var Curve = dbConnection.Curve;
+//     var Dataset = dbConnection.Dataset;
+//     Line.sync()
+//         .then(
+//             function () {
+//                 Curve.findById(lineInfo.idCurve)
+//                     .then(function (curve) {
+//                         Dataset.findById(curve.idDataset).then(dataset => {
+//                             getWellIdByTrack(lineInfo.idTrack, dbConnection, function (err, idWell) {
+//                                 if (idWell == dataset.idWell) {
+//                                     curve.getLineProperty()
+//                                         .then(function (family) {
+//                                             Line.build({
+//                                                 idTrack: lineInfo.idTrack,
+//                                                 idCurve: curve.idCurve,
+//                                                 alias: curve.name,
+//                                                 minValue: family.minScale,
+//                                                 maxValue: family.maxScale,
+//                                                 displayMode: family.displayMode,
+//                                                 blockPosition: family.blockPosition,
+//                                                 displayType: family.displayType,
+//                                                 lineStyle: family.lineStyle,
+//                                                 lineWidth: family.lineWidth,
+//                                                 lineColor: family.lineColor
+//                                             }).save()
+//                                                 .then(function (line) {
+//                                                     done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", line));
+//                                                 })
+//                                                 .catch(function (err) {
+//                                                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name + " idTrack not exist"));
+//                                                 });
+//                                         })
+//                                         .catch(function (err) {
+//                                             //console.log(err);
+//                                             //console.log("No family " + lineInfo.idTrack);
+//                                             //fix create new line error without family
+//                                             Line.build({
+//                                                 idTrack: lineInfo.idTrack,
+//                                                 idCurve: curve.idCurve,
+//                                                 alias: curve.name
+//                                             }).save()
+//                                                 .then(function (line) {
+//                                                     done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", line.toJSON()));
+//                                                 })
+//                                                 .catch(function (err) {
+//                                                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name + err.message));
+//                                                 });
+//                                         });
+//                                 } else {
+//                                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Can't create line out of its WELL", "HAHA"));
+//                                 }
+//                             });
+//                         });
+//                     })
+//                     .catch(function () {
+//                         done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found for Create New Line"));
+//                     })
+//             },
+//             function () {
+//                 done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
+//             }
+//         )
+//
+// }
+
+function createNewLine(lineInfo, done, dbConnection) {
     var Line = dbConnection.Line;
     var Curve = dbConnection.Curve;
+    var Dataset = dbConnection.Dataset;
     Line.sync()
         .then(
             function () {
@@ -62,7 +145,7 @@ function createNewLine(lineInfo, done,dbConnection) {
 
 }
 
-function editLine(lineInfo, done,dbConnection) {
+function editLine(lineInfo, done, dbConnection) {
     var Line = dbConnection.Line;
     Line.findById(lineInfo.idLine)
         .then(function (line) {
@@ -103,7 +186,7 @@ function editLine(lineInfo, done,dbConnection) {
         })
 }
 
-function deleteLine(lineInfo, done,dbConnection) {
+function deleteLine(lineInfo, done, dbConnection) {
     var Line = dbConnection.Line;
     Line.findById(lineInfo.idLine)
         .then(function (line) {
@@ -120,7 +203,7 @@ function deleteLine(lineInfo, done,dbConnection) {
         })
 }
 
-function getLineInfo(line, done,dbConnection) {
+function getLineInfo(line, done, dbConnection) {
     var Line = dbConnection.Line;
     Line.findById(line.idLine, {include: [{all: true, include: [{all: true}]}]})
         .then(function (line) {
