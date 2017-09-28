@@ -19,6 +19,8 @@ let well = require('../well/well.model');
 let dataset = require('../dataset/dataset.model');
 let curve = require('../curve/curve.model');
 let project = require('../project/project.model');
+let family = require('../family/family.model');
+//let family = require('../family/family.model');
 let ResponseJSON = require('../response');
 let importUntils = require('../import-untils/import-untils');
 let bodyParser = require('body-parser');
@@ -268,7 +270,7 @@ router.post('/file', upload.single('file'), function (req, res) {
 });
 
 router.post('/files/prepare', upload.array('file'), (req, res) => {
-    //console.log(req.files);
+    //console.log(req.body);
     let files = req.files;
     let response = [];
     let event = new EventEmitter.EventEmitter();
@@ -317,8 +319,35 @@ router.post('/files/prepare', upload.array('file'), (req, res) => {
                         };
                         fileInfo.datasetName = result.datasetInfo[0].name;
                         fileInfo.curves = result.datasetInfo[0].curves;
+                        if (req.body.isLoadAllCurves == 'false') {
+                            //console.log("hhihi");
+                            let length = fileInfo.curves.length;
+                            let count = 0;
+                            fileInfo.curves.forEach(function (curve, i) {
+                                family.checkCurveInFamilyGroup(curve.name, curve.unit, req.body.families, req.dbConnection, function (err, isExist) {
+                                    // console.log("IS EXISTS : " + isExist);
+                                    if (isExist == 0) {
+                                        count++;
+                                        fileInfo.curves = fileInfo.curves.filter(function (c) {
+                                            return c.name != curve.name;
+                                        });
 
-                        event.emit('done-extract-well', fileInfo);
+                                    } else {
+                                        count++;
+                                    }
+                                    //console.log(count + "-" + length);
+                                    if (count == length) {
+                                        event.emit('done-extract-well', fileInfo);
+                                    }
+                                });
+
+                            });
+                        } else {
+                            //console.log("haha")
+                            event.emit('done-extract-well', fileInfo);
+                        }
+
+
                     }
                 });
             } else {

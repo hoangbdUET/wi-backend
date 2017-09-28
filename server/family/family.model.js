@@ -1,8 +1,8 @@
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 
-function createNewFamily(familyInfo,done,dbConnection) {
-    var Family=dbConnection.Family;
+function createNewFamily(familyInfo, done, dbConnection) {
+    var Family = dbConnection.Family;
     Family.sync()
         .then(function () {
             delete familyInfo.idFamily;
@@ -14,17 +14,18 @@ function createNewFamily(familyInfo,done,dbConnection) {
                 .catch(function (err) {
                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Family " + err));
                 })
-        },function () {
+        }, function () {
             done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
         })
 
 }
+
 function editFamily(familyInfo, done, dbConnection) {
-    var Family=dbConnection.Family;
+    var Family = dbConnection.Family;
     Family.findById(familyInfo.idFamily)
         .then(function (family) {
             delete familyInfo.idFamily;
-            Object.assign(family,familyInfo)
+            Object.assign(family, familyInfo)
                 .save()
                 .then(function (result) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Family success", result));
@@ -37,8 +38,9 @@ function editFamily(familyInfo, done, dbConnection) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Family not found for edit"));
         })
 }
+
 function deleteFamily(familyInfo, done, dbConnection) {
-    var Family=dbConnection.Family;
+    var Family = dbConnection.Family;
     Family.findById(familyInfo.idFamily)
         .then(function (family) {
             family.destroy()
@@ -53,8 +55,9 @@ function deleteFamily(familyInfo, done, dbConnection) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Family not found for delete"));
         })
 }
+
 function getFamilyInfo(familyInfo, done, dbConnection) {
-    var Family=dbConnection.Family;
+    var Family = dbConnection.Family;
     Family.findById(familyInfo.idFamily)
         .then(function (family) {
             if (!family) throw 'not exists';
@@ -64,8 +67,9 @@ function getFamilyInfo(familyInfo, done, dbConnection) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Family not found for get info"));
         })
 }
+
 function getFamilyList(done, dbConnection) {
-    var Family=dbConnection.Family;
+    var Family = dbConnection.Family;
     Family.all()
         .then(function (families) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get List Family success", families));
@@ -75,10 +79,37 @@ function getFamilyList(done, dbConnection) {
         })
 }
 
-module.exports={
-    createNewFamily:createNewFamily,
-    editFamily:editFamily,
-    deleteFamily:deleteFamily,
-    getFamilyInfo:getFamilyInfo,
-    getFamilyList:getFamilyList
+function checkCurveInFamilyGroup(curveName, curveUnit, familyGroup, dbConnection, callback) {
+    let Family = dbConnection.Family;
+    let FamilyCondition = dbConnection.FamilyCondition;
+    FamilyCondition.findAll().then(conditions => {
+        var result = conditions.find(function (aCondition) {
+            return new RegExp("^" + aCondition.curveName + "$").test(curveName) && new RegExp("^" + aCondition.unit + "$").test(curveUnit);
+        });
+        if (!result) {
+            return callback(null, 0);
+        } else {
+            result.getFamily().then(aFamily => {
+                for (let key in familyGroup) {
+                    if (familyGroup[key] == 'true') {
+                        if (aFamily.familyGroup == key) {
+                            return callback(null, 1);
+                        }
+                    }
+                }
+                return callback(null, 0);
+            });
+
+        }
+    });
+
+}
+
+module.exports = {
+    checkCurveInFamilyGroup: checkCurveInFamilyGroup,
+    createNewFamily: createNewFamily,
+    editFamily: editFamily,
+    deleteFamily: deleteFamily,
+    getFamilyInfo: getFamilyInfo,
+    getFamilyList: getFamilyList
 }

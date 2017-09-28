@@ -8,7 +8,6 @@ function updateFamilyCondition(workbook, sheetName, callback,dbConnection) {
     var worksheet = workbook.Sheets[sheetName];
     var range = XLSX.utils.decode_range(worksheet['!ref']);
     var eventEmitter = new EventEmitter();
-    
     var fcDoneCount = 0;
     var totalFC = range.e.r - range.s.r;
 
