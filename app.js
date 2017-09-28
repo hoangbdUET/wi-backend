@@ -1,15 +1,16 @@
 /**
  * Created by minhtan on 20/06/2017.
  */
-// var familyUpdate = require('./server/family/FamilyUpdater');
-// var familyConditionUpdate = require('./server/family/FamilyConditionUpdater');
-//
-// familyUpdate(function() {
-//     familyConditionUpdate(function(){
-//         main();
-//     });
-// });
-main();
+var familyUpdate = require('./server/family/GlobalFamilyUpdater');
+var familyConditionUpdate = require('./server/family/GlobalFamilyConditionUpdater');
+
+familyUpdate(function () {
+    familyConditionUpdate(function () {
+        main();
+    });
+});
+
+//main();
 
 function main() {
     var express = require('express');
@@ -49,6 +50,7 @@ function main() {
     var annotationRouter = require('./server/annotation/annotation.router');
     var regressionLineRouter = require('./server/regression-line/regression-line.route');
     var familyRouter = require('./server/family/family.router');
+    var globalFamilyRouter = require('./server/family/global.family.router');
 
     var http = require('http').Server(app);
 
@@ -67,6 +69,7 @@ function main() {
      */
 
     app.use(express.static(path.join(__dirname, fullConfig.imageBasePath)));
+    app.use('/', globalFamilyRouter);
     app.use('/', authenRouter);
     var authenticate = require('./server/authenticate/authenticate');
     app.use(authenticate());
