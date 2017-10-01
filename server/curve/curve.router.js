@@ -117,60 +117,63 @@ router.post('/curve/scale', function (req, res) {
     var Dataset = req.dbConnection.Dataset;
     var Project = req.dbConnection.Project;
     var Well = req.dbConnection.Well;
-    Curve.findById(req.body.idCurve)
-        .then(function (curve) {
-            if (curve) {
-                Dataset.findById(curve.idDataset).then((dataset) => {
-                    if (!dataset) {
-                        console.log("No dataset");
-                    } else {
-                        Well.findById(dataset.idWell).then(well => {
-                            if (well) {
-                                Project.findById(well.idProject).then(project => {
-                                    let inputStream = hashDir.createReadStream(config.curveBasePath, req.decoded.username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
-                                    let lineReader = require('readline').createInterface({
-                                        input: inputStream
-                                    });
-                                    let arrY = [];
-                                    lineReader.on('line', function (line) {
-                                        let arrXY = line.split(/\s+/g).slice(1, 2);
-                                        arrY.push(arrXY[0]);
-                                    });
-
-                                    lineReader.on('close', function () {
-                                        //console.log(arrY);
-                                        let min = 99999;
-                                        let max = 0;
-                                        arrY.forEach(function (element, i) {
-                                            if (element != 'null') {
-                                                element = parseFloat(element);
-                                                if (element < min) min = element;
-                                                if (element > max) max = element;
-                                            }
+    if (req.body.idCurve) {
+        Curve.findById(req.body.idCurve)
+            .then(function (curve) {
+                if (curve) {
+                    Dataset.findById(curve.idDataset).then((dataset) => {
+                        if (!dataset) {
+                            console.log("No dataset");
+                        } else {
+                            Well.findById(dataset.idWell).then(well => {
+                                if (well) {
+                                    Project.findById(well.idProject).then(project => {
+                                        let inputStream = hashDir.createReadStream(config.curveBasePath, req.decoded.username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+                                        let lineReader = require('readline').createInterface({
+                                            input: inputStream
                                         });
-                                        res.send(ResponseJSON(ErrorCodes.SUCCESS, "min max curve success", {
-                                            minScale: min,
-                                            maxScale: max
-                                        }));
+                                        let arrY = [];
+                                        lineReader.on('line', function (line) {
+                                            let arrXY = line.split(/\s+/g).slice(1, 2);
+                                            arrY.push(arrXY[0]);
+                                        });
+
+                                        lineReader.on('close', function () {
+                                            //console.log(arrY);
+                                            let min = 99999;
+                                            let max = 0;
+                                            arrY.forEach(function (element, i) {
+                                                if (element != 'null') {
+                                                    element = parseFloat(element);
+                                                    if (element < min) min = element;
+                                                    if (element > max) max = element;
+                                                }
+                                            });
+                                            res.send(ResponseJSON(ErrorCodes.SUCCESS, "min max curve success", {
+                                                minScale: min,
+                                                maxScale: max
+                                            }));
+                                        });
                                     });
-                                });
-                            }
-                        });
+                                }
+                            });
 
-                    }
-                }).catch(err => {
-                    res.send(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Dataset for curve not found"));
-                });
+                        }
+                    }).catch(err => {
+                        res.send(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Dataset for curve not found"));
+                    });
 
-            } else {
+                } else {
 
-            }
+                }
 
-        })
-        .catch(function () {
-            res.status(404).end();
-        })
-
+            })
+            .catch(function () {
+                res.status(404).end();
+            })
+    } else {
+        res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "idCurve can not be null"));
+    }
 });
 
 module.exports = router;
