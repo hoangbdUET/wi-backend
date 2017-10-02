@@ -20,8 +20,8 @@ module.exports = function () {
             // req.decoded = decoded;
             next();//TODO*/
         } else {
-            return res.status(403).send({
-                code: 403,
+            return res.status(401).send({
+                code: 401,
                 success: false,
                 message: 'No token provided.'
             })
