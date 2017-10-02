@@ -200,7 +200,7 @@ router.post('/file', upload.single('file'), function (req, res) {
     }
     let list = req.file.filename.split('.');
     let fileFormat = list[list.length - 1];
-    //let fileName = req.file.filename.substring(req.file.filename.indexOf('-') + 1, req.file.filename.indexOf('.' + fileFormat));
+    let fileName = req.file.filename.substring(req.file.filename.indexOf('-') + 1, req.file.filename.indexOf('.' + fileFormat));
 
     let idProject = parseInt(req.body.id_project);
     let idWell = req.body.id_well ? parseInt(req.body.id_well) : 0;
@@ -211,7 +211,7 @@ router.post('/file', upload.single('file'), function (req, res) {
     moreUploadData.projectName = null;
     moreUploadData.wellName = null;
     moreUploadData.datasetName = null;
-    moreUploadData.fileName = null;
+    moreUploadData.fileName = fileName;
     uploadModel.getProjectById(idProject, (err, projectName) => {
         if (!err) {
             moreUploadData.projectName = req.decoded.username + projectName;
