@@ -1,4 +1,3 @@
-
 var express = require('express');
 var router = express.Router();
 var plotModel = require('./plot.model');
@@ -12,12 +11,12 @@ router.post('/plot/info', function (req, res) {
 
 });
 router.post('/plot/new', function (req, res) {
-    plotModel.createNewPlot(req.body,function (status) {
+    plotModel.createNewPlot(req.body, function (status) {
         res.send(status);
     }, req.dbConnection)
 });
 router.post('/plot/edit', function (req, res) {
-    plotModel.editPlot(req.body,function (status) {
+    plotModel.editPlot(req.body, function (status) {
         res.send(status);
     }, req.dbConnection)
 });
@@ -25,6 +24,11 @@ router.delete('/plot/delete', function (req, res) {
     plotModel.deletePlot(req.body, function (status) {
         res.send(status);
     }, req.dbConnection)
+});
+router.post('/plot/duplicate', function (req, res) {
+    plotModel.duplicatePlot(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection);
 });
 
 module.exports = router;
