@@ -4,30 +4,32 @@ var ErrorCodes = require('../../error-codes').CODES;
 function createNewPointSet(pointSetInfo, done, dbConnection) {
     var PointSet = dbConnection.PointSet;
     var Well = dbConnection.Well;
-    if (pointSetInfo.idZoneSet) {
-        PointSet.sync()
-            .then(function () {
-                delete pointSetInfo.idPointSet;
-                PointSet.build(pointSetInfo)
-                    .save()
-                    .then(function (aPointSet) {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new pointset success", aPointSet));
-                    })
-                    .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new pointset" + err));
-                    })
-            }, function () {
-                done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
-            });
-    } else {
-        if (pointSetInfo.intervalDepthTop) {
-            PointSet.create(pointSetInfo).then(rs => {
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Create new pointset success", rs));
-            }).catch(err => {
-                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new pointset" + err));
-            });
+    Well.findById(pointSetInfo.idWell).then(well => {
+        pointSetInfo.referenceTopDepth = well.topDepth;
+        pointSetInfo.referenceBottomDepth = well.bottomDepth;
+        if (pointSetInfo.idZoneSet) {
+            PointSet.sync()
+                .then(function () {
+                    delete pointSetInfo.idPointSet;
+                    PointSet.build(pointSetInfo)
+                        .save()
+                        .then(function (aPointSet) {
+                            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new pointset success", aPointSet));
+                        })
+                        .catch(function (err) {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new pointset" + err));
+                        })
+                }, function () {
+                    done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
+                });
         } else {
-            Well.findById(parseInt(pointSetInfo.idWell)).then(well => {
+            if (pointSetInfo.intervalDepthTop) {
+                PointSet.create(pointSetInfo).then(rs => {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create new pointset success", rs));
+                }).catch(err => {
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new pointset" + err));
+                });
+            } else {
                 delete pointSetInfo.idPointSet;
                 pointSetInfo.intervalDepthTop = well.topDepth;
                 pointSetInfo.intervalDepthBottom = well.bottomDepth;
@@ -36,9 +38,11 @@ function createNewPointSet(pointSetInfo, done, dbConnection) {
                 }).catch(err => {
                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new pointset" + err));
                 });
-            });
+
+            }
         }
-    }
+    });
+
 }
 
 function editPointSet(pointSetInfo, done, dbConnection) {

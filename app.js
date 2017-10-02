@@ -51,6 +51,7 @@ function main() {
     var regressionLineRouter = require('./server/regression-line/regression-line.route');
     var familyRouter = require('./server/family/family.router');
     var globalFamilyRouter = require('./server/family/global.family.router');
+    var referenceCurveRouter = require('./server/reference-curve/reference-curve.router');
 
     var http = require('http').Server(app);
 
@@ -100,7 +101,7 @@ function main() {
     app.use('/project/well/', histogramRouter);
     app.use('/project/well/cross-plot', regressionLineRouter);
     app.use('/', imageUpload);
-
+    app.use('/project/well/', referenceCurveRouter);
 
     /**
      * Log manager

@@ -68,7 +68,7 @@ function newDbInstance(dbName, callback) {
         dialect: config.dialect,
         port: config.port,
         logging: config.logging,
-	dialectOptions: {
+        dialectOptions: {
             charset: 'utf8'
         },
         pool: {
@@ -109,7 +109,8 @@ function newDbInstance(dbName, callback) {
         'Marker',
         'UserDefineLine',
         'Annotation',
-        'RegressionLine'
+        'RegressionLine',
+        'ReferenceCurve'
     ];
     models.forEach(function (model) {
         object[model] = sequelize.import(__dirname + '/' + model);
@@ -174,7 +175,10 @@ function newDbInstance(dbName, callback) {
         m.Shading.belongsTo(m.Curve, {foreignKey: 'idControlCurve'});
 
         m.CrossPlot.hasMany(m.Polygon, {foreignKey: {name: 'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
-        m.CrossPlot.hasMany(m.RegressionLine, {foreignKey: {name: 'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
+        m.CrossPlot.hasMany(m.RegressionLine, {
+            foreignKey: {name: 'idCrossPlot', allowNull: false},
+            onDelete: 'CASCADE'
+        });
         m.CrossPlot.hasMany(m.PointSet, {foreignKey: {name: 'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
         m.CrossPlot.hasMany(m.Discrim, {foreignKey: {name: 'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
         m.CrossPlot.hasMany(m.UserDefineLine, {
@@ -191,11 +195,19 @@ function newDbInstance(dbName, callback) {
         m.PointSet.belongsTo(m.Curve, {foreignKey: {name: 'idCurveZ', allowNull: true}});
         m.PointSet.belongsTo(m.Well, {foreignKey: {name: 'idWell', allowNull: false}, onDelete: 'CASCADE'});
         m.PointSet.belongsTo(m.ZoneSet, {foreignKey: {name: 'idZoneSet', allowNull: true}});
+        m.PointSet.hasMany(m.ReferenceCurve, {
+            foreignKey: {name: 'idPointSet', allowNull: true},
+            onDelete: 'CASCADE'
+        });
 
         m.Histogram.belongsTo(m.Curve, {foreignKey: 'idCurve'});
         m.Histogram.belongsTo(m.ZoneSet, {foreignKey: {name: 'idZoneSet', allowNull: true}});
         //m.Histogram.belongsTo(m.Well, {foreignKey: {name:'idWell',allowNull:false},onDelete:'CASCADE'});
         m.Histogram.hasMany(m.Discrim, {foreignKey: {name: 'idHistogram', allowNull: true}, onDelete: 'CASCADE'});
+        m.Histogram.hasMany(m.ReferenceCurve, {
+            foreignKey: {name: 'idHistogram', allowNull: true},
+            onDelete: 'CASCADE'
+        });
 
         //m.Marker.belongsTo(m.Track, {foreignKey: {name: 'idTrack', allowNull: false, onDelete: 'CASCADE'}});
 
@@ -209,8 +221,11 @@ function newDbInstance(dbName, callback) {
         m.RegressionLine.belongsToMany(m.Polygon, {
             through: 'Polygon_RegressionLine',
             foreignKey: 'idRegressionLine'
-        })
-
+        });
+        m.ReferenceCurve.belongsTo(m.Curve, {
+            foreignKey: {name: 'idCurve', allowNull: false},
+            onDelete: 'CASCADE'
+        });
     })(object);
 
     object.sequelize = sequelize;

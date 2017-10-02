@@ -116,6 +116,36 @@ module.exports = function (sequelize, DataTypes) {
             validate: {
                 isIn: [['Curve', 'Zone']]
             }
+        },
+        referenceTopDepth: {
+            type: DataTypes.DOUBLE,
+            allowNull: false,
+            defaultValue: 0
+        },
+        referenceBottomDepth: {
+            type: DataTypes.DOUBLE,
+            allowNull: false,
+            defaultValue: 0
+        },
+        referenceScale: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 1
+        },
+        referenceVertLineNumber: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 1
+        },
+        referenceDisplay: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
+        referenceShowDepthGrid: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
         }
     });
 };

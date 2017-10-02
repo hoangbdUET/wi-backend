@@ -97,17 +97,17 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.ENUM('Bar', 'Curve'),
             allowNull: 'false',
             defaultValue: 'Bar',
-	    validate : {
-		isIn: [['Bar', 'Curve']]
-	    }		
+            validate: {
+                isIn: [['Bar', 'Curve']]
+            }
         },
         plotType: {
             type: DataTypes.ENUM('Frequency', 'Percent'),
             defaultValue: 'Frequency',
-	    validate : {
-		isIn: [['Frequency','Percent']]
-	    },
-	    allowNull: false
+            validate: {
+                isIn: [['Frequency', 'Percent']]
+            },
+            allowNull: false
         },
         color: {
             type: DataTypes.STRING(20),
@@ -117,6 +117,36 @@ module.exports = function (sequelize, DataTypes) {
         discriminators: {
             type: DataTypes.STRING(255),
             allowNull: true
+        },
+        referenceTopDepth: {
+            type: DataTypes.DOUBLE,
+            allowNull: false,
+            defaultValue: 0
+        },
+        referenceBottomDepth: {
+            type: DataTypes.DOUBLE,
+            allowNull: false,
+            defaultValue: 0
+        },
+        referenceScale: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 1
+        },
+        referenceVertLineNumber: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 1
+        },
+        referenceDisplay: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
+        referenceShowDepthGrid: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
         }
     })
 }

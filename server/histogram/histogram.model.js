@@ -8,20 +8,22 @@ var Well = models.Well;
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 
-function createNewHistogram(histogramInfo, done,dbConnection) {
+function createNewHistogram(histogramInfo, done, dbConnection) {
     var Histogram = dbConnection.Histogram;
     var Well = dbConnection.Well;
-    if (histogramInfo.idZoneSet) {
-        Histogram.create(histogramInfo).then(result => {
-            Histogram.findById(result.idHistogram).then(his => {
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
+    Well.findById(parseInt(histogramInfo.idWell)).then(well => {
+        histogramInfo.referenceTopDepth = well.topDepth;
+        histogramInfo.referenceBottomDepth = well.bottomDepth;
+        if (histogramInfo.idZoneSet) {
+            Histogram.create(histogramInfo).then(result => {
+                Histogram.findById(result.idHistogram).then(his => {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
+                });
+            }).catch(err => {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new histogram error", err.message));
             });
-        }).catch(err => {
-            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new histogram error", err.message));
-        });
-    } else {
-        if (!histogramInfo.intervalDepthTop) {
-            Well.findById(parseInt(histogramInfo.idWell)).then(well => {
+        } else {
+            if (!histogramInfo.intervalDepthTop) {
                 histogramInfo.intervalDepthTop = well.topDepth;
                 histogramInfo.intervalDepthBottom = well.bottomDepth;
                 Histogram.create(histogramInfo).then(result => {
@@ -31,36 +33,37 @@ function createNewHistogram(histogramInfo, done,dbConnection) {
                 }).catch(err => {
                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new histogram error", err.message));
                 });
-            }).catch(err => {
-                console.log(err);
-            });
-        } else {
-            Histogram.create(histogramInfo).then(result => {
-                Histogram.findById(result.idHistogram).then(his => {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
+
+            } else {
+                Histogram.create(histogramInfo).then(result => {
+                    Histogram.findById(result.idHistogram).then(his => {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
+                    });
+                }).catch(err => {
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new histogram error", err.message));
                 });
-            }).catch(err => {
-                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new histogram error", err.message));
-            });
+            }
         }
-    }
+    }).catch(err => {
 
-
+    });
 }
 
-function getHistogram(histogramId, done,dbConnection) {
+function getHistogram(histogramId, done, dbConnection) {
     var Histogram = dbConnection.Histogram;
     var Curve = dbConnection.Curve;
     var ZoneSet = dbConnection.ZoneSet;
     var Zone = dbConnection.Zone;
-
+    var ReferenceCurve = dbConnection.ReferenceCurve;
     Histogram.findById(histogramId.idHistogram, {
         include: [{
             model: ZoneSet,
             include: [{model: Zone}]
-        },{
-	    model: Curve
-	}]
+        }, {
+            model: Curve
+        }, {
+            model: ReferenceCurve
+        }]
     }).then(rs => {
         if (rs) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
@@ -72,7 +75,7 @@ function getHistogram(histogramId, done,dbConnection) {
     })
 }
 
-function editHistogram(histogramInfo, done,dbConnection) {
+function editHistogram(histogramInfo, done, dbConnection) {
     var Histogram = dbConnection.Histogram;
     Histogram.findById(histogramInfo.idHistogram)
         .then(function (histogram) {
@@ -90,7 +93,7 @@ function editHistogram(histogramInfo, done,dbConnection) {
         })
 }
 
-function deleteHistogram(histogramInfo, done,dbConnection) {
+function deleteHistogram(histogramInfo, done, dbConnection) {
     var Histogram = dbConnection.Histogram;
     Histogram.findById(histogramInfo.idHistogram)
         .then(function (histogram) {
