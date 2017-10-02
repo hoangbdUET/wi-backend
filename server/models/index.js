@@ -61,31 +61,29 @@ module.exports = function (dbName, callback) {
 
 function newDbInstance(dbName, callback) {
     var object = new Object();
-    try {
-        const sequelize = new Sequelize(dbName, config.user, config.password, {
-            define: {
-                freezeTableName: true
-            },
-            dialect: config.dialect,
-            port: config.port,
-            logging: config.logging,
-            dialectOptions: {
-                charset: 'utf8'
-            },
-            pool: {
-                max: 2,
-                min: 0,
-                idle: 200
-            },
-            storage: config.storage
-        });
-    } catch (err){
-        return err;
-    }
+    const sequelize = new Sequelize(dbName, config.user, config.password, {
+        define: {
+            freezeTableName: true
+        },
+        dialect: config.dialect,
+        port: config.port,
+        logging: config.logging,
+        dialectOptions: {
+            charset: 'utf8'
+        },
+        pool: {
+            max: 2,
+            min: 0,
+            idle: 200
+        },
+        storage: config.storage
+    });
     sequelize.sync()
         .catch(function (err) {
-            console.log(err);
+            //console.log(err.message);
+            callback(err);
         });
+
     var models = [
         'Curve',
         'CurveData',
