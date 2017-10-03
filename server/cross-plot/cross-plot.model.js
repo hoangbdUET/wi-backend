@@ -4,31 +4,37 @@ var models = require('../models');
 var CrossPlot = models.CrossPlot;
 
 
-function createNewCrossPlot(crossPlotInfo, done,dbConnection) {
-    var CrossPlot=dbConnection.CrossPlot;
-    CrossPlot.sync()
-        .then(
-            function () {
-                var crossPlot = CrossPlot.build({
-                    idWell:crossPlotInfo.idWell,
-                    name: crossPlotInfo.name,
-                });
-                crossPlot.save()
-                    .then(function (crossPlot) {
-                        done(ResponseJSON(ErrorCodes.SUCCESS,"Create new CrossPlot success",crossPlot.toJSON()));
-                    })
-                    .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new CrossPlot "+err.name));
-                    })
-            },
-            function () {
-                done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
-            }
-        )
+function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
+    var CrossPlot = dbConnection.CrossPlot;
+    var Well = dbConnection.Well;
+    Well.findById(crossPlotInfo.idWell).then(well=>{
+        crossPlotInfo.referenceTopDepth = well.topDepth;
+        crossPlotInfo.referenceBottomDepth = well.bottomDepth;
+        CrossPlot.sync()
+            .then(
+                function () {
+                    var crossPlot = CrossPlot.build({
+                        idWell: crossPlotInfo.idWell,
+                        name: crossPlotInfo.name,
+                    });
+                    crossPlot.save()
+                        .then(function (crossPlot) {
+                            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new CrossPlot success", crossPlot.toJSON()));
+                        })
+                        .catch(function (err) {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new CrossPlot " + err.name));
+                        })
+                },
+                function () {
+                    done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
+                }
+            )
+    }).catch();
+
 }
 
-function editCrossPlot(crossPlotInfo,done,dbConnection) {
-    var CrossPlot=dbConnection.CrossPlot;
+function editCrossPlot(crossPlotInfo, done, dbConnection) {
+    var CrossPlot = dbConnection.CrossPlot;
     CrossPlot.findById(crossPlotInfo.idCrossPlot)
         .then(function (crossPlot) {
             crossPlot.idWell = crossPlotInfo.idWell;
@@ -38,15 +44,16 @@ function editCrossPlot(crossPlotInfo,done,dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit CrossPlot success", crossPlotInfo));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit CrossPlot "+err.name));
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit CrossPlot " + err.name));
                 })
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS,"CrossPlot not found for edit"));
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "CrossPlot not found for edit"));
         })
 }
-function deleteCrossPlot(crossPlotInfo,done,dbConnection) {
-    var CrossPlot=dbConnection.CrossPlot;
+
+function deleteCrossPlot(crossPlotInfo, done, dbConnection) {
+    var CrossPlot = dbConnection.CrossPlot;
     CrossPlot.findById(crossPlotInfo.idCrossPlot)
         .then(function (crossPlot) {
             crossPlot.destroy()
@@ -54,16 +61,17 @@ function deleteCrossPlot(crossPlotInfo,done,dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "CrossPlot is deleted", crossPlot));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete CrossPlot "+err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete CrossPlot " + err.errors[0].message));
                 })
         })
         .catch(function () {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "CrossPlot not found for delete"));
         })
 }
-function getCrossPlotInfo(crossPlot, done,dbConnection) {
-    var CrossPlot=dbConnection.CrossPlot;
-    CrossPlot.findById(crossPlot.idCrossPlot, {include: [{all:true,include:[{all:true}]}]})
+
+function getCrossPlotInfo(crossPlot, done, dbConnection) {
+    var CrossPlot = dbConnection.CrossPlot;
+    CrossPlot.findById(crossPlot.idCrossPlot, {include: [{all: true, include: [{all: true}]}]})
         .then(function (crossPlot) {
             if (!crossPlot) throw "not exists";
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get info CrossPlot success", crossPlot));
@@ -74,9 +82,9 @@ function getCrossPlotInfo(crossPlot, done,dbConnection) {
 }
 
 module.exports = {
-    createNewCrossPlot:createNewCrossPlot,
-    editCrossPlot:editCrossPlot,
-    deleteCrossPlot:deleteCrossPlot,
-    getCrossPlotInfo:getCrossPlotInfo
+    createNewCrossPlot: createNewCrossPlot,
+    editCrossPlot: editCrossPlot,
+    deleteCrossPlot: deleteCrossPlot,
+    getCrossPlotInfo: getCrossPlotInfo
 };
 

@@ -5,8 +5,8 @@ function createNewPointSet(pointSetInfo, done, dbConnection) {
     var PointSet = dbConnection.PointSet;
     var Well = dbConnection.Well;
     Well.findById(pointSetInfo.idWell).then(well => {
-        pointSetInfo.referenceTopDepth = well.topDepth;
-        pointSetInfo.referenceBottomDepth = well.bottomDepth;
+        // pointSetInfo.referenceTopDepth = well.topDepth;
+        // pointSetInfo.referenceBottomDepth = well.bottomDepth;
         if (pointSetInfo.idZoneSet) {
             PointSet.sync()
                 .then(function () {
