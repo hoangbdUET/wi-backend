@@ -4,8 +4,9 @@ var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 //var async = require('async');
 // const async = require('promise-async')
-var EventEmitter = require('events');
 var asyncLoop = require('node-async-loop');
+var exporter = require('./exporter');
+var fs = require('fs');
 
 function createNewPlot(plotInfo, done, dbConnection) {
     var Plot = dbConnection.Plot;
@@ -83,7 +84,6 @@ function getPlotInfo(plot, done, dbConnection) {
 }
 
 function duplicatePlot(payload, done, dbConnection) {
-    let event = new EventEmitter.EventEmitter();
     let response = [];
 
     let Plot = dbConnection.Plot;
@@ -103,7 +103,7 @@ function duplicatePlot(payload, done, dbConnection) {
         let plot = rs.toJSON();
         delete plot.idPlot;
         if (plot.name.indexOf('_') != -1) {
-            plot.name = plot.name.substring(plot.name.indexOf('_') + 1);
+            plot.name = plot.name.substring(0, plot.name.indexOf('_'));
         }
         plot.name = plot.name + "_" + Date.now();
         plot.idWell = payload.idWell;
@@ -255,10 +255,22 @@ function duplicatePlot(payload, done, dbConnection) {
     });
 };
 
+function exportData(payload, done, error, dbConnection, username) {
+    let Plot = dbConnection.Plot;
+    Plot.findById(payload.idPlot, {include: [{all: true, include: [{all: true, include: [{all: true}]}]}]}).then(rs => {
+        let plot = rs.toJSON();
+        exporter.exportData(plot, done);
+    }).catch(err => {
+        console.log(err);
+    });
+}
+
+
 module.exports = {
     duplicatePlot: duplicatePlot,
     createNewPlot: createNewPlot,
     editPlot: editPlot,
     deletePlot: deletePlot,
-    getPlotInfo: getPlotInfo
+    getPlotInfo: getPlotInfo,
+    exportData: exportData
 };
