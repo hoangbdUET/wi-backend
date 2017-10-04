@@ -102,7 +102,10 @@ function duplicatePlot(payload, done, dbConnection) {
     Plot.findById(payload.idPlot, {include: [{all: true, include: [{all: true}]}]}).then(rs => {
         let plot = rs.toJSON();
         delete plot.idPlot;
-        plot.name = "dup_" + plot.name;
+        if (plot.name.indexOf('_') != -1) {
+            plot.name = plot.name.substring(plot.name.indexOf('_') + 1);
+        }
+        plot.name = plot.name + "_" + Date.now();
         plot.idWell = payload.idWell;
         Plot.create(plot).then(rs => {
             console.log("CREATE PLOT");
@@ -151,7 +154,7 @@ function duplicatePlot(payload, done, dbConnection) {
                                 console.log("CREATE LINE Finished");
                             });
                         }
-                        let images = track.images.length != 0 ? tracks.images : [];
+                        let images = track.images.length != 0 ? track.images : [];
                         if (images.length != 0) {
                             asyncLoop(images, (image, next) => {
                                 delete image.idImage;
@@ -243,7 +246,8 @@ function duplicatePlot(payload, done, dbConnection) {
             }
             done(ResponseJSON(ErrorCodes.SUCCESS, "Duplicate Plot success"));
         }).catch(err => {
-            console.log(err);
+            console.log("LOI NA");
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Duplicate Plot Failed", err.message));
         });
     }).catch(err => {
         console.log(err);
