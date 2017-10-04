@@ -142,7 +142,7 @@ function newDbInstance(dbName, callback) {
             foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
             onDelete: 'CASCADE'
         });
-        m.Well.hasMany(m.Histogram, {foreignKey: {name: "idWell", allowNull: false}, onDelete: 'CASCADE'});
+        m.Well.hasMany(m.Histogram, {foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"}, onDelete: 'CASCADE'});
 
         m.Dataset_Curve = m.Dataset.hasMany(m.Curve, {
             foreignKey: {

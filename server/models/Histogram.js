@@ -10,7 +10,8 @@ module.exports = function (sequelize, DataTypes) {
         name: {
             type: DataTypes.STRING(50),
             allowNull: false,
-            defaultValue: 'BlankHistogram'
+            defaultValue: 'BlankHistogram',
+            unique: 'name-idWell'
         },
         histogramTitle: {
             type: DataTypes.STRING(50),
