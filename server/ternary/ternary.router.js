@@ -24,7 +24,7 @@ router.delete('/ternary/delete', function (req, res) {
         res.send(status);
     }, req.dbConnection)
 });
-router.delete('/ternary/list', function (req, res) {
+router.post('/ternary/list', function (req, res) {
     ternaryModel.listTernaryByCrossPlot(req.body, function (status) {
         res.send(status);
     }, req.dbConnection)

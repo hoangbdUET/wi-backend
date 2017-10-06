@@ -73,9 +73,9 @@ function listTernaryByCrossPlot(ternaryInfo, done, dbConnection) {
             idCrossPlot: ternaryInfo.idCrossPlot
         }
     }).then(rs => {
-        done(ResponseJSON(ErrorCodes.SUCCESS, "Ternary is deleted", ternary));
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Ternary list", rs));
     }).catch(err => {
-
+        console.log(err);
     });
 }
 
