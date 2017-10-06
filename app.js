@@ -52,6 +52,7 @@ function main() {
     var familyRouter = require('./server/family/family.router');
     var globalFamilyRouter = require('./server/family/global.family.router');
     var referenceCurveRouter = require('./server/reference-curve/reference-curve.router');
+    var ternaryRouter = require('./server/ternary/ternary.router');
 
     var http = require('http').Server(app);
 
@@ -97,6 +98,7 @@ function main() {
     app.use('/project/well/cross-plot', polygonRouter);
     app.use('/project/well/cross-plot', pointSetRouter);
     app.use('/project/well/cross-plot', userDefineLineRouter);
+    app.use('/project/well/cross-plot', ternaryRouter);
     app.use('/project/well/', discrimRouter);
     app.use('/project/well/', histogramRouter);
     app.use('/project/well/cross-plot', regressionLineRouter);
