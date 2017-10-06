@@ -84,7 +84,7 @@ function deleteProject(projectInfo, done, dbConnection) {
 }
 
 function getProjectFullInfo(project, done, dbConnection) {
-    console.log("GET FULL INFO ", project);
+    // console.log("GET FULL INFO ", project);
     var Project = dbConnection.Project;
     Project.findById(project.idProject, {
         include: [{
