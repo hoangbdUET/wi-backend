@@ -13,13 +13,13 @@ router.post('/login', function (req, res) {
     User.findOne({where: {username: req.body.username}})
         .then(function (user) {
             if (!user) {
-                res.send(ResponseJSON(ErrorCodes.ERROR_USER_NOT_EXISTS, "User not exist"))
+                res.status(401).send(ResponseJSON(ErrorCodes.ERROR_USER_NOT_EXISTS, "User not exist"))
             } else {
                 if (user.password != req.body.password) {
-                    res.send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Wrong password. Authenticate fail"))
+                    res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Wrong password. Authenticate fail"))
                 } else {
                     var token = jwt.sign(req.body, 'secretKey', {expiresIn: '12h'});
-                    res.send(ResponseJSON(ErrorCodes.SUCCESS, "Success", token));
+                    res.status(200).send(ResponseJSON(ErrorCodes.SUCCESS, "Success", token));
                 }
             }
         });
@@ -51,7 +51,7 @@ router.post('/register', function (req, res) {
             res.send(ResponseJSON(ErrorCodes.SUCCESS, "Success", token));
         })
         .catch(function (err) {
-            res.send(ResponseJSON(ErrorCodes.ERROR_USER_EXISTED, "Error" + err));
+            res.status(401).send(ResponseJSON(ErrorCodes.ERROR_USER_EXISTED, "User existed!"));
         })
 });
 module.exports = router;
