@@ -4,7 +4,7 @@
 var ErrorCodes = require('../../error-codes').CODES;
 const ResponseJSON = require('../response');
 
-function createNewProject(projectInfo, done,dbConnection) {
+function createNewProject(projectInfo, done, dbConnection) {
     var Project = dbConnection.Project;
     Project.sync()
         .then(function () {
@@ -20,10 +20,11 @@ function createNewProject(projectInfo, done,dbConnection) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Create new project success", project));
         })
         .catch(function (err) {
-            done(ResponseJSON(ErrorCodes.ERROR_FIELD_EMPTY, "Create new Project "+err.name));
+            done(ResponseJSON(ErrorCodes.ERROR_FIELD_EMPTY, "Create new Project " + err.name));
         });
 };
-function editProject(projectInfo, done,dbConnection) {
+
+function editProject(projectInfo, done, dbConnection) {
     var Project = dbConnection.Project;
     Project.findById(projectInfo.idProject)
         .then(function (project) {
@@ -43,7 +44,8 @@ function editProject(projectInfo, done,dbConnection) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Project not found for edit"));
         })
 }
-function getProjectInfo(project, done,dbConnection) {
+
+function getProjectInfo(project, done, dbConnection) {
     var Project = dbConnection.Project;
     Project.findById(project.idProject, {include: [Well]})
         .then(function (project) {
@@ -54,14 +56,16 @@ function getProjectInfo(project, done,dbConnection) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Project not found for getInfo"));
         });
 }
-function getProjectList(owner, done,dbConnection) {
+
+function getProjectList(owner, done, dbConnection) {
     var Project = dbConnection.Project;
     Project.all()
         .then(function (projects) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get List Project success", projects));
         });
 }
-function deleteProject(projectInfo, done,dbConnection) {
+
+function deleteProject(projectInfo, done, dbConnection) {
     var Project = dbConnection.Project;
     Project.findById(projectInfo.idProject)
         .then(function (project) {
@@ -78,16 +82,18 @@ function deleteProject(projectInfo, done,dbConnection) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Project not found for delete"));
         });
 }
-function getProjectFullInfo(project, done,dbConnection) {
+
+function getProjectFullInfo(project, done, dbConnection) {
+    console.log("GET FULL INFO ", project);
     var Project = dbConnection.Project;
     Project.findById(project.idProject, {
         include: [{
-            all:true,
-            include:[{
-                all:true,
-                include:[{
-                    all:true,
-                    include:{all:true}
+            all: true,
+            include: [{
+                all: true,
+                include: [{
+                    all: true
+                    // include: {all: true}
                 }]
             }]
         }]
@@ -100,6 +106,7 @@ function getProjectFullInfo(project, done,dbConnection) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Project not found for full info"));
         });
 }
+
 function genLocationOfNewProject() {
     return "";
 }
