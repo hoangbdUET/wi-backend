@@ -297,7 +297,9 @@ let exportData = function (payload, done, error, dbConnection, username) {
         delete myPlot.createdAt;
         delete myPlot.updatedAt;
         delete myPlot.idPlot;
-        myPlot.curve.datasetName = getDatasetName(myPlot.curve.idDataset, dbConnection);
+        if (myPlot.curve) {
+            myPlot.curve.datasetName = getDatasetName(myPlot.curve.idDataset, dbConnection);
+        }
         myPlot.tracks.forEach(function (track) {
             delete track.idTrack;
             delete track.createdAt;
@@ -315,8 +317,12 @@ let exportData = function (payload, done, error, dbConnection, username) {
                 delete shading.line;
                 shading.leftLine = new Object();
                 shading.rightLine = new Object();
-                shading.leftLine.alias = getLine(shading.idLeftLine, dbConnection).alias;
-                shading.rightLine.alias = getLine(shading.idRightLine, dbConnection).alias;
+                if (shading.idLeftLine != null) {
+                    shading.leftLine.alias = getLine(shading.idLeftLine, dbConnection).alias;
+                }
+                if (shading.idRightLine != null) {
+                    shading.rightLine.alias = getLine(shading.idRightLine, dbConnection).alias;
+                }
             });
             track.images.forEach(function (image) {
                 delete image.idImage;
@@ -343,14 +349,19 @@ let exportData = function (payload, done, error, dbConnection, username) {
             delete zone_track.idZoneTrack;
             delete zone_track.createdAt;
             delete zone_track.updatedAt;
-            delete zone_track.zoneset.idZoneSet;
-            delete zone_track.zoneset.createdAt;
-            delete zone_track.zoneset.updatedAt;
-            zone_track.zoneset.zones.forEach(function (zone) {
-                delete zone.idZone;
-                delete zone.createdAt;
-                delete zone.updatedAt;
-            });
+            if (zone_track.zoneset) {
+                delete zone_track.zoneset.idZoneSet;
+                delete zone_track.zoneset.createdAt;
+                delete zone_track.zoneset.updatedAt;
+                if (zone_track.zoneset.zones) {
+                    zone_track.zoneset.zones.forEach(function (zone) {
+                        delete zone.idZone;
+                        delete zone.createdAt;
+                        delete zone.updatedAt;
+                    });
+                }
+            }
+
         });
         await(exporter.exportData(myPlot, done));
     })).catch(err => {
@@ -362,7 +373,6 @@ let createPlot = function (plot, dbConnection) {
     let Plot = dbConnection.Plot;
     let idPlot = null;
     await(Plot.create(plot).then(rs => {
-        console.log("CREATED PLOT");
         idPlot = rs.idPlot;
     }).catch(err => {
         console.log(err.message);
@@ -439,7 +449,6 @@ let createTrack = function (trackInfo, idPlot, dbConnection) {
         labelFormat: trackInfo.labelFormat,
         idPlot: idPlot
     }).then(track => {
-        console.log("CREATED TRACK");
         idTrack = track.idTrack;
     }).catch(err => {
         console.log(err);
@@ -450,7 +459,6 @@ let createDepthAxis = function (depth_axisInfo, dbConnection) {
     let DepthAxis = dbConnection.DepthAxis;
     let idDepthAxis = 0;
     await(DepthAxis.create(depth_axisInfo).then(depth_axis => {
-        console.log("CREATED DEPTH AXIS");
         idDepthAxis = depth_axis.idDepthAxis;
     }).catch(err => {
         console.log(err);
@@ -471,7 +479,6 @@ let createZoneTrack = function (zoneTrackInfo, dbConnection) {
         idPlot: zoneTrackInfo.idPlot,
         idZoneSet: zoneTrackInfo.idZoneSet != 0 ? zoneTrackInfo.idZoneSet : null
     }).then(zoneTrack => {
-        console.log("CREATE ZONE TRACK");
         idZoneTrack = zoneTrack.idZoneTrack;
     }).catch(err => {
         console.log(err);
@@ -488,7 +495,6 @@ let findZoneSet = function (zoneset, dbConnection, callback) {
             idWell: zoneset.idWell
         }
     }).then(zoneSet => {
-        console.log("Found Zone Set");
         if (zoneSet.length > 0) {
             idZoneSet = zoneSet[0].idZoneSet;
         }
@@ -564,7 +570,6 @@ let createMarker = function (markerInfo, dbConnection) {
     let Marker = dbConnection.Marker;
     let idMarker = null;
     await(Marker.create(markerInfo).then(marker => {
-        console.log("CREATED MARKER");
         idMarker = marker.idMarker;
     }).catch(err => {
         console.log(err);
@@ -647,8 +652,10 @@ let importPlotTemplate = function (req, done, dbConnection) {
         plot.referenceCurve = new Object();
         plot.referenceCurve.idPlot = idPlot;
         plot.referenceCurve.idWell = req.body.idWell;
-        plot.referenceCurve.name = myPlot.curve.name;
-        plot.referenceCurve.datasetName = myPlot.curve.datasetName;
+        if (myPlot.curve) {
+            plot.referenceCurve.name = myPlot.curve.name;
+            plot.referenceCurve.datasetName = myPlot.curve.datasetName;
+        }
         findRefCurve(plot.referenceCurve, dbConnection);
         myPlot.tracks.forEachDone(function (track) {
             let idTrack = createTrack(track, idPlot, dbConnection);
@@ -704,7 +711,7 @@ let importPlotTemplate = function (req, done, dbConnection) {
                 myPlot.zone_tracks.forEachDone(async(function (zone_track) {
                     zone_track.idPlot = idPlot;
                     let zoneset = new Object();
-                    if (zone_track.idZoneSet != "NULL" && zone_track.idZoneSet != 0) {
+                    if (zone_track.idZoneSet != "NULL" && zone_track.idZoneSet != null) {
                         zoneset.name = zone_track.zoneset.name;
                         zoneset.idWell = req.body.idWell;
                         findZoneSet(zoneset, dbConnection, async(function (err, idZoneSet) {
