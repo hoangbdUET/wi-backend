@@ -96,12 +96,41 @@ function editCurve(curveInfo, done, dbConnection, username) {
 }
 
 
-function getCurveInfo(curve, done, dbConnection) {
+function getCurveInfo(curve, done, dbConnection, username) {
     var Curve = dbConnection.Curve;
     Curve.findById(curve.idCurve, {include: [{all: true}]})
         .then(curve => {
             if (!curve) throw "not exits";
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Curve success", curve));
+            if (!curve.idFamily) {
+                calculateScale(curve.idCurve, username, dbConnection, function (err, result) {
+                    curve = curve.toJSON();
+                    if (err) {
+                        curve.LineProperty = {
+                            name: "Khong tinh duoc :(((",
+                            minScale: 0,
+                            maxScale: 200
+                        }
+                    } else {
+                        curve.LineProperty = {
+                            "idFamily": null,
+                            "name": null,
+                            "familyGroup": null,
+                            "unit": null,
+                            "minScale": result.minScale,
+                            "maxScale": result.maxScale,
+                            "displayType": "Linear",
+                            "displayMode": "Line",
+                            "blockPosition": "NONE",
+                            "lineStyle": "[0]",
+                            "lineWidth": 1,
+                            "lineColor": "fuchsia",
+                        }
+                    }
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Curve success", curve));
+                });
+            } else {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Curve success", curve));
+            }
         })
         .catch(() => {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found for get info"));
@@ -384,6 +413,75 @@ function updateData(req, result) {
     });
 }
 
+let getScale = function (req, done, dbConnection) {
+    calculateScale(req.body.idCurve, req.decoded.username, dbConnection, function (err, result) {
+        if (err) {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "ERROR", err.message));
+        } else {
+            done(ResponseJSON(ErrorCodes.SUCCESS, "min max curve success", result));
+        }
+    });
+}
+let calculateScale = function (idCurve, username, dbConnection, callback) {
+    var Curve = dbConnection.Curve;
+    var Dataset = dbConnection.Dataset;
+    var Project = dbConnection.Project;
+    var Well = dbConnection.Well;
+    Curve.findById(idCurve)
+        .then(function (curve) {
+            if (curve) {
+                Dataset.findById(curve.idDataset).then((dataset) => {
+                    if (!dataset) {
+                        console.log("No dataset");
+                    } else {
+                        Well.findById(dataset.idWell).then(well => {
+                            if (well) {
+                                Project.findById(well.idProject).then(project => {
+                                    let inputStream = hashDir.createReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+                                    let lineReader = require('readline').createInterface({
+                                        input: inputStream
+                                    });
+                                    let arrY = [];
+                                    lineReader.on('line', function (line) {
+                                        let arrXY = line.split(/\s+/g).slice(1, 2);
+                                        arrY.push(arrXY[0]);
+                                    });
+
+                                    lineReader.on('close', function () {
+                                        //console.log(arrY);
+                                        let min = 99999;
+                                        let max = 0;
+                                        arrY.forEach(function (element, i) {
+                                            if (element != 'null') {
+                                                element = parseFloat(element);
+                                                if (element < min) min = element;
+                                                if (element > max) max = element;
+                                            }
+                                        });
+                                        callback(null, {minScale: min, maxScale: max});
+                                        // res.send(ResponseJSON(ErrorCodes.SUCCESS, "min max curve success", {
+                                        //     minScale: min,
+                                        //     maxScale: max
+                                        // }));
+                                    });
+                                });
+                            }
+                        });
+
+                    }
+                }).catch(err => {
+                    callback(err, null);
+                });
+
+            } else {
+
+            }
+
+        })
+        .catch(function (err) {
+            callback(err, null)
+        })
+}
 module.exports = {
     createNewCurve: createNewCurve,
     editCurve: editCurve,
@@ -393,6 +491,7 @@ module.exports = {
     exportData: exportData,
     copyCurve: copyCurve,
     moveCurve: moveCurve,
-    updateData: updateData
+    updateData: updateData,
+    getScale: getScale
 };
 

@@ -113,6 +113,12 @@ router.post('/curve/updateData', upload.single('data'), function (req, res) {
 });
 
 router.post('/curve/scale', function (req, res) {
+    curveModel.getScale(req, function (status) {
+        res.send(status);
+    }, req.dbConnection);
+});
+
+router.post('/curve/scale1', function (req, res) {
     var Curve = req.dbConnection.Curve;
     var Dataset = req.dbConnection.Dataset;
     var Project = req.dbConnection.Project;
