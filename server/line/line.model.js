@@ -3,6 +3,7 @@
 var ErrorCodes = require('../../error-codes').CODES;
 // var Curve = models.Curve;
 const ResponseJSON = require('../response');
+var curveModel = require('../curve/curve.model');
 
 function getWellIdByTrack(idTrack, dbConnection, callback) {
     let Track = dbConnection.Track;
@@ -86,7 +87,7 @@ function getWellIdByTrack(idTrack, dbConnection, callback) {
 //
 // }
 
-function createNewLine(lineInfo, done, dbConnection) {
+function createNewLine(lineInfo, done, dbConnection, username) {
     var Line = dbConnection.Line;
     var Curve = dbConnection.Curve;
     var Dataset = dbConnection.Dataset;
@@ -121,17 +122,21 @@ function createNewLine(lineInfo, done, dbConnection) {
                                 //console.log(err);
                                 //console.log("No family " + lineInfo.idTrack);
                                 //fix create new line error without family
-                                Line.build({
-                                    idTrack: lineInfo.idTrack,
-                                    idCurve: curve.idCurve,
-                                    alias: curve.name
-                                }).save()
-                                    .then(function (line) {
-                                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", line.toJSON()));
-                                    })
-                                    .catch(function (err) {
-                                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name + err.message));
-                                    });
+                                curveModel.calculateScale(curve.idCurve, username, dbConnection, function (err, result) {
+                                    Line.build({
+                                        idTrack: lineInfo.idTrack,
+                                        idCurve: curve.idCurve,
+                                        alias: curve.name,
+                                        minValue: result.minScale,
+                                        maxValue: result.maxScale
+                                    }).save()
+                                        .then(function (line) {
+                                            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", line.toJSON()));
+                                        })
+                                        .catch(function (err) {
+                                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name + err.message));
+                                        });
+                                });
                             });
                     })
                     .catch(function () {

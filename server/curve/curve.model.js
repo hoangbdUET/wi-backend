@@ -492,6 +492,7 @@ module.exports = {
     copyCurve: copyCurve,
     moveCurve: moveCurve,
     updateData: updateData,
-    getScale: getScale
+    getScale: getScale,
+    calculateScale: calculateScale
 };
 
