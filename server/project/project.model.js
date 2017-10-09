@@ -87,13 +87,33 @@ function getProjectFullInfo(project, done, dbConnection) {
     // console.log("GET FULL INFO ", project);
     var Project = dbConnection.Project;
     Project.findById(project.idProject, {
+        // include: [{
+        //     all: true,
+        //     include: [{
+        //         all: true,
+        //         include: [{
+        //             all: true
+        //             // include: {all: true}
+        //         }]
+        //     }]
+        // }]
         include: [{
-            all: true,
+            model: dbConnection.Well,
             include: [{
-                all: true,
+                model: dbConnection.Dataset,
                 include: [{
-                    all: true
-                    // include: {all: true}
+                    model: dbConnection.Curve
+                }]
+            }, {
+                model: dbConnection.Plot
+            }, {
+                model: dbConnection.CrossPlot
+            }, {
+                model: dbConnection.Histogram
+            }, {
+                model: dbConnection.ZoneSet,
+                include: [{
+                    model: dbConnection.Zone
                 }]
             }]
         }]
