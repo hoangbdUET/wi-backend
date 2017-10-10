@@ -411,7 +411,7 @@ let findRefCurve = function (curve, dbConnection) {
                         idDataset: dataset[0].idDataset
                     }
                 }).then(async(c => {
-                    if (c) {
+                    if (c.length > 0) {
                         // console.log("CURVE  : ", c[0]);
                         await(Plot.findById(curve.idPlot).then(plot => {
                             plot.referenceCurve = c[0].idCurve;
@@ -513,21 +513,21 @@ let findZoneSet = function (zoneset, dbConnection, callback) {
         }
     );
 }
-let findCurve = function (curve, dbConnection, callback) {
+let findCurve = function (curveInfo, dbConnection, callback) {
     let Curve = dbConnection.Curve;
     let Dataset = dbConnection.Dataset;
     let idCurve = null;
     Dataset.findOne({
         where: {
-            idWell: curve.idWell,
-            name: curve.datasetName
+            idWell: curveInfo.idWell,
+            name: curveInfo.datasetName
         }
     }).then(dataset => {
         if (dataset) {
             Curve.findOne({
                 where: {
                     idDataset: dataset.idDataset,
-                    name: curve.name
+                    name: curveInfo.name
                 }
             }).then(curve => {
                 if (curve) {
@@ -535,11 +535,11 @@ let findCurve = function (curve, dbConnection, callback) {
                     callback(null, idCurve);
                 } else {
                     console.log("NO CURVE");
-                    callback(null, null);
+                    callback({curve: curveInfo.name, dataset: curveInfo.datasetName}, null);
                 }
             });
         } else {
-            console.log("NO DATASET");
+            callback({curve: curveInfo.name, dataset: curveInfo.datasetName}, null);
         }
     });
 }
@@ -604,6 +604,8 @@ let importPlotTemplate = function (req, done, dbConnection) {
         fs.unlink(filePath);
         return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Only .plot files allowed!"));
     }
+    let isCurveNotFound = false;
+    let curveHasError = new Array();
     fs.readFile(filePath, 'utf8', async(function (err, data) {
         if (err) console.log(err);
         let myPlot = JSON.parse(data);
@@ -634,14 +636,22 @@ let importPlotTemplate = function (req, done, dbConnection) {
                         curve.datasetName = line.curve.datasetName;
                         curve.idWell = req.body.idWell;
                         findCurve(curve, dbConnection, async(function (err, idCurve) {
-                            line.idCurve = idCurve;
-                            line.idTrack = result;
-                            let idLine = createLine(line, dbConnection);
-                            response.push(idLine);
-                            next();
+                            if (!err) {
+                                line.idCurve = idCurve;
+                                line.idTrack = result;
+                                let idLine = createLine(line, dbConnection);
+                                response.push(idLine);
+                                next();
+                            } else {
+                                console.log("NO CURVE FOUND FOR DATASET : ", err);
+                                curveHasError.push(err);
+                                next(err);
+                            }
                         }));
                     }, function (err) {
-                        // console.log("DONE LINES ", response);
+                        if (err) {
+                            isCurveNotFound = true;
+                        }
                         if (track.shadings.length > 0) {
                             asyncLoop(track.shadings, function (shading, next) {
                                 shading.idTrack = result;
@@ -699,6 +709,9 @@ let importPlotTemplate = function (req, done, dbConnection) {
             });
         }), function (err) {
             console.log("DONE TRACK");
+            if (err) {
+                console.log(err);
+            }
             myPlot.depth_axes.forEachDone(async(function (depth_axis) {
                 depth_axis.idPlot = idPlot;
                 let idDepthAxis = createDepthAxis(depth_axis, dbConnection);
@@ -720,7 +733,11 @@ let importPlotTemplate = function (req, done, dbConnection) {
                 }));
             });
             setTimeout(function () {
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Done"));
+                if (!isCurveNotFound) {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Done"));
+                } else {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "CURVE_NOT_FOUND", curveHasError));
+                }
             }, 1000)
             fs.unlink(filePath);
         });

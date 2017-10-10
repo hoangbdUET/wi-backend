@@ -108,6 +108,11 @@ module.exports = function (sequelize, DataTypes) {
         alias:{
             type:DataTypes.STRING(100),
             allowNull:false,
+        },
+        unit:{
+            type: DataTypes.STRING(100),
+            allowNull: true,
+            defaultValue: "N/A"
         }
     });
 };

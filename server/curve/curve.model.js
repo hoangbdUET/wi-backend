@@ -6,6 +6,7 @@ var config = require('config');
 var exporter = require('./export');
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
+var asyncLoop = require('node-async-loop');
 // var FamilyCondition = models.FamilyCondition;
 var fs = require('fs');
 
@@ -81,8 +82,25 @@ function editCurve(curveInfo, done, dbConnection, username) {
                 console.log("EDIT CURVE");
                 Object.assign(curve, curveInfo)
                     .save()
-                    .then(() => {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Edit curve success", curveInfo));
+                    .then((rs) => {
+                        let Family = dbConnection.Family;
+                        Family.findById(rs.idFamily).then(family => {
+                            let Line = dbConnection.Line;
+                            Line.findAll({where: {idCurve: rs.idCurve}}).then(lines => {
+                                asyncLoop(lines, function (line, next) {
+                                    line.minValue = family.minScale;
+                                    line.maxValue = family.maxScale;
+                                    line.unit = rs.unit;
+                                    Object.assign(line, line).save();
+                                }, function (err) {
+                                    done(ResponseJSON(ErrorCodes.SUCCESS, "Edit curve success", curveInfo));
+                                });
+                            }).catch(err => {
+                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Curve " + err.meesage));
+                            });
+                        }).catch(err => {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Curve " + err.meesage));
+                        });
                     })
                     .catch(err => {
                         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Curve " + err.name));
