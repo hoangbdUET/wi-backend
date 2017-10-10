@@ -102,6 +102,7 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                                     idTrack: lineInfo.idTrack,
                                     idCurve: curve.idCurve,
                                     alias: curve.name,
+                                    unit: curve.unit,
                                     minValue: family.minScale,
                                     maxValue: family.maxScale,
                                     displayMode: family.displayMode,
