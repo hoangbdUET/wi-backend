@@ -457,9 +457,9 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
                             if (well) {
                                 Project.findById(well.idProject).then(project => {
                                     let inputStream = hashDir.createReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
-                                    if (inputStream.bytesRead == 0) {
-                                        return callback('No File', null);
-                                    }
+                                    // if (inputStream.bytesRead == 0) {
+                                    //     return callback('No File', null);
+                                    // }
                                     let lineReader = require('readline').createInterface({
                                         input: inputStream
                                     });
