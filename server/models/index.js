@@ -138,7 +138,7 @@ function newDbInstance(dbName, callback) {
             foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
             onDelete: 'CASCADE'
         });
-        m.Well.hasMany(m.ZoneSet, {foreignKey: {name: "idWell", allowNull: false}, onDelete: 'CASCADE'});
+        m.Well.hasMany(m.ZoneSet, {foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"}, onDelete: 'CASCADE'});
         m.Well.hasMany(m.CrossPlot, {
             foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
             onDelete: 'CASCADE'
