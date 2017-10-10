@@ -435,7 +435,7 @@ function updateData(req, result) {
 let getScale = function (req, done, dbConnection) {
     calculateScale(req.body.idCurve, req.decoded.username, dbConnection, function (err, result) {
         if (err) {
-            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "ERROR", err.message));
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "ERROR", err));
         } else {
             done(ResponseJSON(ErrorCodes.SUCCESS, "min max curve success", result));
         }
@@ -457,9 +457,16 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
                             if (well) {
                                 Project.findById(well.idProject).then(project => {
                                     let inputStream = hashDir.createReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+                                    if (inputStream.bytesRead == 0) {
+                                        return callback('No File', null);
+                                    }
                                     let lineReader = require('readline').createInterface({
                                         input: inputStream
                                     });
+                                    lineReader.on('error', function (err) {
+                                        console.log("LOI NA");
+                                        lineReader.close();
+                                    })
                                     let arrY = [];
                                     lineReader.on('line', function (line) {
                                         let arrXY = line.split(/\s+/g).slice(1, 2);
@@ -483,6 +490,8 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
                                         //     maxScale: max
                                         // }));
                                     });
+                                }).catch(err => {
+                                    console.log("LOI");
                                 });
                             }
                         });
