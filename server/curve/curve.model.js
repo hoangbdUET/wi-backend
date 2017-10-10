@@ -92,6 +92,7 @@ function editCurve(curveInfo, done, dbConnection, username) {
                                     line.maxValue = family.maxScale;
                                     line.unit = rs.unit;
                                     Object.assign(line, line).save();
+                                    next();
                                 }, function (err) {
                                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit curve success", curveInfo));
                                 });
