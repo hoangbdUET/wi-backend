@@ -3,8 +3,8 @@
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 
-function createNewZoneSet(zoneSetInfo,done,dbConnection) {
-    var ZoneSet=dbConnection.ZoneSet;
+function createNewZoneSet(zoneSetInfo, done, dbConnection) {
+    var ZoneSet = dbConnection.ZoneSet;
     ZoneSet.sync()
         .then(
             function () {
@@ -12,11 +12,13 @@ function createNewZoneSet(zoneSetInfo,done,dbConnection) {
                 var zoneSet = ZoneSet.build(zoneSetInfo);
                 zoneSet.save()
                     .then(function (zoneSet) {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new ZoneSet success", {idZoneSet: zoneSet.idZoneSet, orderNum: zoneSet.orderNum}));
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new ZoneSet success", {
+                            idZoneSet: zoneSet.idZoneSet,
+                            orderNum: zoneSet.orderNum
+                        }));
                     })
                     .catch(function (err) {
-			console.log(err);
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new ZoneSet "+err.name));
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new ZoneSet " + err.name));
                     })
             },
             function () {
@@ -24,7 +26,8 @@ function createNewZoneSet(zoneSetInfo,done,dbConnection) {
             }
         )
 }
-function editZoneSet(zoneSetInfo, done,dbConnection) {
+
+function editZoneSet(zoneSetInfo, done, dbConnection) {
     var ZoneSet = dbConnection.ZoneSet;
     ZoneSet.findById(zoneSetInfo.idZoneSet)
         .then(function (zoneSet) {
@@ -41,8 +44,9 @@ function editZoneSet(zoneSetInfo, done,dbConnection) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "ZoneSet not found for edit"))
         });
 }
-function deleteZoneSet(zoneSetInfo, done,dbConnection) {
-    var ZoneSet=dbConnection.ZoneSet;
+
+function deleteZoneSet(zoneSetInfo, done, dbConnection) {
+    var ZoneSet = dbConnection.ZoneSet;
     ZoneSet.findById(zoneSetInfo.idZoneSet)
         .then(function (zoneSet) {
             zoneSet.destroy()
@@ -50,14 +54,15 @@ function deleteZoneSet(zoneSetInfo, done,dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "ZoneSet is deleted", zoneSet));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete ZoneSet "+err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete ZoneSet " + err.errors[0].message));
                 })
         })
         .catch(function () {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "ZoneSet not found for delete"));
         })
 }
-function getZoneSetInfo(zoneSet,done,dbConnection) {
+
+function getZoneSetInfo(zoneSet, done, dbConnection) {
     var ZoneSet = dbConnection.ZoneSet;
     ZoneSet.findById(zoneSet.idZoneSet, {include: [{all: true}]})
         .then(function (zoneSet) {
@@ -69,9 +74,9 @@ function getZoneSetInfo(zoneSet,done,dbConnection) {
         })
 }
 
-function getZoneSetList(setInfo,done,dbConnection) {
+function getZoneSetList(setInfo, done, dbConnection) {
     var ZoneSet = dbConnection.ZoneSet;
-    ZoneSet.findAll({where:{idWell:setInfo.idWell}})
+    ZoneSet.findAll({where: {idWell: setInfo.idWell}})
         .then(function (zoneSetList) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get list zoneset success", zoneSetList));
         })
@@ -81,10 +86,10 @@ function getZoneSetList(setInfo,done,dbConnection) {
 }
 
 module.exports = {
-    createNewZoneSet:createNewZoneSet,
-    deleteZoneSet:deleteZoneSet,
-    editZoneSet:editZoneSet,
-    getZoneSetInfo:getZoneSetInfo,
-    getZoneSetList:getZoneSetList
+    createNewZoneSet: createNewZoneSet,
+    deleteZoneSet: deleteZoneSet,
+    editZoneSet: editZoneSet,
+    getZoneSetInfo: getZoneSetInfo,
+    getZoneSetList: getZoneSetList
 };
 
