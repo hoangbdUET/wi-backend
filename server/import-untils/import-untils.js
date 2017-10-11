@@ -106,7 +106,8 @@ function createCurvesWithWellExistLAS3(wellInfo, datasetInfo, option, callback, 
                         count++;
                         if (count == dataset.curves.length) {
                             callback(false, Well.findById(wellInfo.idWell, {
-                                include: [{all: true}, {include: {all: true}}]
+                                include: [{all: true}]
+                                // , {include: {all: true}}
                             }));
                             count = 0;
                         }

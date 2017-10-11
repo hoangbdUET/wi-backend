@@ -58,13 +58,15 @@ function extractLAS2Done(result, options, callback, dbConnection) {
     }
     let datasetInfo = result.datasetInfo;
     let curvesInfo = result.datasetInfo[0].curves;
-    if (!options.idWell || options.idWell == "" || !isNumBer(options.idWell)) {
+    // console.log(options);
+    // console.log(isNumBer(options.idWell));
+    if (!options.idWell || options.idWell == "" ) {
         console.log("CREATE CURVES WITH PROJECT EXIST");
         importUntils.createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo[0], dbConnection).then(rs => {
             callback(false, rs);
         }).catch(err => {
             callback(err, null);
-            console.log(err);
+            console.log(err.message);
         });
     } else {
         //wellInfo.idWell = options.isString ? uploadModel.findIdByName(options.idProject, options.idWell, null, dbConnection) : options.idWell;
