@@ -2,10 +2,12 @@
 // var models = require('../models');
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
+
 // var lineModel = models.UserDefineLine;
 
-function createNewUserDefineLine(line, done,dbConnection) {
-    var lineModel = dbConnection.lineModel;
+function createNewUserDefineLine(line, done, dbConnection) {
+    line.lineStyle = JSON.stringify(line.lineStyle);
+    var lineModel = dbConnection.UserDefineLine;
     lineModel.create(line).then(line => {
         lineModel.findById(line.idUserDefineLine).then(rs => {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Create new user define line successfull", rs));
@@ -15,10 +17,11 @@ function createNewUserDefineLine(line, done,dbConnection) {
     });
 }
 
-function infoUserDefineLine(line, done,dbConnection) {
-    var lineModel = dbConnection.lineModel;
+function infoUserDefineLine(line, done, dbConnection) {
+    var lineModel = dbConnection.UserDefineLine;
     lineModel.findById(line.idUserDefineLine).then(rs => {
         if (!rs) {
+            rs.lineStyle = JSON.parse(rs.lineStyle);
             done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "No line found by id", line));
         } else {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
@@ -28,8 +31,8 @@ function infoUserDefineLine(line, done,dbConnection) {
     });
 }
 
-function deleteUserDefineLine(line, done,dbConnection) {
-    var lineModel = dbConnection.lineModel;
+function deleteUserDefineLine(line, done, dbConnection) {
+    var lineModel = dbConnection.UserDefineLine;
     lineModel.findById(line.idUserDefineLine).then(l => {
         if (!l) {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No line found", line));
@@ -45,8 +48,9 @@ function deleteUserDefineLine(line, done,dbConnection) {
     });
 }
 
-function editUserDefineLine(line, done,dbConnection) {
-    var lineModel = dbConnection.lineModel;
+function editUserDefineLine(line, done, dbConnection) {
+    var lineModel = dbConnection.UserDefineLine;
+    line.lineStyle = JSON.stringify(line.lineStyle);
     lineModel.findById(line.idUserDefineLine).then(oldLine => {
         if (oldLine) {
             Object.assign(oldLine, line).save().then(rs => {
