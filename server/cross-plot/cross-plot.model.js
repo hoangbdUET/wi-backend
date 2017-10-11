@@ -7,7 +7,7 @@ var CrossPlot = models.CrossPlot;
 function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
     var CrossPlot = dbConnection.CrossPlot;
     var Well = dbConnection.Well;
-    Well.findById(crossPlotInfo.idWell).then(well=>{
+    Well.findById(crossPlotInfo.idWell).then(well => {
         crossPlotInfo.referenceTopDepth = well.topDepth;
         crossPlotInfo.referenceBottomDepth = well.bottomDepth;
         CrossPlot.sync()
@@ -34,21 +34,28 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
 }
 
 function editCrossPlot(crossPlotInfo, done, dbConnection) {
+    console.log(crossPlotInfo);
     var CrossPlot = dbConnection.CrossPlot;
-    CrossPlot.findById(crossPlotInfo.idCrossPlot)
+    CrossPlot.findById(crossPlotInfo.idCrossplot)
         .then(function (crossPlot) {
-            crossPlot.idWell = crossPlotInfo.idWell;
-            crossPlot.name = crossPlotInfo.name;
-            crossPlot.save()
-                .then(function () {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Edit CrossPlot success", crossPlotInfo));
-                })
-                .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit CrossPlot " + err.name));
-                })
+            if (crossPlot) {
+                crossPlot.idWell = crossPlotInfo.idWell;
+                crossPlot.name = crossPlotInfo.name;
+                crossPlot.save()
+                    .then(function () {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Edit CrossPlot success", crossPlotInfo));
+                    })
+                    .catch(function (err) {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit CrossPlot " + err.name));
+                    })
+            } else {
+                console.log("NO CROSS PLOT");
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "NO CROSS"));
+            }
         })
-        .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "CrossPlot not found for edit"));
+        .catch(function (err) {
+            console.log(err);
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "CrossPlot err", err));
         })
 }
 
