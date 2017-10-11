@@ -1,5 +1,5 @@
 module.exports = function (sequelize, DataTypes) {
-    return sequelize.define('user-define-line', {
+    return sequelize.define('user_define_line', {
         idUserDefineLine: {
             type: DataTypes.INTEGER,
             primaryKey: true,
