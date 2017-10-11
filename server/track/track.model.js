@@ -316,6 +316,10 @@ let importTrackTemplate = function (req, done, dbConnection) {
                                     }
                                     next();
                                 })
+                            } else {
+                                isCurveNotFound = true;
+                                curveHasError.push({curve: line.curveName, dataset: line.datasetName});
+                                next();
                             }
                         });
                     }, function (err) {
@@ -375,7 +379,11 @@ let importTrackTemplate = function (req, done, dbConnection) {
                                     }, function (err) {
                                         console.log("ALL ANNOTATION DONE");
                                         dbConnection.Track.findById(idTrack).then(track => {
-                                            done(ResponseJSON(ErrorCodes.SUCCESS, "Done", track));
+                                            if(isCurveNotFound){
+                                                done(ResponseJSON(ErrorCodes.SUCCESS, "CURVE_NOT_FOUND", curveHasError));
+                                            } else {
+                                                done(ResponseJSON(ErrorCodes.SUCCESS, "Done", track));
+                                            }
                                         }).catch(err => {
                                             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Done"));
                                         });
