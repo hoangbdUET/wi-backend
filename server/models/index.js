@@ -138,7 +138,10 @@ function newDbInstance(dbName, callback) {
             foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
             onDelete: 'CASCADE'
         });
-        m.Well.hasMany(m.ZoneSet, {foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"}, onDelete: 'CASCADE'});
+        m.Well.hasMany(m.ZoneSet, {
+            foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
+            onDelete: 'CASCADE'
+        });
         m.Well.hasMany(m.CrossPlot, {
             foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
             onDelete: 'CASCADE'
@@ -175,8 +178,8 @@ function newDbInstance(dbName, callback) {
         m.FamilyCondition.belongsTo(m.Family, {foreignKey: 'idFamily'});
         m.Curve.belongsTo(m.Family, {as: 'LineProperty', foreignKey: 'idFamily'});
 
-        m.Shading.belongsTo(m.Line, {foreignKey: 'idLeftLine', onDelete: 'CASCADE'});
-        m.Shading.belongsTo(m.Line, {foreignKey: 'idRightLine', onDelete: 'CASCADE'});
+        m.Shading.belongsTo(m.Line, {foreignKey: 'idLeftLine', as: 'leftLine', onDelete: 'CASCADE'});
+        m.Shading.belongsTo(m.Line, {foreignKey: 'idRightLine', as: 'rightLine', onDelete: 'CASCADE'});
         //m.Shading.belongsTo(m.Line, {foreignKey: {name: 'idRightLine', allowNull: false}, onDelete: 'CASCADE'});
         m.Shading.belongsTo(m.Curve, {foreignKey: 'idControlCurve'});
 
