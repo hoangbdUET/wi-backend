@@ -325,12 +325,12 @@ let importTrackTemplate = function (req, done, dbConnection) {
                             shading.idTrack = idTrack;
                             findLine({
                                 idTrack: idTrack,
-                                alias: shading.leftLine.alias
+                                alias: shading.leftLine ? shading.leftLine.alias : null
                             }, dbConnection, function (idLine) {
                                 shading.idLeftLine = idLine;
                                 findLine({
                                     idTrack: idTrack,
-                                    alias: shading.rightLine.alias
+                                    alias: shading.rightLine ? shading.rightLine.alias : null
                                 }, dbConnection, function (idLine) {
                                     shading.idRightLine = idLine;
                                     createShading(shading, dbConnection, function () {
@@ -374,7 +374,11 @@ let importTrackTemplate = function (req, done, dbConnection) {
                                         });
                                     }, function (err) {
                                         console.log("ALL ANNOTATION DONE");
-                                        done(ResponseJSON(ErrorCodes.SUCCESS, "Done"));
+                                        dbConnection.Track.findById(idTrack).then(track => {
+                                            done(ResponseJSON(ErrorCodes.SUCCESS, "Done", track));
+                                        }).catch(err => {
+                                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Done"));
+                                        });
 
                                     });
                                 })
