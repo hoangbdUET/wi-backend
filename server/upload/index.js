@@ -60,7 +60,7 @@ function extractLAS2Done(result, options, callback, dbConnection) {
     let curvesInfo = result.datasetInfo[0].curves;
     // console.log(options);
     // console.log(isNumBer(options.idWell));
-    if (!options.idWell || options.idWell == "" ) {
+    if (!options.idWell || options.idWell == "") {
         console.log("CREATE CURVES WITH PROJECT EXIST");
         importUntils.createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo[0], dbConnection).then(rs => {
             callback(false, rs);
@@ -71,7 +71,7 @@ function extractLAS2Done(result, options, callback, dbConnection) {
     } else {
         //wellInfo.idWell = options.isString ? uploadModel.findIdByName(options.idProject, options.idWell, null, dbConnection) : options.idWell;
         wellInfo.idWell = options.idWell;
-        if (!options.idDataset || options.idDataset == "" || !isNumBer(options.idDataset)) {
+        if (!options.idDataset || options.idDataset == "") {
             console.log("CREATE CURVES WITH WELL EXIST");
             if (options.isString) {
                 uploadModel.findIdByName(options.idProject, options.idWell, null, function (err, success) {
