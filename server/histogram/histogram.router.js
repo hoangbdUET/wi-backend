@@ -6,6 +6,7 @@ var bodyParser = require('body-parser');
 router.use(bodyParser.json());
 
 router.post('/histogram/new', function (req, res) {
+    if(req.body.idCurve == null || !req.body.idCurve) delete req.body.idCurve;
     histogramModel.createNewHistogram(req.body, function (status) {
         res.send(status);
     },req.dbConnection);

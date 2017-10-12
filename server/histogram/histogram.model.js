@@ -31,7 +31,8 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
                     });
                 }).catch(err => {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new histogram error", err.message));
+                    // console.log(err);
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new histogram error", err.errors));
                 });
 
             } else {
@@ -40,7 +41,8 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
                     });
                 }).catch(err => {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new histogram error", err.message));
+                    // console.log(err);
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new histogram error", err.errors));
                 });
             }
         }
