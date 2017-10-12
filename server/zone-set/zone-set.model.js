@@ -12,12 +12,10 @@ function createNewZoneSet(zoneSetInfo, done, dbConnection) {
                 var zoneSet = ZoneSet.build(zoneSetInfo);
                 zoneSet.save()
                     .then(function (zoneSet) {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new ZoneSet success", {
-                            idZoneSet: zoneSet.idZoneSet,
-                            orderNum: zoneSet.orderNum
-                        }));
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new ZoneSet success", zoneSet));
                     })
                     .catch(function (err) {
+                        console.log(err);
                         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new ZoneSet " + err.name));
                     })
             },
