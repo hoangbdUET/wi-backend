@@ -7,7 +7,7 @@ var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 var jwt = require('jsonwebtoken');
 var models = require('../models');
-
+var updateFamilyModel = require('../family/global.family.models');
 router.use(bodyParser.json());
 router.post('/login', function (req, res) {
     User.findOne({where: {username: req.body.username}})
@@ -35,13 +35,17 @@ router.post('/register', function (req, res) {
             var dbConnection = models(dbName);
             dbConnection.sequelize.sync()
                 .then(function () {
-                    var familyUpdate = require('../family/FamilyUpdater');
-                    var familyConditionUpdate = require('../family/FamilyConditionUpdater');
-                    familyUpdate(dbConnection,function() {
-                        familyConditionUpdate(dbConnection,function(){
-                            // main();
-                        });
+                    updateFamilyModel.syncFamilyData({username: result.username.toLowerCase()}, function (result) {
+                        console.log("Successfull update family for user : ", dbName);
                     });
+                    // var familyUpdate = require('../family/FamilyUpdater');
+                    // var familyConditionUpdate = require('../family/FamilyConditionUpdater');
+                    // familyUpdate(dbConnection,function() {
+                    //     familyConditionUpdate(dbConnection,function(){
+                    //         // main();
+                    //     });
+                    // });
+
                 })
                 .catch(function (err) {
                     console.log(dbName + err);
