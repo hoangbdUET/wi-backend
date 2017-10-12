@@ -378,13 +378,17 @@ let importTrackTemplate = function (req, done, dbConnection) {
                                         });
                                     }, function (err) {
                                         console.log("ALL ANNOTATION DONE");
-                                        dbConnection.Track.findById(idTrack).then(track => {
-                                            if(isCurveNotFound){
-                                                done(ResponseJSON(ErrorCodes.SUCCESS, "CURVE_NOT_FOUND", curveHasError));
+                                        dbConnection.Track.findById(idTrack, {include: [{all: true}]}).then(aTrack => {
+                                            if (isCurveNotFound) {
+                                                let track = aTrack.toJSON();
+                                                track.errorCurve = curveHasError;
+                                                done(ResponseJSON(ErrorCodes.SUCCESS, "CURVE_NOT_FOUND", track));
                                             } else {
-                                                done(ResponseJSON(ErrorCodes.SUCCESS, "Done", track));
+                                                console.log("DONE TRACK");
+                                                done(ResponseJSON(ErrorCodes.SUCCESS, "Done", aTrack));
                                             }
                                         }).catch(err => {
+                                            console.log("ERR TRACK  : ", err);
                                             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Done"));
                                         });
 
