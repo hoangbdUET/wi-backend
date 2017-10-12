@@ -14,7 +14,6 @@ module.exports = function () {
                     });
                     req.decoded = decoded;
                     next();
-
                 }
             });
 

@@ -40,5 +40,9 @@ router.get('/global-family/list', function (req, res) {
     });
 });
 
-
+router.post('/global-family/sync', function (req, res) {
+    familyModel.syncFamilyData(req.body, function (status) {
+        res.send(status);
+    });
+});
 module.exports = router;

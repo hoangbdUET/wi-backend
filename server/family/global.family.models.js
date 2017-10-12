@@ -3,6 +3,8 @@ var ErrorCodes = require('../../error-codes').CODES;
 var models = require('../models-master');
 var Family = models.Family;
 var FamilyCondition = models.FamilyCondition;
+var userModels = require('../models');
+var asyncLoop = require('node-async-loop');
 
 function createNewFamily(familyInfo, done) {
     Family.sync()
@@ -101,11 +103,84 @@ function checkCurveInFamilyGroup(curveName, curveUnit, familyGroup, callback) {
 
 }
 
+let syncFamily = function (userDbConnection, callback) {
+    userDbConnection.Family.destroy({where: {}}).then(() => {
+        Family.findAll().then(globalFamilies => {
+            asyncLoop(globalFamilies, function (globalFamily, next) {
+                globalFamily = globalFamily.toJSON();
+                userDbConnection.Family.create(globalFamily).then(() => {
+                    next();
+                }).catch(err => {
+                    next(err);
+                });
+            }, function (err) {
+                if (err) console.log(err);
+                callback(null, "DONE ALL FAMILIES");
+            });
+        }).catch(err => {
+            console.log(err);
+            callback(err, null);
+        });
+    }).catch(err => {
+        console.log(err);
+        callback(err, null);
+    })
+}
+
+
+let syncFamilyCondition = function (userDbConnection, callback) {
+    userDbConnection.FamilyCondition.destroy({where: {}}).then(() => {
+        FamilyCondition.findAll().then(globalFamilyConditions => {
+            asyncLoop(globalFamilyConditions, function (globalFamilyCondition, next) {
+                globalFamilyCondition = globalFamilyCondition.toJSON();
+                userDbConnection.FamilyCondition.create(globalFamilyCondition).then(() => {
+                    next();
+                }).catch(err => {
+                    next(err);
+                });
+            }, function (err) {
+                if (err) console.log(err);
+                callback(null, "DONE ALL GLOBAL FAMILY");
+            });
+        }).catch(err => {
+            console.log(err);
+            callback(err, null);
+        });
+    }).catch(err => {
+        console.log(err);
+        callback(err, null);
+    })
+}
+
+let syncFamilyData = function (params, done) {
+    let userDbConnection = userModels("wi_" + params.username, function (err) {
+        if (err) {
+            return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "ERROR", err));
+        }
+    });
+    syncFamily(userDbConnection, function (err, result) {
+        if (err) {
+            console.log(err);
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "ERROR", err));
+        } else {
+            syncFamilyCondition(userDbConnection, function (err, result) {
+                if (err) {
+                    console.log(err);
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "ERROR", err));
+                } else {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "DONE"));
+                }
+            });
+        }
+    });
+}
+
 module.exports = {
     checkCurveInFamilyGroup: checkCurveInFamilyGroup,
     createNewFamily: createNewFamily,
     editFamily: editFamily,
     deleteFamily: deleteFamily,
     getFamilyInfo: getFamilyInfo,
-    getFamilyList: getFamilyList
+    getFamilyList: getFamilyList,
+    syncFamilyData: syncFamilyData
 }
