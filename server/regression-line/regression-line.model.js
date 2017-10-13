@@ -3,7 +3,7 @@
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 
-function createNewRegressionLine(regressionLineInfo, done,dbConnection) {
+function createNewRegressionLine(regressionLineInfo, done, dbConnection) {
     var RegressionLine = dbConnection.RegressionLine;
     RegressionLine.sync()
         .then(function () {
@@ -14,21 +14,27 @@ function createNewRegressionLine(regressionLineInfo, done,dbConnection) {
                 .then(function (regressionLine) {
                     // done(ResponseJSON(ErrorCodes.SUCCESS,"Create new regressionLine success",regressionLine))
                     regressionLine.setPolygons(regressionLineInfo.polygons)
-                    .then(function(rs){
-                        done(ResponseJSON(ErrorCodes.SUCCESS,"Save polygon_regressionLine success",rs))
-                    })
-                    .catch(function(err){
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "polygonId invalid: " + err));
-                    })
+                        .then(function (rs) {
+                            let id = rs[0][0].dataValues.idRegressionLine;
+                            RegressionLine.findById(id, {include: [{all: true}]}).then(res => {
+                                done(ResponseJSON(ErrorCodes.SUCCESS, "Save polygon_regressionLine success", res));
+                            }).catch(err => {
+                                done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "loi roi em eiiiiiii", "LOL"));
+                            });
+                        })
+                        .catch(function (err) {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "polygonId invalid: " + err));
+                        })
                 })
                 .catch(function (err) {
                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new regressionLine" + err));
                 })
-        },function () {
+        }, function () {
             done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
         })
 }
-function editRegressionLine(regressionLineInfo, done,dbConnection) {
+
+function editRegressionLine(regressionLineInfo, done, dbConnection) {
     var RegressionLine = dbConnection.RegressionLine;
     RegressionLine.findById(regressionLineInfo.idRegressionLine)
         .then(function (regressionLine) {
@@ -36,10 +42,10 @@ function editRegressionLine(regressionLineInfo, done,dbConnection) {
             delete regressionLineInfo.idPolygon;//forbid changing Polygon it belongto
             delete regressionLineInfo.idCrossPlot;//forbid changing Crossplot it belongto
             regressionLineInfo.lineStyle = JSON.stringify(regressionLineInfo.lineStyle);
-            Object.assign(regressionLine,regressionLineInfo)
+            Object.assign(regressionLine, regressionLineInfo)
                 .save()
                 .then(function (result) {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Edit regressionLine success",result));
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Edit regressionLine success", result));
                 })
                 .catch(function (err) {
                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit regressionLine" + err));
@@ -49,7 +55,8 @@ function editRegressionLine(regressionLineInfo, done,dbConnection) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "RegressionLine not found for edit"));
         })
 }
-function deleteRegressionLine(regressionLineInfo, done,dbConnection) {
+
+function deleteRegressionLine(regressionLineInfo, done, dbConnection) {
     var RegressionLine = dbConnection.RegressionLine;
     RegressionLine.findById(regressionLineInfo.idRegressionLine)
         .then(function (regressionLine) {
@@ -65,7 +72,8 @@ function deleteRegressionLine(regressionLineInfo, done,dbConnection) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "RegressionLine not found for delete"));
         })
 }
-function getRegressionLineInfo(regressionLineInfo, done,dbConnection) {
+
+function getRegressionLineInfo(regressionLineInfo, done, dbConnection) {
     var RegressionLine = dbConnection.RegressionLine;
     RegressionLine.findById(regressionLineInfo.idRegressionLine, {
         include: [
@@ -76,7 +84,7 @@ function getRegressionLineInfo(regressionLineInfo, done,dbConnection) {
     })
         .then(function (regressionLine) {
             if (!regressionLine) throw 'not exists';
-            done(ResponseJSON(ErrorCodes.SUCCESS,"Get regressionLine info success",regressionLine))
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Get regressionLine info success", regressionLine))
         })
         .catch(function () {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "RegressionLine not found for get info"));
@@ -84,9 +92,9 @@ function getRegressionLineInfo(regressionLineInfo, done,dbConnection) {
 }
 
 module.exports = {
-    createNewRegressionLine:createNewRegressionLine,
-    editRegressionLine:editRegressionLine,
-    deleteRegressionLine:deleteRegressionLine,
-    getRegressionLineInfo:getRegressionLineInfo
+    createNewRegressionLine: createNewRegressionLine,
+    editRegressionLine: editRegressionLine,
+    deleteRegressionLine: deleteRegressionLine,
+    getRegressionLineInfo: getRegressionLineInfo
 };
 
