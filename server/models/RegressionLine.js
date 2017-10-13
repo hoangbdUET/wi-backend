@@ -38,11 +38,11 @@ module.exports = function (sequelize, DataTypes) {
         },
         fitX:{
             type:DataTypes.DOUBLE,
-            allowNull:false,
+            allowNull:true,
         },
         fitY:{
             type:DataTypes.DOUBLE,
-            allowNull:false,
+            allowNull:true,
         }
 
 
