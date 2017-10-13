@@ -13,11 +13,15 @@ function createNewReferenceCurve(info, callback, dbConnection) {
 
 function infoReferenceCurve(info, callback, dbConnection) {
     let ReferenceCurve = dbConnection.ReferenceCurve;
-    ReferenceCurve.findById(info.idReferenceCurve).then(referenceCurve => {
+    ReferenceCurve.findById(info.idReferenceCurve, {
+        include: [
+            {model: dbConnection.Curve}
+        ]
+    }).then(referenceCurve => {
         if (referenceCurve) {
             callback(ResponseJSON(ErrorCodes.SUCCESS, "Get info reference successful!", referenceCurve));
         } else {
-            callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Get info reference fail!"));
+            callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "NO REFERENCE CURVE FOUND!"));
         }
     }).catch(err => {
         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Get info reference error!", err.message));

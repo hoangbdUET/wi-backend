@@ -55,6 +55,7 @@ module.exports = function (dbName, callback) {
         }
         cacheItem.instance = newDbInstance(dbName, callback);
         __CACHE.put(dbName, cacheItem);
+        console.log("START CONNECT TO : ", dbName);
         return cacheItem.instance;
     }
 }
