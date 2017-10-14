@@ -96,7 +96,9 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
             }, function (err) {
                 if (err) console.log(err);
                 console.log("DONE ALL, CALLBACK");
-                callback(null, {familiesWithoutCurve: familyWithErr});
+                let rs = plot.toJSON();
+                rs.familiesWithoutCurve = familyWithErr;
+                callback(null, rs);
             });
         });
     }).catch(err => {
