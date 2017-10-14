@@ -11,30 +11,166 @@ var path = require('path');
 var async = require('asyncawait/async');
 var await = require('asyncawait/await');
 var myAsync = require('async');
+var lineModel = require('../line/line.model');
+let findFamilyIdByName = function (familyName, dbConnection, callback) {
+    dbConnection.Family.findOne({where: {name: familyName}}).then(family => {
+        if (family) {
+            // console.log("FOUND FAMILY : ", familyName);
+            callback(family.idFamily);
+        } else {
+            // console.log("NO FAMILY FOUND : ", familyName);
+            callback(null);
+        }
+    }).catch((err) => {
+        console.log(err);
+        callback(null);
+    })
+}
 
-function createNewPlot(plotInfo, done, dbConnection) {
-    var Plot = dbConnection.Plot;
-    Plot.sync()
-        .then(
-            function () {
-                var plot = Plot.build({
-                    idWell: plotInfo.idWell,
-                    name: plotInfo.name,
-                    referenceCurve: plotInfo.referenceCurve,
-                    option: plotInfo.option
+let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
+    let familyWithErr = [];
+    dbConnection.Plot.create({
+        idWell: myPlot.idWell,
+        name: myPlot.name,
+        option: myPlot.option,
+        referenceCurve: myPlot.referenceCurve
+    }).then(plot => {
+        let idPlot = plot.idPlot;
+        asyncLoop(myPlot.depth_axes, function (depth_axis, next) {
+            depth_axis.idPlot = idPlot;
+            dbConnection.DepthAxis.create(depth_axis).then(() => {
+                next();
+            }).catch(err => {
+                next(err);
+            });
+        }, function (err) {
+            asyncLoop(myPlot.tracks, function (track, next) {
+                track.idPlot = idPlot;
+                dbConnection.Track.create({
+                    idPlot: track.idPlot,
+                    orderNum: track.orderNum,
+                    title: track.title
+                }).then(t => {
+                    let idTrack = t.idTrack;
+                    asyncLoop(track.lines, function (line, next) {
+                        asyncLoop(line.families, function (family, next) {
+                            findFamilyIdByName(family.name, dbConnection, function (idFamily) {
+                                console.log("ID FAMILY ", idFamily);
+                                if (idFamily) {
+                                    dbConnection.Curve.findOne({where: {idFamily: idFamily}}).then(curve => {
+                                        if (curve) {
+                                            // console.log("FOUND CURVE : NEXT ", curve.name);
+                                            next(curve);
+                                        } else {
+                                            // console.log("NOT FOUND CURVE NEXT");
+                                            familyWithErr.push(family.name);
+                                            next();
+                                        }
+                                    });
+                                } else {
+                                    next();
+                                }
+                            });
+                        }, function (curve) {
+                            if (curve) {
+                                lineModel.createNewLineWithoutResponse({
+                                    idCurve: curve.idCurve,
+                                    idTrack: idTrack
+                                }, dbConnection, username, function (line) {
+                                    if (line) {
+                                        next(line);
+                                    } else {
+                                        next("ERR WHEN CREATE LINE");
+                                    }
+                                });
+                            } else {
+                                next();
+                            }
+                        });
+                    }, function (line) {
+                        next();
+                    });
+                }).catch(err => {
+                    next(err);
                 });
-                plot.save()
-                    .then(function (plot) {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Plot success", plot.toJSON()));
-                    })
-                    .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Plot " + err.name));
-                    })
-            },
-            function () {
-                done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
-            }
-        )
+            }, function (err) {
+                if (err) console.log(err);
+                console.log("DONE ALL, CALLBACK");
+                callback(null, {familiesWithoutCurve: familyWithErr});
+            });
+        });
+    }).catch(err => {
+        console.log(err.message);
+        callback(err, null);
+    });
+}
+
+function createNewPlot(plotInfo, done, dbConnection, username) {
+    var Plot = dbConnection.Plot;
+    if (plotInfo.plotTemplate) {
+        if (plotInfo.plotTemplate == "DensityNeutron") {
+            let myPlot = require('./plot-template/DensityNeutron.json');
+            myPlot.referenceCurve = plotInfo.referenceCurve;
+            myPlot.idWell = plotInfo.idWell;
+            myPlot.name = plotInfo.name ? plotInfo.name : myPlot.name;
+            createPlotTemplate(myPlot, dbConnection, function (err, result) {
+                if (err) {
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed", err.message));
+                } else {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create " + plotInfo.plotTemplate + " successful", result));
+                }
+            }, username);
+        } else if (plotInfo.plotTemplate == "ResistivitySonic") {
+            let myPlot = require('./plot-template/ResistivitySonic.json');
+            myPlot.referenceCurve = plotInfo.referenceCurve;
+            myPlot.idWell = plotInfo.idWell;
+            myPlot.name = plotInfo.name ? plotInfo.name : myPlot.name;
+            createPlotTemplate(myPlot, dbConnection, function (err, result) {
+                if (err) {
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed", err.message));
+                } else {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create " + plotInfo.plotTemplate + " successful", result));
+                }
+            }, username);
+        } else if (plotInfo.plotTemplate == "TripleCombo") {
+            let myPlot = require('./plot-template/TripleCombo.json');
+            myPlot.referenceCurve = plotInfo.referenceCurve;
+            myPlot.idWell = plotInfo.idWell;
+            myPlot.name = plotInfo.name ? plotInfo.name : myPlot.name;
+            createPlotTemplate(myPlot, dbConnection, function (err, result) {
+                if (err) {
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed", err.message));
+                } else {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create " + plotInfo.plotTemplate + " successful", result));
+                }
+            }, username);
+        } else {
+            console.log("ANOTHER TEMPLATE TYPE");
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Plot err", "NOT TEMPLATE"));
+        }
+    } else {
+        Plot.sync()
+            .then(
+                function () {
+                    var plot = Plot.build({
+                        idWell: plotInfo.idWell,
+                        name: plotInfo.name,
+                        referenceCurve: plotInfo.referenceCurve,
+                        option: plotInfo.option
+                    });
+                    plot.save()
+                        .then(function (plot) {
+                            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Plot success", plot.toJSON()));
+                        })
+                        .catch(function (err) {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Plot " + err.name));
+                        })
+                },
+                function () {
+                    done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
+                }
+            )
+    }
 }
 
 function editPlot(plotInfo, done, dbConnection) {

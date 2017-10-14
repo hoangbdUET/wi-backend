@@ -27,7 +27,7 @@ router.post('/plot/info', function (req, res) {
 router.post('/plot/new', function (req, res) {
     plotModel.createNewPlot(req.body, function (status) {
         res.send(status);
-    }, req.dbConnection)
+    }, req.dbConnection, req.decoded.username)
 });
 router.post('/plot/edit', function (req, res) {
     plotModel.editPlot(req.body, function (status) {

@@ -86,6 +86,69 @@ function getWellIdByTrack(idTrack, dbConnection, callback) {
 //         )
 //
 // }
+function createNewLineWithoutResponse(lineInfo, dbConnection, username, callback) {
+    var Line = dbConnection.Line;
+    var Curve = dbConnection.Curve;
+    var Dataset = dbConnection.Dataset;
+    Line.sync()
+        .then(
+            function () {
+                Curve.findById(lineInfo.idCurve)
+                    .then(function (curve) {
+                        curve.getLineProperty()
+                            .then(function (family) {
+                                Line.build({
+                                    idTrack: lineInfo.idTrack,
+                                    idCurve: curve.idCurve,
+                                    alias: curve.name,
+                                    unit: curve.unit,
+                                    minValue: family.minScale,
+                                    maxValue: family.maxScale,
+                                    displayMode: family.displayMode,
+                                    blockPosition: family.blockPosition,
+                                    displayType: family.displayType,
+                                    lineStyle: family.lineStyle,
+                                    lineWidth: family.lineWidth,
+                                    lineColor: family.lineColor
+                                }).save()
+                                    .then(function (line) {
+                                        callback(line);
+                                    })
+                                    .catch(function (err) {
+                                        callback(null);
+                                    });
+                            })
+                            .catch(function (err) {
+                                //console.log(err);
+                                //console.log("No family " + lineInfo.idTrack);
+                                //fix create new line error without family
+                                curveModel.calculateScale(curve.idCurve, username, dbConnection, function (err, result) {
+                                    Line.build({
+                                        idTrack: lineInfo.idTrack,
+                                        idCurve: curve.idCurve,
+                                        alias: curve.name,
+                                        minValue: result.minScale,
+                                        maxValue: result.maxScale
+                                    }).save()
+                                        .then(function (line) {
+                                            callback(line);
+                                        })
+                                        .catch(function (err) {
+                                            callback(null);
+                                        });
+                                });
+                            });
+                    })
+                    .catch(function () {
+                        callback(null);
+                    })
+            },
+            function () {
+                callback(null);
+            }
+        )
+
+}
 
 function createNewLine(lineInfo, done, dbConnection, username) {
     var Line = dbConnection.Line;
@@ -225,5 +288,6 @@ module.exports = {
     createNewLine: createNewLine,
     editLine: editLine,
     deleteLine: deleteLine,
-    getLineInfo: getLineInfo
+    getLineInfo: getLineInfo,
+    createNewLineWithoutResponse: createNewLineWithoutResponse
 };

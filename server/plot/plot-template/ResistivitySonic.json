@@ -1,0 +1,75 @@
+{
+  "name": "ResistivitySonicTemplate",
+  "option": "resistivity-sonic",
+  "depth_axes": [
+    {
+      "geogetryWidth": 1,
+      "orderNum": "a"
+    }
+  ],
+  "tracks": [
+    {
+      "orderNum": "b",
+      "title": "Track 1",
+      "lines": [
+        {
+          "families": [
+            {
+              "name": "Characteristic caliper diameter."
+            }
+          ]
+        },
+        {
+          "families": [
+            {
+              "name": "Gamma Ray"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "orderNum": "c",
+      "title": "Track 2",
+      "lines": [
+        {
+          "families": [
+            {
+              "name": "Invaded Zone Resistivity"
+            }
+          ]
+        },
+        {
+          "families": [
+            {
+              "name": "Shallow Resistivity"
+            }
+          ]
+        },
+        {
+          "families": [
+            {
+              "name": "Deep Resistivity"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "orderNum": "d",
+      "title": "Track 3",
+      "lines": [
+        {
+          "families": [
+            {
+              "name": "Delta-T Compressional"
+            },
+            {
+              "name": "Acoustic"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
