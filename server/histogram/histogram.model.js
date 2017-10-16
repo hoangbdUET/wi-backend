@@ -64,7 +64,8 @@ function getHistogram(histogramId, done, dbConnection) {
         }, {
             model: Curve
         }, {
-            model: ReferenceCurve
+            model: ReferenceCurve,
+            include: [{model: Curve}]
         }]
     }).then(rs => {
         if (rs) {

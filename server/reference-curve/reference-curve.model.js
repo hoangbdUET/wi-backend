@@ -14,9 +14,7 @@ function createNewReferenceCurve(info, callback, dbConnection) {
 function infoReferenceCurve(info, callback, dbConnection) {
     let ReferenceCurve = dbConnection.ReferenceCurve;
     ReferenceCurve.findById(info.idReferenceCurve, {
-        include: [
-            {model: dbConnection.Curve}
-        ]
+        include: [ dbConnection.Curve ]
     }).then(referenceCurve => {
         if (referenceCurve) {
             callback(ResponseJSON(ErrorCodes.SUCCESS, "Get info reference successful!", referenceCurve));
