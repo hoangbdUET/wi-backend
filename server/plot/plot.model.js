@@ -110,46 +110,22 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
 function createNewPlot(plotInfo, done, dbConnection, username) {
     var Plot = dbConnection.Plot;
     if (plotInfo.plotTemplate) {
-        if (plotInfo.plotTemplate == "DensityNeutron") {
-            let myPlot = require('./plot-template/DensityNeutron.json');
-            myPlot.referenceCurve = plotInfo.referenceCurve;
-            myPlot.idWell = plotInfo.idWell;
-            myPlot.name = plotInfo.name ? plotInfo.name : myPlot.name;
-            createPlotTemplate(myPlot, dbConnection, function (err, result) {
-                if (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed", err.message));
-                } else {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create " + plotInfo.plotTemplate + " successful", result));
-                }
-            }, username);
-        } else if (plotInfo.plotTemplate == "ResistivitySonic") {
-            let myPlot = require('./plot-template/ResistivitySonic.json');
-            myPlot.referenceCurve = plotInfo.referenceCurve;
-            myPlot.idWell = plotInfo.idWell;
-            myPlot.name = plotInfo.name ? plotInfo.name : myPlot.name;
-            createPlotTemplate(myPlot, dbConnection, function (err, result) {
-                if (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed", err.message));
-                } else {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create " + plotInfo.plotTemplate + " successful", result));
-                }
-            }, username);
-        } else if (plotInfo.plotTemplate == "TripleCombo") {
-            let myPlot = require('./plot-template/TripleCombo.json');
-            myPlot.referenceCurve = plotInfo.referenceCurve;
-            myPlot.idWell = plotInfo.idWell;
-            myPlot.name = plotInfo.name ? plotInfo.name : myPlot.name;
-            createPlotTemplate(myPlot, dbConnection, function (err, result) {
-                if (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed", err.message));
-                } else {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create " + plotInfo.plotTemplate + " successful", result));
-                }
-            }, username);
-        } else {
-            console.log("ANOTHER TEMPLATE TYPE");
-            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Plot err", "NOT TEMPLATE"));
+        let myPlot = null;
+        try {
+            myPlot = require('./plot-template/' + plotInfo.plotTemplate + '.json');
+        } catch (err) {
+            return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot type not existed!", "PLOT TYPE TEMPLATE NOT FOUND"));
         }
+        myPlot.referenceCurve = plotInfo.referenceCurve;
+        myPlot.idWell = plotInfo.idWell;
+        myPlot.name = plotInfo.name ? plotInfo.name : myPlot.name;
+        createPlotTemplate(myPlot, dbConnection, function (err, result) {
+            if (err) {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed", "PLOT NAME EXISTED"));
+            } else {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Create " + plotInfo.plotTemplate + " successful", result));
+            }
+        }, username);
     } else {
         Plot.sync()
             .then(
