@@ -13,18 +13,22 @@ function createNewRegressionLine(regressionLineInfo, done, dbConnection) {
                 .save()
                 .then(function (regressionLine) {
                     // done(ResponseJSON(ErrorCodes.SUCCESS,"Create new regressionLine success",regressionLine))
-                    regressionLine.setPolygons(regressionLineInfo.polygons)
-                        .then(function (rs) {
-                            let id = rs[0][0].dataValues.idRegressionLine;
-                            RegressionLine.findById(id, {include: [{all: true}]}).then(res => {
-                                done(ResponseJSON(ErrorCodes.SUCCESS, "Save polygon_regressionLine success", res));
-                            }).catch(err => {
-                                done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "loi roi em eiiiiiii", "LOL"));
-                            });
-                        })
-                        .catch(function (err) {
-                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "polygonId invalid: " + err));
-                        })
+                    if (regressionLineInfo.polygons.length > 0) {
+                        regressionLine.setPolygons(regressionLineInfo.polygons)
+                            .then(function (rs) {
+                                let id = rs[0][0].dataValues.idRegressionLine;
+                                RegressionLine.findById(id, {include: [{all: true}]}).then(res => {
+                                    done(ResponseJSON(ErrorCodes.SUCCESS, "Save polygon_regressionLine success", res));
+                                }).catch(err => {
+                                    done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "loi roi em eiiiiiii", "LOL"));
+                                });
+                            })
+                            .catch(function (err) {
+                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "polygonId invalid: " + err));
+                            })
+                    } else {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Done", regressionLine));
+                    }
                 })
                 .catch(function (err) {
                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new regressionLine" + err));
