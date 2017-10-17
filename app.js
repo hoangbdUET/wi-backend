@@ -70,9 +70,11 @@ function main() {
      Attach all routers to app
      */
 
+    app.use(express.static(path.join(__dirname, '/server/plot/plot-template/')));
     app.use(express.static(path.join(__dirname, fullConfig.imageBasePath)));
     app.use('/', globalFamilyRouter);
     app.use('/', authenRouter);
+
     var authenticate = require('./server/authenticate/authenticate');
     app.use(authenticate());
     app.use('/', uploadRouter);

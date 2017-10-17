@@ -180,11 +180,37 @@ function copyCurve(param, done, dbConnection, username) {
                                         newCurve.idDataset = desDataset.idDataset;
                                         delete newCurve.idCurve;
                                         //console.log("New Curve : " + JSON.stringify(newCurve));
-                                        Curve.create(newCurve).then(cu => {
-                                            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Curve success", {idCurve: cu.idCurve}))
+                                        Curve.findAll({
+                                            where: {
+                                                idDataset: desDataset.idDataset,
+                                                name: newCurve.name
+                                            }
+                                        }).then(c => {
+                                            if (c.length > 0) {
+                                                Curve.destroy({
+                                                    where: {
+                                                        idCurve: c[0].idCurve
+                                                    }
+                                                }).then(rs => {
+                                                    Curve.create(newCurve).then(cu => {
+                                                        done(ResponseJSON(ErrorCodes.SUCCESS, "Copy and Override Curve success", {idCurve: cu.idCurve}))
+                                                    }).catch(err => {
+                                                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Copy err", err))
+                                                    });
+                                                }).catch((err) => {
+                                                    console.log("ERRRRRR");
+                                                })
+                                            } else {
+                                                Curve.create(newCurve).then(cu => {
+                                                    done(ResponseJSON(ErrorCodes.SUCCESS, "Copy Curve success", {idCurve: cu.idCurve}))
+                                                }).catch(err => {
+                                                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Copy err", err))
+                                                });
+                                            }
                                         }).catch(err => {
-                                            console.log(err);
-                                        });
+
+                                        })
+
                                     } else {
                                         done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Copy error"));
                                     }
@@ -225,15 +251,39 @@ function moveCurve(param, rs, dbConnection, username) {
                                         try {
                                             let srcHashPath = hashDir.getHashPath(config.curveBasePath, username + srcProject.name + srcWell.name + srcDataset.name + curve.name, curve.name + ".txt");
                                             hashDir.copyFile(config.curveBasePath, srcHashPath, username + srcProject.name + desWell.name + desDataset.name + curve.name, curve.name + ".txt");
-
                                             curve.idDataset = param.desDatasetId;
-                                            curve.save().then(() => {
-                                                hashDir.deleteFolder(config.curveBasePath, username + srcProject.name + srcWell.name + srcDataset.name + curve.name);
-                                                rs(ResponseJSON(ErrorCodes.SUCCESS, "Successful"));
-                                            });
+                                            Curve.findAll({
+                                                where: {
+                                                    idDataset: param.desDatasetId,
+                                                    name: curve.name
+                                                }
+                                            }).then(c => {
+                                                if (c.length > 0) {
+                                                    Curve.destroy({
+                                                        where: {
+                                                            idCurve: c[0].idCurve
+                                                        }
+                                                    }).then(() => {
+                                                        curve.save().then(() => {
+                                                            hashDir.deleteFolder(config.curveBasePath, username + srcProject.name + srcWell.name + srcDataset.name + curve.name);
+                                                            rs(ResponseJSON(ErrorCodes.SUCCESS, "Successful"));
+                                                        }).catch(err => {
+                                                            rs(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "FAILE", err));
+                                                        });
+                                                    });
+                                                } else {
+                                                    curve.save().then(() => {
+                                                        hashDir.deleteFolder(config.curveBasePath, username + srcProject.name + srcWell.name + srcDataset.name + curve.name);
+                                                        rs(ResponseJSON(ErrorCodes.SUCCESS, "Successful"));
+                                                    }).catch(err => {
+                                                        rs(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "FAILE", err));
+                                                    });
+                                                }
+                                            }).catch();
+
 
                                         } catch (err) {
-                                            console.log(err);
+                                            // console.log(err);
                                             rs(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't move"));
                                         }
                                     });
