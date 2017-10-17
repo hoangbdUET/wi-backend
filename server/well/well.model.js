@@ -41,49 +41,61 @@ function editWell(wellInfo, done, dbConnection, username) {
     let Project = dbConnection.Project;
     Well.findById(wellInfo.idWell)
         .then(function (well) {
-            let oldWellName = well.name;
-            //console.log("EDIT NA~~~~~~~~~~~~~~~~~~~");
-            Project.findById(well.idProject).then(function (project) {
-                Dataset.findAll({where: {idWell: well.idWell}}).then(function (datasets) {
-                    datasets.forEach(function (dataset) {
-                        Curve.findAll({where: {idDataset: dataset.idDataset}}).then(function (curves) {
-                            curves.forEach(function (curve) {
-                                //let wellName = well.name;
-                                let path = hashDir.createPath(config.curveBasePath, username + project.name + oldWellName + dataset.name + curve.name, curve.name + '.txt');
-                                let newPath = hashDir.createPath(config.curveBasePath, username + project.name + wellInfo.name + dataset.name + curve.name, curve.name + '.txt');
-                                //console.log("Old Path : " + path);
-                                //console.log("New Path : " + newPath);
-                                try {
-                                    var copy = fs.createReadStream(path).pipe(fs.createWriteStream(newPath));
-                                    copy.on('close', function () {
-                                        //console.log("deleete");
-                                        hashDir.deleteFolder(config.curveBasePath, username + project.name + oldWellName + dataset.name + curve.name);
+            Well.findOne({
+                where: {
+                    idProject: wellInfo.idProject,
+                    name: wellInfo.name
+                }
+            }).then(w => {
+                if (w) {
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Well name exited!"));
+                } else {
+                    let oldWellName = well.name;
+                    //console.log("EDIT NA~~~~~~~~~~~~~~~~~~~");
+                    Project.findById(well.idProject).then(function (project) {
+                        Dataset.findAll({where: {idWell: well.idWell}}).then(function (datasets) {
+                            datasets.forEach(function (dataset) {
+                                Curve.findAll({where: {idDataset: dataset.idDataset}}).then(function (curves) {
+                                    curves.forEach(function (curve) {
+                                        //let wellName = well.name;
+                                        let path = hashDir.createPath(config.curveBasePath, username + project.name + oldWellName + dataset.name + curve.name, curve.name + '.txt');
+                                        let newPath = hashDir.createPath(config.curveBasePath, username + project.name + wellInfo.name + dataset.name + curve.name, curve.name + '.txt');
+                                        //console.log("Old Path : " + path);
+                                        //console.log("New Path : " + newPath);
+                                        try {
+                                            var copy = fs.createReadStream(path).pipe(fs.createWriteStream(newPath));
+                                            copy.on('close', function () {
+                                                //console.log("deleete");
+                                                hashDir.deleteFolder(config.curveBasePath, username + project.name + oldWellName + dataset.name + curve.name);
+                                            });
+                                            copy.on('error', function (err) {
+                                                return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit well name", err));
+                                                //console.log(err);
+                                            });
+                                        } catch (err) {
+                                            console.log(err);
+                                            return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit well name", err));
+                                        }
                                     });
-                                    copy.on('error', function (err) {
-                                        return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit well name", err));
-                                        //console.log(err);
-                                    });
-                                } catch (err) {
-                                    console.log(err);
-                                    return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit well name", err));
-                                }
+                                });
                             });
                         });
                     });
-                });
-            });
-            well.idProject = wellInfo.idProject;
-            well.name = wellInfo.name;
-            well.topDepth = wellInfo.topDepth;
-            well.bottomDepth = wellInfo.bottomDepth;
-            well.step = wellInfo.step;
-            well.save()
-                .then(function () {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Well success", wellInfo));
-                })
-                .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Well " + err.name));
-                })
+                    well.idProject = wellInfo.idProject;
+                    well.name = wellInfo.name;
+                    well.topDepth = wellInfo.topDepth;
+                    well.bottomDepth = wellInfo.bottomDepth;
+                    well.step = wellInfo.step;
+                    well.save()
+                        .then(function () {
+                            done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Well success", wellInfo));
+                        })
+                        .catch(function (err) {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Well " + err.name));
+                        })
+                }
+            }).catch();
+
         })
         .catch(function () {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Well not found for edit"));
