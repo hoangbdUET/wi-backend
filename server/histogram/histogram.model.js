@@ -57,6 +57,7 @@ function getHistogram(histogramId, done, dbConnection) {
     var ZoneSet = dbConnection.ZoneSet;
     var Zone = dbConnection.Zone;
     var ReferenceCurve = dbConnection.ReferenceCurve;
+    var Discrim = dbConnection.Discrim;
     Histogram.findById(histogramId.idHistogram, {
         include: [{
             model: ZoneSet,
@@ -66,6 +67,8 @@ function getHistogram(histogramId, done, dbConnection) {
         }, {
             model: ReferenceCurve,
             include: [{model: Curve}]
+        }, {
+            model: Discrim
         }]
     }).then(rs => {
         if (rs) {

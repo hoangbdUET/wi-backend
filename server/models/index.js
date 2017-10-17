@@ -195,7 +195,7 @@ function newDbInstance(dbName, callback) {
         });
         m.CrossPlot.hasMany(m.Ternary, {foreignKey: {name: 'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
         m.CrossPlot.hasMany(m.PointSet, {foreignKey: {name: 'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
-        m.CrossPlot.hasMany(m.Discrim, {foreignKey: {name: 'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
+        m.CrossPlot.hasMany(m.Discrim, {foreignKey: {name: 'idCrossPlot', allowNull: true}, onDelete: 'CASCADE'});
         m.CrossPlot.hasMany(m.UserDefineLine, {
             foreignKey: {
                 name: 'idCrossPlot',
@@ -223,8 +223,8 @@ function newDbInstance(dbName, callback) {
 
         //m.Marker.belongsTo(m.Track, {foreignKey: {name: 'idTrack', allowNull: false, onDelete: 'CASCADE'}});
 
-        m.Discrim.belongsTo(m.Curve, {foreignKey: {name: 'idCurveLeft', allowNull: false}});
-        m.Discrim.belongsTo(m.Curve, {foreignKey: {name: 'idCurveRight', allowNull: true}});
+        // m.Discrim.belongsTo(m.Curve, {foreignKey: {name: 'idCurveLeft', allowNull: false}});
+        // m.Discrim.belongsTo(m.Curve, {foreignKey: {name: 'idCurveRight', allowNull: true}});
 
         m.Polygon.belongsToMany(m.RegressionLine, {
             through: 'Polygon_RegressionLine',

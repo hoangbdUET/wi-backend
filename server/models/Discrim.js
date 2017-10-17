@@ -8,22 +8,12 @@ module.exports = function (sequelize, DataTypes) {
         },
         use: {
             type: DataTypes.BOOLEAN,
-            allowNull: false,
+            allowNull: true,
             defaultValue: false
         },
-        combine: {
-            type: DataTypes.ENUM('and', 'or'),
-            allowNull: false,
-            defaultValue: 'and'
-        },
-        func: {
-            type: DataTypes.STRING(5),
-            allowNull: false
-        },
         value: {
-            type: DataTypes.INTEGER,
-            allowNull: true
+            type: DataTypes.TEXT,
+            allowNull: false
         }
-
     });
 };
