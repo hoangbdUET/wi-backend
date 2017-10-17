@@ -8,8 +8,10 @@ var ErrorCodes = require('../../error-codes').CODES;
 var jwt = require('jsonwebtoken');
 var models = require('../models');
 var updateFamilyModel = require('../family/global.family.models');
+var md5 = require('md5');
 router.use(bodyParser.json());
 router.post('/login', function (req, res) {
+    req.body.password = md5(req.body.password);
     User.findOne({where: {username: req.body.username}})
         .then(function (user) {
             if (!user) {
@@ -25,6 +27,7 @@ router.post('/login', function (req, res) {
         });
 });
 router.post('/register', function (req, res) {
+    req.body.password = md5(req.body.password);
     User.create({username: req.body.username, password: req.body.password})
         .then(function (result) {
             //Create user's database;
@@ -38,14 +41,6 @@ router.post('/register', function (req, res) {
                     updateFamilyModel.syncFamilyData({username: result.username.toLowerCase()}, function (result) {
                         console.log("Successfull update family for user : ", dbName);
                     });
-                    // var familyUpdate = require('../family/FamilyUpdater');
-                    // var familyConditionUpdate = require('../family/FamilyConditionUpdater');
-                    // familyUpdate(dbConnection,function() {
-                    //     familyConditionUpdate(dbConnection,function(){
-                    //         // main();
-                    //     });
-                    // });
-
                 })
                 .catch(function (err) {
                     console.log(dbName + err);
