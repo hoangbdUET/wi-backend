@@ -47,37 +47,51 @@ function editCurve(curveInfo, done, dbConnection, username) {
     Curve.findById(curveInfo.idCurve)
         .then(curve => {
             if (curve.name != curveInfo.name) {
-                console.log("EDIT CURVE NAME");
-                Dataset.findById(curve.idDataset).then(dataset => {
-                    Well.findById(dataset.idWell).then(well => {
-                        Project.findById(well.idProject).then(project => {
-                            let curveName = curve.name;
-                            let path = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curveName, curveName + '.txt');
-                            let newPath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curveInfo.name, curveInfo.name + '.txt');
-                            var copy = fs.createReadStream(path).pipe(fs.createWriteStream(newPath));
-                            copy.on('close', function () {
-                                hashDir.deleteFolder(config.curveBasePath, username + project.name + well.name + dataset.name + curveName);
+                console.log(curve.name, "-", curveInfo.name);
+                Curve.findOne({
+                    where: {
+                        idDataset: curve.idDataset,
+                        name: curveInfo.name
+                    }
+                }).then(foundCurve => {
+                    if (foundCurve) {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve name existed!"));
+                    } else {
+                        console.log("EDIT CURVE NAME");
+                        Dataset.findById(curve.idDataset).then(dataset => {
+                            Well.findById(dataset.idWell).then(well => {
+                                Project.findById(well.idProject).then(project => {
+                                    let curveName = curve.name;
+                                    let path = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curveName, curveName + '.txt');
+                                    let newPath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curveInfo.name, curveInfo.name + '.txt');
+                                    var copy = fs.createReadStream(path).pipe(fs.createWriteStream(newPath));
+                                    copy.on('close', function () {
+                                        hashDir.deleteFolder(config.curveBasePath, username + project.name + well.name + dataset.name + curveName);
+                                    });
+                                    copy.on('error', function (err) {
+                                        return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit Curve name", err));
+                                    });
+                                    curve.idDataset = curveInfo.idDataset;
+                                    curve.name = curveInfo.name;
+                                    curve.dataset = curveInfo.dataset;
+                                    curve.unit = curveInfo.unit;
+                                    curve.initValue = curveInfo.initValue;
+                                    curve.save()
+                                        .then(() => {
+                                            done(ResponseJSON(ErrorCodes.SUCCESS, "Edit curve success", curveInfo));
+                                        })
+                                        .catch(err => {
+                                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Curve " + err.name));
+                                        })
+                                });
                             });
-                            copy.on('error', function (err) {
-                                return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit Curve name", err));
-                            });
-                            curve.idDataset = curveInfo.idDataset;
-                            curve.name = curveInfo.name;
-                            curve.dataset = curveInfo.dataset;
-                            curve.unit = curveInfo.unit;
-                            curve.initValue = curveInfo.initValue;
-                            curve.save()
-                                .then(() => {
-                                    done(ResponseJSON(ErrorCodes.SUCCESS, "Edit curve success", curveInfo));
-                                })
-                                .catch(err => {
-                                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Curve " + err.name));
-                                })
+                        }).catch(err => {
+                            console.log(err);
                         });
-                    });
+                    }
                 }).catch(err => {
-                    console.log(err);
-                });
+
+                })
             } else {
                 console.log("EDIT CURVE");
                 Object.assign(curve, curveInfo)
