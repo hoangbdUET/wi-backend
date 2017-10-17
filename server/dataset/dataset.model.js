@@ -22,7 +22,7 @@ function createNewDataset(datasetInfo, done, dbConnection) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Dataset success", {idDataset: dataset.idDataset}));
                     })
                     .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name + ". Probably idWell not exist/ Can't create two dataset with common ID"));
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Dataset name existed!"));
                     });
             },
             function () {

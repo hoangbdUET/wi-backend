@@ -24,7 +24,7 @@ function createNewWell(wellInfo, done, dbConnection) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new well success", well.toJSON()));
                     })
                     .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err));
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Well name existed"));
                     });
             },
             function () {
