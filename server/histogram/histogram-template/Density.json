@@ -1,0 +1,11 @@
+{
+  "name": "DT Histogram",
+  "families": [
+    {
+      "name": "Density"
+    },
+    {
+      "name": "Bulk Density"
+    }
+  ]
+}

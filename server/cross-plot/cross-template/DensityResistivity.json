@@ -1,0 +1,22 @@
+{
+  "name": "DensityResistivity",
+  "curveX": {
+  },
+  "curveX": {
+    "families": [
+      {
+        "name": "Density"
+      },
+      {
+        "name": "Bulk Density"
+      }
+    ]
+  },
+  "curveY": {
+    "families": [
+      {
+        "name": "Deep resistivity"
+      }
+    ]
+  }
+}

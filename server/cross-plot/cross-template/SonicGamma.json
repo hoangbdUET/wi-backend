@@ -1,0 +1,19 @@
+{
+  "name": "SonicGamma",
+  "curveX": {
+  },
+  "curveX": {
+    "families": [
+      {
+        "name": "Acoustic"
+      }
+    ]
+  },
+  "curveY": {
+    "families": [
+      {
+        "name": "Gamma Ray"
+      }
+    ]
+  }
+}

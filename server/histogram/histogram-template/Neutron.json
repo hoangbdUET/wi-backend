@@ -1,0 +1,11 @@
+{
+  "name": "NPHI Histogram",
+  "families": [
+    {
+      "name": "Neutron Porosity"
+    },
+    {
+      "name": "Thermal Neutron Porosity"
+    }
+  ]
+}

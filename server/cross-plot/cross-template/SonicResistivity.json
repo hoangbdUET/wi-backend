@@ -1,0 +1,19 @@
+{
+  "name": "SonicResistivity",
+  "curveX": {
+  },
+  "curveX": {
+    "families": [
+      {
+        "name": "Acoustic"
+      }
+    ]
+  },
+  "curveY": {
+    "families": [
+      {
+        "name": "Deep resistivity"
+      }
+    ]
+  }
+}

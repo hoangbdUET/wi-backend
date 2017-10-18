@@ -1,0 +1,19 @@
+{
+  "name": "PickettPlot",
+  "curveX": {
+  },
+  "curveX": {
+    "families": [
+      {
+        "name": "Deep resistivity"
+      }
+    ]
+  },
+  "curveY": {
+    "families": [
+      {
+        "name": "Effective Porosity"
+      }
+    ]
+  }
+}

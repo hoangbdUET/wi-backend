@@ -1,0 +1,22 @@
+{
+  "name": "SonicDensity",
+  "curveX": {
+  },
+  "curveX": {
+    "families": [
+      {
+        "name": "Acoustic"
+      }
+    ]
+  },
+  "curveY": {
+    "families": [
+      {
+        "name": "Density"
+      },
+      {
+        "name": "Bulk Density"
+      }
+    ]
+  }
+}

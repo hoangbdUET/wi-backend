@@ -7,6 +7,20 @@ var Curve = models.Curve;
 var Well = models.Well;
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
+let asyncLoop = require('node-async-loop');
+
+let findFamilyIdByName = function (familyName, dbConnection, callback) {
+    dbConnection.Family.findOne({where: {name: familyName}}).then(family => {
+        if (family) {
+            callback(family);
+        } else {
+            callback(null);
+        }
+    }).catch((err) => {
+        console.log(err);
+        callback(null);
+    })
+}
 
 function createNewHistogram(histogramInfo, done, dbConnection) {
     var Histogram = dbConnection.Histogram;
@@ -14,41 +28,102 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
     Well.findById(parseInt(histogramInfo.idWell)).then(well => {
         histogramInfo.referenceTopDepth = well.topDepth;
         histogramInfo.referenceBottomDepth = well.bottomDepth;
-        if (histogramInfo.idZoneSet) {
-            Histogram.create(histogramInfo).then(result => {
-                Histogram.findById(result.idHistogram).then(his => {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
+        if (histogramInfo.histogramTemplate) {
+            console.log("NEW HISTOGRAM TEMPLATE ", histogramInfo.histogramTemplate);
+            let myData = null;
+            try {
+                myData = require('./histogram-template/' + histogramInfo.histogramTemplate + '.json');
+            } catch (err) {
+                return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No histogarm template found"));
+            }
+            myData.name = histogramInfo.name ? histogramInfo.name : myData.name;
+            Histogram.create({
+                name: myData.name,
+                idWell: histogramInfo.idWell,
+                referenceTopDepth: histogramInfo.referenceTopDepth,
+                referenceBottomDepth: histogramInfo.referenceBottomDepth,
+                intervalDepthTop: histogramInfo.referenceTopDepth,
+                intervalDepthBottom: histogramInfo.referenceBottomDepth
+            }).then(histogram => {
+                // let idHistogram = histogram.idHistogram;
+                asyncLoop(myData.families, function (family, next) {
+                    findFamilyIdByName(family.name, dbConnection, function (family) {
+                        if (family) {
+                            dbConnection.Curve.findOne({where: {idFamily: family.idFamily}}).then(curve => {
+                                if (curve) {
+                                    curve.leftScale = family.minScale;
+                                    curve.rightScale = family.maxScale;
+                                    next(curve);
+                                } else {
+                                    next();
+                                }
+                            }).catch(err => {
+                                console.log(err);
+                            });
+                        } else {
+                            next();
+                        }
+                    });
+                }, function (curve) {
+                    if (curve) {
+                        dbConnection.Histogram.update({
+                            idCurve: curve.idCurve,
+                            leftScale: curve.leftScale,
+                            rightScale: curve.rightScale
+                        }, {
+                            where: {
+                                idHistogram: histogram.idHistogram
+                            }
+                        }).then(rs => {
+                            return done(ResponseJSON(ErrorCodes.SUCCESS, "Done with curve"));
+                        }).catch(err => {
+                            console.log(err);
+                        })
+                    } else {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "No curve found"));
+                    }
                 });
             }).catch(err => {
-                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new histogram error", err.message));
-            });
+                console.log(err);
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram existed!", err.message));
+            })
         } else {
-            if (!histogramInfo.intervalDepthTop) {
-                histogramInfo.intervalDepthTop = well.topDepth;
-                histogramInfo.intervalDepthBottom = well.bottomDepth;
+            if (histogramInfo.idZoneSet) {
                 Histogram.create(histogramInfo).then(result => {
                     Histogram.findById(result.idHistogram).then(his => {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
                     });
                 }).catch(err => {
-                    // console.log(err);
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new histogram error", err.errors));
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new histogram error", err.message));
                 });
-
             } else {
-                Histogram.create(histogramInfo).then(result => {
-                    Histogram.findById(result.idHistogram).then(his => {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
+                if (!histogramInfo.intervalDepthTop) {
+                    histogramInfo.intervalDepthTop = well.topDepth;
+                    histogramInfo.intervalDepthBottom = well.bottomDepth;
+                    Histogram.create(histogramInfo).then(result => {
+                        Histogram.findById(result.idHistogram).then(his => {
+                            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
+                        });
+                    }).catch(err => {
+                        // console.log(err);
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new histogram error", err.errors));
                     });
-                }).catch(err => {
-                    // console.log(err);
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new histogram error", err.errors));
-                });
-            }
-        }
-    }).catch(err => {
 
+                } else {
+                    Histogram.create(histogramInfo).then(result => {
+                        Histogram.findById(result.idHistogram).then(his => {
+                            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
+                        });
+                    }).catch(err => {
+                        // console.log(err);
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new histogram error", err.errors));
+                    });
+                }
+            }
+
+        }
     });
+
 }
 
 function getHistogram(histogramId, done, dbConnection) {
