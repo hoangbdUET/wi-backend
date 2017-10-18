@@ -101,7 +101,7 @@ function main() {
     app.use('/project/well/cross-plot', pointSetRouter);
     app.use('/project/well/cross-plot', userDefineLineRouter);
     app.use('/project/well/cross-plot', ternaryRouter);
-    app.use('/project/well/', discrimRouter);
+    // app.use('/project/well/', discrimRouter);
     app.use('/project/well/', histogramRouter);
     app.use('/project/well/cross-plot', regressionLineRouter);
     app.use('/', imageUpload);

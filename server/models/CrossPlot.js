@@ -43,7 +43,7 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: false
         },
-        discriminators: {
+        discriminator: {
             type: DataTypes.TEXT,
             allowNull: true
         }

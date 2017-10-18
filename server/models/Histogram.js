@@ -115,8 +115,8 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: 'Blue'
         },
-        discriminators: {
-            type: DataTypes.STRING(255),
+        discriminator: {
+            type: DataTypes.TEXT,
             allowNull: true
         },
         referenceTopDepth: {

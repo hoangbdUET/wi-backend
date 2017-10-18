@@ -106,7 +106,6 @@ function newDbInstance(dbName, callback) {
         'CrossPlot',
         'Polygon',
         'PointSet',
-        'Discrim',
         'Image',
         'Histogram',
         'Marker',
@@ -195,7 +194,7 @@ function newDbInstance(dbName, callback) {
         });
         m.CrossPlot.hasMany(m.Ternary, {foreignKey: {name: 'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
         m.CrossPlot.hasMany(m.PointSet, {foreignKey: {name: 'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
-        m.CrossPlot.hasMany(m.Discrim, {foreignKey: {name: 'idCrossPlot', allowNull: true}, onDelete: 'CASCADE'});
+        // m.CrossPlot.hasMany(m.Discrim, {foreignKey: {name: 'idCrossPlot', allowNull: true}, onDelete: 'CASCADE'});
         m.CrossPlot.hasMany(m.UserDefineLine, {
             foreignKey: {
                 name: 'idCrossPlot',
@@ -215,7 +214,7 @@ function newDbInstance(dbName, callback) {
         m.Histogram.belongsTo(m.Curve, {foreignKey: 'idCurve'});
         m.Histogram.belongsTo(m.ZoneSet, {foreignKey: {name: 'idZoneSet', allowNull: true}});
         //m.Histogram.belongsTo(m.Well, {foreignKey: {name:'idWell',allowNull:false},onDelete:'CASCADE'});
-        m.Histogram.hasMany(m.Discrim, {foreignKey: {name: 'idHistogram', allowNull: true}, onDelete: 'CASCADE'});
+        // m.Histogram.hasMany(m.Discrim, {foreignKey: {name: 'idHistogram', allowNull: true}, onDelete: 'CASCADE'});
         m.Histogram.hasMany(m.ReferenceCurve, {
             foreignKey: {name: 'idHistogram', allowNull: true},
             onDelete: 'CASCADE'
