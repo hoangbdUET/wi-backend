@@ -1,35 +1,41 @@
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
-var models = require('../models');
-var CrossPlot = models.CrossPlot;
 
 
 function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
+    // console.log(crossPlotInfo);
     var CrossPlot = dbConnection.CrossPlot;
     var Well = dbConnection.Well;
-    Well.findById(crossPlotInfo.idWell).then(well => {
-        crossPlotInfo.referenceTopDepth = well.topDepth;
-        crossPlotInfo.referenceBottomDepth = well.bottomDepth;
-        CrossPlot.sync()
-            .then(
-                function () {
-                    var crossPlot = CrossPlot.build({
-                        idWell: crossPlotInfo.idWell,
-                        name: crossPlotInfo.name,
-                    });
-                    crossPlot.save()
-                        .then(function (crossPlot) {
-                            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new CrossPlot success", crossPlot.toJSON()));
-                        })
-                        .catch(function (err) {
-                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new CrossPlot " + err.name));
-                        })
-                },
-                function () {
-                    done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
-                }
-            )
-    }).catch();
+    if (crossPlotInfo.crossTemplate) {
+        console.log("NEW CROSS TEMPLATE : ", crossPlotInfo.crossTemplate);
+        let myData = require('./cross-template/' + crossPlotInfo.crossTemplate + '.json');
+        console.log(myData);
+        done(ResponseJSON(ErrorCodes.SUCCESS, "DONE", myData));
+    } else {
+        Well.findById(crossPlotInfo.idWell).then(well => {
+            crossPlotInfo.referenceTopDepth = well.topDepth;
+            crossPlotInfo.referenceBottomDepth = well.bottomDepth;
+            CrossPlot.sync()
+                .then(
+                    function () {
+                        var crossPlot = CrossPlot.build({
+                            idWell: crossPlotInfo.idWell,
+                            name: crossPlotInfo.name,
+                        });
+                        crossPlot.save()
+                            .then(function (crossPlot) {
+                                done(ResponseJSON(ErrorCodes.SUCCESS, "Create new CrossPlot success", crossPlot.toJSON()));
+                            })
+                            .catch(function (err) {
+                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new CrossPlot " + err.name));
+                            })
+                    },
+                    function () {
+                        done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
+                    }
+                )
+        }).catch();
+    }
 
 }
 
@@ -39,8 +45,6 @@ function editCrossPlot(crossPlotInfo, done, dbConnection) {
     CrossPlot.findById(crossPlotInfo.idCrossplot)
         .then(function (crossPlot) {
             if (crossPlot) {
-                crossPlot.idWell = crossPlotInfo.idWell;
-                crossPlot.name = crossPlotInfo.name;
                 crossPlot.save()
                     .then(function () {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Edit CrossPlot success", crossPlotInfo));
