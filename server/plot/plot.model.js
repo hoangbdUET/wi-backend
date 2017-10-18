@@ -60,7 +60,12 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
                                     dbConnection.Curve.findOne({where: {idFamily: idFamily}}).then(curve => {
                                         if (curve) {
                                             // console.log("FOUND CURVE : NEXT ", curve.name);
-                                            next(curve);
+                                            lineModel.createNewLineWithoutResponse({
+                                                idCurve: curve.idCurve,
+                                                idTrack: idTrack
+                                            }, dbConnection, username, function (line) {
+                                                next();
+                                            });
                                         } else {
                                             // console.log("NOT FOUND CURVE NEXT");
                                             familyWithErr.push(family.name);
@@ -72,20 +77,7 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
                                 }
                             });
                         }, function (curve) {
-                            if (curve) {
-                                lineModel.createNewLineWithoutResponse({
-                                    idCurve: curve.idCurve,
-                                    idTrack: idTrack
-                                }, dbConnection, username, function (line) {
-                                    if (line) {
-                                        next(line);
-                                    } else {
-                                        next("ERR WHEN CREATE LINE");
-                                    }
-                                });
-                            } else {
-                                next();
-                            }
+                            next();
                         });
                     }, function (line) {
                         next();
