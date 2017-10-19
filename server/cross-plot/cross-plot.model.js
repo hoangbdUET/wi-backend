@@ -97,10 +97,12 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
                                 console.log("Added curveY ", curveY.name, " to Point Set");
                             }).catch()
                         }
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "ALL DONE", {
-                            foundCurveX: foundCurveX,
-                            foundCurveY: foundCurveY
-                        }));
+                        CrossPlot.findById(idCrossPlot).then(cross => {
+                            cross = cross.toJSON();
+                            cross.foundCurveX = foundCurveX;
+                            cross.foundCurveY = foundCurveY;
+                            done(ResponseJSON(ErrorCodes.SUCCESS, "ALL DONE", cross));
+                        });
                     });
                 });
             }).catch(err => {
@@ -128,7 +130,7 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
                                 done(ResponseJSON(ErrorCodes.SUCCESS, "Create new CrossPlot success", crossPlot.toJSON()));
                             })
                             .catch(function (err) {
-                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new CrossPlot " + err.name));
+                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Cross Plot existed!"));
                             })
                     },
                     function () {
