@@ -143,7 +143,7 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
 function editCrossPlot(crossPlotInfo, done, dbConnection) {
     // console.log(crossPlotInfo);
     var CrossPlot = dbConnection.CrossPlot;
-    CrossPlot.findById(crossPlotInfo.idCrossplot)
+    CrossPlot.findById(crossPlotInfo.idCrossPlot)
         .then(function (crossPlot) {
             if (crossPlot) {
                 crossPlot.save()
