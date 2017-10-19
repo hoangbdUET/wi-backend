@@ -101,19 +101,25 @@ function editCurve(curveInfo, done, dbConnection, username) {
                         Family.findById(rs.idFamily).then(family => {
                             let Line = dbConnection.Line;
                             Line.findAll({where: {idCurve: rs.idCurve}}).then(lines => {
-                                asyncLoop(lines, function (line, next) {
-                                    line.minValue = family.minScale;
-                                    line.maxValue = family.maxScale;
-                                    line.unit = rs.unit;
-                                    Object.assign(line, line).save();
-                                    next();
-                                }, function (err) {
+                                if (lines.length > 0) {
+                                    asyncLoop(lines, function (line, next) {
+                                        line.minValue = family.minScale;
+                                        line.maxValue = family.maxScale;
+                                        line.unit = rs.unit;
+                                        Object.assign(line, line).save();
+                                        next();
+                                    }, function (err) {
+                                        done(ResponseJSON(ErrorCodes.SUCCESS, "Edit curve success", curveInfo));
+                                    });
+                                } else {
                                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit curve success", curveInfo));
-                                });
+                                }
                             }).catch(err => {
+                                console.log(err);
                                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Curve " + err.meesage));
                             });
                         }).catch(err => {
+                            console.log(err);
                             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Curve " + err.meesage));
                         });
                     })
