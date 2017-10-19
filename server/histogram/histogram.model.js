@@ -75,16 +75,24 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
                                 idHistogram: histogram.idHistogram
                             }
                         }).then(rs => {
-                            return done(ResponseJSON(ErrorCodes.SUCCESS, "Done with curve"));
+                            Histogram.findById(histogram.idHistogram).then(his => {
+                                his = his.toJSON();
+                                his.noCurveFound = false;
+                                return done(ResponseJSON(ErrorCodes.SUCCESS, "Done with curve", his));
+                            });
                         }).catch(err => {
-                            console.log(err);
+                            console.log(err.message);
                         })
                     } else {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "No curve found"));
+                        Histogram.findById(histogram.idHistogram).then(his => {
+                            his = his.toJSON();
+                            his.noCurveFound = true;
+                            done(ResponseJSON(ErrorCodes.SUCCESS, "NO_CURVE_FOUND", his));
+                        });
                     }
                 });
             }).catch(err => {
-                console.log(err);
+                console.log(err.message);
                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram existed!", err.message));
             })
         } else {
@@ -94,7 +102,7 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
                     });
                 }).catch(err => {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new histogram error", err.message));
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram name existed!", err.message));
                 });
             } else {
                 if (!histogramInfo.intervalDepthTop) {
@@ -106,7 +114,7 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
                         });
                     }).catch(err => {
                         // console.log(err);
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new histogram error", err.errors));
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram existed!", err.errors));
                     });
 
                 } else {
@@ -116,7 +124,7 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
                         });
                     }).catch(err => {
                         // console.log(err);
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new histogram error", err.errors));
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram name existed!", err.errors));
                     });
                 }
             }
