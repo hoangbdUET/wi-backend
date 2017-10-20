@@ -38,7 +38,7 @@ function editTrack(trackInfo, done, dbConnection) {
     var Track = dbConnection.Track;
     Track.findById(trackInfo.idTrack)
         .then(function (track) {
-            track.idPlot = trackInfo.idPlot || track.orderNum;
+            track.idPlot = trackInfo.idPlot || track.idPlot;
             track.orderNum = trackInfo.orderNum || track.orderNum;
             track.showTitle = trackInfo.showTitle || track.showTitle;
             track.title = trackInfo.title || track.title;
