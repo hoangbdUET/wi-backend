@@ -166,6 +166,7 @@ function editHistogram(histogramInfo, done, dbConnection) {
     var Histogram = dbConnection.Histogram;
     Histogram.findById(histogramInfo.idHistogram)
         .then(function (histogram) {
+            histogramInfo.discriminator = JSON.stringify(histogramInfo.discriminator);
             Object.assign(histogram, histogramInfo)
                 .save()
                 .then(function (result) {
