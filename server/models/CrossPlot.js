@@ -26,12 +26,12 @@ module.exports = function (sequelize, DataTypes) {
         referenceScale: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            defaultValue: 1
+            defaultValue: 1000
         },
         referenceVertLineNumber: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            defaultValue: 1
+            defaultValue: 7
         },
         referenceDisplay: {
             type: DataTypes.BOOLEAN,

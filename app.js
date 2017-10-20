@@ -53,6 +53,7 @@ function main() {
     var globalFamilyRouter = require('./server/family/global.family.router');
     var referenceCurveRouter = require('./server/reference-curve/reference-curve.router');
     var ternaryRouter = require('./server/ternary/ternary.router');
+    var inventoryRouter = require('./server/import-from-inventory/index');
 
     var http = require('http').Server(app);
 
@@ -77,6 +78,7 @@ function main() {
 
     var authenticate = require('./server/authenticate/authenticate');
     app.use(authenticate());
+    app.use('/', inventoryRouter);
     app.use('/', uploadRouter);
     app.use('/', projectRouter);
     app.use('/', familyRouter);

@@ -137,7 +137,7 @@ module.exports = function (sequelize, DataTypes) {
         referenceVertLineNumber: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            defaultValue: 1
+            defaultValue: 7
         },
         referenceDisplay: {
             type: DataTypes.BOOLEAN,
