@@ -39,19 +39,19 @@ function editTrack(trackInfo, done, dbConnection) {
     Track.findById(trackInfo.idTrack)
         .then(function (track) {
             track.idPlot = trackInfo.idPlot;
-            track.orderNum = trackInfo.orderNum;
-            track.showTitle = trackInfo.showTitle;
-            track.title = trackInfo.title;
-            track.topJustification = trackInfo.topJustification;
-            track.bottomJustification = trackInfo.bottomJustification;
-            track.showLabels = trackInfo.showLabels;
-            track.showValueGrid = trackInfo.showValueGrid;
-            track.majorTicks = trackInfo.majorTicks;
-            track.minorTicks = trackInfo.minorTicks;
-            track.showDepthGrid = trackInfo.showDepthGrid;
-            track.width = trackInfo.width;
-            track.color = trackInfo.color;
-            track.showEndLabels = trackInfo.showEndLabels;
+            track.orderNum = trackInfo.orderNum || track.orderNum;
+            track.showTitle = trackInfo.showTitle || track.showTitle;
+            track.title = trackInfo.title || track.title;
+            track.topJustification = trackInfo.topJustification || track.topJustification;
+            track.bottomJustification = trackInfo.bottomJustification || track.bottomJustification;
+            track.showLabels = trackInfo.showLabels || track.showLabels;
+            track.showValueGrid = trackInfo.showValueGrid || track.showValueGrid;
+            track.majorTicks = trackInfo.majorTicks || track.majorTicks;
+            track.minorTicks = trackInfo.minorTicks || track.minorTicks;
+            track.showDepthGrid = trackInfo.showDepthGrid || track.showDepthGrid;
+            track.width = trackInfo.width || track.width;
+            track.color = trackInfo.color || track.color;
+            track.showEndLabels = trackInfo.showEndLabels || track.showEndLabels;
 
             track.save()
                 .then(function () {
