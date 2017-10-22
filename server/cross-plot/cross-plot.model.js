@@ -153,6 +153,7 @@ function editCrossPlot(crossPlotInfo, done, dbConnection) {
         .then(function (crossPlot) {
             if (crossPlot) {
                 crossPlot.discriminator = JSON.stringify(crossPlot.discriminator);
+                Object.assign(crossPlot, crossPlotInfo);
                 crossPlot.save()
                     .then(function () {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Edit CrossPlot success", crossPlotInfo));
