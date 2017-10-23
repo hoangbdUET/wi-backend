@@ -28,6 +28,7 @@ function main() {
     var fs = require('fs');
     const cors = require('cors');
     var fullConfig = require('config');
+    var captchapng = require('captchapng');
     var config = fullConfig.Application;
 
     var authenRouter = require('./server/authenticate/authenticate.router');
@@ -82,6 +83,18 @@ function main() {
     app.use(express.static(path.join(__dirname, '/server/plot/plot-template/')));
     app.use(express.static(path.join(__dirname, fullConfig.imageBasePath)));
     app.use('/', globalFamilyRouter);
+    app.get("/captcha.png", function (req, res) {
+        var p = new captchapng(80,30,parseInt(Math.random()*9000+1000)); // width,height,numeric captcha
+        p.color(0, 0, 0, 0);  // First color: background (red, green, blue, alpha)
+        p.color(80, 80, 80, 255); // Second color: paint (red, green, blue, alpha)
+
+        var img = p.getBase64();
+        var imgbase64 = new Buffer(img,'base64');
+        res.writeHead(200, {
+            'Content-Type': 'image/png'
+        });
+        res.end(imgbase64);
+    });
     app.use('/', authenRouter);
 
     var authenticate = require('./server/authenticate/authenticate');
@@ -123,7 +136,6 @@ function main() {
         // create a write stream (in append mode)
     var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});
     app.use(morgan('combined', {stream: accessLogStream}));
-
 
     app.get('/', function (req, res) {
         res.send("WELCOME TO WI-SYSTEM");

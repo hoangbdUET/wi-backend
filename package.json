@@ -12,6 +12,7 @@
     "async": "^2.5.0",
     "asyncawait": "^1.0.6",
     "body-parser": "^1.17.2",
+    "captchapng": "0.0.1",
     "config": "^1.26.1",
     "cors": "^2.8.3",
     "express": "^4.15.3",
