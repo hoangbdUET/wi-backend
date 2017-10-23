@@ -3,12 +3,20 @@
  */
 var familyUpdate = require('./server/family/GlobalFamilyUpdater');
 var familyConditionUpdate = require('./server/family/GlobalFamilyConditionUpdater');
-
+var models = require("./server/models-master");
 familyUpdate(function () {
+    let User = models.User;
+    let Admin = {
+        username: "admin",
+        password: "c4ca4238a0b923820dcc509a6f75849b",
+        role: "1"
+    }
+    User.findOrCreate({where: {username: "admin"}, defaults: Admin}).then().catch();
     familyConditionUpdate(function () {
         main();
     });
-});
+})
+;
 
 //main();
 

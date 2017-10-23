@@ -435,6 +435,16 @@ function exportData(param, successFunc, errorFunc, dbConnection, username) {
 
 function updateData(req, result) {
     result(ResponseJSON(ErrorCodes.SUCCESS, "Success", req.file));
+    // var dbConnection = req.dbConnection;
+    // var Curve = dbConnection.Curve;
+    // var Dataset = dbConnection.Dataset;
+    // var Well = dbConnection.Well;
+    // var Project = dbConnection.Project;
+    // let isBackup = req.body.isBackup;
+    // let idDataset = req.body.idDataset;
+    // let name = req.body.name;
+    // let unit = req.body.unit;
+    // let file = req.file;
     // Curve.findOne({where: {idDataset: idDataset, name: name}}).then(curve => {
     //     if (!curve) {
     //         //create new curve
