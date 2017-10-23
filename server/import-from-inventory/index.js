@@ -90,18 +90,125 @@ function syncDataFromInventory(srcPath, newPathString, curveName, callback) {
 
 // module.exports.syncDataFromInventory = syncDataFromInventory;
 
-function createNewWell(wellInfo, idProject, dbConnection, callback) {
-    let response = [];
+function createNewWell(wellInfo, projectInfo, dbConnection, callback) {
+    let response = new Object();
     asyncLoop(wellInfo, function (well, next) {
         dbConnection.Well.create({
-            name : well.name,
-            startDepth
-        }).then().catch(err => {
+            name: well.name,
+            topDepth: well.startDepth,
+            bottomDepth: well.stopDepth,
+            step: well.step,
+            idProject: projectInfo.idProject
+        }).then(myWell => {
+            asyncLoop(well.datasets, function (dataset, next) {
+                dbConnection.Dataset.create({
+                    name: dataset.name,
+                    datasetKey: dataset.datasetKey,
+                    datasetLabel: dataset.datasetLabel,
+                    idWell: myWell.idWell
+                }).then(myDataset => {
+                    asyncLoop(dataset.curves, function (curve, next) {
+                        dbConnection.Curve.create({
+                            name: curve.name,
+                            unit: curve.unit,
+                            initValue: "0",
+                            idDataset: myDataset.idDataset
+                        }).then(myCurve => {
+                            let pathString = projectInfo.username + projectInfo.projectname + myWell.name + myDataset.name + myCurve.name;
+                            syncDataFromInventory(curve.path, pathString, myCurve.name, function (err, result) {
+                                if (err) {
+                                    console.log(err)
+                                    next(err);
+                                } else {
+                                    next();
+                                }
+                            });
+                        }).catch(err => {
+                            if (err) console.log(err);
+                            next(err);
+                        })
+                    }, function (err) {
+                        console.log("DONE CURVE");
+                        next();
+                    });
+                }).catch(err => {
+                    next(err);
+                });
+            }, function (err) {
+                console.log("DONE DATASET");
+                next();
+            });
 
+        }).catch(err => {
+            next(err);
         });
     }, function (err) {
+        if (err) console.log(err);
+        console.log("DONE WELL");
         callback(null, response);
     });
+}
+
+function createNewDataset(datasetInfo, projectInfo, wellInfo, dbConnection, callback) {
+    let response = new Object();
+    // console.log(datasetInfo);
+    dbConnection.Dataset.create({
+        name: datasetInfo.name,
+        datasetKey: datasetInfo.datasetKey,
+        datasetLabel: datasetInfo.datasetLabel,
+        idWell: wellInfo.idWell
+    }).then(myDataset => {
+        // console.log(myDataset);
+        asyncLoop(datasetInfo.curves, function (curve, next) {
+            dbConnection.Curve.create({
+                name: curve.name,
+                unit: curve.unit,
+                initValue: "0",
+                idDataset: myDataset.idDataset
+            }).then(myCurve => {
+                let pathString = projectInfo.username + projectInfo.projectname + wellInfo.name + myDataset.name + myCurve.name;
+                syncDataFromInventory(curve.path, pathString, myCurve.name, function (err, result) {
+                    if (err) {
+                        console.log(err)
+                        next(err);
+                    } else {
+                        next();
+                    }
+                });
+            }).catch(err => {
+                if (err) console.log(err);
+                next(err);
+            })
+        }, function (err) {
+            console.log("DONE CURVE");
+            callback(null, "Done");
+        });
+    }).catch(err => {
+        console.log(err);
+        callback(err, null);
+    });
+}
+
+function createNewCurve(curveInfo, projectInfo, wellInfo, datasetInfo, dbConnection, callback) {
+    dbConnection.Curve.create({
+        name: curveInfo.name,
+        unit: curveInfo.unit,
+        initValue: "0",
+        idDataset: datasetInfo.idDataset
+    }).then(myCurve => {
+        let pathString = projectInfo.username + projectInfo.projectname + wellInfo.name + datasetInfo.name + myCurve.name;
+        console.log(pathString);
+        syncDataFromInventory(curveInfo.path, pathString, myCurve.name, function (err, result) {
+            if (err) {
+                console.log(err)
+                callback(err, null);
+            } else {
+                callback(null, result);
+            }
+        });
+    }).catch(err => {
+        callback(err, null);
+    })
 }
 
 router.post('/inventory/sync', function (req, res) {
@@ -112,51 +219,85 @@ router.post('/inventory/sync', function (req, res) {
     let myData = req.body.project;
     let userName = req.decoded.username;
     let projectName = myData.projectname;
+    let overwriteWell = myData.overwritewell;
+    let dataForpath = {
+        username: userName,
+        projectname: projectName
+    }
     findProjectByName(projectName, dbConnection, function (err, project) {
+        dataForpath.idProject = project.idProject;
         if (!err) {
             asyncLoop(myData.wells, function (well, next) {
-                findWellByName(well.name, project.idProject, dbConnection, function (err, result) {
+                let overwriteDataset = well.overwritedataset;
+                findWellByName(well.name, project.idProject, dbConnection, function (err, foundWell) {
                     if (!err) {
-                        asyncLoop(well.datasets, function (dataset, next) {
-                            findDatasetByName(dataset.name, result.idWell, dbConnection, function (err, result) {
-                                if (!err) {
-                                    asyncLoop(dataset.curves, function (curve, next) {
-                                        findCurveByName(curve.name, result.idDataset, dbConnection, function (err, result) {
-                                            if (!err) {
-                                                console.log(result);
-                                                next();
-                                            } else {
-                                                console.log(err);
-                                                console.log("CREATE CURVE");
-                                                next();
-                                            }
+                        if (overwriteWell) {
+                            asyncLoop(well.datasets, function (dataset, next) {
+                                findDatasetByName(dataset.name, foundWell.idWell, dbConnection, function (noDataset, foundDataset) {
+                                    let overwriteCurve = dataset.overwritecurve;
+                                    if (noDataset) {
+                                        //create new dataset
+                                        createNewDataset(dataset, dataForpath, {
+                                            idWell: foundWell.idWell,
+                                            name: foundWell.name
+                                        }, dbConnection, function (err, result) {
+                                            next();
                                         });
-                                    }, function () {
-                                        next();
-                                    });
-                                } else {
-                                    console.log(err);
-                                    console.log("CREATE DATASET");
-                                    next();
-                                }
+                                    } else {
+                                        if (overwriteDataset) {
+                                            asyncLoop(dataset.curves, function (curve, next) {
+                                                findCurveByName(curve.name, foundDataset.idDataset, dbConnection, function (noCurve, foundCurve) {
+                                                    if (noCurve) {
+                                                        createNewCurve(curve, dataForpath, {
+                                                            name: foundWell.name,
+                                                            idWell: foundWell.idWell
+                                                        }, {
+                                                            idDataset: foundDataset.idDataset,
+                                                            name: foundDataset.name
+                                                        }, dbConnection, function (err, result) {
+                                                            next();
+                                                        });
+                                                    } else {
+                                                        if (overwriteCurve) {
+                                                            let pathString = dataForpath.username + dataForpath.projectname + foundWell.name + foundDataset.name + foundCurve.name;
+                                                            syncDataFromInventory(curve.path, pathString, foundCurve.name, function (err, result) {
+                                                                next();
+                                                            });
+                                                        } else {
+                                                            next();
+                                                        }
+                                                    }
+                                                });
+                                            }, function (err) {
+                                                next();
+                                            });
+                                        } else {
+                                            next();
+                                        }
+                                    }
+                                });
+                            }, function (err) {
+                                console.log("finish dataset");
+                                next();
                             });
-                        }, function (err) {
+                        } else {
                             next();
-                        });
+                            myData.wells.splice(well, 1);
+                        }
                     } else {
                         console.log(err);
                         console.log("CREATE NEW WELL");
-                        createNewWell(myData.wells, project.idProject, dbConnection, function (err, result) {
+                        createNewWell(myData.wells, dataForpath, dbConnection, function (err, result) {
                             next();
                         });
                     }
                 });
             }, function (err) {
-                res.status(200).send(myData);
+                res.status(200).send(ResponseJSON(ErrorCodes.SUCCESS, "Successfull"));
             });
         } else {
             console.log(err);
-            res.status(200).send(myData);
+            res.status(200).send(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Err", err));
         }
     });
 });
