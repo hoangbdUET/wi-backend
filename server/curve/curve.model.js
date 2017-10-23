@@ -434,72 +434,63 @@ function exportData(param, successFunc, errorFunc, dbConnection, username) {
 }
 
 function updateData(req, result) {
-    var dbConnection = req.dbConnection;
-    var Curve = dbConnection.Curve;
-    var Dataset = dbConnection.Dataset;
-    var Well = dbConnection.Well;
-    var Project = dbConnection.Project;
-    let isBackup = req.body.isBackup;
-    let idDataset = req.body.idDataset;
-    let name = req.body.name;
-    let unit = req.body.unit;
-    let file = req.file;
-    Curve.findOne({where: {idDataset: idDataset, name: name}}).then(curve => {
-        if (!curve) {
-            //create new curve
-            let curveInfo = new Object();
-            curveInfo.name = name;
-            curveInfo.idDataset = idDataset;
-            curveInfo.initValue = "abc";
-            curveInfo.unit = unit;
-            Curve.create(curveInfo).then(rs => {
-                Dataset.findById(idDataset).then(dataset => {
-                    let path = hashDir.createPath(config.curveBasePath, dataset.name + rs.name, rs.name + '.txt');
-                    fs.createReadStream(file.path).pipe(fs.createWriteStream(path));
-                    fs.unlink(file.path);
-                    return result(ResponseJSON(ErrorCodes.SUCCESS, "CREATED NEW CURVE", rs));
-                });
-            }).catch(err => {
-                return result(ResponseJSON(ErrorCodes.SUCCESS, "CREATED NEW CURVE ERR", err));
-                console.log(err);
-            });
-        } else {
-            //found curve
-            if (isBackup == "true") {
-                let curveInfo = new Object();
-                curveInfo.name = curve.name + "_Backup";
-                curveInfo.unit = curve.unit;
-                curveInfo.idDataset = curve.idDataset;
-                curveInfo.initValue = curve.initValue;
-                Curve.create(curveInfo).then(rs => {
-                    Dataset.findById(idDataset).then(dataset => {
-                        let backupPath = hashDir.createPath(config.curveBasePath, dataset.name, rs.name + '.txt');
-                        let oldPath = hashDir.createPath(config.curveBasePath, dataset.name + curve.name, curve.name + '.txt');
-                        fs.createReadStream(oldPath).pipe(fs.createWriteStream(backupPath));
-                        fs.createReadStream(file.path).pipe(fs.createWriteStream(oldPath));
-                        fs.unlink(file.path);
-                        return result(ResponseJSON(ErrorCodes.SUCCESS, "EDITED OLD CURVE AND CREATED BACKUP CURVE", rs));
-                    });
-                }).catch(err => {
-                    console.log(err);
-                    return result(ResponseJSON(ErrorCodes.SUCCESS, "SOME ERROR", err));
-                });
-            } else if (isBackup == "false") {
-                //overide
-                //console.log("OVERIDE");
-                Dataset.findById(idDataset).then(dataset => {
-                    let path = hashDir.createPath(config.curveBasePath, dataset.name + name, name + '.txt');
-                    fs.createReadStream(file.path).pipe(fs.createWriteStream(path));
-                    return result(ResponseJSON(ErrorCodes.SUCCESS, "OVERIDE CURVE SUCCESSFUL"));
-                });
-            } else {
-
-            }
-        }
-    }).catch(err => {
-        console.log(err);
-        return result(ResponseJSON(ErrorCodes.SUCCESS, "ERROR", err));
-    });
+    result(ResponseJSON(ErrorCodes.SUCCESS, "Success", req.file));
+    // Curve.findOne({where: {idDataset: idDataset, name: name}}).then(curve => {
+    //     if (!curve) {
+    //         //create new curve
+    //         let curveInfo = new Object();
+    //         curveInfo.name = name;
+    //         curveInfo.idDataset = idDataset;
+    //         curveInfo.initValue = "abc";
+    //         curveInfo.unit = unit;
+    //         Curve.create(curveInfo).then(rs => {
+    //             Dataset.findById(idDataset).then(dataset => {
+    //                 let path = hashDir.createPath(config.curveBasePath, dataset.name + rs.name, rs.name + '.txt');
+    //                 fs.createReadStream(file.path).pipe(fs.createWriteStream(path));
+    //                 fs.unlink(file.path);
+    //                 return result(ResponseJSON(ErrorCodes.SUCCESS, "CREATED NEW CURVE", rs));
+    //             });
+    //         }).catch(err => {
+    //             return result(ResponseJSON(ErrorCodes.SUCCESS, "CREATED NEW CURVE ERR", err));
+    //             console.log(err);
+    //         });
+    //     } else {
+    //         //found curve
+    //         if (isBackup == "true") {
+    //             let curveInfo = new Object();
+    //             curveInfo.name = curve.name + "_Backup";
+    //             curveInfo.unit = curve.unit;
+    //             curveInfo.idDataset = curve.idDataset;
+    //             curveInfo.initValue = curve.initValue;
+    //             Curve.create(curveInfo).then(rs => {
+    //                 Dataset.findById(idDataset).then(dataset => {
+    //                     let backupPath = hashDir.createPath(config.curveBasePath, dataset.name, rs.name + '.txt');
+    //                     let oldPath = hashDir.createPath(config.curveBasePath, dataset.name + curve.name, curve.name + '.txt');
+    //                     fs.createReadStream(oldPath).pipe(fs.createWriteStream(backupPath));
+    //                     fs.createReadStream(file.path).pipe(fs.createWriteStream(oldPath));
+    //                     fs.unlink(file.path);
+    //                     return result(ResponseJSON(ErrorCodes.SUCCESS, "EDITED OLD CURVE AND CREATED BACKUP CURVE", rs));
+    //                 });
+    //             }).catch(err => {
+    //                 console.log(err);
+    //                 return result(ResponseJSON(ErrorCodes.SUCCESS, "SOME ERROR", err));
+    //             });
+    //         } else if (isBackup == "false") {
+    //             //overide
+    //             //console.log("OVERIDE");
+    //             Dataset.findById(idDataset).then(dataset => {
+    //                 let path = hashDir.createPath(config.curveBasePath, dataset.name + name, name + '.txt');
+    //                 fs.createReadStream(file.path).pipe(fs.createWriteStream(path));
+    //                 return result(ResponseJSON(ErrorCodes.SUCCESS, "OVERIDE CURVE SUCCESSFUL"));
+    //             });
+    //         } else {
+    //
+    //         }
+    //     }
+    // }).catch(err => {
+    //     console.log(err);
+    //     return result(ResponseJSON(ErrorCodes.SUCCESS, "ERROR", err));
+    // });
 }
 
 let getScale = function (req, done, dbConnection) {

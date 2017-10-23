@@ -105,7 +105,7 @@ router.post('/curve/getData', function (req, res) {
     }, req.dbConnection, req.decoded.username);
 });
 
-router.post('/curve/updateData', upload.single('data'), function (req, res) {
+router.post('/curve/updateData', upload.single('file'), function (req, res) {
     //console.log(req.file);
     curveModel.updateData(req, function (result) {
         res.send(result);
