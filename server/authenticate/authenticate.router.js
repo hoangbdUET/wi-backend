@@ -9,6 +9,7 @@ var jwt = require('jsonwebtoken');
 var models = require('../models');
 var updateFamilyModel = require('../family/global.family.models');
 var md5 = require('md5');
+let captchaList = require('../captcha/captcha').captchaList;
 router.use(bodyParser.json());
 
 // router.post('/login', function (req, res) {
@@ -100,17 +101,21 @@ router.post('/login', function (req, res) {
 //             res.status(401).send(ResponseJSON(ErrorCodes.ERROR_USER_EXISTED, "User existed!"));
 //         })
 // });
-
 router.post('/register', function (req, res) {
     req.body.password = md5(req.body.password);
-    User.create({username: req.body.username, password: req.body.password})
-        .then(function (result) {
-            //Create token then send
-            var token = jwt.sign(req.body, 'secretKey', {expiresIn: '1h'});
-            res.send(ResponseJSON(ErrorCodes.SUCCESS, "Success", token));
-        })
-        .catch(function (err) {
-            res.status(401).send(ResponseJSON(ErrorCodes.ERROR_USER_EXISTED, "User existed!"));
-        })
+    if (captchaList.get(req.body.captcha)) {
+        captchaList.delete(req.body.captcha);
+        User.create({username: req.body.username, password: req.body.password})
+            .then(function (result) {
+                //Create token then send
+                var token = jwt.sign(req.body, 'secretKey', {expiresIn: '1h'});
+                res.send(ResponseJSON(ErrorCodes.SUCCESS, "Success", token));
+            })
+            .catch(function (err) {
+                res.status(401).send(ResponseJSON(ErrorCodes.ERROR_USER_EXISTED, "User existed!"));
+            })
+    } else {
+        res.status(401).send(ResponseJSON(ErrorCodes.ERROR_USER_EXISTED, "Captcha is not correct!"));
+    }
 });
 module.exports = router;
