@@ -115,7 +115,7 @@ router.post('/register', function (req, res) {
                 res.status(401).send(ResponseJSON(ErrorCodes.ERROR_USER_EXISTED, "User existed!"));
             })
     } else {
-        res.status(401).send(ResponseJSON(ErrorCodes.ERROR_USER_EXISTED, "Captcha is not correct!"));
+        res.status(200).send(ResponseJSON(ErrorCodes.SUCCESS, "Captcha is not correct!", "CAPTCHA"));
     }
 });
 module.exports = router;
