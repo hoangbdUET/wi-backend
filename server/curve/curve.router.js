@@ -8,7 +8,8 @@ const multer = require('multer');
 const config = require('config');
 var wiImport = require('wi-import');
 var hashDir = wiImport.hashDir;
-
+var path = require('path');
+var asyncLoop = require('node-async-loop');
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 let curveModel = require('./curve.model');
@@ -105,10 +106,25 @@ router.post('/curve/getData', function (req, res) {
     }, req.dbConnection, req.decoded.username);
 });
 
+function writeToTmpFile(data, callback) {
+    let tmpPath = path.join(__dirname, 'tmp.txt');
+    let text = new String();
+    let count = 0;
+    data.forEachDone(function (row) {
+        text += (count++ + " " + row.x + "\n");
+    }, function () {
+        fs.writeFileSync(tmpPath, text);
+        callback(tmpPath);
+    });
+}
+
 router.post('/curve/updateData', upload.single('file'), function (req, res) {
-    //console.log(req.file);
-    curveModel.updateData(req, function (result) {
-        res.send(result);
+    // console.log(req.data);
+    writeToTmpFile(req.body.data, function (tmpPath) {
+        req.tmpPath = tmpPath;
+        curveModel.updateData(req, function (result) {
+            res.send(result);
+        });
     });
 });
 
@@ -118,68 +134,13 @@ router.post('/curve/scale', function (req, res) {
     }, req.dbConnection);
 });
 
-router.post('/curve/scale1', function (req, res) {
-    var Curve = req.dbConnection.Curve;
-    var Dataset = req.dbConnection.Dataset;
-    var Project = req.dbConnection.Project;
-    var Well = req.dbConnection.Well;
-    if (req.body.idCurve) {
-        Curve.findById(req.body.idCurve)
-            .then(function (curve) {
-                if (curve) {
-                    Dataset.findById(curve.idDataset).then((dataset) => {
-                        if (!dataset) {
-                            console.log("No dataset");
-                        } else {
-                            Well.findById(dataset.idWell).then(well => {
-                                if (well) {
-                                    Project.findById(well.idProject).then(project => {
-                                        let inputStream = hashDir.createReadStream(config.curveBasePath, req.decoded.username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
-                                        let lineReader = require('readline').createInterface({
-                                            input: inputStream
-                                        });
-                                        let arrY = [];
-                                        lineReader.on('line', function (line) {
-                                            let arrXY = line.split(/\s+/g).slice(1, 2);
-                                            arrY.push(arrXY[0]);
-                                        });
-
-                                        lineReader.on('close', function () {
-                                            //console.log(arrY);
-                                            let min = 99999;
-                                            let max = 0;
-                                            arrY.forEach(function (element, i) {
-                                                if (element != 'null') {
-                                                    element = parseFloat(element);
-                                                    if (element < min) min = element;
-                                                    if (element > max) max = element;
-                                                }
-                                            });
-                                            res.send(ResponseJSON(ErrorCodes.SUCCESS, "min max curve success", {
-                                                minScale: min,
-                                                maxScale: max
-                                            }));
-                                        });
-                                    });
-                                }
-                            });
-
-                        }
-                    }).catch(err => {
-                        res.send(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Dataset for curve not found"));
-                    });
-
-                } else {
-
-                }
-
-            })
-            .catch(function () {
-                res.status(404).end();
-            })
-    } else {
-        res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "idCurve can not be null"));
-    }
+router.post('/curve/processing', upload.single('file'), function (req, res) {
+    writeToTmpFile(req.body.data, function (tmpPath) {
+        req.tmpPath = tmpPath;
+        curveModel.processingCurve(req, function (result) {
+            res.send(result);
+        }, req.dbConnection);
+    });
 });
 
 module.exports = router;

@@ -8,7 +8,7 @@ var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 var asyncLoop = require('node-async-loop');
 // var FamilyCondition = models.FamilyCondition;
-var fs = require('fs');
+var fs = require('fs-extra');
 
 var wiImport = require('wi-import');
 var hashDir = wiImport.hashDir;
@@ -434,72 +434,148 @@ function exportData(param, successFunc, errorFunc, dbConnection, username) {
 }
 
 function updateData(req, result) {
-    result(ResponseJSON(ErrorCodes.SUCCESS, "Success", req.file));
+    result(ResponseJSON(ErrorCodes.SUCCESS, "Dang lam :D"));
+    fs.unlink(req.tmpPath);
     // var dbConnection = req.dbConnection;
     // var Curve = dbConnection.Curve;
     // var Dataset = dbConnection.Dataset;
-    // var Well = dbConnection.Well;
-    // var Project = dbConnection.Project;
+    // var Line = dbConnection.Line;
+    // let projectName = req.body.projectname;
+    // let wellName = req.body.wellname;
     // let isBackup = req.body.isBackup;
     // let idDataset = req.body.idDataset;
-    // let name = req.body.name;
-    // let unit = req.body.unit;
-    // let file = req.file;
-    // Curve.findOne({where: {idDataset: idDataset, name: name}}).then(curve => {
-    //     if (!curve) {
-    //         //create new curve
-    //         let curveInfo = new Object();
-    //         curveInfo.name = name;
-    //         curveInfo.idDataset = idDataset;
-    //         curveInfo.initValue = "abc";
-    //         curveInfo.unit = unit;
-    //         Curve.create(curveInfo).then(rs => {
-    //             Dataset.findById(idDataset).then(dataset => {
-    //                 let path = hashDir.createPath(config.curveBasePath, dataset.name + rs.name, rs.name + '.txt');
-    //                 fs.createReadStream(file.path).pipe(fs.createWriteStream(path));
-    //                 fs.unlink(file.path);
-    //                 return result(ResponseJSON(ErrorCodes.SUCCESS, "CREATED NEW CURVE", rs));
-    //             });
-    //         }).catch(err => {
-    //             return result(ResponseJSON(ErrorCodes.SUCCESS, "CREATED NEW CURVE ERR", err));
-    //             console.log(err);
-    //         });
-    //     } else {
-    //         //found curve
-    //         if (isBackup == "true") {
-    //             let curveInfo = new Object();
-    //             curveInfo.name = curve.name + "_Backup";
-    //             curveInfo.unit = curve.unit;
-    //             curveInfo.idDataset = curve.idDataset;
-    //             curveInfo.initValue = curve.initValue;
-    //             Curve.create(curveInfo).then(rs => {
-    //                 Dataset.findById(idDataset).then(dataset => {
-    //                     let backupPath = hashDir.createPath(config.curveBasePath, dataset.name, rs.name + '.txt');
-    //                     let oldPath = hashDir.createPath(config.curveBasePath, dataset.name + curve.name, curve.name + '.txt');
-    //                     fs.createReadStream(oldPath).pipe(fs.createWriteStream(backupPath));
-    //                     fs.createReadStream(file.path).pipe(fs.createWriteStream(oldPath));
-    //                     fs.unlink(file.path);
-    //                     return result(ResponseJSON(ErrorCodes.SUCCESS, "EDITED OLD CURVE AND CREATED BACKUP CURVE", rs));
+    // let idSrcCurve = req.body.idSrcCurve;
+    // let idDesCurve = req.body.idDesCurve;
+    // let idLine = req.body.idLine;
+    // let filePath = req.tmpPath;
+    // let newCurvename = req.body.newCurveName;
+    // Dataset.findById(idDataset).then(dataset => {
+    //     Curve.findById(idSrcCurve).then(srcCurve => {
+    //         if (srcCurve) {
+    //             if (newCurvename) {
+    //                 //create new curve
+    //                 Line.findById(idLine).then(line => {
+    //                     let buildCurve = new Object();
+    //                     buildCurve.idDataset = idDataset;
+    //                     buildCurve.name = newCurvename;
+    //                     buildCurve.unit = srcCurve.unit;
+    //                     buildCurve.initValue = srcCurve.initValue;
+    //                     Curve.create(buildCurve).then(curve => {
+    //                         let newPath = hashDir.createPath(config.curveBasePath, req.decoded.username + projectName + wellName + dataset.name + curve.name, curve.name + '.txt');
+    //                         fs.copy(filePath, newPath, function (err) {
+    //                             if (err) {
+    //                                 console.log("ERR COPY FILE : ", err);
+    //                             }
+    //                             console.log("Copy file success!");
+    //                             fs.unlink(filePath);
+    //                             let lineInfo = line.toJSON();
+    //                             lineInfo.idCurve = curve.idCurve;
+    //                             Object.assign(line, lineInfo).save().then(rs => {
+    //                                 console.log("SAVE LINE DONE");
+    //                                 //response line
+    //                                 result(ResponseJSON(ErrorCodes.SUCCESS, "Success", line));
+    //                             }).catch(err => {
+    //                                 console.log(err);
+    //                             });
+    //                         });
+    //                     }).catch(err => {
+    //                         result(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CURVE EXISTED!"));
+    //                         // console.log(err);
+    //                     });
+    //                 }).catch(err => {
+    //                     console.log(err);
     //                 });
-    //             }).catch(err => {
-    //                 console.log(err);
-    //                 return result(ResponseJSON(ErrorCodes.SUCCESS, "SOME ERROR", err));
-    //             });
-    //         } else if (isBackup == "false") {
-    //             //overide
-    //             //console.log("OVERIDE");
-    //             Dataset.findById(idDataset).then(dataset => {
-    //                 let path = hashDir.createPath(config.curveBasePath, dataset.name + name, name + '.txt');
-    //                 fs.createReadStream(file.path).pipe(fs.createWriteStream(path));
-    //                 return result(ResponseJSON(ErrorCodes.SUCCESS, "OVERIDE CURVE SUCCESSFUL"));
-    //             });
+    //             } else {
+    //                 //update curve data to existed curve
+    //                 if (isBackup == "true" || isBackup == true) {
+    //                     Line.findAll({where: {idCurve: idSrcCurve}}).then(lines => {
+    //                         Curve.findById(idDesCurve).then(desCurve => {
+    //                             let curveInfo = desCurve.toJSON();
+    //                             delete curveInfo.idCurve;
+    //                             delete curveInfo.createdAt;
+    //                             delete curveInfo.updatedAt;
+    //                             curveInfo.name = desCurve.name + "_backup";
+    //                             console.log(curveInfo);
+    //                             Curve.create(curveInfo).then(curve => {
+    //                                 let newPath = hashDir.createPath(config.curveBasePath, req.decoded.username + projectName + wellName + dataset.name + curve.name, curve.name + '.txt');
+    //                                 let oldPath = hashDir.createPath(config.curveBasePath, req.decoded.username + projectName + wellName + dataset.name + desCurve.name, desCurve.name + '.txt');
+    //                                 fs.copy(oldPath, newPath, function (err) {
+    //                                     if (err) {
+    //                                         console.log("ERR COPY FILE : ", err);
+    //                                     }
+    //                                     asyncLoop(lines, function (line, next) {
+    //                                         if (line) {
+    //                                             let lineInfo = line.toJSON();
+    //                                             lineInfo.idCurve = idDesCurve;
+    //                                             lineInfo.unit = desCurve.unit;
+    //                                             Object.assign(line, lineInfo).save().then(rs => {
+    //                                                 let newPath = hashDir.createPath(config.curveBasePath, req.decoded.username + projectName + wellName + dataset.name + desCurve.name, desCurve.name + '.txt');
+    //                                                 fs.copy(filePath, newPath, function (err) {
+    //                                                     if (err) {
+    //                                                         console.log("ERR COPY FILE : ", err);
+    //                                                     }
+    //                                                     console.log("Copy file success!");
+    //                                                     fs.unlink(filePath);
+    //                                                     next();
+    //                                                 });
+    //                                             }).catch(err => {
+    //                                                 // result(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
+    //                                                 console.log(err);
+    //                                                 next();
+    //                                             });
+    //                                         } else {
+    //                                             next();
+    //                                         }
+    //                                     }, function () {
+    //                                         result(ResponseJSON(ErrorCodes.SUCCESS, "Successfully"));
+    //                                     })
+    //                                 });
+    //                             }).catch(err => {
+    //                                 console.log(err);
+    //                                 result(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve backup existed!", err));
+    //                             });
+    //                         });
+    //                     }).catch();
+    //                 } else {
+    //                     Line.findAll({where: {idCurve: idSrcCurve}}).then(lines => {
+    //                         Curve.findById(idDesCurve).then(desCurve => {
+    //                             asyncLoop(lines, function (line, next) {
+    //                                 if (line) {
+    //                                     let lineInfo = line.toJSON();
+    //                                     lineInfo.idCurve = idDesCurve;
+    //                                     lineInfo.unit = desCurve.unit;
+    //                                     Object.assign(line, lineInfo).save().then(rs => {
+    //                                         let newPath = hashDir.createPath(config.curveBasePath, req.decoded.username + projectName + wellName + dataset.name + desCurve.name, desCurve.name + '.txt');
+    //                                         fs.copy(filePath, newPath, function (err) {
+    //                                             if (err) {
+    //                                                 console.log("ERR COPY FILE : ", err);
+    //                                             }
+    //                                             console.log("Copy file success!");
+    //                                             fs.unlink(filePath);
+    //                                             next();
+    //                                         });
+    //                                     }).catch(err => {
+    //                                         console.log(err);
+    //                                         next();
+    //                                     });
+    //                                 } else {
+    //                                     next();
+    //                                 }
+    //                             }, function () {
+    //                                 result(ResponseJSON(ErrorCodes.SUCCESS, "Successful"));
+    //                             })
+    //                         });
+    //                     }).catch();
+    //                 }
+    //             }
     //         } else {
-    //
+    //             //send not found curve
+    //             result(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Not found curve"));
     //         }
-    //     }
-    // }).catch(err => {
-    //     console.log(err);
-    //     return result(ResponseJSON(ErrorCodes.SUCCESS, "ERROR", err));
+    //     }).catch(err => {
+    //         console.log(err);
+    //         result(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Some err", err));
+    //     });
     // });
 }
 
@@ -581,6 +657,89 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
             callback(err, null)
         })
 }
+
+let processingCurve = function (req, done, dbConnection) {
+    let Curve = dbConnection.Curve;
+    let Dataset = dbConnection.Dataset;
+    let Well = dbConnection.Well;
+    let Project = dbConnection.Project;
+    let Line = dbConnection.Line;
+    let idDataset = req.body.idDataset;
+    let filePath = req.tmpPath;
+    let newCurveName = req.body.curveName;
+    let unit = "US/F";
+    let idDesCurve = req.body.idDesCurve;
+    Dataset.findById(idDataset).then(dataset => {
+        if (dataset) {
+            Well.findById(dataset.idWell).then(well => {
+                Project.findById(well.idProject).then(project => {
+                    if (newCurveName) {
+                        //create new curve
+                        Curve.create({
+                            name: newCurveName,
+                            unit: unit,
+                            initValue: "abc",
+                            idDataset: idDataset
+                        }).then(curve => {
+                            let newPath = hashDir.createPath(config.curveBasePath, req.decoded.username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+                            fs.copy(filePath, newPath, function (err) {
+                                if (err) {
+                                    console.log("ERR COPY FILE : ", err);
+                                }
+                                console.log("Copy file success!");
+                                fs.unlink(filePath);
+                                done(ResponseJSON(ErrorCodes.SUCCESS, "Success", curve));
+                            });
+                        }).catch(err => {
+                            fs.unlink(filePath);
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve existed"));
+                        });
+                    } else {
+                        //overwrite curve
+                        Curve.findById(idDesCurve).then(curve => {
+                            if (curve) {
+                                let newPath = hashDir.createPath(config.curveBasePath, req.decoded.username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+                                fs.copy(filePath, newPath, function (err) {
+                                    if (err) {
+                                        console.log("ERR COPY FILE : ", err);
+                                    }
+                                    console.log("Copy file success!");
+                                    fs.unlink(filePath);
+                                    Line.findAll({where: {idCurve: curve.idCurve}}).then(lines => {
+                                        asyncLoop(lines, function (line, next) {
+                                            if (line) {
+                                                let lineInfo = line.toJSON();
+                                                lineInfo.idCurve = curve.idCurve;
+                                                lineInfo.unit = curve.unit;
+                                                Object.assign(line, lineInfo).save().then(rs => {
+                                                    next();
+                                                }).catch(err => {
+                                                    console.log(err);
+                                                    next();
+                                                });
+                                            } else {
+                                                next();
+                                            }
+                                        }, function () {
+                                            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull"));
+                                        });
+                                    });
+                                });
+                            } else {
+                                fs.unlink(filePath);
+                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve not existed"));
+                            }
+                        });
+                    }
+                });
+            })
+        } else {
+            console.log("No dataset");
+            fs.unlink(filePath);
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Dataset"));
+        }
+    }).catch();
+}
 module.exports = {
     createNewCurve: createNewCurve,
     editCurve: editCurve,
@@ -592,6 +751,7 @@ module.exports = {
     moveCurve: moveCurve,
     updateData: updateData,
     getScale: getScale,
-    calculateScale: calculateScale
+    calculateScale: calculateScale,
+    processingCurve: processingCurve
 };
 

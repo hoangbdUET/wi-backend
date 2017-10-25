@@ -25,8 +25,9 @@ captchas.prototype.delete = function (captcha) {
 var captchaList = new captchas();
 
 setInterval(function () {
+    // console.log(captchaList.lenght);
     Object.keys(captchaList).forEach(function (captcha) {
-        if (Date.now() - captchaList.get(captcha).timestamp > 1000 * 60 * 5) {
+        if (Date.now() - captchaList.get(captcha).timestamp > 1000 * 60) {
             captchaList.delete(captcha);
         }
     });

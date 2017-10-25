@@ -45,7 +45,7 @@ router.post('/login', function (req, res) {
                         var sequelize = user.sequelize;
                         var dbName = 'wi_' + user.username.toLowerCase();
                         sequelize.query('CREATE DATABASE IF NOT EXISTS ' + dbName).then(rs => {
-                            console.log(rs[0].warningStatus);
+                            // console.log(rs[0].warningStatus);
                             if (rs[0].warningStatus != 1) {
                                 var dbConnection = models(dbName);
                                 dbConnection.sequelize.sync()
@@ -115,6 +115,7 @@ router.post('/register', function (req, res) {
                 res.status(401).send(ResponseJSON(ErrorCodes.ERROR_USER_EXISTED, "User existed!"));
             })
     } else {
+        captchaList.delete(req.body.captcha);
         res.status(200).send(ResponseJSON(ErrorCodes.SUCCESS, "Captcha is not correct!", "CAPTCHA"));
     }
 });
