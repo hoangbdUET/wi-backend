@@ -111,7 +111,7 @@ function writeToTmpFile(data, callback) {
     let text = new String();
     let count = 0;
     data.forEachDone(function (row) {
-        text += (count++ + " " + row.x + "\n");
+        text += (count++ + " " + row + "\n");
     }, function () {
         fs.writeFileSync(tmpPath, text);
         callback(tmpPath);
