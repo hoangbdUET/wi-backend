@@ -667,13 +667,13 @@ let processingCurve = function (req, done, dbConnection) {
     let idDataset = req.body.idDataset;
     let filePath = req.tmpPath;
     let newCurveName = req.body.curveName;
-    let unit = "US/F";
+    let unit = req.body.unit ? req.body.unit : "US/F";
     let idDesCurve = req.body.idDesCurve;
     Dataset.findById(idDataset).then(dataset => {
         if (dataset) {
             Well.findById(dataset.idWell).then(well => {
                 Project.findById(well.idProject).then(project => {
-                    if (newCurveName) {
+                    if (newCurveName && newCurveName != 'null') {
                         //create new curve
                         Curve.create({
                             name: newCurveName,

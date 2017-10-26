@@ -9,17 +9,38 @@ const formidable = require('formidable');
 let ResponseJSON = require('../response');
 let errorCodes = require('../../error-codes');
 let hashDir = require('wi-import').hashDir; // hashDir.createPath();
+var Finder = require('fs-finder');
 
 let router = express.Router();
+let saveDir = path.join(__dirname, '../..', config.imageBasePath);
+
 
 router.use(cors());
 
+router.post('/image-list', function (req, res) {
+    let savePath = path.join(saveDir, req.decoded.username);
+    Finder.from(savePath).findFiles('*', function (files) {
+        let rs = [];
+        files.forEachDone(file => {
+            file = file.replace(saveDir, ' ').trim();
+            rs.push(file);
+        }, function () {
+            res.send(ResponseJSON(errorCodes.CODES.SUCCESS, "Successful", rs));
+        });
+
+    });
+});
+
 router.post('/image-upload', imageUpload);
 
-let saveDir = path.join(__dirname, '../..', config.imageBasePath);
 
 function imageUpload(req, res) {
     //console.log("DIR NAME : " + saveDir);
+    let savePath = saveDir + "/" + req.decoded.username;
+    if (!fs.existsSync(savePath)) {
+        fs.mkdirSync(savePath);
+    }
+
     var form = new formidable.IncomingForm();
     form.multiples = false;
     form.uploadDir = config.imageBasePath;
@@ -32,13 +53,13 @@ function imageUpload(req, res) {
 
     });
     form.on('file', function (name, file) {
-        let fileHashDir = hashDir.createPath(saveDir, file.path, file.name);
+        let fileHashDir = hashDir.createPath(savePath, file.path, file.name);
         fs.rename(file.path, fileHashDir, function (err) {
             if (err) {
-                //console.log(err);
+                console.log(err);
                 res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.INTERNAL_SERVER_ERROR, 'Upload image failed!', '/NaN')));
             } else {
-                let fileDir = fileHashDir.replace(saveDir, '');
+                let fileDir = "/" + req.decoded.username + fileHashDir.replace(savePath, '');
                 res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, "Upload success", fileDir)));
             }
         });
