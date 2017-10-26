@@ -113,7 +113,11 @@ function newDbInstance(dbName, callback) {
         'Annotation',
         'RegressionLine',
         'ReferenceCurve',
-        'Ternary'
+        'Ternary',
+        'ImageTrack',
+        'ImageOfTrack',
+        'ObjectTrack',
+        'ObjectOfTrack'
     ];
     models.forEach(function (model) {
         object[model] = sequelize.import(__dirname + '/' + model);
@@ -161,6 +165,16 @@ function newDbInstance(dbName, callback) {
         m.Plot_Track = m.Plot.hasMany(m.Track, {foreignKey: {name: "idPlot", allowNull: false}, onDelete: 'CASCADE'});
         m.Plot_DepthAxis = m.Plot.hasMany(m.DepthAxis, {
             foreignKey: {name: "idPlot", allowNull: false},
+            onDelete: 'CASCADE'
+        });
+        m.Plot.hasMany(m.ImageTrack, {foreignKey: {name: "idPlot", allowNull: false}, onDelete: 'CASCADE'});
+        m.ImageTrack.hasMany(m.ImageOfTrack, {
+            foreignKey: {name: "idImageTrack", allowNull: false},
+            onDelete: 'CASCADE'
+        });
+        m.Plot.hasMany(m.ObjectTrack, {foreignKey: {name: "idPlot", allowNull: false}, onDelete: 'CASCADE'});
+        m.ObjectTrack.hasMany(m.ObjectOfTrack, {
+            foreignKey: {name: "idObjectTrack", allowNull: false},
             onDelete: 'CASCADE'
         });
         m.Plot.hasMany(m.ZoneTrack, {foreignKey: {name: "idPlot", allowNull: false}, onDelete: 'CASCADE'});

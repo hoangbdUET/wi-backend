@@ -62,6 +62,10 @@ function main() {
     var ternaryRouter = require('./server/ternary/ternary.router');
     var inventoryRouter = require('./server/import-from-inventory/index');
     var captchaRouter = require('./server/captcha/captcha');
+    var imageTrackRouter = require('./server/image-track/image-track.router');
+    var imageOfTrackRouter = require('./server/image-of-track/image-of-track.router');
+    var objectTrackRouter = require('./server/object-track/object-track.router');
+    var objectOfTrackRouter = require('./server/object-of-track/object-of-track.router');
 
     var http = require('http').Server(app);
 
@@ -84,39 +88,44 @@ function main() {
     app.use('/', globalFamilyRouter);
     app.use('/', authenRouter);
     app.use('/', captchaRouter.router);
-
+    app.get('/', function (req, res) {
+        res.send("WELCOME TO WI-SYSTEM");
+    });
     var authenticate = require('./server/authenticate/authenticate');
     app.use(authenticate());
     app.use('/', inventoryRouter);
     app.use('/', uploadRouter);
     app.use('/', projectRouter);
     app.use('/', familyRouter);
+    app.use('/', imageUpload);
     app.use('/pal', palRouter);
     app.use('/custom-fill', customFillRouter);
     app.use('/project', wellRouter);
     app.use('/project/well', plotRouter);
     app.use('/project/well', datasetRouter);
-    app.use('/project/well/dataset', curveRouter);//change
+    app.use('/project/well', zoneSetRouter);
+    app.use('/project/well', histogramRouter);
+    app.use('/project/well', crossPlotRouter);
+    app.use('/project/well', referenceCurveRouter);
+    app.use('/project/well/plot', imageTrackRouter);
     app.use('/project/well/plot', depthAxisRouter);
     app.use('/project/well/plot', trackRouter);
-    app.use('/project/well/plot/track', lineRouter);
-    app.use('/project/well/plot/track', shadingRouter);
     app.use('/project/well/plot', zoneTrackRouter);
+    app.use('/project/well/plot', objectTrackRouter);
     app.use('/project/well/plot/track', markerRouter);
+    app.use('/project/well/plot/track', shadingRouter);
+    app.use('/project/well/plot/track', lineRouter);
     app.use('/project/well/plot/track', imageRouter);
     app.use('/project/well/plot/track', annotationRouter);
-    app.use('/project/well', zoneSetRouter);
-    app.use('/project/well/zone-set/', zoneRouter);
-    app.use('/project/well', crossPlotRouter);
+    app.use('/project/well/dataset', curveRouter);//change
+    app.use('/project/well/zone-set', zoneRouter);
     app.use('/project/well/cross-plot', polygonRouter);
     app.use('/project/well/cross-plot', pointSetRouter);
     app.use('/project/well/cross-plot', userDefineLineRouter);
     app.use('/project/well/cross-plot', ternaryRouter);
-    // app.use('/project/well/', discrimRouter);
-    app.use('/project/well/', histogramRouter);
     app.use('/project/well/cross-plot', regressionLineRouter);
-    app.use('/', imageUpload);
-    app.use('/project/well/', referenceCurveRouter);
+    app.use('/project/well/plot/object-track', objectOfTrackRouter);
+    app.use('/project/well/plot/image-track', imageOfTrackRouter);
 
     /**
      * Log manager
@@ -125,9 +134,6 @@ function main() {
     var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});
     app.use(morgan('combined', {stream: accessLogStream}));
 
-    app.get('/', function (req, res) {
-        res.send("WELCOME TO WI-SYSTEM");
-    });
     http.listen(config.port, function () {
         console.log("Listening on port " + config.port);
     });
