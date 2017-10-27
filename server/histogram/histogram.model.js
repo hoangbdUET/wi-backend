@@ -49,17 +49,34 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
                 asyncLoop(myData.families, function (family, next) {
                     findFamilyIdByName(family.name, dbConnection, function (family) {
                         if (family) {
-                            dbConnection.Curve.findOne({where: {idFamily: family.idFamily}}).then(curve => {
-                                if (curve) {
-                                    curve.leftScale = family.minScale;
-                                    curve.rightScale = family.maxScale;
-                                    next(curve);
-                                } else {
-                                    next();
-                                }
-                            }).catch(err => {
-                                console.log(err);
+                            dbConnection.Dataset.findAll({where: {idWell: histogramInfo.idWell}}).then(datasets => {
+                                asyncLoop(datasets, function (dataset, next) {
+                                    // next();
+                                    dbConnection.Curve.findOne({
+                                        where: {
+                                            idFamily: family.idFamily,
+                                            idDataset: dataset.idDataset
+                                        }
+                                    }).then(curve => {
+                                        if (curve) {
+                                            curve.leftScale = family.minScale;
+                                            curve.rightScale = family.maxScale;
+                                            next(curve);
+                                        } else {
+                                            next();
+                                        }
+                                    }).catch(err => {
+                                        console.log(err);
+                                    });
+                                }, function (found) {
+                                    if (found) {
+                                        next(found);
+                                    } else {
+                                        next();
+                                    }
+                                });
                             });
+
                         } else {
                             next();
                         }

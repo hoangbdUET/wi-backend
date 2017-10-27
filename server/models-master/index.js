@@ -14,6 +14,7 @@ const sequelize = new Sequelize(config.dbName, config.user, config.password, {
         min: 0,
         idle: 200
     },
+    operatorsAliases: Sequelize.Op,
     storage: config.storage
 });
 sequelize.sync()
