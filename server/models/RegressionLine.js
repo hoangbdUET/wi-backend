@@ -22,7 +22,7 @@ module.exports = function (sequelize, DataTypes) {
             defaultValue:true
         },
         regType:{
-            type:DataTypes.ENUM('Linear', 'Exponent', 'Powerwer'),
+            type:DataTypes.ENUM('Linear', 'Exponent', 'Power'),
             allowNull:false,
             defaultValue:'Linear'
         },
