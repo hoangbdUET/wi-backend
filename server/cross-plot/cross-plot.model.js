@@ -51,13 +51,23 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
                     asyncLoop(myData.curveX.families, function (family, next) {
                         findFamilyIdByName(family.name, dbConnection, function (idFamily) {
                             if (idFamily) {
-                                dbConnection.Curve.findOne({where: {idFamily: idFamily}}).then(curve => {
-                                    if (curve) {
-                                        next(curve);
-                                    } else {
-                                        next();
-                                    }
-                                }).catch();
+                                dbConnection.Dataset.findAll({where: {idWell: crossPlotInfo.idWell}}).then(datasets => {
+                                    asyncLoop(datasets, function (dataset, next) {
+                                        dbConnection.Curve.findOne({where: {idFamily: idFamily}}).then(curve => {
+                                            if (curve) {
+                                                next(curve);
+                                            } else {
+                                                next();
+                                            }
+                                        }).catch();
+                                    }, function (found) {
+                                        if (found) {
+                                            next(found);
+                                        } else {
+                                            next();
+                                        }
+                                    });
+                                });
                             } else {
                                 next();
                             }
