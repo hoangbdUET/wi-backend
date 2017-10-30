@@ -698,6 +698,7 @@ let processingCurve = function (req, done, dbConnection) {
                         //overwrite curve
                         Curve.findById(idDesCurve).then(curve => {
                             if (curve) {
+                                let lineResponse = [];
                                 let newPath = hashDir.createPath(config.curveBasePath, req.decoded.username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
                                 fs.copy(filePath, newPath, function (err) {
                                     if (err) {
@@ -712,6 +713,7 @@ let processingCurve = function (req, done, dbConnection) {
                                                 lineInfo.idCurve = curve.idCurve;
                                                 lineInfo.unit = curve.unit;
                                                 Object.assign(line, lineInfo).save().then(rs => {
+                                                    lineResponse.push(line);
                                                     next();
                                                 }).catch(err => {
                                                     console.log(err);
@@ -721,7 +723,7 @@ let processingCurve = function (req, done, dbConnection) {
                                                 next();
                                             }
                                         }, function () {
-                                            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull"));
+                                            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", lineResponse));
                                         });
                                     });
                                 });
