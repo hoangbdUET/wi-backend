@@ -45,7 +45,13 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
                 let idWell = crossPlotInfo.idWell;
                 PointSet.create({
                     idCrossPlot: idCrossPlot,
-                    idWell: idWell
+                    idWell: idWell,
+                    intervalDepthTop: well.topDepth,
+                    intervalDepthBottom: well.bottomDepth,
+                    majorX: 5,
+                    majorY: 5,
+                    minorX: 5,
+                    minorY: 5
                 }).then(pointSet => {
                     let idPointSet = pointSet.idPointSet;
                     asyncLoop(myData.curveX.families, function (family, next) {
