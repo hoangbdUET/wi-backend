@@ -103,25 +103,23 @@ router.post('/login', function (req, res) {
 // });
 router.post('/register', function (req, res) {
     req.body.password = md5(req.body.password);
-    if (captchaList.get(req.body.captcha)) {
-        captchaList.delete(req.body.captcha);
-        User.create({
-            username: req.body.username,
-            password: req.body.password,
-            fullname: req.body.fullname,
-            email: req.body.email
-        })
-            .then(function (result) {
-                //Create token then send
-                var token = jwt.sign(req.body, 'secretKey', {expiresIn: '1h'});
-                res.send(ResponseJSON(ErrorCodes.SUCCESS, "Success", token));
-            })
-            .catch(function (err) {
-                res.status(401).send(ResponseJSON(ErrorCodes.ERROR_USER_EXISTED, "User existed!"));
-            })
-    } else {
-        // captchaList.delete(req.body.captcha);
-        res.status(200).send(ResponseJSON(ErrorCodes.SUCCESS, "Captcha is not correct!", "CAPTCHA"));
-    }
+    User.create({
+        username: req.body.username,
+        password: req.body.password,
+        fullname: req.body.fullname,
+        email: req.body.email
+    }).then(function (result) {
+        //Create token then send
+        var token = jwt.sign(req.body, 'secretKey', {expiresIn: '1h'});
+        res.send(ResponseJSON(ErrorCodes.SUCCESS, "Success", token));
+    }).catch(function (err) {
+        res.status(401).send(ResponseJSON(ErrorCodes.ERROR_USER_EXISTED, "User existed!"));
+    })
+    // if (captchaList.get(req.body.captcha)) {
+    //     captchaList.delete(req.body.captcha);
+    // } else {
+    //     // captchaList.delete(req.body.captcha);
+    //     // res.status(200).send(ResponseJSON(ErrorCodes.SUCCESS, "Captcha is not correct!", "CAPTCHA"));
+    // }
 });
 module.exports = router;

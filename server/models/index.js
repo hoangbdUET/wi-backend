@@ -77,6 +77,7 @@ function newDbInstance(dbName, callback) {
             min: 0,
             idle: 200
         },
+        operatorsAliases: Sequelize.Op,
         storage: config.storage
     });
     sequelize.sync()
