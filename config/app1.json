@@ -3,8 +3,8 @@
     "dialect":"mysql",  // "postgres" for PostgreSql, "mysql" for MySql, "sqlite" for sqLite
     "host":"localhost",
     "port":3306,
-    "user":"wi_backend",
-    "password":"123456",
+    "user":"root",
+    "password":"qwertyui",
     "logging":false,     //Logging all database query if is set "true"
     "storage":"/tmp/wi_backend.sqlite", //Path to database.sqlite (used for sqlite only)
     "dbName":"wi_backend"
@@ -12,7 +12,7 @@
   "Application":{
     "port":3000
   },
-  "curveBasePath": "D:/tmp",
+  "curveBasePath": "../data",
   "imageBasePath": "wi-images"
 }
 
