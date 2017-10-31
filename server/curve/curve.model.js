@@ -664,6 +664,9 @@ let processingCurve = function (req, done, dbConnection) {
     let Well = dbConnection.Well;
     let Project = dbConnection.Project;
     let Line = dbConnection.Line;
+    let Histogram = dbConnection.Histogram;
+    let CrossPlot = dbConnection.CrossPlot;
+    let PointSet = dbConnection.PointSet;
     let idDataset = req.body.idDataset;
     let filePath = req.tmpPath;
     let newCurveName = req.body.curveName;
@@ -698,7 +701,10 @@ let processingCurve = function (req, done, dbConnection) {
                         //overwrite curve
                         Curve.findById(idDesCurve).then(curve => {
                             if (curve) {
-                                let lineResponse = [];
+                                let response = new Object();
+                                response.lines = new Array();
+                                response.histograms = new Array();
+                                response.pointsets = new Array();
                                 let newPath = hashDir.createPath(config.curveBasePath, req.decoded.username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
                                 fs.copy(filePath, newPath, function (err) {
                                     if (err) {
@@ -713,7 +719,7 @@ let processingCurve = function (req, done, dbConnection) {
                                                 lineInfo.idCurve = curve.idCurve;
                                                 lineInfo.unit = curve.unit;
                                                 Object.assign(line, lineInfo).save().then(rs => {
-                                                    lineResponse.push(line);
+                                                    response.lines.push(line);
                                                     next();
                                                 }).catch(err => {
                                                     console.log(err);
@@ -723,7 +729,29 @@ let processingCurve = function (req, done, dbConnection) {
                                                 next();
                                             }
                                         }, function () {
-                                            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", lineResponse));
+                                            Histogram.findAll({where: {idCurve: curve.idCurve}}).then(histograms => {
+                                                asyncLoop(histograms, function (histogram, next) {
+                                                    if (histogram) {
+                                                        response.histograms.push(histogram.toJSON());
+                                                        next();
+                                                    } else {
+                                                        next();
+                                                    }
+                                                }, function () {
+                                                    PointSet.findAll({where: {$or: [{idCurveX: curve.idCurve}, {idCurveY: curve.idCurve}, {idCurveZ: curve.idCurve}]}}).then(crossplots => {
+                                                        asyncLoop(crossplots, function (crossplot, next) {
+                                                            if (crossplot) {
+                                                                response.pointsets.push(crossplot.toJSON());
+                                                                next();
+                                                            } else {
+                                                                next();
+                                                            }
+                                                        }, function () {
+                                                            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", response));
+                                                        });
+                                                    });
+                                                });
+                                            })
                                         });
                                     });
                                 });
