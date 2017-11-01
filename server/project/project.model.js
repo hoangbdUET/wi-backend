@@ -102,7 +102,11 @@ function getProjectFullInfo(project, done, dbConnection) {
             include: [{
                 model: dbConnection.Dataset,
                 include: [{
-                    model: dbConnection.Curve
+                    model: dbConnection.Curve,
+                    include: [{
+                        model: dbConnection.Family,
+                        as: "LineProperty"
+                    }]
                 }]
             }, {
                 model: dbConnection.Plot
