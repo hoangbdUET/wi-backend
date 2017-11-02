@@ -18,8 +18,8 @@ module.exports = function (sequelize, DataTypes) {
         status: {
             type: DataTypes.STRING(100),
             allowNull: true,
-            // defaultValue: "Inactive"
-            defaultValue: "Actived"
+            defaultValue: "Inactive"
+            // defaultValue: "Actived"
         },
         /*
         1 : Administrator
