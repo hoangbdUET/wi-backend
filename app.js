@@ -66,6 +66,7 @@ function main() {
     var imageOfTrackRouter = require('./server/image-of-track/image-of-track.router');
     var objectTrackRouter = require('./server/object-track/object-track.router');
     var objectOfTrackRouter = require('./server/object-of-track/object-of-track.router');
+    var userRouter = require('./server/user/user.router');
 
     var http = require('http').Server(app);
 
@@ -93,6 +94,7 @@ function main() {
     });
     var authenticate = require('./server/authenticate/authenticate');
     app.use(authenticate());
+    app.use('/', userRouter);
     app.use('/', inventoryRouter);
     app.use('/', uploadRouter);
     app.use('/', projectRouter);
