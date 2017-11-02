@@ -168,7 +168,7 @@ function editCrossPlot(crossPlotInfo, done, dbConnection) {
     CrossPlot.findById(crossPlotInfo.idCrossPlot)
         .then(function (crossPlot) {
             if (crossPlot) {
-                crossPlot.discriminator = JSON.stringify(crossPlot.discriminator);
+                crossPlotInfo.discriminator = JSON.stringify(crossPlotInfo.discriminator);
                 Object.assign(crossPlot, crossPlotInfo);
                 crossPlot.save()
                     .then(function () {
