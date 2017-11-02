@@ -1,4 +1,6 @@
 "use strict";
+var modelMaster = require('../models-master/index');
+var User = modelMaster.User;
 var Sequelize = require('sequelize');
 var config = require('config').Database;
 var configCommon = require('config');
@@ -41,22 +43,25 @@ setInterval(function () {
         }
     });
 }, 1000 * 60);
-
-module.exports = function (dbName, callback) {
-    var cacheItem = __CACHE.get(dbName);
-    if (cacheItem) {
-        cacheItem.timestamp = Date.now();
-        return cacheItem.instance;
+module.exports = function (dbName, callback, isDelete) {
+    if (isDelete) {
+        return __CACHE.remove(dbName);
     } else {
-        // No existing dbInstance in the __CACHE ! Create a new one
-        cacheItem = {
-            instance: null,
-            timestamp: Date.now()
+        var cacheItem = __CACHE.get(dbName);
+        if (cacheItem) {
+            cacheItem.timestamp = Date.now();
+            return cacheItem.instance;
+        } else {
+            // No existing dbInstance in the __CACHE ! Create a new one
+            cacheItem = {
+                instance: null,
+                timestamp: Date.now()
+            }
+            cacheItem.instance = newDbInstance(dbName, callback);
+            __CACHE.put(dbName, cacheItem);
+            console.log("START CONNECT TO : ", dbName);
+            return cacheItem.instance;
         }
-        cacheItem.instance = newDbInstance(dbName, callback);
-        __CACHE.put(dbName, cacheItem);
-        console.log("START CONNECT TO : ", dbName);
-        return cacheItem.instance;
     }
 }
 

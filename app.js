@@ -92,6 +92,7 @@ function main() {
     app.get('/', function (req, res) {
         res.send("WELCOME TO WI-SYSTEM");
     });
+
     var authenticate = require('./server/authenticate/authenticate');
     app.use(authenticate());
     app.use('/', userRouter);

@@ -62,7 +62,9 @@ function getProjectList(owner, done, dbConnection) {
     Project.all()
         .then(function (projects) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get List Project success", projects));
-        });
+        }).catch(err => {
+        // console.log(err);
+    });
 }
 
 function deleteProject(projectInfo, done, dbConnection) {

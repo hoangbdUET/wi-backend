@@ -17,8 +17,17 @@ module.exports = function () {
                     req.dbConnection = models('wi_' + decoded.username.toLowerCase(), (err) => {
                         if (err) return res.status(401).json({code: 401, success: false, message: 'Some err'});
                     });
-                    req.decoded = decoded;
-                    next();
+                    if (req.dbConnection) {
+                        req.decoded = decoded;
+                        next();
+                    } else {
+                        return res.status(401).json({
+                            code: 401,
+                            success: false,
+                            message: 'You are not actived!',
+                            reason: 'You are not actived!'
+                        });
+                    }
                 }
             });
 
