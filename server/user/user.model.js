@@ -44,7 +44,9 @@ function editUser(userInfo, done) {
     // userInfo.password = md5(userInfo.password);
     User.findById(userInfo.idUser).then(user => {
         if (user) {
-            userInfo.password = md5(userInfo.newPassword);
+            if (userInfo.newPassword) {
+                userInfo.password = md5(userInfo.newPassword);
+            }
             Object.assign(user, userInfo).save().then(rs => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
             }).catch(err => {
