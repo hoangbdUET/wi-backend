@@ -46,6 +46,15 @@ module.exports = function (sequelize, DataTypes) {
         discriminator: {
             type: DataTypes.TEXT,
             allowNull: true
+        },
+        isDefineDepthColors: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
+        axisColors: {
+            type: DataTypes.TEXT,
+            allowNull: true
         }
     });
 };
