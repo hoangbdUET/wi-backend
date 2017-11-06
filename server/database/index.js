@@ -6,6 +6,7 @@ var Sequelize = require("sequelize");
 var bodyParser = require("body-parser");
 var config = require("config").Database;
 var models = require("../models");
+var updateFamilyModel = require('../family/global.family.models');
 // console.log(config);
 router.use(bodyParser.json());
 
@@ -43,9 +44,12 @@ router.post('/database/update', function (req, res) {
     sequelize.query("CREATE DATABASE IF NOT EXISTS " + dbName).then(rs => {
         if (rs[0].warningStatus == 0) {
             models(dbName).sequelize.sync().then(() => {
-                console.log("CREATED NEW DATABASE ", dbName);
-                response.content = rs;
-                res.status(200).send(response);
+                updateFamilyModel.syncFamilyData({username: dbName.substring(3).toLowerCase()}, function (result) {
+                    console.log("CREATED NEW DATABASE ", dbName);
+                    response.content = rs;
+                    res.status(200).send(response);
+                    console.log("Successfull update family for user : ", dbName);
+                });
             }).catch(function (err) {
                 console.log(err);
                 response.code = 500;
@@ -100,6 +104,9 @@ router.delete('/database/update', function (req, res) {
         if (rs[0].warningStatus == 0) {
             console.log("DROP DATABASE ", dbName);
             response.content = rs;
+            models(dbName, function () {
+
+            }, true);
             res.status(200).send(response);
         } else {
             console.log("NO DATABASE EXISTS ", dbName);

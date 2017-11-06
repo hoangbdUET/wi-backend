@@ -12,7 +12,8 @@ module.exports = function () {
                     return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Authentication failed", "Authentication failed"));
                 } else {
                     req.dbConnection = models('wi_' + decoded.username.toLowerCase(), (err) => {
-                        if (err) return res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Some err", "Some err"));
+                        console.log(err);
+                        if (err) return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Some err", "Some err"));
                     });
                     if (req.dbConnection) {
                         req.decoded = decoded;
