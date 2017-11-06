@@ -9,7 +9,7 @@ module.exports = function () {
         if (token) {
             jwt.verify(token, 'secretKey', function (err, decoded) {
                 if (err) {
-                    return res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Authentication failed", "Authentication failed"));
+                    return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Authentication failed", "Authentication failed"));
                 } else {
                     req.dbConnection = models('wi_' + decoded.username.toLowerCase(), (err) => {
                         if (err) return res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Some err", "Some err"));
@@ -18,7 +18,7 @@ module.exports = function () {
                         req.decoded = decoded;
                         next();
                     } else {
-                        return res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "You are not activated", "You are not activated"));
+                        return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "You are not activated", "You are not activated"));
                     }
                 }
             });
@@ -27,7 +27,7 @@ module.exports = function () {
             // req.decoded = decoded;
             next();//TODO*/
         } else {
-            return res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No token provided"));
+            return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No token provided"));
         }
     }
 };
