@@ -67,6 +67,7 @@ function main() {
     var objectTrackRouter = require('./server/object-track/object-track.router');
     var objectOfTrackRouter = require('./server/object-of-track/object-of-track.router');
     var userRouter = require('./server/user/user.router');
+    var databaseRouter = require('./server/database/index');
 
     var http = require('http').Server(app);
 
@@ -92,6 +93,7 @@ function main() {
     app.get('/', function (req, res) {
         res.send("WELCOME TO WI-SYSTEM");
     });
+    app.use('/', databaseRouter);
     app.use('/', userRouter);
     var authenticate = require('./server/authenticate/authenticate');
     app.use(authenticate());
