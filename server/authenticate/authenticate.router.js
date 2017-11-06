@@ -34,13 +34,13 @@ router.post('/login', function (req, res) {
     User.findOne({where: {username: req.body.username}})
         .then(function (user) {
             if (!user) {
-                res.status(401).send(ResponseJSON(ErrorCodes.ERROR_USER_NOT_EXISTS, "User not exist"));
+                res.send(ResponseJSON(ErrorCodes.ERROR_USER_NOT_EXISTS, "USER_NOT_EXISTS"));
             } else {
                 if (user.password != req.body.password) {
-                    res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Wrong password. Authenticate fail"));
+                    res.send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "WRONG_PASSWORD"));
                 } else {
                     if (user.status == "Inactive") {
-                        res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Hi, " + user.username + "! Yor are not actived!"));
+                        res.send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "NOT_ACTIVATED"));
                     } else if (user.status == "Actived") {
                         var sequelize = user.sequelize;
                         var dbName = 'wi_' + user.username.toLowerCase();
@@ -52,7 +52,7 @@ router.post('/login', function (req, res) {
                                     .then(function () {
                                         updateFamilyModel.syncFamilyData({username: user.username.toLowerCase()}, function (result) {
                                             var token = jwt.sign(req.body, 'secretKey', {expiresIn: '24h'});
-                                            res.status(200).send(ResponseJSON(ErrorCodes.SUCCESS, "Success", token));
+                                            res.send(ResponseJSON(ErrorCodes.SUCCESS, "Success", token));
                                             console.log("Successfull update family for user : ", dbName);
                                         });
                                     })
@@ -61,12 +61,12 @@ router.post('/login', function (req, res) {
                                     });
                             } else {
                                 var token = jwt.sign(req.body, 'secretKey', {expiresIn: '24h'});
-                                res.status(200).send(ResponseJSON(ErrorCodes.SUCCESS, "Success", token));
+                                res.send(ResponseJSON(ErrorCodes.SUCCESS, "Success", token));
                             }
                         });
 
                     } else {
-                        res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Hi, " + user.username + "! Yor are not actived!"));
+                        res.send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "NOT_ACTIVATED"));
                     }
                 }
             }
@@ -113,7 +113,7 @@ router.post('/register', function (req, res) {
         var token = jwt.sign(req.body, 'secretKey', {expiresIn: '1h'});
         res.send(ResponseJSON(ErrorCodes.SUCCESS, "Success", token));
     }).catch(function (err) {
-        res.status(401).send(ResponseJSON(ErrorCodes.ERROR_USER_EXISTED, "User existed!"));
+        res.send(ResponseJSON(ErrorCodes.ERROR_USER_EXISTED, "USER_EXISTED"));
     })
     // if (captchaList.get(req.body.captcha)) {
     //     captchaList.delete(req.body.captcha);

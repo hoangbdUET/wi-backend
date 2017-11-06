@@ -1,5 +1,7 @@
 var jwt = require('jsonwebtoken');
 var models = require('../models');
+var ErrorCodes = require('../../error-codes').CODES;
+var ResponseJSON = require('../response');
 
 module.exports = function () {
     return function (req, res, next) {
@@ -7,26 +9,16 @@ module.exports = function () {
         if (token) {
             jwt.verify(token, 'secretKey', function (err, decoded) {
                 if (err) {
-                    return res.status(401).json({
-                        code: 401,
-                        success: false,
-                        message: 'Failed to authenticate',
-                        reason: 'Failed to authenticate'
-                    });
+                    return res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Authentication failed", "Authentication failed"));
                 } else {
                     req.dbConnection = models('wi_' + decoded.username.toLowerCase(), (err) => {
-                        if (err) return res.status(401).json({code: 401, success: false, message: 'Some err'});
+                        if (err) return res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Some err", "Some err"));
                     });
                     if (req.dbConnection) {
                         req.decoded = decoded;
                         next();
                     } else {
-                        return res.status(401).json({
-                            code: 401,
-                            success: false,
-                            message: 'You are not actived!',
-                            reason: 'You are not actived!'
-                        });
+                        return res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "You are not activated", "You are not activated"));
                     }
                 }
             });
@@ -35,11 +27,7 @@ module.exports = function () {
             // req.decoded = decoded;
             next();//TODO*/
         } else {
-            return res.status(401).send({
-                code: 401,
-                success: false,
-                message: 'No token provided.'
-            })
+            return res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No token provided"));
         }
     }
 };
