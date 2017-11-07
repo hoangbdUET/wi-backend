@@ -7,7 +7,7 @@ var Curve = models.Curve;
 var Well = models.Well;
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
-let asyncLoop = require('node-async-loop');
+let asyncLoop = require('async/each');
 
 let findFamilyIdByName = function (familyName, dbConnection, callback) {
     dbConnection.Family.findOne({where: {name: familyName}}).then(family => {

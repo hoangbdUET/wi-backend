@@ -22,7 +22,6 @@ sequelize.sync()
         console.log(err);
     });
 var models = [
-    'User',
     'Family',
     'FamilyCondition'
 ];

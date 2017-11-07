@@ -6,7 +6,7 @@ var config = require('config');
 var exporter = require('./export');
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
-var asyncLoop = require('node-async-loop');
+var asyncLoop = require('async/each');
 // var FamilyCondition = models.FamilyCondition;
 var fs = require('fs-extra');
 

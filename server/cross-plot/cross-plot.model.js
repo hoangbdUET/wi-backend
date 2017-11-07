@@ -1,6 +1,6 @@
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
-var asyncLoop = require('node-async-loop');
+var asyncLoop = require('async/each');
 
 let findFamilyIdByName = function (familyName, dbConnection, callback) {
     dbConnection.Family.findOne({where: {name: familyName}}).then(family => {

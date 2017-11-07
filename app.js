@@ -5,13 +5,6 @@ var familyUpdate = require('./server/family/GlobalFamilyUpdater');
 var familyConditionUpdate = require('./server/family/GlobalFamilyConditionUpdater');
 var models = require("./server/models-master");
 familyUpdate(function () {
-    let User = models.User;
-    let Admin = {
-        username: "admin",
-        password: "c4ca4238a0b923820dcc509a6f75849b",
-        role: "1"
-    }
-    User.findOrCreate({where: {username: "admin"}, defaults: Admin}).then().catch();
     familyConditionUpdate(function () {
         main();
     });
@@ -29,7 +22,6 @@ function main() {
     var fullConfig = require('config');
     var config = fullConfig.Application;
 
-    var authenRouter = require('./server/authenticate/authenticate.router');
     var projectRouter = require('./server/project/project.router');
     var wellRouter = require('./server/well/well.router');
     var plotRouter = require('./server/plot/plot.router');
@@ -61,25 +53,13 @@ function main() {
     var referenceCurveRouter = require('./server/reference-curve/reference-curve.router');
     var ternaryRouter = require('./server/ternary/ternary.router');
     var inventoryRouter = require('./server/import-from-inventory/index');
-    var captchaRouter = require('./server/captcha/captcha');
     var imageTrackRouter = require('./server/image-track/image-track.router');
     var imageOfTrackRouter = require('./server/image-of-track/image-of-track.router');
     var objectTrackRouter = require('./server/object-track/object-track.router');
     var objectOfTrackRouter = require('./server/object-of-track/object-of-track.router');
-    var userRouter = require('./server/user/user.router');
     var databaseRouter = require('./server/database/index');
 
     var http = require('http').Server(app);
-
-    /*
-    var io = require('socket.io')(http);
-    io.on('connection', function (socket) {
-        console.log('Connecting');
-    });
-
-    lineRouter.registerHooks(io);
-    projectRouter.registerHooks(io);
-    */
     app.use(cors());
     /**
      Attach all routers to app
@@ -88,13 +68,10 @@ function main() {
     app.use(express.static(path.join(__dirname, '/server/plot/plot-template/')));
     app.use(express.static(path.join(__dirname, fullConfig.imageBasePath)));
     app.use('/', globalFamilyRouter);
-    app.use('/', authenRouter);
-    app.use('/', captchaRouter.router);
     app.get('/', function (req, res) {
         res.send("WELCOME TO WI-SYSTEM");
     });
     app.use('/', databaseRouter);
-    app.use('/', userRouter);
     var authenticate = require('./server/authenticate/authenticate');
     app.use(authenticate());
     app.use('/', inventoryRouter);
