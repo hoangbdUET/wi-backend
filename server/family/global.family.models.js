@@ -4,7 +4,7 @@ var models = require('../models-master');
 var Family = models.Family;
 var FamilyCondition = models.FamilyCondition;
 var userModels = require('../models');
-var asyncLoop = require('node-async-loop');
+var asyncLoop = require('async/each');
 
 function createNewFamily(familyInfo, done) {
     Family.sync()
