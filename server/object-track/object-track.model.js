@@ -42,7 +42,7 @@ function editObjectTrack(info, done, dbConnection) {
 
 function deleteObjectTrack(info, done, dbConnection) {
     let Model = dbConnection.ObjectTrack;
-    Model.destroy({where: {idObjectOfTrack: info.idObjectTrack}}).then(result => {
+    Model.destroy({where: {idObjectTrack: info.idObjectTrack}}).then(result => {
         if (result > 0) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Delete ObjectTrack successful", info));
         } else {
