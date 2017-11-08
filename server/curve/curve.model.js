@@ -731,7 +731,7 @@ let processingCurve = function (req, done, dbConnection) {
                                                 next();
                                             }
                                         }, function () {
-                                            Histogram.findAll({where: {idCurve: curve.idCurve}}).then(histograms => {
+                                            Histogram.findAll({where: {idCurve: parseInt(curve.idCurve)}}).then(histograms => {
                                                 asyncLoop(histograms, function (histogram, next) {
                                                     if (histogram) {
                                                         response.histograms.push(histogram.toJSON());
@@ -740,7 +740,14 @@ let processingCurve = function (req, done, dbConnection) {
                                                         next();
                                                     }
                                                 }, function () {
-                                                    PointSet.findAll({where: {$or: [{idCurveX: curve.idCurve}, {idCurveY: curve.idCurve}, {idCurveZ: curve.idCurve}]}}).then(crossplots => {
+                                                    let Sequelize = require('sequelize');
+                                                    PointSet.findAll({
+                                                        where: Sequelize.or(
+                                                            {idCurveX: curve.idCurve},
+                                                            {idCurveY: curve.idCurve},
+                                                            {idCurveZ: curve.idCurve}
+                                                        )
+                                                    }).then(crossplots => {
                                                         asyncLoop(crossplots, function (crossplot, next) {
                                                             if (crossplot) {
                                                                 response.pointsets.push(crossplot.toJSON());
