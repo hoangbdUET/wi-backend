@@ -7,10 +7,11 @@ var bodyParser = require("body-parser");
 var config = require("config").Database;
 var models = require("../models");
 var updateFamilyModel = require('../family/global.family.models');
+var updateOverlayLineModel = require('../overlay-line/overlay-line.model');
 // console.log(config);
 router.use(bodyParser.json());
 
-router.post('/database/test', function (req, res) {
+router.post('/database/test.js', function (req, res) {
     // console.log(req);
     res.send("Hello Tan");
 });
@@ -47,8 +48,15 @@ router.post('/database/update', function (req, res) {
                 updateFamilyModel.syncFamilyData({username: dbName.substring(3).toLowerCase()}, function (result) {
                     console.log("CREATED NEW DATABASE ", dbName);
                     response.content = rs;
-                    res.status(200).send(response);
                     console.log("Successfull update family for user : ", dbName);
+                    updateOverlayLineModel.syncOverlayLine(dbName.substring(3).toLowerCase(), function (err, success) {
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            console.log("Overlay line sync : ", success);
+                        }
+                    });
+                    res.status(200).send(response);
                 });
             }).catch(function (err) {
                 console.log(err);

@@ -3,10 +3,13 @@
  */
 var familyUpdate = require('./server/family/GlobalFamilyUpdater');
 var familyConditionUpdate = require('./server/family/GlobalFamilyConditionUpdater');
+var overlayLineUpdate = require('./server/overlay-line/overlay-line.update');
 var models = require("./server/models-master");
 familyUpdate(function () {
     familyConditionUpdate(function () {
-        main();
+        overlayLineUpdate(function () {
+            main();
+        });
     });
 })
 
@@ -58,6 +61,7 @@ function main() {
     var objectTrackRouter = require('./server/object-track/object-track.router');
     var objectOfTrackRouter = require('./server/object-of-track/object-of-track.router');
     var databaseRouter = require('./server/database/index');
+    var overlayLineRouter = require('./server/overlay-line/overlay-line.router');
 
     var http = require('http').Server(app);
     app.use(cors());
@@ -105,6 +109,7 @@ function main() {
     app.use('/project/well/cross-plot', userDefineLineRouter);
     app.use('/project/well/cross-plot', ternaryRouter);
     app.use('/project/well/cross-plot', regressionLineRouter);
+    app.use('/project/well/cross-plot', overlayLineRouter);
     app.use('/project/well/plot/object-track', objectOfTrackRouter);
     app.use('/project/well/plot/image-track', imageOfTrackRouter);
 

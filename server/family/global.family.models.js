@@ -122,7 +122,6 @@ let syncFamily = function (userDbConnection, callback) {
             callback(err, null);
         });
     }).catch(err => {
-        console.log(err);
         callback(err, null);
     })
 }
@@ -136,6 +135,7 @@ let syncFamilyCondition = function (userDbConnection, callback) {
                 userDbConnection.FamilyCondition.create(globalFamilyCondition).then(() => {
                     next();
                 }).catch(err => {
+                    console.log(err);
                     next(err);
                 });
             }, function (err) {
