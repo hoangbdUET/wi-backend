@@ -53,9 +53,18 @@ function deleteImageOfTrack(info, done, dbConnection) {
     });
 }
 
+function getListImage(imageInfo, done, dbConnection) {
+    var Model = dbConnection.ImageOfTrack;
+    Model.findAll({where: {idImageTrack: imageInfo.idImageTrack}}).then(images => {
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Get image success", images));
+    }).catch(err => {
+        done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Cant get list", err.message));
+    });
+}
 module.exports = {
     createImageOfTrack: createImageOfTrack,
     infoImageOfTrack: infoImageOfTrack,
     editImageOfTrack: editImageOfTrack,
-    deleteImageOfTrack: deleteImageOfTrack
+    deleteImageOfTrack: deleteImageOfTrack,
+    getListImage: getListImage
 }

@@ -29,4 +29,10 @@ router.delete('/image/delete', function (req, res) {
     }, req.dbConnection)
 });
 
+router.post('/image/list', function (req, res) {
+    Model.getListImage(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection);
+});
+
 module.exports = router;
