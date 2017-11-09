@@ -6,6 +6,19 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             primaryKey: true
         },
+        name: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        fill: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        showName: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+            defaultValue: false
+        },
         imageUrl: {
             type: DataTypes.STRING,
             allowNull: false
