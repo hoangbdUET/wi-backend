@@ -57,6 +57,11 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING(200),
             allowNull: false,
             defaultValue: 'zz'
+        },
+        width: {
+            type: DataTypes.FLOAT,
+            allowNull: false,
+            defaultValue: 0.375
         }
     });
 };
