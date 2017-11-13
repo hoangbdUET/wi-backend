@@ -4,8 +4,6 @@ var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 var fs = require('fs');
 var asyncLoop = require('async/each');
-var async = require('asyncawait/async');
-var await = require('asyncawait/await');
 var path = require('path');
 
 function createNewTrack(trackInfo, done, dbConnection) {
