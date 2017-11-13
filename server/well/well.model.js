@@ -17,14 +17,16 @@ function createNewWell(wellInfo, done, dbConnection) {
                     name: wellInfo.name,
                     topDepth: wellInfo.topDepth,
                     bottomDepth: wellInfo.bottomDepth,
-                    step: wellInfo.step
+                    step: wellInfo.step,
+                    groupName: wellInfo.groupName
                 });
                 well.save()
                     .then(function (well) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new well success", well.toJSON()));
                     })
                     .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Well name existed"));
+                        console.log(err);
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.errors.message));
                     });
             },
             function () {
@@ -86,6 +88,7 @@ function editWell(wellInfo, done, dbConnection, username) {
                     well.topDepth = wellInfo.topDepth;
                     well.bottomDepth = wellInfo.bottomDepth;
                     well.step = wellInfo.step;
+                    well.groupName = wellInfo.groupName;
                     well.save()
                         .then(function () {
                             done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Well success", wellInfo));
