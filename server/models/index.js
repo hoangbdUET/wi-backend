@@ -124,7 +124,8 @@ function newDbInstance(dbName, callback) {
         'ImageOfTrack',
         'ObjectTrack',
         'ObjectOfTrack',
-        'OverlayLine'
+        'OverlayLine',
+        'Groups'
     ];
     models.forEach(function (model) {
         object[model] = sequelize.import(__dirname + '/' + model);
@@ -137,6 +138,19 @@ function newDbInstance(dbName, callback) {
                 allowNull: false,
                 unique: "name-idProject"
             }, onDelete: 'CASCADE'
+        });
+        m.Project.hasMany(m.Groups, {
+            foreignKey: {
+                name: "idProject",
+                allowNull: false,
+                unique: "name-idProject"
+            }, onDelete: 'CASCADE'
+        });
+        m.Groups.hasMany(m.Well, {
+            foreignKey: {
+                name: "idGroup",
+                allowNull: true
+            }
         });
         m.Well_Dataset = m.Well.hasMany(m.Dataset, {
             foreignKey: {
@@ -279,21 +293,23 @@ function newDbInstance(dbName, callback) {
     var Well = object.Well;
     var Project = object.Project;
     Curve.hook('afterCreate', function (curve, options) {
-        ((curveName, unit) => {
-            FamilyCondition.findAll()
-                .then(conditions => {
-                    var result = conditions.find(function (aCondition) {
-                        return new RegExp("^" + aCondition.curveName + "$").test(curveName) && new RegExp("^" + aCondition.unit + "$").test(unit);
-                    });
-                    if (!result) {
-                        return;
-                    }
-                    result.getFamily()
-                        .then(aFamily => {
-                            curve.setLineProperty(aFamily);
-                        })
-                })
-        })(curve.name, curve.unit);
+        if (!curve.idFamily) {
+            ((curveName, unit) => {
+                FamilyCondition.findAll()
+                    .then(conditions => {
+                        var result = conditions.find(function (aCondition) {
+                            return new RegExp("^" + aCondition.curveName + "$").test(curveName) && new RegExp("^" + aCondition.unit + "$").test(unit);
+                        });
+                        if (!result) {
+                            return;
+                        }
+                        result.getFamily()
+                            .then(aFamily => {
+                                curve.setLineProperty(aFamily);
+                            })
+                    })
+            })(curve.name, curve.unit);
+        }
     });
     let username = dbName.substring(dbName.indexOf("_") + 1);
     Curve.hook('beforeDestroy', function (curve, options) {

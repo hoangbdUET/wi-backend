@@ -21,11 +21,6 @@ module.exports = function (sequelize, DataTypes) {
         step: {
             type: DataTypes.STRING(250),
             allowNull: false
-        },
-        groupName: {
-            type: DataTypes.STRING(250),
-            allowNull: true,
-            unique: "groupName-idProject"
         }
     });
 };

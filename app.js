@@ -62,6 +62,7 @@ function main() {
     var objectOfTrackRouter = require('./server/object-of-track/object-of-track.router');
     var databaseRouter = require('./server/database/index');
     var overlayLineRouter = require('./server/overlay-line/overlay-line.router');
+    var groupsRouter = require('./server/groups/groups.router');
 
     var http = require('http').Server(app);
     app.use(cors());
@@ -86,6 +87,7 @@ function main() {
     app.use('/pal', palRouter);
     app.use('/custom-fill', customFillRouter);
     app.use('/project', wellRouter);
+    app.use('/project', groupsRouter);
     app.use('/project/well', plotRouter);
     app.use('/project/well', datasetRouter);
     app.use('/project/well', zoneSetRouter);

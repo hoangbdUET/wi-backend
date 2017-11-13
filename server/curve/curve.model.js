@@ -671,7 +671,7 @@ let processingCurve = function (req, done, dbConnection) {
     let filePath = req.tmpPath;
     let newCurveName = req.body.curveName;
     let unit = req.body.unit ? req.body.unit : "US/F";
-    let idFamily = req.body.idFamily ? req.body.idFamily : null;
+    let idFamily = req.body.idFamily ? (req.body.idFamily == 'null' ? null : req.body.idFamily) : null;
     let idDesCurve = req.body.idDesCurve;
     Dataset.findById(idDataset).then(dataset => {
         if (dataset) {

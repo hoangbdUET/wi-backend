@@ -17,8 +17,7 @@ function createNewWell(wellInfo, done, dbConnection) {
                     name: wellInfo.name,
                     topDepth: wellInfo.topDepth,
                     bottomDepth: wellInfo.bottomDepth,
-                    step: wellInfo.step,
-                    groupName: wellInfo.groupName
+                    step: wellInfo.step
                 });
                 well.save()
                     .then(function (well) {
@@ -88,7 +87,7 @@ function editWell(wellInfo, done, dbConnection, username) {
                     well.topDepth = wellInfo.topDepth;
                     well.bottomDepth = wellInfo.bottomDepth;
                     well.step = wellInfo.step;
-                    well.groupName = wellInfo.groupName;
+                    well.idGroup = wellInfo.idGroup
                     well.save()
                         .then(function () {
                             done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Well success", wellInfo));

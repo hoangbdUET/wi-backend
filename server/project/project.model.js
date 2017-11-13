@@ -122,6 +122,8 @@ function getProjectFullInfo(project, done, dbConnection) {
                     model: dbConnection.Zone
                 }]
             }]
+        }, {
+            model: dbConnection.Groups
         }]
     })
         .then(function (project) {
