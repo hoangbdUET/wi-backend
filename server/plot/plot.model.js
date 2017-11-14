@@ -387,9 +387,14 @@ let getLine = function (idLine, dbConnection) {
     let Line = dbConnection.Line;
     return new Promise(function (resole, reject) {
         Line.findById(idLine).then(line => {
-            resole(line);
+            if (line) {
+                resole(line);
+            } else {
+                resole(null);
+            }
         }).catch(err => {
-            reject(err);
+            console.log(err);
+            resole(null);
         });
     });
 }
@@ -426,10 +431,10 @@ let exportData = function (payload, done, error, dbConnection, username) {
                 shading.leftLine = new Object();
                 shading.rightLine = new Object();
                 if (shading.idLeftLine != null) {
-                    shading.leftLine.alias = await getLine(shading.idLeftLine, dbConnection).alias;
+                    shading.leftLine = await getLine(shading.idLeftLine, dbConnection);
                 }
                 if (shading.idRightLine != null) {
-                    shading.rightLine.alias = await getLine(shading.idRightLine, dbConnection).alias;
+                    shading.rightLine = await getLine(shading.idRightLine, dbConnection);
                 }
             });
             await track.images.forEach(function (image) {
@@ -471,7 +476,9 @@ let exportData = function (payload, done, error, dbConnection, username) {
             }
 
         });
-        await(exporter.exportData(myPlot, done));
+        await setTimeout(function () {
+            exporter.exportData(myPlot, done);
+        }, 2000);
     }).catch(err => {
         console.log(err);
     });
@@ -740,9 +747,87 @@ let importPlotTemplate = function (req, done, dbConnection) {
             plot.referenceCurve.datasetName = myPlot.curve.datasetName;
         }
         let idRef = await findRefCurve(plot.referenceCurve, dbConnection);
-        asyncLoop(myPlot.tracks, async function (track, next) {
-
-        }, function () {
+        asyncLoop(myPlot.tracks, function (track, next) {
+            createTrack(track, idPlot, dbConnection, function (err, result) {
+                console.log("Done track ", result);
+                if (track.lines.length > 0) {
+                    asyncLoop(track.lines, function (line, next) {
+                        let curve = new Object();
+                        curve.name = line.curve.name;
+                        curve.datasetName = line.curve.datasetName;
+                        curve.idWell = req.body.idWell;
+                        findCurve(curve, dbConnection, async function (err, idCurve) {
+                            if (!err) {
+                                line.idCurve = idCurve;
+                                line.idTrack = result;
+                                let idLine = await createLine(line, dbConnection);
+                                await next();
+                            } else {
+                                console.log("NO CURVE FOUND FOR DATASET : ", err);
+                                curveHasError.push(err);
+                                next(err);
+                            }
+                        });
+                    }, function (err) {
+                        //done all lines
+                        if (err) {
+                            isCurveNotFound = true;
+                        }
+                        if (track.shadings.length > 0) {
+                            asyncLoop(track.shadings, function (shading, next) {
+                                shading.idTrack = result;
+                                // console.log(shading);
+                                findLine({
+                                    idTrack: shading.idTrack,
+                                    alias: shading.rightLine.alias
+                                }, dbConnection, function (err, idLine) {
+                                    shading.idRightLine = idLine;
+                                    findLine({
+                                        idTrack: shading.idTrack,
+                                        alias: shading.leftLine.alias
+                                    }, dbConnection, function (err, idLine) {
+                                        shading.idLeftLine = idLine;
+                                        delete shading.idControlCurve;
+                                        delete shading.curve;
+                                        delete shading.leftLine;
+                                        delete shading.rightLine;
+                                        let Shading = dbConnection.Shading;
+                                        Shading.create(shading).then(s => {
+                                        }).catch(err => {
+                                            console.log(err);
+                                        })
+                                    })
+                                });
+                                next();
+                            }, function (err) {
+                                console.log("DONE SHADINGS");
+                            });
+                        } else {
+                            console.log("NO SHADINGS");
+                        }
+                        if (track.markers.length > 0) {
+                            asyncLoop(track.markers, function (marker, next) {
+                                marker.idTrack = result;
+                                dbConnection.Marker.create(marker).then(rs => {
+                                    next();
+                                }).catch(err => {
+                                    next(err);
+                                })
+                            }, function (err) {
+                                if (err) console.log("MARKER ERR : ", err);
+                                console.log("DONE MARKER");
+                            })
+                        } else {
+                            console.log("NO MARKERS");
+                        }
+                        next();
+                    });
+                } else {
+                    next();
+                }
+            });
+        }, function (err) {
+            //done all track
             console.log("DONE TRACK");
             if (err) {
                 console.log(err);
@@ -809,7 +894,7 @@ let importPlotTemplate_ = function (req, done, dbConnection) {
         }
         let idRef = await findRefCurve(plot.referenceCurve, dbConnection);
         // console.log("=========", idRef);
-        asyncLoop(myPlot.tracks, async function (track, next) {
+        asyncLoop(myPlot.tracks, function (track, next) {
             createTrack(track, idPlot, dbConnection, function (err, result) {
                 if (track.lines.length > 0) {
                     let response = [];
