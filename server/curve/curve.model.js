@@ -617,21 +617,25 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
                                     let arrY = [];
                                     lineReader.on('line', function (line) {
                                         let arrXY = line.split(/\s+/g).slice(1, 2);
-                                        arrY.push(arrXY[0]);
+                                        if (arrXY[0] != 'null') {
+                                            arrY.push(arrXY[0]);
+                                        }
                                     });
 
                                     lineReader.on('close', function () {
                                         //console.log(arrY);
-                                        let min = 99999;
-                                        let max = 0;
+                                        let min = arrY[0];
+                                        let max = arrY[0];
+                                        let sum = 0;
                                         arrY.forEach(function (element, i) {
                                             if (element != 'null') {
                                                 element = parseFloat(element);
+                                                sum += element;
                                                 if (element < min) min = element;
                                                 if (element > max) max = element;
                                             }
                                         });
-                                        callback(null, {minScale: min, maxScale: max});
+                                        callback(null, {minScale: min, maxScale: max, meanValue: sum / arrY.length});
                                         // res.send(ResponseJSON(ErrorCodes.SUCCESS, "min max curve success", {
                                         //     minScale: min,
                                         //     maxScale: max
