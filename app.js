@@ -63,6 +63,7 @@ function main() {
     var databaseRouter = require('./server/database/index');
     var overlayLineRouter = require('./server/overlay-line/overlay-line.router');
     var groupsRouter = require('./server/groups/groups.router');
+    var axisColorRouter = require('./server/cross-plot/axis-color-template/index');
 
     var http = require('http').Server(app);
     app.use(cors());
@@ -112,6 +113,7 @@ function main() {
     app.use('/project/well/cross-plot', ternaryRouter);
     app.use('/project/well/cross-plot', regressionLineRouter);
     app.use('/project/well/cross-plot', overlayLineRouter);
+    app.use('/project/well/cross-plot', axisColorRouter);
     app.use('/project/well/plot/object-track', objectOfTrackRouter);
     app.use('/project/well/plot/image-track', imageOfTrackRouter);
 
