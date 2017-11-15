@@ -100,7 +100,10 @@ router.post('/curve/getData', function (req, res) {
     });
     */
     curveModel.getData(req.body, function (resultStream) {
-        if (resultStream) resultStream.pipe(res);
+        if (resultStream) {
+            res.setHeader('content-type', 'text/javascript');
+            resultStream.pipe(res);
+        }
     }, function (status) {
         res.send(status);
     }, req.dbConnection, req.decoded.username);
