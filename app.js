@@ -64,7 +64,7 @@ function main() {
     var overlayLineRouter = require('./server/overlay-line/overlay-line.router');
     var groupsRouter = require('./server/groups/groups.router');
     var axisColorRouter = require('./server/cross-plot/axis-color-template/index');
-
+    var testRouter = require('./test.js');
     var http = require('http').Server(app);
     app.use(cors());
     /**
@@ -80,6 +80,7 @@ function main() {
     app.use('/', databaseRouter);
     var authenticate = require('./server/authenticate/authenticate');
     app.use(authenticate());
+    app.use('/', testRouter);
     app.use('/', inventoryRouter);
     app.use('/', uploadRouter);
     app.use('/', projectRouter);

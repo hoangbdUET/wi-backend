@@ -11,5 +11,7 @@ module.exports = function (sequelize, DataTypes) {
             allowNull:false,
             unique: "name-idWell"
         }
+    }, {
+        paranoid: true
     });
 };

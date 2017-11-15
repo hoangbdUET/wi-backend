@@ -77,6 +77,7 @@ function newDbInstance(dbName, callback) {
         dialectOptions: {
             charset: 'utf8'
         },
+        paranoid: true,
         pool: {
             max: 2,
             min: 0,
@@ -313,16 +314,19 @@ function newDbInstance(dbName, callback) {
     });
     let username = dbName.substring(dbName.indexOf("_") + 1);
     Curve.hook('beforeDestroy', function (curve, options) {
-        Dataset.findById(curve.idDataset).then(dataset => {
-            Well.findById(dataset.idWell).then(well => {
-                Project.findById(well.idProject).then(project => {
-                    hashDir.deleteFolder(configCommon.curveBasePath, username + project.name + well.name + dataset.name + curve.name);
+        console.log("GO HOOKS : ", curve.deletedAt);
+        if (curve.deletedAt) {
+            Dataset.findById(curve.idDataset).then(dataset => {
+                Well.findById(dataset.idWell).then(well => {
+                    Project.findById(well.idProject).then(project => {
+                        hashDir.deleteFolder(configCommon.curveBasePath, username + project.name + well.name + dataset.name + curve.name);
+                    });
                 });
-            });
 
-        }).catch(err => {
-            console.log("ERR WHILE DELETE CURVE : " + err);
-        });
+            }).catch(err => {
+                console.log("ERR WHILE DELETE CURVE : " + err);
+            });
+        }
     });
     //End register hook
     return object;
