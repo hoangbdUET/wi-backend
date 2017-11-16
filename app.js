@@ -64,6 +64,7 @@ function main() {
     var overlayLineRouter = require('./server/overlay-line/overlay-line.router');
     var groupsRouter = require('./server/groups/groups.router');
     var axisColorRouter = require('./server/cross-plot/axis-color-template/index');
+    var dustbinRouter = require('./server/dustbin/dustbin.router');
     var testRouter = require('./test.js');
     var http = require('http').Server(app);
     app.use(cors());
@@ -86,6 +87,7 @@ function main() {
     app.use('/', projectRouter);
     app.use('/', familyRouter);
     app.use('/', imageUpload);
+    app.use('/', dustbinRouter);
     app.use('/pal', palRouter);
     app.use('/custom-fill', customFillRouter);
     app.use('/project', wellRouter);

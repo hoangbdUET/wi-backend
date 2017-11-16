@@ -593,7 +593,7 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
     var Dataset = dbConnection.Dataset;
     var Project = dbConnection.Project;
     var Well = dbConnection.Well;
-    Curve.findById(idCurve)
+    Curve.findById(idCurve, {paranoid: false})
         .then(function (curve) {
             if (curve) {
                 Dataset.findById(curve.idDataset).then((dataset) => {

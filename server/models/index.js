@@ -287,12 +287,18 @@ function newDbInstance(dbName, callback) {
     //     });
     // });//TODO
     //Register hook
-    var Curve = object.Curve;
     var FamilyCondition = object.FamilyCondition;
     var Family = object.Family;
     var Dataset = object.Dataset;
     var Well = object.Well;
+    var Curve = object.Curve;
     var Project = object.Project;
+    var Groups = object.Groups;
+    var Histogram = object.Histogram;
+    var CrossPlot = object.CrossPlot;
+    var Plot = object.Plot;
+    var ZoneSet = object.ZoneSet;
+    var Zone = object.Zone;
     Curve.hook('afterCreate', function (curve, options) {
         if (!curve.idFamily) {
             ((curveName, unit) => {
@@ -328,6 +334,85 @@ function newDbInstance(dbName, callback) {
             });
         }
     });
+
+    Well.hook('beforeDestroy', function (well, options) {
+        console.log("Hooks delete well");
+        if (well.deletedAt) {
+
+        } else {
+            let time = Date.now();
+            well.name = '$' + time + well.name;
+            well.save().catch(err => {
+                console.log(err);
+            });
+            //console.log(well.name);
+        }
+    });
+
+    Dataset.hook('beforeDestroy', function (dataset, options) {
+        console.log("Hooks delete dataset");
+        if (dataset.deletedAt) {
+
+        } else {
+            let time = Date.now();
+            dataset.name = '$' + time + dataset.name;
+            dataset.save().catch(err => {
+                console.log(err);
+            });
+        }
+    });
+
+    Histogram.hook('beforeDestroy', function (histogram, options) {
+        console.log("Hooks delete histogram");
+        if (histogram.deletedAt) {
+
+        } else {
+            let time = Date.now();
+            histogram.name = '$' + time + histogram.name;
+            histogram.save().catch(err => {
+                console.log(err);
+            });
+        }
+    });
+
+    CrossPlot.hook('beforeDestroy', function (crossplot, options) {
+        console.log("Hooks delete crossplot");
+        if (crossplot.deletedAt) {
+
+        } else {
+            let time = Date.now();
+            crossplot.name = '$' + time + crossplot.name;
+            crossplot.save().catch(err => {
+                console.log(err);
+            });
+        }
+    });
+
+    Plot.hook('beforeDestroy', function (plot, options) {
+        console.log("Hooks delete plot");
+        if (plot.deletedAt) {
+
+        } else {
+            let time = Date.now();
+            plot.name = '$' + time + plot.name;
+            plot.save().catch(err => {
+                console.log(err);
+            });
+        }
+    });
+
+    // ZoneSet.hook('beforeDestroy', function (zoneset, options) {
+    //     console.log("Hooks delete zoneset");
+    //     if (zoneset.deletedAt) {
+    //
+    //     } else {
+    //         let time = Date.now();
+    //         zoneset.name = '$' + time + zoneset.name;
+    //         zoneset.save().catch(err => {
+    //             console.log(err);
+    //         });
+    //     }
+    // });
     //End register hook
     return object;
 };
