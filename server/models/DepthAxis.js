@@ -61,7 +61,7 @@ module.exports = function (sequelize, DataTypes) {
         width: {
             type: DataTypes.FLOAT,
             allowNull: false,
-            defaultValue: 0.375
+            defaultValue: 0.5
         }
     });
 };
