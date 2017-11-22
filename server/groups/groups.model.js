@@ -57,7 +57,9 @@ function deleteGroup(groupInfo, done, dbConnection) {
 
 function getGroupInfo(groupInfo, done, dbConnection) {
     var Groups = dbConnection.Groups;
-    Groups.findById(groupInfo.idGroup)
+    Groups.findById(groupInfo.idGroup, {
+        include: {model: dbConnection.Well}
+    })
         .then(function (group) {
             if (!group) throw 'not exists';
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get group info success", group));
