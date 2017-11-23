@@ -65,6 +65,7 @@ function main() {
     var groupsRouter = require('./server/groups/groups.router');
     var axisColorRouter = require('./server/cross-plot/axis-color-template/index');
     var dustbinRouter = require('./server/dustbin/dustbin.router');
+    var selectionPointRouter = require('./server/selection-point/selection-point.router');
     var testRouter = require('./test.js');
     var http = require('http').Server(app);
     app.use(cors());
@@ -98,6 +99,7 @@ function main() {
     app.use('/project/well', histogramRouter);
     app.use('/project/well', crossPlotRouter);
     app.use('/project/well', referenceCurveRouter);
+    app.use('/project/well', selectionPointRouter);
     app.use('/project/well/plot', imageTrackRouter);
     app.use('/project/well/plot', depthAxisRouter);
     app.use('/project/well/plot', trackRouter);

@@ -126,7 +126,8 @@ function newDbInstance(dbName, callback) {
         'ObjectTrack',
         'ObjectOfTrack',
         'OverlayLine',
-        'Groups'
+        'Groups',
+        'SelectionPoint'
     ];
     models.forEach(function (model) {
         object[model] = sequelize.import(__dirname + '/' + model);
@@ -176,6 +177,10 @@ function newDbInstance(dbName, callback) {
             foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
             onDelete: 'CASCADE'
         });
+        m.Curve.hasMany(m.SelectionPoint, {
+            foreignKey: {name: "idCurve", allowNull: false},
+            onDelete: 'CASCADE'
+        })
 
         m.Dataset_Curve = m.Dataset.hasMany(m.Curve, {
             foreignKey: {
@@ -274,6 +279,12 @@ function newDbInstance(dbName, callback) {
             foreignKey: {name: 'idCurve', allowNull: false},
             onDelete: 'CASCADE'
         });
+
+        m.Plot.belongsTo(m.SelectionPoint, {foreignKey: {name: 'idSelectionPoint', allowNull: true}});
+        m.Histogram.belongsTo(m.SelectionPoint, {foreignKey: {name: 'idSelectionPoint', allowNull: true}});
+        m.PointSet.belongsTo(m.SelectionPoint, {foreignKey: {name: 'idSelectionPointX', allowNull: true}});
+        m.PointSet.belongsTo(m.SelectionPoint, {foreignKey: {name: 'idSelectionPointY', allowNull: true}});
+
     })(object);
 
     object.sequelize = sequelize;
@@ -299,6 +310,11 @@ function newDbInstance(dbName, callback) {
     var Plot = object.Plot;
     var ZoneSet = object.ZoneSet;
     var Zone = object.Zone;
+    var SelectionPoint = object.SelectionPoint;
+    let username = dbName.substring(dbName.indexOf("_") + 1);
+    SelectionPoint.hook('beforeDestroy', function (selectionPoint) {
+        hashDir.deleteFolder(configCommon.curveBasePath, username + selectionPoint.XPoints);
+    });
     Curve.hook('afterCreate', function (curve, options) {
         if (!curve.idFamily) {
             ((curveName, unit) => {
@@ -318,7 +334,6 @@ function newDbInstance(dbName, callback) {
             })(curve.name, curve.unit);
         }
     });
-    let username = dbName.substring(dbName.indexOf("_") + 1);
     Curve.hook('beforeDestroy', function (curve, options) {
         console.log("GO HOOKS : ", curve.deletedAt);
         if (curve.deletedAt) {
