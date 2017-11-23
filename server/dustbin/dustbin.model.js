@@ -182,7 +182,7 @@ function deleteObject(payload, callback, dbConnection) {
             })
             break;
         }
-        case 'plot' : {
+        case 'logplot' : {
             Plot.destroy({
                 where: {idPlot: payload.idObject},
                 force: true
