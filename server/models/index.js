@@ -127,7 +127,8 @@ function newDbInstance(dbName, callback) {
         'ObjectOfTrack',
         'OverlayLine',
         'Groups',
-        'SelectionPoint'
+        'SelectionPoint',
+        'ComboBoxSelect'
     ];
     models.forEach(function (model) {
         object[model] = sequelize.import(__dirname + '/' + model);
@@ -177,10 +178,14 @@ function newDbInstance(dbName, callback) {
             foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
             onDelete: 'CASCADE'
         });
+        m.Well.hasMany(m.ComboBoxSelect, {
+            foreignKey: {name: "idWell", allowNull: true},
+            onDelete: 'CASCADE'
+        });
         m.Curve.hasMany(m.SelectionPoint, {
             foreignKey: {name: "idCurve", allowNull: false},
             onDelete: 'CASCADE'
-        })
+        });
 
         m.Dataset_Curve = m.Dataset.hasMany(m.Curve, {
             foreignKey: {
