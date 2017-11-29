@@ -50,6 +50,7 @@ function editTrack(trackInfo, done, dbConnection) {
             track.width = trackInfo.width || track.width;
             track.color = trackInfo.color || track.color;
             track.showEndLabels = trackInfo.showEndLabels || track.showEndLabels;
+            track.zoomFactor = trackInfo.zoomFactor || track.zoomFactor;
 
             track.save()
                 .then(function () {
