@@ -305,7 +305,7 @@ function restoreObject(payload, callback, dbConnection) {
             });
             break;
         }
-        case 'plot': {
+        case 'logplot': {
             Plot.findById(payload.idObject, {
                 paranoid: false
             }).then(rs => {
