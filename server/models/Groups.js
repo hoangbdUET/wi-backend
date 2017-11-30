@@ -5,11 +5,6 @@ module.exports = function (sequelize, DataTypes) {
             autoIncrement: true,
             primaryKey: true
         },
-        idParent: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0
-        },
         name: {
             type: DataTypes.STRING(250),
             allowNull: false,

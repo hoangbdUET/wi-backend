@@ -155,6 +155,14 @@ function newDbInstance(dbName, callback) {
                 allowNull: true
             }
         });
+
+        m.Groups.hasMany(m.Groups, {
+            foreignKey: {
+                name: "idParent",
+                allowNull: true
+            }, onDelete: 'CASCADE'
+        });
+
         m.Well_Dataset = m.Well.hasMany(m.Dataset, {
             foreignKey: {
                 name: "idWell",
