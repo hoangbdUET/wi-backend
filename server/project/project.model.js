@@ -63,7 +63,8 @@ function getProjectList(owner, done, dbConnection) {
         .then(function (projects) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get List Project success", projects));
         }).catch(err => {
-        // console.log(err);
+        console.log(err);
+        done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "NO_DATABASE"));
     });
 }
 
