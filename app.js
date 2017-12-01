@@ -67,7 +67,8 @@ function main() {
     var dustbinRouter = require('./server/dustbin/dustbin.router');
     var selectionPointRouter = require('./server/selection-point/selection-point.router');
     var testRouter = require('./test.js');
-    var comboboxselectRouter = require('./server/combo-box-select/combo-box-select.router');
+    var combinedBoxToolRouter = require('./server/combined-box-tool/combined-box-tool.router');
+    var combinedBoxRouter = require('./server/combined-box/combined-box.router');
     var http = require('http').Server(app);
     app.use(cors());
     /**
@@ -101,7 +102,8 @@ function main() {
     app.use('/project/well', crossPlotRouter);
     app.use('/project/well', referenceCurveRouter);
     app.use('/project/well', selectionPointRouter);
-    app.use('/project/well', comboboxselectRouter);
+    app.use('/project/well', combinedBoxRouter);
+    app.use('/project/well/combined-box', combinedBoxToolRouter);
     app.use('/project/well/plot', imageTrackRouter);
     app.use('/project/well/plot', depthAxisRouter);
     app.use('/project/well/plot', trackRouter);

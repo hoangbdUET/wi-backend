@@ -1,6 +1,6 @@
 module.exports = function (sequelize, DataTypes) {
-    return sequelize.define('combo-box-select', {
-        idComboBoxSelect: {
+    return sequelize.define('combined_box_tool', {
+        idCombinedBoxTool: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true

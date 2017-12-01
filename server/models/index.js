@@ -93,42 +93,43 @@ function newDbInstance(dbName, callback) {
         });
 
     var models = [
+        'Annotation',
+        'CombinedBox',
+        'CombinedBoxTool',
+        'CrossPlot',
         'Curve',
         'CurveData',
-        'DepthAxis',
-        'Plot',
-        'Project',
-        'Property',
-        'Track',
-        'Well',
-        'WellData',
         'Dataset',
-        'Line',
+        'DepthAxis',
         'Family',
         'FamilyCondition',
-        'Shading',
-        'ZoneSet',
-        'Zone',
-        'ZoneTrack',
-        'CrossPlot',
-        'Polygon',
-        'PointSet',
-        'Image',
-        'Histogram',
-        'Marker',
-        'UserDefineLine',
-        'Annotation',
-        'RegressionLine',
-        'ReferenceCurve',
-        'Ternary',
-        'ImageTrack',
-        'ImageOfTrack',
-        'ObjectTrack',
-        'ObjectOfTrack',
-        'OverlayLine',
         'Groups',
+        'Histogram',
+        'Image',
+        'ImageOfTrack',
+        'ImageTrack',
+        'Line',
+        'Marker',
+        'ObjectOfTrack',
+        'ObjectTrack',
+        'OverlayLine',
+        'Plot',
+        'PointSet',
+        'Polygon',
+        'Project',
+        'Property',
+        'ReferenceCurve',
+        'RegressionLine',
         'SelectionPoint',
-        'ComboBoxSelect'
+        'Shading',
+        'Ternary',
+        'Track',
+        'UserDefineLine',
+        'Well',
+        'WellData',
+        'Zone',
+        'ZoneSet',
+        'ZoneTrack'
     ];
     models.forEach(function (model) {
         object[model] = sequelize.import(__dirname + '/' + model);
@@ -186,10 +187,10 @@ function newDbInstance(dbName, callback) {
             foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
             onDelete: 'CASCADE'
         });
-        m.Well.hasMany(m.ComboBoxSelect, {
-            foreignKey: {name: "idWell", allowNull: true},
+        m.Well.hasMany(m.CombinedBox, {
+            foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
             onDelete: 'CASCADE'
-        });
+        })
         m.Curve.hasMany(m.SelectionPoint, {
             foreignKey: {name: "idCurve", allowNull: false},
             onDelete: 'CASCADE'
@@ -234,7 +235,6 @@ function newDbInstance(dbName, callback) {
 
         m.Shading.belongsTo(m.Line, {foreignKey: 'idLeftLine', as: 'leftLine', onDelete: 'CASCADE'});
         m.Shading.belongsTo(m.Line, {foreignKey: 'idRightLine', as: 'rightLine', onDelete: 'CASCADE'});
-        //m.Shading.belongsTo(m.Line, {foreignKey: {name: 'idRightLine', allowNull: false}, onDelete: 'CASCADE'});
         m.Shading.belongsTo(m.Curve, {foreignKey: 'idControlCurve'});
 
         m.CrossPlot.hasMany(m.Polygon, {foreignKey: {name: 'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
@@ -248,7 +248,6 @@ function newDbInstance(dbName, callback) {
         });
         m.CrossPlot.hasMany(m.Ternary, {foreignKey: {name: 'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
         m.CrossPlot.hasMany(m.PointSet, {foreignKey: {name: 'idCrossPlot', allowNull: false}, onDelete: 'CASCADE'});
-        // m.CrossPlot.hasMany(m.Discrim, {foreignKey: {name: 'idCrossPlot', allowNull: true}, onDelete: 'CASCADE'});
         m.CrossPlot.hasMany(m.UserDefineLine, {
             foreignKey: {
                 name: 'idCrossPlot',
@@ -256,7 +255,6 @@ function newDbInstance(dbName, callback) {
                 onDelete: 'CASCADE'
             }
         });
-        //m.CrossPlot.hasMany(m.Discrim, {foreignKey: {name: 'idCrossPlot', allowNull: true}});
 
         m.PointSet.belongsTo(m.Curve, {foreignKey: {name: 'idCurveX', allowNull: true}});
         m.PointSet.belongsTo(m.Curve, {foreignKey: {name: 'idCurveY', allowNull: true}});
@@ -268,17 +266,10 @@ function newDbInstance(dbName, callback) {
 
         m.Histogram.belongsTo(m.Curve, {foreignKey: 'idCurve'});
         m.Histogram.belongsTo(m.ZoneSet, {foreignKey: {name: 'idZoneSet', allowNull: true}});
-        //m.Histogram.belongsTo(m.Well, {foreignKey: {name:'idWell',allowNull:false},onDelete:'CASCADE'});
-        // m.Histogram.hasMany(m.Discrim, {foreignKey: {name: 'idHistogram', allowNull: true}, onDelete: 'CASCADE'});
         m.Histogram.hasMany(m.ReferenceCurve, {
             foreignKey: {name: 'idHistogram', allowNull: true},
             onDelete: 'CASCADE'
         });
-
-        //m.Marker.belongsTo(m.Track, {foreignKey: {name: 'idTrack', allowNull: false, onDelete: 'CASCADE'}});
-
-        // m.Discrim.belongsTo(m.Curve, {foreignKey: {name: 'idCurveLeft', allowNull: false}});
-        // m.Discrim.belongsTo(m.Curve, {foreignKey: {name: 'idCurveRight', allowNull: true}});
 
         m.Polygon.belongsToMany(m.RegressionLine, {
             through: 'Polygon_RegressionLine',
@@ -288,6 +279,37 @@ function newDbInstance(dbName, callback) {
             through: 'Polygon_RegressionLine',
             foreignKey: 'idRegressionLine'
         });
+        //combined box
+        m.CombinedBox.hasMany(m.CombinedBoxTool, {
+            foreignKey: {name: "idCombinedBox", allowNull: true},
+            onDelete: 'CASCADE'
+        });
+        m.CombinedBox.belongsToMany(m.Plot, {
+            through: 'combined_box_plot',
+            foreignKey: 'idCombinedBox'
+        });
+        m.CombinedBox.belongsToMany(m.CrossPlot, {
+            through: 'combined_box_crossplot',
+            foreignKey: 'idCombinedBox'
+        });
+        m.CombinedBox.belongsToMany(m.Histogram, {
+            through: 'combined_box_histogram',
+            foreignKey: 'idCombinedBox'
+        });
+        m.Plot.belongsToMany(m.CombinedBox, {
+            through: 'combined_box_plot',
+            foreignKey: 'idPlot'
+        });
+        m.CrossPlot.belongsToMany(m.CombinedBox, {
+            through: 'combined_box_crossplot',
+            foreignKey: 'idCrossPlot'
+        });
+        m.Histogram.belongsToMany(m.CombinedBox, {
+            through: 'combined_box_histogram',
+            foreignKey: 'idHistogram'
+        });
+
+        //end combined box
         m.ReferenceCurve.belongsTo(m.Curve, {
             foreignKey: {name: 'idCurve', allowNull: false},
             onDelete: 'CASCADE'
@@ -304,12 +326,6 @@ function newDbInstance(dbName, callback) {
 
     var familyUpdate = require('../family/FamilyUpdater');
     var familyConditionUpdate = require('../family/FamilyConditionUpdater');
-
-    // familyUpdate(object,function() {
-    //     familyConditionUpdate(object,function(){
-    //         // main();
-    //     });
-    // });//TODO
     //Register hook
     var FamilyCondition = object.FamilyCondition;
     var Family = object.Family;

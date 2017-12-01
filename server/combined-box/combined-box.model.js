@@ -2,19 +2,33 @@
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 
-function createNewComboBoxSelect(payload, done, dbConnection) {
-    let Model = dbConnection.ComboBoxSelect;
-    Model.create(payload).then(rs => {
-        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
+function createNewCombinedBox(payload, done, dbConnection) {
+    let Model = dbConnection.CombinedBox;
+    let idPlots = payload.idLogPlots || [];
+    let idCrossplots = payload.idCrossPlots || [];
+    let idHistograms = payload.idHistograms || [];
+    Model.create(payload).then(async rs => {
+        await rs.setPlots(idPlots);
+        await rs.setCrossplots(idCrossplots);
+        await rs.setHistograms(idHistograms);
+        await done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
     }).catch(err => {
         console.log(err);
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
     });
 }
 
-function infoComboBoxSelect(payload, done, dbConnection) {
-    let Model = dbConnection.ComboBoxSelect;
-    Model.findById(payload.idComboBoxSelect).then(rs => {
+function infoCombinedBox(payload, done, dbConnection) {
+    let Model = dbConnection.CombinedBox;
+    Model.findById(payload.idCombinedBox, {
+        include: [{
+            model: dbConnection.Plot
+        }, {
+            model: dbConnection.CrossPlot
+        }, {
+            model: dbConnection.Histogram
+        }]
+    }).then(rs => {
         if (rs) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
         } else {
@@ -27,9 +41,9 @@ function infoComboBoxSelect(payload, done, dbConnection) {
 
 }
 
-function deleteNewComboBoxSelect(payload, done, dbConnection) {
-    let Model = dbConnection.ComboBoxSelect;
-    Model.findById(payload.idComboBoxSelect).then(rs => {
+function deleteCombinedBox(payload, done, dbConnection) {
+    let Model = dbConnection.CombinedBox;
+    Model.findById(payload.idCombinedBox).then(rs => {
         if (rs) {
             rs.destroy().then(rs => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
@@ -47,16 +61,22 @@ function deleteNewComboBoxSelect(payload, done, dbConnection) {
 }
 
 
-function editNewComboBoxSelect(payload, done, dbConnection) {
-    let Model = dbConnection.ComboBoxSelect;
-    Model.findById(payload.idComboBoxSelect).then(rs => {
+function editCombinedBox(payload, done, dbConnection) {
+    let Model = dbConnection.CombinedBox;
+    let idPlots = payload.idLogPlots || [];
+    let idCrossplots = payload.idCrossPlots || [];
+    let idHistograms = payload.idHistograms || [];
+    Model.findById(payload.idCombinedBox).then(rs => {
         if (rs) {
             let newCb = rs.toJSON();
             newCb.name = payload.name || newCb.name;
             newCb.color = payload.color || newCb.color;
             Object.assign(rs, newCb);
-            rs.save().then(() => {
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", newCb));
+            rs.save().then(async () => {
+                await rs.setPlots(idPlots);
+                await rs.setCrossplots(idCrossplots);
+                await rs.setHistograms(idHistograms);
+                await done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", newCb));
             }).catch(err => {
                 console.log(err);
                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
@@ -70,21 +90,9 @@ function editNewComboBoxSelect(payload, done, dbConnection) {
     });
 }
 
-
-function listNewComboBoxSelect(payload, done, dbConnection) {
-    let Model = dbConnection.ComboBoxSelect;
-    Model.findAll().then(rs => {
-        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
-    }).catch(err => {
-        console.log(err);
-        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
-    });
-}
-
 module.exports = {
-    createNewComboBoxSelect: createNewComboBoxSelect,
-    infoComboBoxSelect: infoComboBoxSelect,
-    deleteNewComboBoxSelect: deleteNewComboBoxSelect,
-    editNewComboBoxSelect: editNewComboBoxSelect,
-    listNewComboBoxSelect: listNewComboBoxSelect
+    createNewCombinedBox: createNewCombinedBox,
+    infoCombinedBox: infoCombinedBox,
+    deleteCombinedBox: deleteCombinedBox,
+    editCombinedBox: editCombinedBox
 }

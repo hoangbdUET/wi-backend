@@ -89,16 +89,6 @@ function getProjectFullInfo(project, done, dbConnection) {
     // console.log("GET FULL INFO ", project);
     var Project = dbConnection.Project;
     Project.findById(project.idProject, {
-        // include: [{
-        //     all: true,
-        //     include: [{
-        //         all: true,
-        //         include: [{
-        //             all: true
-        //             // include: {all: true}
-        //         }]
-        //     }]
-        // }]
         include: [{
             model: dbConnection.Well,
             include: [{
@@ -121,6 +111,8 @@ function getProjectFullInfo(project, done, dbConnection) {
                 include: [{
                     model: dbConnection.Zone
                 }]
+            }, {
+                model: dbConnection.CombinedBox
             }]
         }, {
             model: dbConnection.Groups
