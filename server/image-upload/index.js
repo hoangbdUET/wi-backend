@@ -9,7 +9,8 @@ const formidable = require('formidable');
 let ResponseJSON = require('../response');
 let errorCodes = require('../../error-codes');
 let hashDir = require('wi-import').hashDir; // hashDir.createPath();
-var Finder = require('fs-finder');
+let Finder = require('fs-finder');
+let asyncEach = require('async/each');
 
 let router = express.Router();
 let saveDir = path.join(__dirname, '../..', config.imageBasePath);
@@ -19,16 +20,21 @@ router.use(cors());
 
 router.post('/image-list', function (req, res) {
     let savePath = path.join(saveDir, req.decoded.username);
-    Finder.from(savePath).findFiles('*', function (files) {
-        let rs = [];
-        files.forEachDone(file => {
-            file = file.replace(saveDir, ' ').trim();
-            rs.push(file);
-        }, function () {
-            res.send(ResponseJSON(errorCodes.CODES.SUCCESS, "Successful", rs));
+    if (!fs.existsSync(savePath)) {
+        fs.mkdirSync(savePath);
+        res.send(ResponseJSON(errorCodes.CODES.SUCCESS, "Successful", []));
+    } else {
+        Finder.from(savePath).findFiles('*', function (files) {
+            let rs = [];
+            asyncEach(files, function (file, next) {
+                file = file.replace(saveDir, ' ').trim();
+                rs.push(file);
+                next();
+            }, function () {
+                res.send(ResponseJSON(errorCodes.CODES.SUCCESS, "Successful", rs));
+            });
         });
-
-    });
+    }
 });
 
 router.post('/image-upload', imageUpload);
