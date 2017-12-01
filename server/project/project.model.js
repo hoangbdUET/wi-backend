@@ -47,7 +47,7 @@ function editProject(projectInfo, done, dbConnection) {
 
 function getProjectInfo(project, done, dbConnection) {
     var Project = dbConnection.Project;
-    Project.findById(project.idProject, {include: [Well]})
+    Project.findById(project.idProject)
         .then(function (project) {
             if (!project) throw "not exits";
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Project success", project));
