@@ -49,7 +49,17 @@ function editWell(wellInfo, done, dbConnection, username) {
                 }
             }).then(w => {
                 if (w) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Well name exited!"));
+                    w.topDepth = wellInfo.topDepth;
+                    w.bottomDepth = wellInfo.bottomDepth;
+                    w.step = wellInfo.step;
+                    w.idGroup = wellInfo.idGroup
+                    w.save()
+                        .then(function () {
+                            done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Well success", w));
+                        })
+                        .catch(function (err) {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Well " + err.name));
+                        })
                 } else {
                     let oldWellName = well.name;
                     //console.log("EDIT NA~~~~~~~~~~~~~~~~~~~");
