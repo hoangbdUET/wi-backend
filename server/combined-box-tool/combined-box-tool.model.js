@@ -73,7 +73,11 @@ function editNewComboBoxSelect(payload, done, dbConnection) {
 
 function listNewComboBoxSelect(payload, done, dbConnection) {
     let Model = dbConnection.CombinedBoxTool;
-    Model.findAll().then(rs => {
+    Model.findAll({
+        where: {
+            idCombinedBox: payload.idCombinedBox
+        }
+    }).then(rs => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
     }).catch(err => {
         console.log(err);
