@@ -19,7 +19,7 @@ function createNewDepthAxis(depthAxisInfo, done, dbConnection) {
                     unitType: depthAxisInfo.unitType,
                     decimals: depthAxisInfo.decimals,
                     geometryWidth: depthAxisInfo.geometryWidth,
-                    width: depthAxisInfo.width || 0.375
+                    width: depthAxisInfo.width || 0.5
                 });
                 depthAxis.save()
                     .then(function (depthAxis) {
