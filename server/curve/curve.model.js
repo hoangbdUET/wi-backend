@@ -141,6 +141,7 @@ function getCurveInfo(curve, done, dbConnection, username) {
         .then(curve => {
             if (!curve) throw "not exits";
             if (!curve.idFamily) {
+                console.log("No Family");
                 calculateScale(curve.idCurve, username, dbConnection, function (err, result) {
                     curve = curve.toJSON();
                     if (err) {
@@ -596,13 +597,13 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
     Curve.findById(idCurve, {paranoid: false})
         .then(function (curve) {
             if (curve) {
-                Dataset.findById(curve.idDataset).then((dataset) => {
+                Dataset.findById(curve.idDataset, {paranoid: false}).then((dataset) => {
                     if (!dataset) {
                         console.log("No dataset");
                     } else {
-                        Well.findById(dataset.idWell).then(well => {
+                        Well.findById(dataset.idWell, {paranoid: false}).then(well => {
                             if (well) {
-                                Project.findById(well.idProject).then(project => {
+                                Project.findById(well.idProject, {paranoid: false}).then(project => {
                                     let inputStream = hashDir.createReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
                                     // if (inputStream.bytesRead == 0) {
                                     //     return callback('No File', null);
@@ -653,7 +654,7 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
                 });
 
             } else {
-
+                console.log("No curve");
             }
 
         })

@@ -24,6 +24,38 @@ let findFamilyIdByName = function (familyName, dbConnection, callback) {
     })
 }
 
+function searchReferenceCurve(idWell, dbConnection, callback) {
+    let FamilyModel = dbConnection.Family;
+    let CurveModel = dbConnection.Curve;
+    FamilyModel.findOne({
+        where: {
+            name: "Gamma Ray"
+        }
+    }).then(family => {
+        if (family) {
+            CurveModel.findOne({where: {idFamily: family.idFamily}}).then(curve => {
+                if (curve) {
+                    callback(false, curve.idCurve);
+                } else {
+                    CurveModel.findOne().then(c => {
+                        if (c) {
+                            callback(false, c.idCurve);
+                        } else {
+                            callback("No curve", null);
+                        }
+                    }).catch(err => {
+                        callback(err, null);
+                    });
+                }
+            });
+        } else {
+            callback("No family", null);
+        }
+    }).catch(err => {
+        callback(err, null);
+    })
+}
+
 let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
     let familyWithErr = [];
     dbConnection.Plot.create({
@@ -104,47 +136,95 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
 }
 
 function createNewPlot(plotInfo, done, dbConnection, username) {
-    var Plot = dbConnection.Plot;
-    if (plotInfo.plotTemplate) {
-        let myPlot = null;
-        try {
-            myPlot = require('./plot-template/' + plotInfo.plotTemplate + '.json');
-        } catch (err) {
-            return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot type not existed!", "PLOT TYPE TEMPLATE NOT FOUND"));
-        }
-        myPlot.referenceCurve = plotInfo.referenceCurve;
-        myPlot.idWell = plotInfo.idWell;
-        myPlot.name = plotInfo.name ? plotInfo.name : myPlot.name;
-        createPlotTemplate(myPlot, dbConnection, function (err, result) {
-            if (err) {
-                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed", "PLOT NAME EXISTED"));
-            } else {
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Create " + plotInfo.plotTemplate + " successful", result));
-            }
-        }, username);
-    } else {
-        Plot.sync()
-            .then(
-                function () {
-                    var plot = Plot.build({
-                        idWell: plotInfo.idWell,
-                        name: plotInfo.name,
-                        referenceCurve: plotInfo.referenceCurve,
-                        option: plotInfo.option
-                    });
-                    plot.save()
-                        .then(function (plot) {
-                            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Plot success", plot.toJSON()));
-                        })
-                        .catch(function (err) {
-                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Plot " + err.name));
-                        })
-                },
-                function () {
-                    done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
+    let Plot = dbConnection.Plot;
+    searchReferenceCurve(plotInfo.idWell, dbConnection, function (err, idRefCurve) {
+        if (err) {
+            console.log(err);
+            delete plotInfo.referenceCurve;
+            if (plotInfo.plotTemplate) {
+                let myPlot = null;
+                try {
+                    myPlot = require('./plot-template/' + plotInfo.plotTemplate + '.json');
+                } catch (err) {
+                    return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot type not existed!", "PLOT TYPE TEMPLATE NOT FOUND"));
                 }
-            )
-    }
+                myPlot.referenceCurve = plotInfo.referenceCurve;
+                myPlot.idWell = plotInfo.idWell;
+                myPlot.name = plotInfo.name ? plotInfo.name : myPlot.name;
+                createPlotTemplate(myPlot, dbConnection, function (err, result) {
+                    if (err) {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed", "PLOT NAME EXISTED"));
+                    } else {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create " + plotInfo.plotTemplate + " successful", result));
+                    }
+                }, username);
+            } else {
+                Plot.sync()
+                    .then(
+                        function () {
+                            var plot = Plot.build({
+                                idWell: plotInfo.idWell,
+                                name: plotInfo.name,
+                                referenceCurve: plotInfo.referenceCurve,
+                                option: plotInfo.option
+                            });
+                            plot.save()
+                                .then(function (plot) {
+                                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Plot success", plot.toJSON()));
+                                })
+                                .catch(function (err) {
+                                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Plot " + err.name));
+                                })
+                        },
+                        function () {
+                            done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
+                        }
+                    )
+            }
+        } else {
+            plotInfo.referenceCurve = idRefCurve;
+            if (plotInfo.plotTemplate) {
+                let myPlot = null;
+                try {
+                    myPlot = require('./plot-template/' + plotInfo.plotTemplate + '.json');
+                } catch (err) {
+                    return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot type not existed!", "PLOT TYPE TEMPLATE NOT FOUND"));
+                }
+                myPlot.referenceCurve = plotInfo.referenceCurve;
+                myPlot.idWell = plotInfo.idWell;
+                myPlot.name = plotInfo.name ? plotInfo.name : myPlot.name;
+                createPlotTemplate(myPlot, dbConnection, function (err, result) {
+                    if (err) {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed", "PLOT NAME EXISTED"));
+                    } else {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create " + plotInfo.plotTemplate + " successful", result));
+                    }
+                }, username);
+            } else {
+                Plot.sync()
+                    .then(
+                        function () {
+                            var plot = Plot.build({
+                                idWell: plotInfo.idWell,
+                                name: plotInfo.name,
+                                referenceCurve: plotInfo.referenceCurve,
+                                option: plotInfo.option
+                            });
+                            plot.save()
+                                .then(function (plot) {
+                                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Plot success", plot.toJSON()));
+                                })
+                                .catch(function (err) {
+                                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Plot " + err.name));
+                                })
+                        },
+                        function () {
+                            done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
+                        }
+                    )
+            }
+        }
+    });
 }
 
 function editPlot(plotInfo, done, dbConnection) {
