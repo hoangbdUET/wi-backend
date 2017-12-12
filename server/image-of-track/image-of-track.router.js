@@ -26,7 +26,7 @@ router.post('/image/edit', function (req, res) {
 router.delete('/image/delete', function (req, res) {
     Model.deleteImageOfTrack(req.body, function (status) {
         res.send(status);
-    }, req.dbConnection)
+    }, req.dbConnection, req.decoded.username)
 });
 
 router.post('/image/list', function (req, res) {

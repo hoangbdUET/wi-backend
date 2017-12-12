@@ -1,5 +1,8 @@
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
+var config = require('config');
+var fs = require('fs');
+var path = require('path');
 
 function createImageOfTrack(info, done, dbConnection) {
     let Model = dbConnection.ImageOfTrack;
@@ -40,17 +43,28 @@ function editImageOfTrack(info, done, dbConnection) {
     });
 }
 
-function deleteImageOfTrack(info, done, dbConnection) {
+function deleteImageOfTrack(info, done, dbConnection, username) {
     let Model = dbConnection.ImageOfTrack;
-    Model.destroy({where: {idImageOfTrack: info.idImageOfTrack}}).then(result => {
-        if (result > 0) {
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Delete successful", info));
+    Model.findById(info.idImageOfTrack).then(image => {
+        if (image) {
+            Model.destroy({where: {idImageOfTrack: info.idImageOfTrack}}).then(result => {
+                if (result > 0) {
+                    let imgPath = path.join(__dirname, '../..', config.imageBasePath, image.imageUrl.substring(image.imageUrl.indexOf('/' + username + '/')));
+                    fs.unlinkSync(imgPath);
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Delete successful", info));
+                } else {
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Not found for delete"));
+                }
+            }).catch(err => {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Some err", err.message));
+            });
         } else {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Not found for delete"));
         }
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Some err", err.message));
-    });
+    })
+
 }
 
 function getListImage(imageInfo, done, dbConnection) {
@@ -61,6 +75,7 @@ function getListImage(imageInfo, done, dbConnection) {
         done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Cant get list", err.message));
     });
 }
+
 module.exports = {
     createImageOfTrack: createImageOfTrack,
     infoImageOfTrack: infoImageOfTrack,
