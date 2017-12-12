@@ -57,11 +57,18 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
                                     dbConnection.Curve.findOne({where: {idFamily: idFamily}}).then(curve => {
                                         if (curve) {
                                             // console.log("FOUND CURVE : NEXT ", curve.name);
-                                            lineModel.createNewLineWithoutResponse({
-                                                idCurve: curve.idCurve,
-                                                idTrack: idTrack
-                                            }, dbConnection, username, function (line) {
-                                                next();
+                                            dbConnection.Dataset.findById(curve.idDataset).then(dataset => {
+                                                if (dataset.idWell == myPlot.idWell) {
+                                                    lineModel.createNewLineWithoutResponse({
+                                                        idCurve: curve.idCurve,
+                                                        idTrack: idTrack
+                                                    }, dbConnection, username, function (line) {
+                                                        next();
+                                                    });
+                                                } else {
+                                                    familyWithErr.push(family.name);
+                                                    next();
+                                                }
                                             });
                                         } else {
                                             // console.log("NOT FOUND CURVE NEXT");
