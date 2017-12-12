@@ -31,7 +31,7 @@
     "socket.io": "^2.0.3",
     "sqlite3": "^3.1.8",
     "tempfile": "^2.0.0",
-    "wi-import": "^1.0.32",
+    "wi-import": "^1.0.44",
     "wi-palettify": "^1.0.3",
     "xlsx": "^0.10.8"
   }
