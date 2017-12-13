@@ -61,6 +61,7 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
                                         if (curve) {
                                             curve.leftScale = family.minScale;
                                             curve.rightScale = family.maxScale;
+                                            curve.color = family.color;
                                             next(curve);
                                         } else {
                                             next();
@@ -86,7 +87,8 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
                         dbConnection.Histogram.update({
                             idCurve: curve.idCurve,
                             leftScale: curve.leftScale,
-                            rightScale: curve.rightScale
+                            rightScale: curve.rightScale,
+                            color: curve.color
                         }, {
                             where: {
                                 idHistogram: histogram.idHistogram
