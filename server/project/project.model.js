@@ -89,18 +89,10 @@ function deleteProject(projectInfo, done, dbConnection) {
 
 function getProjectFullInfo(project, done, dbConnection) {
     let idProject = project.idProject;
-    let Project = dbConnection.Project;
-    let Well = dbConnection.Well;
-    let ZoneSet = dbConnection.ZoneSet;
-    let Histogram = dbConnection.Histogram;
-    let CrossPlot = dbConnection.CrossPlot;
-    let Plot = dbConnection.Plot;
-    let CombinedBox = dbConnection.CombinedBox;
-    let Group = dbConnection.Groups;
     let response = new Object();
-    Project.findById(idProject, {
+    dbConnection.Project.findById(idProject, {
         include: [{
-            model: Well,
+            model: dbConnection.Well,
             include: [{
                 model: dbConnection.Dataset,
                 include: [{
@@ -120,12 +112,12 @@ function getProjectFullInfo(project, done, dbConnection) {
                 model: dbConnection.CombinedBox
             }]
         }, {
-            model: Group
+            model: dbConnection.Groups
         }]
     }).then(project => {
         response = project.toJSON();
         asyncLoop(response.wells, function (well, next) {
-            ZoneSet.findAll({
+            dbConnection.ZoneSet.findAll({
                 where: {idWell: well.idWell},
                 include: {model: dbConnection.Zone}
             }).then(zs => {
