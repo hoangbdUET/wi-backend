@@ -3,6 +3,7 @@
 // var Well = models.Well;
 var ErrorCodes = require('../../error-codes').CODES;
 const ResponseJSON = require('../response');
+var asyncLoop = require('async/each');
 
 function createNewProject(projectInfo, done, dbConnection) {
     var Project = dbConnection.Project;
@@ -87,6 +88,58 @@ function deleteProject(projectInfo, done, dbConnection) {
 }
 
 function getProjectFullInfo(project, done, dbConnection) {
+    let idProject = project.idProject;
+    let Project = dbConnection.Project;
+    let Well = dbConnection.Well;
+    let ZoneSet = dbConnection.ZoneSet;
+    let Histogram = dbConnection.Histogram;
+    let CrossPlot = dbConnection.CrossPlot;
+    let Plot = dbConnection.Plot;
+    let CombinedBox = dbConnection.CombinedBox;
+    let Group = dbConnection.Groups;
+    let response = new Object();
+    Project.findById(idProject, {
+        include: [{
+            model: Well,
+            include: [{
+                model: dbConnection.Dataset,
+                include: [{
+                    model: dbConnection.Curve,
+                    include: [{
+                        model: dbConnection.Family,
+                        as: "LineProperty"
+                    }]
+                }]
+            }, {
+                model: dbConnection.Plot
+            }, {
+                model: dbConnection.CrossPlot
+            }, {
+                model: dbConnection.Histogram
+            }, {
+                model: dbConnection.CombinedBox
+            }]
+        }, {
+            model: Group
+        }]
+    }).then(project => {
+        response = project.toJSON();
+        asyncLoop(response.wells, function (well, next) {
+            ZoneSet.findAll({
+                where: {idWell: well.idWell},
+                include: {model: dbConnection.Zone}
+            }).then(zs => {
+                zs = JSON.parse(JSON.stringify(zs));
+                response.wells[response.wells.indexOf(well)].zonesets = zs;
+                next();
+            });
+        }, function () {
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Get full info Project success", response));
+        });
+    });
+}
+
+function _getProjectFullInfo(project, done, dbConnection) {
     // console.log("GET FULL INFO ", project);
     var Project = dbConnection.Project;
     Project.findById(project.idProject, {
