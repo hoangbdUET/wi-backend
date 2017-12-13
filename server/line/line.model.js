@@ -259,7 +259,9 @@ function deleteLine(lineInfo, done, dbConnection) {
     var Line = dbConnection.Line;
     Line.findById(lineInfo.idLine)
         .then(function (line) {
-            line.destroy()
+            line.destroy({
+                force: true
+            })
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Line is deleted", line));
                 })

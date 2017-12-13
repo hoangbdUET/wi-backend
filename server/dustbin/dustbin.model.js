@@ -420,7 +420,15 @@ function restoreObject(payload, callback, dbConnection) {
             }).then(rs => {
                 rs.save().then(r => {
                     rs.restore().then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", r));
+                        dbConnection.Line.findAll({where: {idCurve: rs.idCurve}, paranoid: false}).then(lines => {
+                            asyncEach(lines, function (line, next) {
+                                line.restore().then(() => {
+                                    next();
+                                })
+                            }, function () {
+                                callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", r));
+                            });
+                        })
                     });
                 }).catch(err => {
                     callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CANT_RESTORE", err.message));

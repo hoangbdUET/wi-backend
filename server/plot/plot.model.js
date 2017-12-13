@@ -27,27 +27,58 @@ let findFamilyIdByName = function (familyName, dbConnection, callback) {
 function searchReferenceCurve(idWell, dbConnection, callback) {
     let FamilyModel = dbConnection.Family;
     let CurveModel = dbConnection.Curve;
+    let DatasetModel = dbConnection.Dataset;
     FamilyModel.findOne({
         where: {
             name: "Gamma Ray"
         }
     }).then(family => {
         if (family) {
-            CurveModel.findOne({where: {idFamily: family.idFamily}}).then(curve => {
-                if (curve) {
-                    callback(false, curve.idCurve);
+            DatasetModel.findAll({where: {idWell: idWell}}).then((datasets) => {
+                if (datasets.length == 0) {
+                    callback("No dataset", false);
                 } else {
-                    CurveModel.findOne().then(c => {
-                        if (c) {
-                            callback(false, c.idCurve);
+                    asyncLoop(datasets, function (dataset, next) {
+                        let Sequelize = require('sequelize');
+                        console.log("Dataset : ", dataset.idDataset, " Family : ", family.idFamily);
+                        CurveModel.findOne({
+                            // where: Sequelize.and(
+                            //     {idFamily: family.idFamily},
+                            //     {idDataset: dataset.idDataset}
+                            // )
+                            where: {
+                                idFamily: family.idFamily,
+                                idDataset: dataset.idDataset
+                            }
+                        }).then(curve => {
+                            if (curve) {
+                                console.log("FOUND CURVE");
+                                next(curve.idCurve);
+                                // callback(false, curve.idCurve);
+                            } else {
+                                console.log("NOT CURVE");
+                                CurveModel.findOne({where: {idDataset: dataset.idDataset}}).then(c => {
+                                    if (c) {
+                                        next(c.idCurve);
+                                        // callback(false, c.idCurve);
+                                    } else {
+                                        next();
+                                        //callback("No curve", null);
+                                    }
+                                }).catch(err => {
+                                    callback(err, null);
+                                });
+                            }
+                        });
+                    }, function (idCurve) {
+                        if (idCurve) {
+                            return callback(false, idCurve);
                         } else {
-                            callback("No curve", null);
+                            callback("No Curve", null);
                         }
-                    }).catch(err => {
-                        callback(err, null);
                     });
                 }
-            });
+            })
         } else {
             callback("No family", null);
         }

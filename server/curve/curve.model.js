@@ -342,7 +342,15 @@ function deleteCurve(curveInfo, done, dbConnection, username) {
                         /*hashDir.createJSONReadStream(config.curveBasePath, dataset.name + curve.name, curve.name + '.txt');*/
                         curve.destroy()
                             .then(() => {
-                                done(ResponseJSON(ErrorCodes.SUCCESS, "Curve is deleted", curve));
+                                dbConnection.Line.findAll({where: {idCurve: curve.idCurve}}).then(lines => {
+                                    asyncLoop(lines, function (line, next) {
+                                        line.destroy().then(() => {
+                                            next();
+                                        });
+                                    }, function () {
+                                        done(ResponseJSON(ErrorCodes.SUCCESS, "Curve is deleted", curve));
+                                    })
+                                })
                             })
                             .catch(err => {
                                 done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Curve " + err.errors[0].message));
