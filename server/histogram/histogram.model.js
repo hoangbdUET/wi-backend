@@ -61,7 +61,7 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
                                         if (curve) {
                                             curve.leftScale = family.minScale;
                                             curve.rightScale = family.maxScale;
-                                            curve.color = family.color;
+                                            curve.color = family.lineColor;
                                             next(curve);
                                         } else {
                                             next();
