@@ -10,7 +10,7 @@
   "tracks": [
     {
       "orderNum": "b",
-      "title": "Track 1",
+      "title": "Gamma Ray",
       "lines": [
         {
           "families": [
@@ -30,7 +30,7 @@
     },
     {
       "orderNum": "c",
-      "title": "Track 2",
+      "title": "Resistivity",
       "lines": [
         {
           "families": [
@@ -57,7 +57,7 @@
     },
     {
       "orderNum": "d",
-      "title": "Track 3",
+      "title": "Log Porosity",
       "lines": [
         {
           "families": [
