@@ -117,27 +117,44 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
                             findFamilyIdByName(family.name, dbConnection, function (idFamily) {
                                 console.log("ID FAMILY ", idFamily);
                                 if (idFamily) {
-                                    dbConnection.Curve.findOne({where: {idFamily: idFamily}}).then(curve => {
-                                        if (curve) {
-                                            // console.log("FOUND CURVE : NEXT ", curve.name);
-                                            dbConnection.Dataset.findById(curve.idDataset).then(dataset => {
-                                                if (dataset.idWell == myPlot.idWell) {
+                                    dbConnection.Dataset.findAll({where: {idWell: myPlot.idWell}}).then(datasets => {
+                                        asyncLoop(datasets, function (dataset, nextDataset) {
+                                            dbConnection.Curve.findOne({
+                                                where: {
+                                                    idFamily: idFamily,
+                                                    idDataset: dataset.idDataset
+                                                }
+                                            }).then(curve => {
+                                                if (curve) {
+                                                    // console.log("FOUND CURVE : NEXT ", curve.name);
                                                     lineModel.createNewLineWithoutResponse({
                                                         idCurve: curve.idCurve,
                                                         idTrack: idTrack
                                                     }, dbConnection, username, function (line) {
-                                                        next();
+                                                        nextDataset();
                                                     });
+                                                    // dbConnection.Dataset.findById(curve.idDataset).then(dataset => {
+                                                    //     if (dataset.idWell == myPlot.idWell) {
+                                                    //         lineModel.createNewLineWithoutResponse({
+                                                    //             idCurve: curve.idCurve,
+                                                    //             idTrack: idTrack
+                                                    //         }, dbConnection, username, function (line) {
+                                                    //             next();
+                                                    //         });
+                                                    //     } else {
+                                                    //         familyWithErr.push(family.name);
+                                                    //         next();
+                                                    //     }
+                                                    // });
                                                 } else {
+                                                    // console.log("NOT FOUND CURVE NEXT");
                                                     familyWithErr.push(family.name);
-                                                    next();
+                                                    nextDataset();
                                                 }
                                             });
-                                        } else {
-                                            // console.log("NOT FOUND CURVE NEXT");
-                                            familyWithErr.push(family.name);
+                                        }, function () {
                                             next();
-                                        }
+                                        });
                                     });
                                 } else {
                                     next();
