@@ -400,7 +400,8 @@ function duplicatePlot(payload, done, dbConnection) {
         if (plot.name.indexOf('_') != -1) {
             plot.name = plot.name.substring(0, plot.name.indexOf('_'));
         }
-        plot.name = plot.name + "_" + new Date().toLocaleString('en-US',{timeZone: "Asia/Ho_Chi_Minh"});;
+        plot.name = plot.name + "_" + new Date().toLocaleString('en-US', {timeZone: "Asia/Ho_Chi_Minh"});
+        ;
         plot.idWell = payload.idWell;
         Plot.create(plot).then(rs => {
             console.log("DONE PLOT");
@@ -989,7 +990,7 @@ let importPlotTemplate = function (req, done, dbConnection) {
             };
             setTimeout(function () {
                 if (!isCurveNotFound) {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Done"));
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Done", {idPlot: idPlot}));
                 } else {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "CURVE_NOT_FOUND", curveHasError));
                 }
