@@ -50,36 +50,40 @@ function editDataset(datasetInfo, done, dbConnection, username) {
                 Well.findById(dataset.idWell).then(well => {
                     Project.findById(well.idProject).then(project => {
                         Curve.findAll({where: {idDataset: datasetInfo.idDataset}}).then(curves => {
-                            curves.forEach(function (curve) {
-                                let datasetname = dataset.name;
-                                let path = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
-                                let newPath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + datasetInfo.name + curve.name, curve.name + '.txt');
-                                try {
-                                    var copy = fs.createReadStream(path).pipe(fs.createWriteStream(newPath));
-                                    copy.on('close', function () {
-                                        hashDir.deleteFolder(config.curveBasePath, username + project.name + well.name + datasetname + curve.name);
-                                        dataset.name = datasetInfo.name;
-                                        dataset.idWell = datasetInfo.idWell;
-                                        dataset.datasetKey = datasetInfo.datasetKey;
-                                        dataset.datasetLabel = datasetInfo.datasetLabel;
-                                        dataset.save()
-                                            .then(function () {
-                                                done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Dataset success", datasetInfo));
-                                            })
-                                            .catch(function (err) {
-                                                //done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name));
-                                                console.log(err.message);
-                                            })
-                                    });
-                                    copy.on('error', function (err) {
+                            if (curves.length > 0) {
+                                curves.forEach(function (curve) {
+                                    let datasetname = dataset.name;
+                                    let path = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+                                    let newPath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + datasetInfo.name + curve.name, curve.name + '.txt');
+                                    try {
+                                        var copy = fs.createReadStream(path).pipe(fs.createWriteStream(newPath));
+                                        copy.on('close', function () {
+                                            hashDir.deleteFolder(config.curveBasePath, username + project.name + well.name + datasetname + curve.name);
+                                            dataset.name = datasetInfo.name;
+                                            dataset.idWell = datasetInfo.idWell;
+                                            dataset.datasetKey = datasetInfo.datasetKey;
+                                            dataset.datasetLabel = datasetInfo.datasetLabel;
+                                            dataset.save()
+                                                .then(function () {
+                                                    done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Dataset success", datasetInfo));
+                                                })
+                                                .catch(function (err) {
+                                                    //done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name));
+                                                    console.log(err.message);
+                                                })
+                                        });
+                                        copy.on('error', function (err) {
+                                            return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit dataset name", err));
+                                            //console.log(err);
+                                        });
+                                    } catch (err) {
+                                        console.log(err);
                                         return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit dataset name", err));
-                                        //console.log(err);
-                                    });
-                                } catch (err) {
-                                    console.log(err);
-                                    return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit dataset name", err));
-                                }
-                            });
+                                    }
+                                });
+                            } else {
+                                return done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Dataset success", datasetInfo));
+                            }
                         })
                     })
                 }).catch(err => {
