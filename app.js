@@ -1,75 +1,77 @@
 /**
  * Created by minhtan on 20/06/2017.
  */
-var familyUpdate = require('./server/family/GlobalFamilyUpdater');
-var familyConditionUpdate = require('./server/family/GlobalFamilyConditionUpdater');
-var overlayLineUpdate = require('./server/overlay-line/overlay-line.update');
-var models = require("./server/models-master");
+let familyUpdate = require('./server/family/GlobalFamilyUpdater');
+let familyConditionUpdate = require('./server/family/GlobalFamilyConditionUpdater');
+let overlayLineUpdate = require('./server/overlay-line/overlay-line.update');
+
 familyUpdate(function () {
     familyConditionUpdate(function () {
         overlayLineUpdate(function () {
             main();
         });
     });
-})
+});
 
 //main();
 
 function main() {
-    var express = require('express');
-    var app = express();
-    var morgan = require('morgan');
-    var path = require('path');
-    var fs = require('fs');
+    let authenticate;
+    let accessLogStream;
+    let express = require('express');
+    let app = express();
+    let morgan = require('morgan');
+    let path = require('path');
+    let fs = require('fs');
     const cors = require('cors');
-    var fullConfig = require('config');
-    var config = fullConfig.Application;
+    let fullConfig = require('config');
+    let config = fullConfig.Application;
 
-    var projectRouter = require('./server/project/project.router');
-    var wellRouter = require('./server/well/well.router');
-    var plotRouter = require('./server/plot/plot.router');
-    var markerRouter = require('./server/marker/marker.router');
-    var curveRouter = require('./server/curve/curve.router');
-    var trackRouter = require('./server/track/track.router');
-    var depthAxisRouter = require('./server/depth-axis/depth-axis.router');
-    var uploadRouter = require('./server/upload/index');
-    var datasetRouter = require('./server/dataset/dataset.router');
-    var lineRouter = require('./server/line/line.router');
-    var shadingRouter = require('./server/shading/shading.router');
-    var zoneTrackRouter = require('./server/zone-track/zone-track.router');
-    var zoneSetRouter = require('./server/zone-set/zone-set.router');
-    var zoneRouter = require('./server/zone/zone.router');
-    var imageUpload = require('./server/image-upload');
-    var imageRouter = require('./server/image/image.router');
-    var crossPlotRouter = require('./server/cross-plot/cross-plot.router');
-    var pointSetRouter = require('./server/pointset/pointset.router');
-    var polygonRouter = require('./server/polygon/polygon.router');
-    var discrimRouter = require('./server/discrim/discrim.router');
-    var histogramRouter = require('./server/histogram/histogram.router');
-    var palRouter = require('./server/pal/index');
-    var customFillRouter = require('./server/custom-fill/index');
-    var userDefineLineRouter = require('./server/line-user-define/user-line.router');
-    var annotationRouter = require('./server/annotation/annotation.router');
-    var regressionLineRouter = require('./server/regression-line/regression-line.route');
-    var familyRouter = require('./server/family/family.router');
-    var globalFamilyRouter = require('./server/family/global.family.router');
-    var referenceCurveRouter = require('./server/reference-curve/reference-curve.router');
-    var ternaryRouter = require('./server/ternary/ternary.router');
-    var inventoryRouter = require('./server/import-from-inventory/index');
-    var imageTrackRouter = require('./server/image-track/image-track.router');
-    var imageOfTrackRouter = require('./server/image-of-track/image-of-track.router');
-    var objectTrackRouter = require('./server/object-track/object-track.router');
-    var objectOfTrackRouter = require('./server/object-of-track/object-of-track.router');
-    var databaseRouter = require('./server/database/index');
-    var overlayLineRouter = require('./server/overlay-line/overlay-line.router');
-    var groupsRouter = require('./server/groups/groups.router');
-    var axisColorRouter = require('./server/cross-plot/axis-color-template/index');
-    var dustbinRouter = require('./server/dustbin/dustbin.router');
-    var selectionPointRouter = require('./server/selection-point/selection-point.router');
-    var testRouter = require('./test.js');
-    var combinedBoxToolRouter = require('./server/combined-box-tool/combined-box-tool.router');
-    var combinedBoxRouter = require('./server/combined-box/combined-box.router');
-    var http = require('http').Server(app);
+    let projectRouter = require('./server/project/project.router');
+    let wellRouter = require('./server/well/well.router');
+    let plotRouter = require('./server/plot/plot.router');
+    let markerRouter = require('./server/marker/marker.router');
+    let curveRouter = require('./server/curve/curve.router');
+    let trackRouter = require('./server/track/track.router');
+    let depthAxisRouter = require('./server/depth-axis/depth-axis.router');
+    let uploadRouter = require('./server/upload/index');
+    let datasetRouter = require('./server/dataset/dataset.router');
+    let lineRouter = require('./server/line/line.router');
+    let shadingRouter = require('./server/shading/shading.router');
+    let zoneTrackRouter = require('./server/zone-track/zone-track.router');
+    let zoneSetRouter = require('./server/zone-set/zone-set.router');
+    let zoneRouter = require('./server/zone/zone.router');
+    let imageUpload = require('./server/image-upload');
+    let imageRouter = require('./server/image/image.router');
+    let crossPlotRouter = require('./server/cross-plot/cross-plot.router');
+    let pointSetRouter = require('./server/pointset/pointset.router');
+    let polygonRouter = require('./server/polygon/polygon.router');
+
+    let histogramRouter = require('./server/histogram/histogram.router');
+    let palRouter = require('./server/pal/index');
+    let customFillRouter = require('./server/custom-fill/index');
+    let userDefineLineRouter = require('./server/line-user-define/user-line.router');
+    let annotationRouter = require('./server/annotation/annotation.router');
+    let regressionLineRouter = require('./server/regression-line/regression-line.route');
+    let familyRouter = require('./server/family/family.router');
+    let globalFamilyRouter = require('./server/family/global.family.router');
+    let referenceCurveRouter = require('./server/reference-curve/reference-curve.router');
+    let ternaryRouter = require('./server/ternary/ternary.router');
+    let inventoryRouter = require('./server/import-from-inventory/index');
+    let imageTrackRouter = require('./server/image-track/image-track.router');
+    let imageOfTrackRouter = require('./server/image-of-track/image-of-track.router');
+    let objectTrackRouter = require('./server/object-track/object-track.router');
+    let objectOfTrackRouter = require('./server/object-of-track/object-of-track.router');
+    let databaseRouter = require('./server/database/index');
+    let overlayLineRouter = require('./server/overlay-line/overlay-line.router');
+    let groupsRouter = require('./server/groups/groups.router');
+    let axisColorRouter = require('./server/cross-plot/axis-color-template/index');
+    let dustbinRouter = require('./server/dustbin/dustbin.router');
+    let selectionPointRouter = require('./server/selection-point/selection-point.router');
+    let testRouter = require('./test.js');
+    let combinedBoxToolRouter = require('./server/combined-box-tool/combined-box-tool.router');
+    let combinedBoxRouter = require('./server/combined-box/combined-box.router');
+    let http = require('http').Server(app);
     app.use(cors());
     /**
      Attach all routers to app
@@ -82,7 +84,7 @@ function main() {
         res.send("WELCOME TO WI-SYSTEM");
     });
     app.use('/', databaseRouter);
-    var authenticate = require('./server/authenticate/authenticate');
+    authenticate = require('./server/authenticate/authenticate');
     app.use(authenticate());
     app.use('/', testRouter);
     app.use('/', inventoryRouter);
@@ -126,11 +128,7 @@ function main() {
     app.use('/project/well/plot/object-track', objectOfTrackRouter);
     app.use('/project/well/plot/image-track', imageOfTrackRouter);
 
-    /**
-     * Log manager
-     */
-        // create a write stream (in append mode)
-    var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});
+    accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});
     app.use(morgan('combined', {stream: accessLogStream}));
 
     http.listen(config.port, function () {
