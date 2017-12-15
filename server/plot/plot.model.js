@@ -1,14 +1,11 @@
-// var models = require('../models');
-// var Plot = models.Plot;
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
-var async = require('async');
-// const async = require('promise-async')
-var asyncLoop = require('async/each');
-var exporter = require('./exporter');
-var fs = require('fs');
-var path = require('path');
-var lineModel = require('../line/line.model');
+const ResponseJSON = require('../response');
+const ErrorCodes = require('../../error-codes').CODES;
+const asyncSeries = require('async/series');
+const asyncLoop = require('async/each');
+const exporter = require('./exporter');
+const fs = require('fs');
+const path = require('path');
+const lineModel = require('../line/line.model');
 let findFamilyIdByName = function (familyName, dbConnection, callback) {
     dbConnection.Family.findOne({where: {name: familyName}}).then(family => {
         if (family) {
@@ -210,7 +207,7 @@ function createNewPlot(plotInfo, done, dbConnection, username) {
                 Plot.sync()
                     .then(
                         function () {
-                            var plot = Plot.build({
+                            const plot = Plot.build({
                                 idWell: plotInfo.idWell,
                                 name: plotInfo.name,
                                 referenceCurve: plotInfo.referenceCurve,
@@ -252,7 +249,7 @@ function createNewPlot(plotInfo, done, dbConnection, username) {
                 Plot.sync()
                     .then(
                         function () {
-                            var plot = Plot.build({
+                            const plot = Plot.build({
                                 idWell: plotInfo.idWell,
                                 name: plotInfo.name,
                                 referenceCurve: plotInfo.referenceCurve,
@@ -276,7 +273,7 @@ function createNewPlot(plotInfo, done, dbConnection, username) {
 }
 
 function editPlot(plotInfo, done, dbConnection) {
-    var Plot = dbConnection.Plot;
+    const Plot = dbConnection.Plot;
     Plot.findById(plotInfo.idPlot)
         .then(function (plot) {
             plot.idWell = plotInfo.idWell;
@@ -297,7 +294,7 @@ function editPlot(plotInfo, done, dbConnection) {
 }
 
 function deletePlot(plotInfo, done, dbConnection) {
-    var Plot = dbConnection.Plot;
+    const Plot = dbConnection.Plot;
     Plot.findById(plotInfo.idPlot)
         .then(function (plot) {
             plot.destroy()
@@ -314,7 +311,7 @@ function deletePlot(plotInfo, done, dbConnection) {
 }
 
 function getPlotInfo(plot, done, dbConnection) {
-    var Plot = dbConnection.Plot;
+    const Plot = dbConnection.Plot;
     Plot.findById(plot.idPlot, {include: [{all: true, include: [{all: true}]}]})
         .then(function (plot) {
             if (!plot) throw "not exists";
@@ -325,185 +322,241 @@ function getPlotInfo(plot, done, dbConnection) {
         })
 }
 
-function createLineForDuplicate(lineInfos, dbConnection, callback) {
-    let Line = dbConnection.Line;
-    let idArray = new Array();
-    if (lineInfos.length > 0) {
-        asyncLoop(lineInfos, function (lineInfo, next) {
-            let bk = lineInfo.idLine;
-            delete lineInfo.idLine;
-            Line.create(lineInfo).then(line => {
-                idArray[bk] = line.idLine;
-                next();
-            }).catch(err => {
-                next(err);
-            });
-        }, function (err) {
-            if (err) callback(err, null);
-            callback(null, idArray);
-        });
-    } else {
-        callback("No line", null);
-    }
-}
-
-function createMarkerForDuplicate(markerInfos, dbConnection, callback) {
-    let Marker = dbConnection.Marker;
-    if (markerInfos.length > 0) {
-        asyncLoop(markerInfos, function (markerInfo, next) {
-            Marker.create(markerInfo).then(marker => {
-                next()
-            }).catch(err => {
-                next(err);
-            });
-        }, function (err) {
-            if (err) callback(err, null);
-            callback(null, "DONE MARKER");
-        })
-    } else {
-        callback("No Maker", null);
-    }
-}
-
-function createShaingForDuplicate(shadingInfos, dbConnection, callback) {
-    let Shading = dbConnection.Shading;
-    if (shadingInfos.length > 0) {
-        asyncLoop(shadingInfos, function (shadingInfo, next) {
-            Shading.create(shadingInfo).then(shaing => {
-                next();
-            }).catch(err => {
-                next(err);
-            })
-        }, function (err) {
-            if (err) callback(err, null);
-            callback(null, "DONE SHADING");
-        });
-    } else {
-        callback("NO Shading", null);
-    }
-}
-
-function duplicatePlot(payload, done, dbConnection) {
+function duplicatePlot(payload, done, dbConnection, isSave) {
     let Plot = dbConnection.Plot;
     let Track = dbConnection.Track;
     let Shading = dbConnection.Shading;
     let Marker = dbConnection.Marker;
     let Line = dbConnection.Line;
     let Annotation = dbConnection.Annotation;
-    let Image = dbConnection.Image;
+    let ImageTrack = dbConnection.ImageTrack;
+    let ObjectTrack = dbConnection.ObjectTrack;
     let DepthAxis = dbConnection.DepthAxis;
-    let ZoneTrack = dbConnection.ZoneTrack;
     let Curve = dbConnection.Curve;
-    Plot.findById(payload.idPlot, {include: [{all: true, include: [{all: true}]}]}).then(rs => {
-        let plot = rs.toJSON();
-        delete plot.idPlot;
-        if (plot.name.indexOf('_') != -1) {
-            plot.name = plot.name.substring(0, plot.name.indexOf('_'));
-        }
-        plot.name = plot.name + "_" + new Date().toLocaleString('en-US', {timeZone: "Asia/Ho_Chi_Minh"});
-        plot.idWell = payload.idWell;
-        Plot.create(plot).then(rs => {
-            console.log("DONE PLOT");
-            let tracks = plot.tracks.length != 0 ? plot.tracks : [];
-            if (tracks.length > 0) {
-                asyncLoop(tracks, function (track, next) {
-                    delete track.idTrack;
-                    track.idPlot = rs.idPlot;
-                    Track.create(track).then(rs => {
-                        let lines = track.lines.length != 0 ? track.lines : [];
-                        if (lines.length > 0) {
-                            lines.forEachDone(line => {
-                                //delete line.idLine;
-                                line.idTrack = rs.idTrack;
-                            }, function () {
-                                createLineForDuplicate(lines, dbConnection, function (err, result) {
-                                    let idArray = result;
-                                    let markers = track.markers.length != 0 ? track.markers : [];
-                                    markers.forEachDone(marker => {
-                                        delete marker.idMarker;
-                                        marker.idTrack = rs.idTrack;
-                                    }, function (err) {
-                                        createMarkerForDuplicate(markers, dbConnection, function (err, result) {
-                                            console.log(result);
+    Plot.findById(payload.idPlot, {include: [{all: true, include: [{all: true, include: {all: true}}]}]}).then(rs => {
+        if (rs) {
+            let newPlot = rs.toJSON();
+            delete newPlot.idPlot;
+            delete newPlot.createdAt;
+            delete newPlot.updatedAt;
+            console.log(isSave);
+            if (isSave) {
+                newPlot.name = isSave;
+            } else {
+                newPlot.name = newPlot.name + "_" + new Date().toLocaleString('en-US', {timeZone: "Asia/Ho_Chi_Minh"});
+            }
+            Plot.create(newPlot).then(pl => {
+                let idPlot = pl.idPlot;
+                asyncSeries([
+                    function (cb) {
+                        let tracks = newPlot.tracks;
+                        asyncLoop(tracks, function (track, nextTrack) {
+                            delete track.idTrack;
+                            delete track.createdAt;
+                            delete track.updatedAt;
+                            track.idPlot = idPlot;
+                            Track.create(track).then(tr => {
+                                let idTrack = tr.idTrack;
+                                asyncSeries([
+                                    function (cb) {
+                                        let lines = track.lines;
+                                        let lineArr = [];
+                                        asyncLoop(lines, function (line, nextLine) {
+                                            let oldLine = line.idLine;
+                                            delete line.idLine;
+                                            delete line.createAt;
+                                            delete line.updatedAt;
+                                            line.idTrack = idTrack;
+                                            dbConnection.Line.create(line).then((l) => {
+                                                lineArr.push({oldLine: oldLine, newLine: l.idLine});
+                                                nextLine();
+                                            }).catch(err => {
+                                                console.log(err);
+                                                nextLine();
+                                            });
+                                        }, function () {
+                                            cb(null, lineArr);
                                         });
-                                    });
-                                    let shadings = track.shadings.length != 0 ? track.shadings : [];
-                                    shadings.forEachDone(shading => {
+                                    },
+                                    function (cb) {
+                                        let markers = track.markers;
+                                        asyncLoop(markers, function (marker, nextMarker) {
+                                            delete marker.idMarker;
+                                            delete marker.createAt;
+                                            delete marker.updatedAt;
+                                            marker.idTrack = idTrack;
+                                            dbConnection.Marker.create(marker).then(() => {
+                                                nextMarker();
+                                            }).catch(err => {
+                                                console.log(err);
+                                                nextMarker();
+                                            });
+                                        }, function () {
+                                            cb(null, true);
+                                        });
+                                    },
+                                    function (cb) {
+                                        let annotations = track.annotations;
+                                        asyncLoop(annotations, function (annotation, nextAno) {
+                                            delete annotation.idAnnotation;
+                                            delete annotation.createAt;
+                                            delete annotation.updatedAt;
+                                            annotation.idTrack = idTrack;
+                                            dbConnection.Annotation.create(annotation).then(() => {
+                                                nextAno();
+                                            }).catch(err => {
+                                                console.log(err);
+                                                nextAno();
+                                            });
+                                        }, function () {
+                                            cb(null, true);
+                                        });
+                                    }
+                                ], function (err, result) {
+                                    let shadings = track.shadings;
+                                    let myLine = result[0];
+                                    asyncLoop(shadings, function (shading, nextShading) {
                                         delete shading.idShading;
-                                        shading.idTrack = rs.idTrack;
-                                        shading.idLeftLine = idArray[shading.idLeftLine];
-                                        shading.idRightLine = idArray[shading.idRightLine];
-                                    }, function () {
-                                        createShaingForDuplicate(shadings, dbConnection, function (err, result) {
-                                            console.log(result);
+                                        delete shading.createdAt;
+                                        delete shading.updatedAt;
+                                        shading.idTrack = idTrack;
+                                        asyncSeries([
+                                            function (cb) {
+                                                let findLine = myLine.find(l => l.oldLine === shading.idLeftLine);
+                                                shading.idLeftLine = findLine ? findLine.newLine : null;
+                                                cb();
+                                            },
+                                            function (cb) {
+                                                let findLine = myLine.find(l => l.oldLine === shading.idRightLine);
+                                                shading.idRightLine = findLine ? findLine.newLine : null;
+                                                cb();
+                                            },
+                                            function (cb) {
+                                                dbConnection.Shading.create(shading).then(() => {
+                                                    cb();
+                                                }).catch(err => {
+                                                    cb();
+                                                });
+                                            }
+                                        ], function () {
+                                            nextShading();
                                         })
-                                    })
-                                    next();
+                                    }, function () {
+                                        nextTrack();
+                                    });
                                 });
+                            }).catch(err => {
+                                console.log(err);
+                                nextTrack();
                             });
-                        } else {
-                            let markers = track.markers.length != 0 ? track.markers : [];
-                            markers.forEachDone(marker => {
-                                delete marker.idMarker;
-                                marker.idTrack = rs.idTrack;
-                            }, function (err) {
-                                createMarkerForDuplicate(markers, dbConnection, function (err, result) {
-                                    console.log(result);
-                                });
-                            })
-                            next();
-                        }
-                    }).catch(err => {
-                        next(err);
-                    });
-                }, function (errTrack) {
-                    console.log("DONE TRACKS");
-                    let depth_axes = plot.depth_axes.length != 0 ? plot.depth_axes : [];
-                    if (depth_axes.length != 0) {
-                        asyncLoop(depth_axes, (depth_axis, next) => {
+                        }, function () {
+                            cb(null, true);
+                        });
+                    },
+                    function (cb) {
+                        let depth_axes = newPlot.depth_axes;
+                        asyncLoop(depth_axes, function (depth_axis, nextDepth) {
                             delete depth_axis.idDepthAxis;
-                            depth_axis.idPlot = rs.idPlot;
-                            DepthAxis.create(depth_axis).then(rs => {
-                                // console.log("CREATE DEPTH AXIS");
+                            delete depth_axis.createdAt;
+                            delete depth_axis.updatedAt;
+                            depth_axis.idPlot = idPlot;
+                            DepthAxis.create(depth_axis).then(d => {
+                                nextDepth();
+                            }).catch(err => {
+                                nextDepth();
+                            });
+                        }, function () {
+                            cb(null, true);
+                        });
+                    },
+                    function (cb) {
+                        let image_tracks = newPlot.image_tracks;
+                        asyncLoop(image_tracks, function (image_track, nextImg) {
+                            delete image_track.idImageTrack;
+                            delete image_track.createdAt;
+                            delete image_track.updatedAt;
+                            image_track.idPlot = idPlot;
+                            ImageTrack.create(image_track).then(d => {
+                                let idImageTrack = d.idImageTrack;
+                                let image_of_tracks = image_track.image_of_tracks;
+                                asyncLoop(image_of_tracks, function (i, n) {
+                                    delete i.idImageOfTrack;
+                                    delete i.createdAt;
+                                    delete i.updatedAt;
+                                    i.idImageTrack = idImageTrack;
+                                    dbConnection.ImageOfTrack.create(i).then(() => {
+                                        n();
+                                    }).catch((err) => {
+                                        console.log(err);
+                                        n();
+                                    });
+                                }, function () {
+                                    nextImg();
+                                });
+                            }).catch(err => {
+                                nextImg();
+                            });
+                        }, function () {
+                            cb(null, true);
+                        });
+                    },
+                    function (cb) {
+                        let object_tracks = newPlot.object_tracks;
+                        asyncLoop(object_tracks, function (object_track, next) {
+                            delete object_track.idObjectTrack;
+                            delete object_track.createdAt;
+                            delete object_track.updatedAt;
+                            object_track.idPlot = idPlot;
+                            ObjectTrack.create(object_track).then(d => {
+                                let idObjectTrack = d.idObjectTrack;
+                                let objectOfTracks = object_track.object_of_tracks;
+                                asyncLoop(objectOfTracks, function (o, nextO) {
+                                    delete o.idObjectOfTrack;
+                                    delete o.createdAt;
+                                    delete o.updatedAt;
+                                    o.idObjectTrack = idObjectTrack;
+                                    dbConnection.ObjectOfTrack.create(o).then(() => {
+                                        nextO();
+                                    }).catch(err => {
+                                        nextO();
+                                    })
+                                }, function () {
+                                    next();
+                                })
+                            }).catch(err => {
+                                next();
+                            });
+                        }, function () {
+                            cb(null, true);
+                        });
+                    },
+                    function (cb) {
+                        let zone_tracks = newPlot.zone_tracks;
+                        asyncLoop(zone_tracks, function (zone_track, next) {
+                            delete zone_track.idZoneTrack;
+                            delete zone_track.createdAt;
+                            delete zone_track.updatedAt;
+                            zone_track.idPlot = idPlot;
+                            dbConnection.ZoneTrack.create(zone_track).then(d => {
                                 next();
                             }).catch(err => {
-                                next(err);
+                                next();
                             });
-                        }, err => {
-                            if (err) console.log("CREATE DEPTH AXIS ERR" + err);
-                            console.log("DONE DEPTH AXES");
-                            let zone_tracks = plot.zone_tracks.length != 0 ? plot.zone_tracks : [];
-                            if (zone_tracks.length != 0) {
-                                asyncLoop(zone_tracks, (zone_track, next) => {
-                                    delete zone_track.idZoneTrack;
-                                    zone_track.idPlot = rs.idPlot;
-                                    ZoneTrack.create(zone_track).then(rs => {
-                                        // console.log("CREATE ZONE TRACK");
-                                        next();
-                                    }).catch(err => {
-                                        next(err);
-                                    });
-                                }, err => {
-                                    if (err) console.log("CREATE ZONE TRACK ERR" + err);
-                                    console.log("DONE ZONE TRACKS");
-                                })
-                            } else {
-                                // console.log("DAY NA");
-                            }
+                        }, function () {
+                            cb(null, true);
                         });
                     }
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "OK"));
+                ], function (err, result) {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Done", pl));
                 });
-            } else {
-                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "NO TRACK"));
-            }
-        }).catch(err => {
-            console.log(err);
-            done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Error"));
-        });
+            }).catch(err => {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "err", err));
+            })
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Plot"));
+        }
     }).catch(err => {
-        console.log(err);
-        done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Error"));
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
     });
 }
 

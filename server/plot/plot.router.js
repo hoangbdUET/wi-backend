@@ -61,4 +61,10 @@ router.post('/plot/import', upload.single('file'), function (req, res) {
         res.send(status);
     }, req.dbConnection);
 });
+
+router.post('/plot/save-as', function (req, res) {
+    plotModel.duplicatePlot(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection, req.body.name);
+});
 module.exports = router;
