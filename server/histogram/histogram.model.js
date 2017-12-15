@@ -26,11 +26,12 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
     var Histogram = dbConnection.Histogram;
     var Well = dbConnection.Well;
     Well.findById(parseInt(histogramInfo.idWell)).then(well => {
+        var myData;
         histogramInfo.referenceTopDepth = well.topDepth;
         histogramInfo.referenceBottomDepth = well.bottomDepth;
         if (histogramInfo.histogramTemplate) {
             console.log("NEW HISTOGRAM TEMPLATE ", histogramInfo.histogramTemplate);
-            let myData = null;
+            myData = null;
             try {
                 myData = require('./histogram-template/' + histogramInfo.histogramTemplate + '.json');
             } catch (err) {
@@ -217,10 +218,31 @@ function deleteHistogram(histogramInfo, done, dbConnection) {
         })
 }
 
+function duplicateHistogram(payload, done, dbConnection) {
+    let Histogram = dbConnection.Histogram;
+    Histogram.findById(payload.idHistogram).then(hisogram => {
+        let newHistogram;
+        if (hisogram) {
+            newHistogram = hisogram.toJSON();
+            delete newHistogram.idHistogram;
+            delete newHistogram.createdAt;
+            delete newHistogram.updatedAt;
+            newHistogram.name = newHistogram.name + '_' + new Date().toLocaleString('en-US', {timeZone: "Asia/Ho_Chi_Minh"});
+            Histogram.create(newHistogram).then(rs => {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
+            }).catch(err => {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
+            });
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No histogram found"));
+        }
+    });
+}
+
 module.exports = {
     createNewHistogram: createNewHistogram,
     getHistogram: getHistogram,
     editHistogram: editHistogram,
-    deleteHistogram: deleteHistogram
-
+    deleteHistogram: deleteHistogram,
+    duplicateHistogram: duplicateHistogram
 };

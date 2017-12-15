@@ -115,19 +115,23 @@ function getProjectFullInfo(project, done, dbConnection) {
             model: dbConnection.Groups
         }]
     }).then(project => {
-        response = project.toJSON();
-        asyncLoop(response.wells, function (well, next) {
-            dbConnection.ZoneSet.findAll({
-                where: {idWell: well.idWell},
-                include: {model: dbConnection.Zone}
-            }).then(zs => {
-                zs = JSON.parse(JSON.stringify(zs));
-                response.wells[response.wells.indexOf(well)].zonesets = zs;
-                next();
+        if (project) {
+            response = project.toJSON();
+            asyncLoop(response.wells, function (well, next) {
+                dbConnection.ZoneSet.findAll({
+                    where: {idWell: well.idWell},
+                    include: {model: dbConnection.Zone}
+                }).then(zs => {
+                    zs = JSON.parse(JSON.stringify(zs));
+                    response.wells[response.wells.indexOf(well)].zonesets = zs;
+                    next();
+                });
+            }, function () {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Get full info Project success", response));
             });
-        }, function () {
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Get full info Project success", response));
-        });
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No project"));
+        }
     });
 }
 

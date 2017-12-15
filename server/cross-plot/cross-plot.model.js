@@ -1,6 +1,7 @@
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 var asyncLoop = require('async/each');
+var asyncSeries = require('async/series');
 
 let findFamilyIdByName = function (familyName, dbConnection, callback) {
     dbConnection.Family.findOne({where: {name: familyName}}).then(family => {
@@ -23,11 +24,12 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
     let foundCurveX = false;
     let foundCurveY = false;
     Well.findById(crossPlotInfo.idWell).then(well => {
+        var myData;
         crossPlotInfo.referenceTopDepth = well.topDepth;
         crossPlotInfo.referenceBottomDepth = well.bottomDepth;
         if (crossPlotInfo.crossTemplate) {
             console.log("NEW CROSS TEMPLATE : ", crossPlotInfo.crossTemplate);
-            let myData = null;
+            myData = null;
             try {
                 myData = require('./cross-template/' + crossPlotInfo.crossTemplate + '.json');
             } catch (err) {
@@ -217,10 +219,116 @@ function getCrossPlotInfo(crossPlot, done, dbConnection) {
         })
 }
 
+function duplicateCrossplot(payload, done, dbConnection) {
+    let CrossPLot = dbConnection.CrossPlot;
+    CrossPLot.findById(payload.idCrossPlot, {include: {all: true, include: {all: true}}}).then(crossplot => {
+        var newCrossPlot;
+        if (crossplot) {
+            newCrossPlot = crossplot.toJSON();
+            delete newCrossPlot.idCrossPlot;
+            delete newCrossPlot.createdAt;
+            delete newCrossPlot.updatedAt;
+            newCrossPlot.name = newCrossPlot.name + '_' + new Date().toLocaleString('en-US', {timeZone: "Asia/Ho_Chi_Minh"});
+            CrossPLot.create(newCrossPlot).then(cr => {
+                let idCrossPlot = cr.idCrossPlot;
+                asyncSeries([
+                        function (callback) {
+                            let newPointSet = newCrossPlot.pointsets[0];
+                            delete newPointSet.idPointSet;
+                            delete newPointSet.createdAt;
+                            delete newPointSet.updatedAt;
+                            newPointSet.idCrossPlot = idCrossPlot;
+                            dbConnection.PointSet.create(newPointSet).then(ps => {
+                                callback(null, ps);
+                            }).catch(err => {
+                                console.log(err);
+                                callback(err, null);
+                            });
+                        },
+                        function (callback) {
+                            let newPolygons = newCrossPlot.polygons;
+                            asyncLoop(newPolygons, function (polygon, next) {
+                                delete polygon.idPolygon;
+                                delete polygon.updatedAt;
+                                delete polygon.createdAt;
+                                polygon.idCrossPlot = idCrossPlot;
+                                dbConnection.Polygon.create(polygon).then((pl) => {
+                                    next();
+                                }).catch(err => {
+                                    next();
+                                });
+                            }, function () {
+                                callback(null, true);
+                            });
+                        },
+                        function (callback) {
+                            let newRegressionlines = newCrossPlot.regressionlines;
+                            asyncLoop(newRegressionlines, function (regression, next) {
+                                delete regression.idRegressionLine;
+                                delete regression.updatedAt;
+                                delete regression.createdAt;
+                                regression.idCrossPlot = idCrossPlot;
+                                dbConnection.RegressionLine.create(regression).then(() => {
+                                    next();
+                                }).catch(err => {
+                                    next();
+                                });
+                            }, function () {
+                                callback(null, true);
+                            });
+                        },
+                        function (callback) {
+                            let newTernaries = newCrossPlot.ternaries;
+                            asyncLoop(newTernaries, function (ternary, next) {
+                                delete ternary.idTernary;
+                                delete ternary.updatedAt;
+                                delete ternary.createdAt;
+                                ternary.idCrossPlot = idCrossPlot;
+                                dbConnection.Ternary.create(ternary).then(() => {
+                                    next();
+                                }).catch(err => {
+                                    next();
+                                });
+                            }, function () {
+                                callback(null, true);
+                            });
+                        },
+                        function (callback) {
+                            let userDefineLines = newCrossPlot.user_define_line;
+                            asyncLoop(userDefineLines, function (line, next) {
+                                delete line.idUserDefineLine;
+                                delete line.updatedAt;
+                                delete line.createdAt;
+                                line.idCrossPlot = idCrossPlot;
+                                dbConnection.UserDefineLine.create(line).then(() => {
+                                    next();
+                                }).catch(err => {
+                                    next();
+                                });
+                            }, function () {
+                                callback(null, true);
+                            });
+                        }
+                    ],
+                    function (err, result) {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", result));
+                    });
+            }).catch(err => {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err));
+            })
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No cross plot"));
+        }
+    }).catch(err => {
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
+    })
+}
+
 module.exports = {
     createNewCrossPlot: createNewCrossPlot,
     editCrossPlot: editCrossPlot,
     deleteCrossPlot: deleteCrossPlot,
-    getCrossPlotInfo: getCrossPlotInfo
+    getCrossPlotInfo: getCrossPlotInfo,
+    duplicateCrossplot: duplicateCrossplot
 };
 

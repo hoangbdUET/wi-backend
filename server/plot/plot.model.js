@@ -401,7 +401,6 @@ function duplicatePlot(payload, done, dbConnection) {
             plot.name = plot.name.substring(0, plot.name.indexOf('_'));
         }
         plot.name = plot.name + "_" + new Date().toLocaleString('en-US', {timeZone: "Asia/Ho_Chi_Minh"});
-        ;
         plot.idWell = payload.idWell;
         Plot.create(plot).then(rs => {
             console.log("DONE PLOT");
