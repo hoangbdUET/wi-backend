@@ -600,6 +600,7 @@ let exportData = function (payload, done, error, dbConnection) {
                                 delete shading.updatedAt;
                                 delete shading.idTrack;
                                 delete shading.curve;
+                                delete shading.idControlCurve;
                                 asyncSeries([
                                     function (cb) {
                                         if (shading.idLeftLine) {
@@ -795,6 +796,7 @@ let importPlotTemplate = function (req, done, dbConnection) {
                                     function (cb) {
                                         asyncLoop(track.shadings, function (shading, next) {
                                             shading.idTrack = idTrack;
+                                            delete shading.idControlCurve;
                                             asyncSeries([
                                                 function (c) {
                                                     if (shading.leftLine) {
