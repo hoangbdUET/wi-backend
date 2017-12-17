@@ -965,9 +965,11 @@ let importPlotTemplate = function (req, done, dbConnection) {
                         });
                     }
                 ], function (err, result) {
+                    fs.unlinkSync(filePath);
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Successsful", {idPlot: rs.idPlot}));
                 });
             }).catch(err => {
+                fs.unlinkSync(filePath);
                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed!", err.message));
             });
         });
