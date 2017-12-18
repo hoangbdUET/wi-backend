@@ -4,6 +4,8 @@ var ErrorCodes = require('../../error-codes').CODES;
 // var Curve = models.Curve;
 const ResponseJSON = require('../response');
 var curveModel = require('../curve/curve.model');
+const asyncLoop = require('async/each');
+const asyncSeries = require('async/series');
 
 function getWellIdByTrack(idTrack, dbConnection, callback) {
     let Track = dbConnection.Track;
@@ -215,44 +217,73 @@ function createNewLine(lineInfo, done, dbConnection, username) {
 }
 
 function editLine(lineInfo, done, dbConnection) {
-    var Line = dbConnection.Line;
-    Line.findById(lineInfo.idLine)
-        .then(function (line) {
-            line.idTrack = lineInfo.idTrack;
-            line.minValue = lineInfo.minValue;
-            line.maxValue = lineInfo.maxValue;
-            line.displayMode = lineInfo.displayMode;
-            line.blockPosition = lineInfo.blockPosition;
-            line.displayType = lineInfo.displayType;
-            line.lineStyle = lineInfo.lineStyle;
-            line.lineWidth = lineInfo.lineWidth;
-            line.lineColor = lineInfo.lineColor;
-
-            line.showHeader = lineInfo.showHeader;
-            line.showDataset = lineInfo.showDataset;
-            line.autoValueScale = lineInfo.autoValueScale;
-            line.wrapMode = lineInfo.wrapMode;
-            line.ignoreMissingValues = lineInfo.ignoreMissingValues;
-            line.displayAs = lineInfo.displayAs;
-            line.alias = lineInfo.alias;
-            line.symbolName = lineInfo.symbolName;
-            line.symbolSize = lineInfo.symbolSize;
-            line.symbolStrokeStyle = lineInfo.symbolStrokeStyle;
-            line.symbolFillStyle = lineInfo.symbolFillStyle;
-            line.symbolLineWidth = lineInfo.symbolLineWidth;
-            line.symbolLineDash = lineInfo.symbolLineDash;
-
-            line.save()
-                .then(function () {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Line success", lineInfo));
-                })
-                .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Line " + err));
-                })
-        })
-        .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Line not found for edit"));
-        })
+    let Line = dbConnection.Line;
+    Line.findById(lineInfo.idLine, {include: {all: true}}).then(line => {
+        if (line) {
+            if (line.idTrack != lineInfo.idTrack) {
+                dbConnection.Shading.findAll({
+                    where: {idTrack: line.idTrack},
+                    include: {all: true}
+                }).then(shadings => {
+                    asyncLoop(shadings, function (shading, next) {
+                        console.log(shading.toJSON());
+                        asyncSeries([
+                            function (cb) {
+                                if (shading.leftLine) {
+                                    if (shading.leftLine.idLine === line.idLine) {
+                                        shading.idLeftLine = line.idLine;
+                                        shading.idTrack = lineInfo.idTrack;
+                                        cb();
+                                    } else {
+                                        cb();
+                                    }
+                                } else {
+                                    cb();
+                                }
+                            },
+                            function (cb) {
+                                if (shading.rightLine) {
+                                    if (shading.rightLine.idLine === line.idLine) {
+                                        shading.idRightLine = line.idLine;
+                                        shading.idTrack = lineInfo.idTrack;
+                                        cb();
+                                    } else {
+                                        cb();
+                                    }
+                                } else {
+                                    cb();
+                                }
+                            }
+                        ], function () {
+                            shading.save().then(s => {
+                                console.log("Edit shading");
+                                next();
+                            }).catch(err => {
+                                console.log(err);
+                                next();
+                            });
+                        });
+                    }, function () {
+                        Object.assign(line, lineInfo).save().then(rs => {
+                            done(ResponseJSON(ErrorCodes.SUCCESS, "Done", line));
+                        }).catch(err => {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
+                        });
+                    });
+                });
+            } else {
+                Object.assign(line, lineInfo).save().then(rs => {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
+                }).catch(err => {
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
+                });
+            }
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Line Found"));
+        }
+    }).catch(err => {
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
+    });
 }
 
 function deleteLine(lineInfo, done, dbConnection) {
