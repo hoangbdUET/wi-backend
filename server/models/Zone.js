@@ -7,11 +7,11 @@ module.exports = function (sequelize, DataTypes) {
             primaryKey: true
         },
         startDepth: {
-            type: DataTypes.FLOAT,
+            type: DataTypes.FLOAT(15, 4),
             allowNull: false
         },
         endDepth: {
-            type: DataTypes.FLOAT,
+            type: DataTypes.FLOAT(15, 4),
             allowNull: false
         },
         fill: {

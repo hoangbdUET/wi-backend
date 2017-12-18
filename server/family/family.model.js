@@ -70,7 +70,9 @@ function getFamilyInfo(familyInfo, done, dbConnection) {
 
 function getFamilyList(done, dbConnection) {
     var Family = dbConnection.Family;
-    Family.all()
+    Family.all({
+        order: ['name']
+    })
         .then(function (families) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get List Family success", families));
         })
