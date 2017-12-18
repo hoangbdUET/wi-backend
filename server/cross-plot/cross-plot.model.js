@@ -61,7 +61,12 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
                             if (idFamily) {
                                 dbConnection.Dataset.findAll({where: {idWell: crossPlotInfo.idWell}}).then(datasets => {
                                     asyncLoop(datasets, function (dataset, next) {
-                                        dbConnection.Curve.findOne({where: {idFamily: idFamily}}).then(curve => {
+                                        dbConnection.Curve.findOne({
+                                            where: {
+                                                idFamily: idFamily,
+                                                idDataset: dataset.idDataset
+                                            }
+                                        }).then(curve => {
                                             if (curve) {
                                                 next(curve);
                                             } else {
@@ -91,18 +96,33 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
                                 }
                             }).then(rs => {
                                 console.log("Added curveX ", curveX.name, " to Point Set");
-                            }).catch()
+                            }).catch();
                         }
                         asyncLoop(myData.curveY.families, function (family, next) {
                             findFamilyIdByName(family.name, dbConnection, function (idFamily) {
                                 if (idFamily) {
-                                    dbConnection.Curve.findOne({where: {idFamily: idFamily}}).then(curve => {
-                                        if (curve) {
-                                            next(curve);
-                                        } else {
-                                            next();
-                                        }
-                                    }).catch();
+                                    dbConnection.Dataset.findAll({where: {idWell: crossPlotInfo.idWell}}).then(datasets => {
+                                        asyncLoop(datasets, function (dataset, next) {
+                                            dbConnection.Curve.findOne({
+                                                where: {
+                                                    idFamily: idFamily,
+                                                    idDataset: dataset.idDataset
+                                                }
+                                            }).then(curve => {
+                                                if (curve) {
+                                                    next(curve);
+                                                } else {
+                                                    next();
+                                                }
+                                            }).catch();
+                                        }, function (found) {
+                                            if (found) {
+                                                next(found);
+                                            } else {
+                                                next();
+                                            }
+                                        });
+                                    });
                                 } else {
                                     next();
                                 }

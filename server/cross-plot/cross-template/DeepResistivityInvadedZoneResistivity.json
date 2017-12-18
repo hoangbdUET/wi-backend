@@ -1,0 +1,17 @@
+{
+  "name": "DeepResistivityInvadedZoneResistivity",
+  "curveX": {
+    "families": [
+      {
+        "name": "Deep Resistivity"
+      }
+    ]
+  },
+  "curveY": {
+    "families": [
+      {
+        "name": "Invaded Zone Resistivity"
+      }
+    ]
+  }
+}
