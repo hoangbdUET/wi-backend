@@ -36,13 +36,8 @@ let searchReferenceCurve = function (idWell, dbConnection, callback) {
                     callback("No dataset", false);
                 } else {
                     asyncLoop(datasets, function (dataset, next) {
-                        let Sequelize = require('sequelize');
                         console.log("Dataset : ", dataset.idDataset, " Family : ", family.idFamily);
                         CurveModel.findOne({
-                            // where: Sequelize.and(
-                            //     {idFamily: family.idFamily},
-                            //     {idDataset: dataset.idDataset}
-                            // )
                             where: {
                                 idFamily: family.idFamily,
                                 idDataset: dataset.idDataset
@@ -84,6 +79,45 @@ let searchReferenceCurve = function (idWell, dbConnection, callback) {
     })
 }
 
+function findCurveForTemplate(families, idWell, dbConnection, callback) {
+    // console.log(families);
+    asyncLoop(families, function (family, next) {
+        console.log(family);
+        findFamilyIdByName(family.name, dbConnection, function (idFamily) {
+            if (idFamily) {
+                dbConnection.Dataset.findAll({where: {idWell: idWell}}).then(datasets => {
+                    asyncLoop(datasets, function (dataset, nextDataset) {
+                        dbConnection.Curve.findOne({
+                            where: {
+                                idDataset: dataset.idDataset,
+                                idFamily: idFamily
+                            }
+                        }).then(curve => {
+                            if (curve) {
+                                nextDataset(curve);
+                            } else {
+                                nextDataset();
+                            }
+                        });
+                    }, function (done) {
+                        if (done) return next(done);
+                        next();
+                    });
+                });
+            } else {
+                next();
+            }
+        });
+    }, function (done) {
+        if (done) {
+            console.log("BREAK");
+            return callback(null, done);
+        }
+        console.log("DONE ALL FAMILY");
+        return callback(null, null);
+    });
+}
+
 let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
     let familyWithErr = [];
     dbConnection.Plot.create({
@@ -101,7 +135,7 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
                 next(err);
             });
         }, function (err) {
-            asyncLoop(myPlot.tracks, function (track, next) {
+            asyncLoop(myPlot.tracks, function (track, nextTrack) {
                 track.idPlot = idPlot;
                 dbConnection.Track.create({
                     idPlot: track.idPlot,
@@ -109,62 +143,67 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
                     title: track.title
                 }).then(t => {
                     let idTrack = t.idTrack;
-                    asyncLoop(track.lines, function (line, next) {
-                        asyncLoop(line.families, function (family, next) {
-                            findFamilyIdByName(family.name, dbConnection, function (idFamily) {
-                                console.log("ID FAMILY ", idFamily);
-                                if (idFamily) {
-                                    dbConnection.Dataset.findAll({where: {idWell: myPlot.idWell}}).then(datasets => {
-                                        asyncLoop(datasets, function (dataset, nextDataset) {
-                                            dbConnection.Curve.findOne({
-                                                where: {
-                                                    idFamily: idFamily,
-                                                    idDataset: dataset.idDataset
-                                                }
-                                            }).then(curve => {
-                                                if (curve) {
-                                                    // console.log("FOUND CURVE : NEXT ", curve.name);
-                                                    lineModel.createNewLineWithoutResponse({
-                                                        idCurve: curve.idCurve,
-                                                        idTrack: idTrack
-                                                    }, dbConnection, username, function (line) {
-                                                        nextDataset();
-                                                    });
-                                                    // dbConnection.Dataset.findById(curve.idDataset).then(dataset => {
-                                                    //     if (dataset.idWell == myPlot.idWell) {
-                                                    //         lineModel.createNewLineWithoutResponse({
-                                                    //             idCurve: curve.idCurve,
-                                                    //             idTrack: idTrack
-                                                    //         }, dbConnection, username, function (line) {
-                                                    //             next();
-                                                    //         });
-                                                    //     } else {
-                                                    //         familyWithErr.push(family.name);
-                                                    //         next();
-                                                    //     }
-                                                    // });
-                                                } else {
-                                                    // console.log("NOT FOUND CURVE NEXT");
-                                                    familyWithErr.push(family.name);
-                                                    nextDataset();
-                                                }
-                                            });
-                                        }, function () {
-                                            next();
-                                        });
-                                    });
-                                } else {
-                                    next();
-                                }
-                            });
-                        }, function (curve) {
-                            next();
+                    asyncLoop(track.lines, function (line, nextLine) {
+                        findCurveForTemplate(line.families, plot.idWell, dbConnection, function (err, curve) {
+                            if (curve) {
+                                console.log("FOUND CURVE : ", curve.name);
+                                lineModel.createNewLineWithoutResponse({
+                                    idCurve: curve.idCurve,
+                                    idTrack: idTrack
+                                }, dbConnection, "", function () {
+                                    nextLine();
+                                });
+                            } else {
+                                nextLine();
+                            }
                         });
-                    }, function (line) {
-                        next();
+                    }, function (done) {
+                        if (done) nextTrack();
+                        nextTrack();
                     });
+                    // asyncLoop(track.lines, function (line, next) {
+                    //     asyncLoop(line.families, function (family, next) {
+                    //         findFamilyIdByName(family.name, dbConnection, function (idFamily) {
+                    //             console.log("ID FAMILY ", idFamily);
+                    //             if (idFamily) {
+                    //                 dbConnection.Dataset.findAll({where: {idWell: myPlot.idWell}}).then(datasets => {
+                    //                     asyncLoop(datasets, function (dataset, nextDataset) {
+                    //                         dbConnection.Curve.findOne({
+                    //                             where: {
+                    //                                 idFamily: idFamily,
+                    //                                 idDataset: dataset.idDataset
+                    //                             }
+                    //                         }).then(curve => {
+                    //                             if (curve) {
+                    //                                 // console.log("FOUND CURVE : NEXT ", curve.name);
+                    //                                 lineModel.createNewLineWithoutResponse({
+                    //                                     idCurve: curve.idCurve,
+                    //                                     idTrack: idTrack
+                    //                                 }, dbConnection, username, function (line) {
+                    //                                     nextDataset();
+                    //                                 });
+                    //                             } else {
+                    //                                 // console.log("NOT FOUND CURVE NEXT");
+                    //                                 familyWithErr.push(family.name);
+                    //                                 nextDataset();
+                    //                             }
+                    //                         });
+                    //                     }, function () {
+                    //                         next();
+                    //                     });
+                    //                 });
+                    //             } else {
+                    //                 next();
+                    //             }
+                    //         });
+                    //     }, function (curve) {
+                    //         next();
+                    //     });
+                    // }, function (line) {
+                    //     next();
+                    // });
                 }).catch(err => {
-                    next(err);
+                    // next(err);
                 });
             }, function (err) {
                 if (err) console.log(err);
