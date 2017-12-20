@@ -102,7 +102,7 @@ function getListOverlayLineByCurves(payload, callback, dbConnection) {
                             // console.log("Y : ", overlayLine.idOverlayLine, overlayLine.family_group_y);
                             let arrGroupX = eval(overlayLine.family_group_x);
                             let arrGroupY = eval(overlayLine.family_group_y);
-                            console.log("==========", arrGroupY.length);
+                            // console.log("==========", arrGroupY.length);
                             if (arrGroupY.length == 0) {
                                 if (arrGroupX.indexOf(familyX) != -1) {
                                     response.push(overlayLine);
