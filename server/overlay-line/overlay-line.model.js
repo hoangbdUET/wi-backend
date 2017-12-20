@@ -73,38 +73,55 @@ function getListOverlayLineByCurves(payload, callback, dbConnection) {
             asyncSeries([
                 function (cb) {
                     if (curveX && curveX.idFamily) {
-                        Family.findById(curveX.idFamily).then(f => {
-                            // console.log(f.name);
-                            cb(null, f.familyGroup);
-                        }).catch(err => {
-                            cb(err, null);
+                        Family.findById(curveX.idFamily).then(family => {
+                            cb(null, family.name);
                         });
                     } else {
-                        cb(null, null);
+                        cb("NO", null);
                     }
                 },
                 function (cb) {
                     if (curveY && curveY.idFamily) {
-                        Family.findById(curveY.idFamily).then(f => {
-                            // console.log(f.name);
-                            cb(null, f.familyGroup);
-                        }).catch(err => {
-                            cb(err, null);
+                        Family.findById(curveY.idFamily).then(family => {
+                            cb(null, family.name);
                         });
                     } else {
-                        cb(null, null);
+                        cb("NO", null);
                     }
                 }
             ], function (err, families) {
-                let _family_group_x = families[0];
-                let _family_group_y = families[1];
-                OverlayLine.findAll({
-                    where: {
-                        family_group_x: _family_group_x,
-                        family_group_y: _family_group_y
-                    }
-                }).then(rs => {
-                    callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
+                let familyX = families[0];
+                let familyY = families[1];
+                let response = [];
+                OverlayLine.findAll().then(overlayLines => {
+                    asyncLoop(overlayLines, function (overlayLine, next) {
+                        if (overlayLine.family_group_x == "" || overlayLine.family_group_y == "") {
+                            next();
+                        } else {
+                            // console.log("X : ", overlayLine.idOverlayLine, overlayLine.family_group_x);
+                            // console.log("Y : ", overlayLine.idOverlayLine, overlayLine.family_group_y);
+                            let arrGroupX = eval(overlayLine.family_group_x);
+                            let arrGroupY = eval(overlayLine.family_group_y);
+                            console.log("==========", arrGroupY.length);
+                            if (arrGroupY.length == 0) {
+                                if (arrGroupX.indexOf(familyX) != -1) {
+                                    response.push(overlayLine);
+                                    next();
+                                } else {
+                                    next();
+                                }
+                            } else {
+                                if (arrGroupX.indexOf(familyX) != -1 && arrGroupY.indexOf(familyY) != -1) {
+                                    response.push(overlayLine.toJSON());
+                                    next();
+                                } else {
+                                    next();
+                                }
+                            }
+                        }
+                    }, function () {
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Done", response));
+                    });
                 });
             });
         });

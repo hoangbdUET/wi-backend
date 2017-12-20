@@ -10,11 +10,11 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false
         },
         family_group_x: {
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT,
             allowNull: true
         },
         family_group_y: {
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT,
             allowNull: true
         },
         overlay_line_specs: {
