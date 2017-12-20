@@ -227,42 +227,51 @@ function editLine(lineInfo, done, dbConnection) {
                 }).then(shadings => {
                     asyncLoop(shadings, function (shading, next) {
                         console.log(shading.toJSON());
-                        asyncSeries([
-                            function (cb) {
-                                if (shading.leftLine) {
-                                    if (shading.leftLine.idLine === line.idLine) {
-                                        shading.idLeftLine = line.idLine;
-                                        shading.idTrack = lineInfo.idTrack;
-                                        cb();
-                                    } else {
-                                        cb();
-                                    }
-                                } else {
-                                    cb();
-                                }
-                            },
-                            function (cb) {
-                                if (shading.rightLine) {
-                                    if (shading.rightLine.idLine === line.idLine) {
-                                        shading.idRightLine = line.idLine;
-                                        shading.idTrack = lineInfo.idTrack;
-                                        cb();
-                                    } else {
-                                        cb();
-                                    }
-                                } else {
-                                    cb();
-                                }
-                            }
-                        ], function () {
-                            shading.save().then(s => {
-                                console.log("Edit shading");
+                        if (shading.idLeftLine && shading.idRightLine) {
+                            shading.destroy().then(() => {
                                 next();
                             }).catch(err => {
-                                console.log(err);
                                 next();
                             });
-                        });
+                        } else {
+                            asyncSeries([
+                                function (cb) {
+                                    if (shading.leftLine) {
+                                        if (shading.leftLine.idLine === line.idLine) {
+                                            shading.idLeftLine = line.idLine;
+                                            shading.idTrack = lineInfo.idTrack;
+                                            cb();
+                                        } else {
+                                            cb();
+                                        }
+                                    } else {
+                                        cb();
+                                    }
+                                },
+                                function (cb) {
+                                    if (shading.rightLine) {
+                                        if (shading.rightLine.idLine === line.idLine) {
+                                            shading.idRightLine = line.idLine;
+                                            shading.idTrack = lineInfo.idTrack;
+                                            cb();
+                                        } else {
+                                            cb();
+                                        }
+                                    } else {
+                                        cb();
+                                    }
+                                }
+                            ], function () {
+                                shading.save().then(s => {
+                                    console.log("Edit shading");
+                                    next();
+                                }).catch(err => {
+                                    console.log(err);
+                                    next();
+                                });
+                            });
+                        }
+
                     }, function () {
                         Object.assign(line, lineInfo).save().then(rs => {
                             done(ResponseJSON(ErrorCodes.SUCCESS, "Done", line));
