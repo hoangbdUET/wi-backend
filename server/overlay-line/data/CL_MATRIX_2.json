@@ -1,0 +1,139 @@
+{
+  "familyGroupX": "Neutron",
+  "familyGroupY": "Density",
+  "lines": [
+    {
+      "names": "0",
+      "color": "Black",
+      "data": [
+        {
+          "x": "0.231",
+          "y": "2.587",
+          "type": "Alteration_effect"
+        },
+        {
+          "x": "0.115",
+          "y": "2.717",
+          "type": "-"
+        }
+      ]
+    },
+    {
+      "names": "1",
+      "color": "Blue",
+      "data": [
+        {
+          "x": "0.233",
+          "y": "2.945",
+          "type": "Diabase\t"
+        },
+        {
+          "x": "0.233",
+          "y": "2.945",
+          "type": "-"
+        }
+      ]
+    },
+    {
+      "names": "2",
+      "color": "Fuchsia",
+      "data": [
+        {
+          "x": "0.384",
+          "y": "2.403",
+          "type": "Clay"
+        },
+        {
+          "x": "0.233",
+          "y": "2.945",
+          "type": "-"
+        }
+      ]
+    },
+    {
+      "names": "3",
+      "color": "Maroon",
+      "data": [
+        {
+          "x": "0.000",
+          "y": "2.492",
+          "type": "Granite_1"
+        },
+        {
+          "x": "0.210",
+          "y": "2.212",
+          "type": "fluid"
+        }
+      ]
+    },
+    {
+      "names": "4",
+      "color": "Red",
+      "data": [
+        {
+          "x": "-0.002",
+          "y": "2.701",
+          "type": "Granite_2"
+        },
+        {
+          "x": "0.282",
+          "y": "2.212",
+          "type": "fluid"
+        }
+      ]
+    },
+    {
+      "names": "5",
+      "color": "Green",
+      "data": [
+        {
+          "x": "0.032",
+          "y": "2.787",
+          "type": "Granite_3"
+        },
+        {
+          "x": "0.338",
+          "y": "2.234",
+          "type": "-"
+        }
+      ]
+    },
+    {
+      "names": "6",
+      "color": "Blue",
+      "data": [
+        {
+          "x": "0.000",
+          "y": "2.492",
+          "type": "Granite_1"
+        },
+        {
+          "x": "-0.002",
+          "y": "2.701",
+          "type": "Granite_2"
+        }
+      ]
+    },
+    {
+      "names": "7",
+      "color": "Red",
+      "data": [
+        {
+          "x": "-0.002",
+          "y": "2.701",
+          "type": "Granite_2"
+        },
+        {
+          "x": "0.032",
+          "y": "2.787",
+          "type": "Granite_3"
+        }
+      ]
+    }
+  ],
+  "X": "0",
+  "Y": "0",
+  "rotation": "0",
+  "color": "Green",
+  "label": " (FR) Density Neutron(NPHI) Overlay"
+}

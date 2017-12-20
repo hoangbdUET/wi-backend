@@ -1,0 +1,118 @@
+{
+  "familyGroupX": "Neutron",
+  "familyGroupY": "Density",
+  "lines": [
+    {
+      "names": "PLAGIOCLASE",
+      "color": "Black",
+      "data": [
+        {
+          "x": "0.047",
+          "y": "2.69",
+          "type": "-"
+        },
+        {
+          "x": "0.047",
+          "y": "2.69",
+          "type": "-"
+        }
+      ]
+    },
+    {
+      "names": "1",
+      "color": "Blue",
+      "data": [
+        {
+          "x": "0.530",
+          "y": "2.78",
+          "type": "CHLORITE\t-0.017"
+        },
+        {
+          "x": "0.047",
+          "y": "2.69",
+          "type": "-"
+        }
+      ]
+    },
+    {
+      "names": "2",
+      "color": "Fuchsia",
+      "data": [
+        {
+          "x": "2.61",
+          "y": "QUARTZ",
+          "type": "0.225"
+        },
+        {
+          "x": "0.047",
+          "y": "2.69",
+          "type": "-"
+        }
+      ]
+    },
+    {
+      "names": "3",
+      "color": "Maroon",
+      "data": [
+        {
+          "x": "2.89",
+          "y": "MB",
+          "type": "0.315"
+        },
+        {
+          "x": "0.047",
+          "y": "2.69",
+          "type": "-"
+        }
+      ]
+    },
+    {
+      "names": "4",
+      "color": "Red",
+      "data": [
+        {
+          "x": "2.215",
+          "y": "FLUID",
+          "type": "0.2"
+        },
+        {
+          "x": "0.047",
+          "y": "2.69",
+          "type": "-"
+        }
+      ]
+    },
+    {
+      "names": "5",
+      "color": "Green",
+      "data": [
+        {
+          "x": "2.779",
+          "y": "MUSCOVITE",
+          "type": "0.239"
+        },
+        {
+          "x": "0.225",
+          "y": "2.89",
+          "type": "MB"
+        }
+      ]
+    },
+    {
+      "names": "6",
+      "color": "Blue",
+      "data": [
+        {
+          "x": "0.225",
+          "y": "2.89",
+          "type": "MB"
+        }
+      ]
+    }
+  ],
+  "X": "0",
+  "Y": "0",
+  "rotation": "0",
+  "color": "Green",
+  "label": " (FR) Density Neutron(NPHI) Overlay"
+}

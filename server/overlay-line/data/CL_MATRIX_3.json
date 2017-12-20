@@ -1,0 +1,59 @@
+{
+  "familyGroupX": "Sonic",
+  "familyGroupY": "Density",
+  "lines": [
+    {
+      "names": "1",
+      "color": "Green",
+      "data": [
+        {
+          "x": "68.8",
+          "y": "2.524",
+          "type": "INFLUENCE_OF_FRACTURES"
+        },
+        {
+          "x": "59.29",
+          "y": "2.64",
+          "type": "-"
+        }
+      ]
+    },
+    {
+      "names": "2",
+      "color": "Black",
+      "data": [
+        {
+          "x": "71.42",
+          "y": "2.34",
+          "type": "MoRE_GLASSY\t"
+        },
+        {
+          "x": "61.94",
+          "y": "2.485",
+          "type": "-"
+        }
+      ]
+    },
+    {
+      "names": "3",
+      "color": "Blue",
+      "data": [
+        {
+          "x": "58.25",
+          "y": "2.39",
+          "type": "ISOLATED_VUGS"
+        },
+        {
+          "x": "52.24",
+          "y": "2.48",
+          "type": "-"
+        }
+      ]
+    }
+  ],
+  "X": "0",
+  "Y": "0",
+  "rotation": "0",
+  "color": "Green",
+  "label": " (FR) Density Neutron(NPHI) Overlay"
+}

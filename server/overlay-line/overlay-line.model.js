@@ -4,6 +4,7 @@ var overlayLineMaster = require('../models-master').OverlayLine;
 var asyncLoop = require('async/each');
 var userModels = require('../models');
 var asyncSeries = require('async/series');
+var path = require('path');
 
 function syncOverlayLine(username, callback) {
     let userDbConnection = userModels("wi_" + username, function (err) {
@@ -39,7 +40,15 @@ function getOverlayLine(payload, callback, dbConnection) {
     let OverlayLine = dbConnection.OverlayLine;
     OverlayLine.findById(payload.idOverlayLine).then(rs => {
         if (rs) {
-            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
+            let response = rs.toJSON();
+            let file = path.join(__dirname, 'data', rs.overlay_line_specs);
+            try {
+                response.data = require(file);
+                callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
+            } catch (err) {
+                response.data = {};
+                callback(ResponseJSON(ErrorCodes.SUCCESS, "No file found for this overlay line", response));
+            }
         } else {
             callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Overlay Line found"));
         }
@@ -58,8 +67,6 @@ function deleteOverlayLine() {
 function getListOverlayLineByCurves(payload, callback, dbConnection) {
     let OverlayLine = dbConnection.OverlayLine;
     let Curve = dbConnection.Curve;
-    let idCurveX = payload.idCurveX || 0;
-    let idCurveY = payload.idCurveY || 0;
     let Family = dbConnection.Family;
     Curve.findById(payload.idCurveX).then(curveX => {
         Curve.findById(payload.idCurveY).then(curveY => {
@@ -91,12 +98,11 @@ function getListOverlayLineByCurves(payload, callback, dbConnection) {
             ], function (err, families) {
                 let _family_group_x = families[0];
                 let _family_group_y = families[1];
-                let Sequelize = require('sequelize');
                 OverlayLine.findAll({
-                    where: Sequelize.and(
-                        {family_group_x: _family_group_x},
-                        {family_group_y: _family_group_y}
-                    )
+                    where: {
+                        family_group_x: _family_group_x,
+                        family_group_y: _family_group_y
+                    }
                 }).then(rs => {
                     callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                 });

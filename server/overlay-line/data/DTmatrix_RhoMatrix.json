@@ -1,0 +1,54 @@
+{
+  "familyGroupX": "DTmatrix",
+  "familyGroupY": "RhoMatrix",
+  "lines": [
+    {
+      "names": "Quartz",
+      "color": "DkGray",
+      "data": [
+        {
+          "x": "56.0",
+          "y": "2.65",
+          "type": "-"
+        },
+        {
+          "x": "49.0",
+          "y": "2.71",
+          "type": "-"
+        }
+      ]
+    },
+    {
+      "names": "Calcite",
+      "color": "DkGray",
+      "data": [
+        {
+          "x": "49.0",
+          "y": "2.71",
+          "type": "-"
+        },
+        {
+          "x": "44.0",
+          "y": "2.85",
+          "type": "-"
+        }
+      ]
+    },
+    {
+      "names": "Dolomite",
+      "color": "DkGray",
+      "data": [
+        {
+          "x": "44.0",
+          "y": "2.85",
+          "type": "-"
+        },
+        {
+          "x": "56.0",
+          "y": "2.65",
+          "type": "-"
+        }
+      ]
+    }
+  ]
+}
