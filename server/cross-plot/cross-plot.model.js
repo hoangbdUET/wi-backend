@@ -232,7 +232,40 @@ function getCrossPlotInfo(crossPlot, done, dbConnection) {
     CrossPlot.findById(crossPlot.idCrossPlot, {include: [{all: true, include: [{all: true}]}]})
         .then(function (crossPlot) {
             if (!crossPlot) throw "not exists";
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Get info CrossPlot success", crossPlot));
+            asyncSeries([
+                function (cb) {
+                    dbConnection.Curve.findById(crossPlot.pointsets[0].idCurveX).then(curve => {
+                        if (curve) {
+                            cb(null, curve.idCurve);
+                        } else {
+                            cb(null, null);
+                        }
+                    });
+                },
+                function (cb) {
+                    dbConnection.Curve.findById(crossPlot.pointsets[0].idCurveY).then(curve => {
+                        if (curve) {
+                            cb(null, curve.idCurve);
+                        } else {
+                            cb(null, null);
+                        }
+                    });
+                },
+                function (cb) {
+                    dbConnection.Curve.findById(crossPlot.pointsets[0].idCurveZ).then(curve => {
+                        if (curve) {
+                            cb(null, curve.idCurve);
+                        } else {
+                            cb(null, null);
+                        }
+                    });
+                }
+            ], function (err, result) {
+                crossPlot.pointsets[0].idCurveX = result[0];
+                crossPlot.pointsets[0].idCurveY = result[1];
+                crossPlot.pointsets[0].idCurveZ = result[2];
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Get info CrossPlot success", crossPlot));
+            });
         })
         .catch(function () {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "CrossPlot not found for get info"));
