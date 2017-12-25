@@ -3,24 +3,24 @@
 var ResponseJSON = require('../response');
 var ErrorCodes = require('../../error-codes').CODES;
 
-function createNewShading(shadingInfo, done,dbConnection) {
+function createNewShading(shadingInfo, done, dbConnection) {
     var Shading = dbConnection.Shading;
     Shading.sync()
         .then(
             function () {
                 var shading = Shading.build({
-		    idTrack: shadingInfo.idTrack,
-                    idLeftLine:shadingInfo.idLeftLine,
-                    idRightLine:shadingInfo.idRightLine,
+                    idTrack: shadingInfo.idTrack,
+                    idLeftLine: shadingInfo.idLeftLine,
+                    idRightLine: shadingInfo.idRightLine,
                     name: shadingInfo.name,
                     leftFixedValue: shadingInfo.leftFixedValue,
                     rightFixedValue: shadingInfo.rightFixedValue,
-                    isNegPosFill:shadingInfo.isNegPosFill,
-                    negativeFill:JSON.stringify(shadingInfo.negativeFill),
-                    positiveFill:JSON.stringify(shadingInfo.positiveFill),
-				    fill:JSON.stringify(shadingInfo.fill),
-                    isNegPosFill:shadingInfo.isNegPosFill,
-                    idControlCurve:shadingInfo.idControlCurve
+                    isNegPosFill: shadingInfo.isNegPosFill,
+                    negativeFill: JSON.stringify(shadingInfo.negativeFill),
+                    positiveFill: JSON.stringify(shadingInfo.positiveFill),
+                    fill: JSON.stringify(shadingInfo.fill),
+                    isNegPosFill: shadingInfo.isNegPosFill,
+                    idControlCurve: shadingInfo.idControlCurve
                 });
                 shading.save()
                     .then(function (result) {
@@ -37,14 +37,14 @@ function createNewShading(shadingInfo, done,dbConnection) {
         )
 }
 
-function editShading(shadingInfo,done,dbConnection) {
+function editShading(shadingInfo, done, dbConnection) {
     var Shading = dbConnection.Shading;
     Shading.findById(shadingInfo.idShading)
         .then(function (shading) {
-			shadingInfo.positiveFill=JSON.stringify(shadingInfo.positiveFill);
-			shadingInfo.negativeFill=JSON.stringify(shadingInfo.negativeFill);
-			shadingInfo.fill=JSON.stringify(shadingInfo.fill);
-            Object.keys(shadingInfo).forEach(prop => shading[prop]=shadingInfo[prop]);
+            shadingInfo.positiveFill = JSON.stringify(shadingInfo.positiveFill);
+            shadingInfo.negativeFill = JSON.stringify(shadingInfo.negativeFill);
+            shadingInfo.fill = JSON.stringify(shadingInfo.fill);
+            Object.keys(shadingInfo).forEach(prop => shading[prop] = shadingInfo[prop]);
             delete shading.idShading;
 
             shading.save()
@@ -55,13 +55,15 @@ function editShading(shadingInfo,done,dbConnection) {
                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit shading" + err));
                 })
         })
-        .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Shading not found for edit"));
+        .catch(function (err) {
+            console.log(err);
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Shading not found for edit", err.message));
         })
 
 
 }
-function deleteShading(shadingInfo, done,dbConnection) {
+
+function deleteShading(shadingInfo, done, dbConnection) {
     var Shading = dbConnection.Shading;
     Shading.findById(shadingInfo.idShading)
         .then(function (shading) {
@@ -74,10 +76,11 @@ function deleteShading(shadingInfo, done,dbConnection) {
                 })
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS,"Shading not found for delete"))
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Shading not found for delete"))
         })
 }
-function getShadingInfo(shading, done,dbConnection) {
+
+function getShadingInfo(shading, done, dbConnection) {
     var Shading = dbConnection.Shading;
     Shading.findById(shading.idShading)
         .then(function (shading) {
@@ -85,13 +88,13 @@ function getShadingInfo(shading, done,dbConnection) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get info shading success", shading));
         })
         .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS,"Shading not found for get info"))
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Shading not found for get info"))
         })
 }
 
 module.exports = {
-    createNewShading:createNewShading,
-    editShading:editShading,
-    deleteShading:deleteShading,
-    getShadingInfo:getShadingInfo
+    createNewShading: createNewShading,
+    editShading: editShading,
+    deleteShading: deleteShading,
+    getShadingInfo: getShadingInfo
 };
