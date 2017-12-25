@@ -37,7 +37,7 @@ function createNewShading(shadingInfo, done, dbConnection) {
         )
 }
 
-function editShading(shadingInfo, done, dbConnection) {
+function _editShading(shadingInfo, done, dbConnection) {
     var Shading = dbConnection.Shading;
     Shading.findById(shadingInfo.idShading)
         .then(function (shading) {
@@ -59,9 +59,23 @@ function editShading(shadingInfo, done, dbConnection) {
             console.log(err);
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Shading not found for edit", err.message));
         })
-
-
 }
+
+function editShading(shadingInfo, done, dbConnection) {
+    dbConnection.Shading.findById(shadingInfo.idShading).then(shading => {
+        if (shading) {
+            Object.assign(shading, shadingInfo).then(rs => {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
+            }).catch(err => {
+                done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Err", err));
+            });
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Shading not found for edit"));
+        }
+    }).catch(err => {
+        done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Shading not found for edit", err.message));
+    });
+};
 
 function deleteShading(shadingInfo, done, dbConnection) {
     var Shading = dbConnection.Shading;
