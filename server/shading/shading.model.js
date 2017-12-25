@@ -38,6 +38,7 @@ function createNewShading(shadingInfo, done, dbConnection) {
 }
 
 function _editShading(shadingInfo, done, dbConnection) {
+    delete shadingInfo.changed;
     var Shading = dbConnection.Shading;
     Shading.findById(shadingInfo.idShading)
         .then(function (shading) {
@@ -62,9 +63,14 @@ function _editShading(shadingInfo, done, dbConnection) {
 }
 
 function editShading(shadingInfo, done, dbConnection) {
+    // console.log(shadingInfo);
+    delete shadingInfo.changed;
+    shadingInfo.negativeFill = JSON.stringify(shadingInfo.negativeFill);
+    shadingInfo.fill = JSON.stringify(shadingInfo.fill);
+    shadingInfo.positiveFill = JSON.stringify(shadingInfo.positiveFill);
     dbConnection.Shading.findById(shadingInfo.idShading).then(shading => {
         if (shading) {
-            Object.assign(shading, shadingInfo).then(rs => {
+            Object.assign(shading, shadingInfo).save().then(rs => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
             }).catch(err => {
                 done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Err", err));
