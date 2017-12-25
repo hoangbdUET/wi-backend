@@ -173,7 +173,16 @@ function getHistogram(histogramId, done, dbConnection) {
         }]
     }).then(rs => {
         if (rs) {
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
+            Curve.findById(rs.idCurve).then(curve => {
+                if (curve) {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
+                } else {
+                    rs.idCurve = null;
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
+                }
+            }).catch(err => {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
+            });
         } else {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram not exists"));
         }
