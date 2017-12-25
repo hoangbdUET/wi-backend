@@ -281,7 +281,11 @@ function duplicateCrossplot(payload, done, dbConnection) {
             delete newCrossPlot.idCrossPlot;
             delete newCrossPlot.createdAt;
             delete newCrossPlot.updatedAt;
-            newCrossPlot.name = newCrossPlot.name + '_' + new Date().toLocaleString('en-US', {timeZone: "Asia/Ho_Chi_Minh"});
+            // newCrossPlot.name = newCrossPlot.name + '_' + new Date().toLocaleString('en-US', {timeZone: "Asia/Ho_Chi_Minh"});
+            newCrossPlot.duplicated = 1;
+            newCrossPlot.name = newCrossPlot.name + "_Copy_" + crossplot.duplicated;
+            crossplot.duplicated++;
+            crossplot.save();
             CrossPLot.create(newCrossPlot).then(cr => {
                 let idCrossPlot = cr.idCrossPlot;
                 asyncSeries([

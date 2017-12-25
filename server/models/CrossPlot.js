@@ -55,6 +55,11 @@ module.exports = function (sequelize, DataTypes) {
         axisColors: {
             type: DataTypes.TEXT,
             allowNull: true
+        },
+        duplicated: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 1
         }
     }, {
         paranoid: true

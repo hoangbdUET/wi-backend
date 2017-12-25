@@ -227,7 +227,11 @@ function duplicateHistogram(payload, done, dbConnection) {
             delete newHistogram.idHistogram;
             delete newHistogram.createdAt;
             delete newHistogram.updatedAt;
-            newHistogram.name = newHistogram.name + '_' + new Date().toLocaleString('en-US', {timeZone: "Asia/Ho_Chi_Minh"});
+            // newHistogram.name = newHistogram.name + '_' + new Date().toLocaleString('en-US', {timeZone: "Asia/Ho_Chi_Minh"});
+            newHistogram.duplicated = 1;
+            newHistogram.name = newHistogram.name + "_Copy_" + hisogram.duplicated;
+            hisogram.duplicated++;
+            hisogram.save();
             Histogram.create(newHistogram).then(rs => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
             }).catch(err => {

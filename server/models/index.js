@@ -190,7 +190,7 @@ function newDbInstance(dbName, callback) {
         m.Well.hasMany(m.CombinedBox, {
             foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
             onDelete: 'CASCADE'
-        })
+        });
         m.Curve.hasMany(m.SelectionPoint, {
             foreignKey: {name: "idCurve", allowNull: false},
             onDelete: 'CASCADE'

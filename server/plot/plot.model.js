@@ -377,7 +377,11 @@ let duplicatePlot = function (payload, done, dbConnection, isSave) {
             if (isSave) {
                 newPlot.name = isSave;
             } else {
-                newPlot.name = newPlot.name + "_" + new Date().toLocaleString('en-US', {timeZone: "Asia/Ho_Chi_Minh"});
+                // newPlot.name = newPlot.name + "_" + new Date().toLocaleString('en-US', {timeZone: "Asia/Ho_Chi_Minh"});
+                newPlot.duplicated = 1;
+                newPlot.name = newPlot.name + "_Copy_" + rs.duplicated;
+                rs.duplicated += 1;
+                rs.save();
             }
             Plot.create(newPlot).then(pl => {
                 let idPlot = pl.idPlot;
