@@ -174,13 +174,38 @@ function getHistogram(histogramId, done, dbConnection) {
     }).then(rs => {
         if (rs) {
             Curve.findById(rs.idCurve).then(curve => {
+                let response = rs.toJSON();
                 if (curve) {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
+                    asyncLoop(response.reference_curves, function (ref, next) {
+                        Curve.findById(ref.idCurve).then(curve => {
+                            if (curve) {
+                                next();
+                            } else {
+                                ref.idCurve = null;
+                                next();
+                            }
+                        });
+                    }, function () {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
+                    });
                 } else {
-                    rs.idCurve = null;
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
+                    response.idCurve = null;
+                    asyncLoop(response.reference_curves, function (ref, next) {
+                        Curve.findById(ref.idCurve).then(curve => {
+                            if (curve) {
+                                next();
+                            } else {
+                                ref.idCurve = null;
+                                next();
+                            }
+                        });
+                    }, function () {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
+                    });
+                    // done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
                 }
             }).catch(err => {
+                console.log(err);
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
             });
         } else {

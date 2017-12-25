@@ -259,6 +259,20 @@ function getCrossPlotInfo(crossPlot, done, dbConnection) {
                             cb(null, null);
                         }
                     });
+                },
+                function (cb) {
+                    asyncLoop(crossPlot.reference_curves, function (ref, next) {
+                        dbConnection.Curve.findById(ref.idCurve).then(curve => {
+                            if (curve) {
+                                next();
+                            } else {
+                                ref.idCurve = null;
+                                next();
+                            }
+                        });
+                    }, function () {
+                        cb(null, null);
+                    })
                 }
             ], function (err, result) {
                 crossPlot.pointsets[0].idCurveX = result[0];
