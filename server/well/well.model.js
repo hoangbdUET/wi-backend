@@ -1,11 +1,12 @@
 "use strict";
 
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
-var wiImport = require('wi-import');
-var hashDir = wiImport.hashDir;
-var config = require('config');
-var fs = require('fs');
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
+let wiImport = require('wi-import');
+let hashDir = wiImport.hashDir;
+let config = require('config');
+let fs = require('fs');
+let asyncEach = require('async/each');
 
 function createNewWell(wellInfo, done, dbConnection) {
     var Well = dbConnection.Well;
@@ -36,82 +37,65 @@ function createNewWell(wellInfo, done, dbConnection) {
 }
 
 function editWell(wellInfo, done, dbConnection, username) {
-    let Well = dbConnection.Well;
-    let Dataset = dbConnection.Dataset;
-    let Curve = dbConnection.Curve;
-    let Project = dbConnection.Project;
-    Well.findById(wellInfo.idWell)
-        .then(function (well) {
-            Well.findOne({
-                where: {
-                    idProject: wellInfo.idProject,
-                    name: wellInfo.name
-                }
-            }).then(w => {
-                if (w) {
-                    w.topDepth = wellInfo.topDepth;
-                    w.bottomDepth = wellInfo.bottomDepth;
-                    w.step = wellInfo.step;
-                    w.idGroup = wellInfo.idGroup
-                    w.save()
-                        .then(function () {
-                            done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Well success", w));
-                        })
-                        .catch(function (err) {
-                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Well " + err.name));
-                        })
-                } else {
-                    let oldWellName = well.name;
-                    //console.log("EDIT NA~~~~~~~~~~~~~~~~~~~");
-                    Project.findById(well.idProject).then(function (project) {
-                        Dataset.findAll({where: {idWell: well.idWell}}).then(function (datasets) {
-                            datasets.forEach(function (dataset) {
-                                Curve.findAll({where: {idDataset: dataset.idDataset}}).then(function (curves) {
-                                    curves.forEach(function (curve) {
-                                        //let wellName = well.name;
-                                        let path = hashDir.createPath(config.curveBasePath, username + project.name + oldWellName + dataset.name + curve.name, curve.name + '.txt');
-                                        let newPath = hashDir.createPath(config.curveBasePath, username + project.name + wellInfo.name + dataset.name + curve.name, curve.name + '.txt');
-                                        //console.log("Old Path : " + path);
-                                        //console.log("New Path : " + newPath);
-                                        try {
-                                            var copy = fs.createReadStream(path).pipe(fs.createWriteStream(newPath));
+    dbConnection.Well.findById(wellInfo.idWell).then(well => {
+        if (well) {
+            if (well.name != wellInfo.name) {
+                let oldWellName = well.name;
+                well.name = wellInfo.name;
+                well.topDepth = wellInfo.topDepth;
+                well.bottomDepth = wellInfo.bottomDepth;
+                well.step = wellInfo.step;
+                well.idGroup = wellInfo.idGroup;
+                well.save()
+                    .then(function () {
+                        dbConnection.Project.findById(well.idProject).then(function (project) {
+                            dbConnection.Dataset.findAll({where: {idWell: well.idWell}}).then(function (datasets) {
+                                datasets.forEach(function (dataset) {
+                                    dbConnection.Curve.findAll({where: {idDataset: dataset.idDataset}}).then(function (curves) {
+                                        asyncEach(curves, function (curve, next) {
+                                            let path = hashDir.createPath(config.curveBasePath, username + project.name + oldWellName + dataset.name + curve.name, curve.name + '.txt');
+                                            let newPath = hashDir.createPath(config.curveBasePath, username + project.name + wellInfo.name + dataset.name + curve.name, curve.name + '.txt');
+                                            let copy = fs.createReadStream(path).pipe(fs.createWriteStream(newPath));
                                             copy.on('close', function () {
-                                                //console.log("deleete");
                                                 hashDir.deleteFolder(config.curveBasePath, username + project.name + oldWellName + dataset.name + curve.name);
+                                                next();
                                             });
                                             copy.on('error', function (err) {
-                                                return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit well name", err));
-                                                //console.log(err);
+                                                next(err);
                                             });
-                                        } catch (err) {
-                                            console.log(err);
-                                            return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit well name", err));
-                                        }
+                                        }, function (err) {
+                                            if (err) {
+                                                return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
+                                            }
+                                            done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", well));
+                                        });
                                     });
                                 });
                             });
                         });
+                    })
+                    .catch(function (err) {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Well name existed!", err.name));
                     });
-                    well.idProject = wellInfo.idProject;
-                    well.name = wellInfo.name;
-                    well.topDepth = wellInfo.topDepth;
-                    well.bottomDepth = wellInfo.bottomDepth;
-                    well.step = wellInfo.step;
-                    well.idGroup = wellInfo.idGroup
-                    well.save()
-                        .then(function () {
-                            done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Well success", wellInfo));
-                        })
-                        .catch(function (err) {
-                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Well " + err.name));
-                        })
-                }
-            }).catch();
-
-        })
-        .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Well not found for edit"));
-        })
+            } else {
+                well.topDepth = wellInfo.topDepth;
+                well.bottomDepth = wellInfo.bottomDepth;
+                well.step = wellInfo.step;
+                well.idGroup = wellInfo.idGroup;
+                well.save()
+                    .then(function () {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Well success", well));
+                    })
+                    .catch(function (err) {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Well " + err.name));
+                    });
+            }
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No well found!"));
+        }
+    }).catch(err => {
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
+    });
 }
 
 function deleteWell(wellInfo, done, dbConnection) {
