@@ -153,6 +153,7 @@ function createNewLineWithoutResponse(lineInfo, dbConnection, username, callback
 }
 
 function createNewLine(lineInfo, done, dbConnection, username) {
+    delete lineInfo.changed;
     var Line = dbConnection.Line;
     var Curve = dbConnection.Curve;
     var Dataset = dbConnection.Dataset;
@@ -217,6 +218,7 @@ function createNewLine(lineInfo, done, dbConnection, username) {
 }
 
 function editLine(lineInfo, done, dbConnection) {
+    delete lineInfo.changed;
     let Line = dbConnection.Line;
     Line.findById(lineInfo.idLine, {include: {all: true}}).then(line => {
         if (line) {
