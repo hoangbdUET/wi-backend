@@ -42,7 +42,10 @@ function editDataset(datasetInfo, done, dbConnection, username) {
                 dataset.save().then(() => {
                     dbConnection.Well.findById(dataset.idWell).then(well => {
                         dbConnection.Project.findById(well.idProject).then(project => {
-                            dbConnection.Curve.findAll({where: {idDataset: datasetInfo.idDataset}}).then(curves => {
+                            dbConnection.Curve.findAll({
+                                where: {idDataset: datasetInfo.idDataset},
+                                paranoid: false
+                            }).then(curves => {
                                 asyncEach(curves, function (curve, next) {
                                     let path = hashDir.createPath(config.curveBasePath, username + project.name + well.name + datasetname + curve.name, curve.name + '.txt');
                                     let newPath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + datasetInfo.name + curve.name, curve.name + '.txt');

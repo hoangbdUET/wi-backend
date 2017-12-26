@@ -15,8 +15,11 @@ function createNewZoneSet(zoneSetInfo, done, dbConnection) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new ZoneSet success", zoneSet));
                     })
                     .catch(function (err) {
-                        console.log(err);
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new ZoneSet " + err.name));
+                        if (err.name === "SequelizeUniqueConstraintError") {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Zoneset name existed!"));
+                        } else {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                        }
                     })
             },
             function () {
@@ -35,7 +38,11 @@ function editZoneSet(zoneSetInfo, done, dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit zoneSet success", zoneSetInfo));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit zoneSet" + err));
+                    if (err.name === "SequelizeUniqueConstraintError") {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Zoneset name existed!"));
+                    } else {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    }
                 })
         })
         .catch(function () {

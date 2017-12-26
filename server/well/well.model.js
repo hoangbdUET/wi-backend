@@ -49,9 +49,15 @@ function editWell(wellInfo, done, dbConnection, username) {
                 well.save()
                     .then(function () {
                         dbConnection.Project.findById(well.idProject).then(function (project) {
-                            dbConnection.Dataset.findAll({where: {idWell: well.idWell}}).then(function (datasets) {
-                                datasets.forEach(function (dataset) {
-                                    dbConnection.Curve.findAll({where: {idDataset: dataset.idDataset}}).then(function (curves) {
+                            dbConnection.Dataset.findAll({
+                                where: {idWell: well.idWell},
+                                paranoid: false
+                            }).then(function (datasets) {
+                                asyncEach(datasets, function (dataset, nextDataset) {
+                                    dbConnection.Curve.findAll({
+                                        where: {idDataset: dataset.idDataset},
+                                        paranoid: false
+                                    }).then(function (curves) {
                                         asyncEach(curves, function (curve, next) {
                                             let path = hashDir.createPath(config.curveBasePath, username + project.name + oldWellName + dataset.name + curve.name, curve.name + '.txt');
                                             let newPath = hashDir.createPath(config.curveBasePath, username + project.name + wellInfo.name + dataset.name + curve.name, curve.name + '.txt');
@@ -64,12 +70,15 @@ function editWell(wellInfo, done, dbConnection, username) {
                                                 next(err);
                                             });
                                         }, function (err) {
-                                            if (err) {
-                                                return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
-                                            }
-                                            done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", well));
+                                            if (err) nextDataset(err);
+                                            nextDataset();
                                         });
                                     });
+                                }, function (err) {
+                                    if (err) {
+                                        return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
+                                    }
+                                    done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", well));
                                 });
                             });
                         });
