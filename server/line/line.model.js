@@ -111,7 +111,9 @@ function createNewLineWithoutResponse(lineInfo, dbConnection, username, callback
                                     displayType: family.displayType,
                                     lineStyle: family.lineStyle,
                                     lineWidth: family.lineWidth,
-                                    lineColor: family.lineColor
+                                    lineColor: family.lineColor,
+                                    symbolFillStyle: family.lineColor,
+                                    symbolStrokeStyle: family.lineColor
                                 }).save()
                                     .then(function (line) {
                                         callback(line);
@@ -176,7 +178,9 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                                     displayType: family.displayType,
                                     lineStyle: family.lineStyle,
                                     lineWidth: family.lineWidth,
-                                    lineColor: family.lineColor
+                                    lineColor: family.lineColor,
+                                    symbolFillStyle: family.lineColor,
+                                    symbolStrokeStyle: family.lineColor
                                 }).save()
                                     .then(function (line) {
                                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", line));
