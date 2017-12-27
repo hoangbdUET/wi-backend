@@ -257,7 +257,11 @@ let createNewPlot = function (plotInfo, done, dbConnection, username) {
                                     done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Plot success", plot.toJSON()));
                                 })
                                 .catch(function (err) {
-                                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Plot " + err.name));
+                                    if (err.name === "SequelizeUniqueConstraintError") {
+                                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed!"));
+                                    } else {
+                                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                                    }
                                 })
                         },
                         function () {
