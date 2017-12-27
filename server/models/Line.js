@@ -93,12 +93,12 @@ module.exports = function (sequelize, DataTypes) {
         symbolStrokeStyle: {
             type: DataTypes.STRING(30),
             allowNull: true,
-            defaultValue: "blue"
+            defaultValue: "red"
         },
         symbolFillStyle: {
             type: DataTypes.STRING(30),
             allowNull: true,
-            defaultValue: "blue"
+            defaultValue: "red"
         },
         symbolLineDash: {
             type: DataTypes.STRING(30),
