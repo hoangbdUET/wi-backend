@@ -12,8 +12,12 @@ function createNewGroup(groupInfo, done, dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Create new group success", group));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new group " + err));
-                })
+                    if (err.name === "SequelizeUniqueConstraintError") {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Group existed!"));
+                    } else {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    }
+                });
         }, function () {
             done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
         });
@@ -30,7 +34,11 @@ function editGroup(groupInfo, done, dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit group success", result));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit group" + err));
+                    if (err.name === "SequelizeUniqueConstraintError") {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Group existed!"));
+                    } else {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    }
                 })
         })
         .catch(function () {

@@ -21,7 +21,11 @@ function createNewProject(projectInfo, done, dbConnection) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Create new project success", project));
         })
         .catch(function (err) {
-            done(ResponseJSON(ErrorCodes.ERROR_FIELD_EMPTY, "Create new Project " + err.name));
+            if (err.name === "SequelizeUniqueConstraintError") {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Project existed!"));
+            } else {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+            }
         });
 };
 
@@ -38,7 +42,11 @@ function editProject(projectInfo, done, dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Project success", projectInfo));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name));
+                    if (err.name === "SequelizeUniqueConstraintError") {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Project existed!"));
+                    } else {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    }
                 })
         })
         .catch(function () {

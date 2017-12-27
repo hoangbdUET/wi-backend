@@ -81,8 +81,12 @@ function editCurve(curveInfo, done, dbConnection, username) {
                                             done(ResponseJSON(ErrorCodes.SUCCESS, "Edit curve success", curveInfo));
                                         })
                                         .catch(err => {
-                                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Curve " + err.name));
-                                        })
+                                            if (err.name === "SequelizeUniqueConstraintError") {
+                                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve existed!"));
+                                            } else {
+                                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                                            }
+                                        });
                                 });
                             });
                         }).catch(err => {
@@ -124,7 +128,11 @@ function editCurve(curveInfo, done, dbConnection, username) {
                         });
                     })
                     .catch(err => {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Curve " + err.name));
+                        if (err.name === "SequelizeUniqueConstraintError") {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve existed!"));
+                        } else {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                        }
                     })
             }
 

@@ -13,8 +13,11 @@ function createNewCombinedBox(payload, done, dbConnection) {
         await rs.setHistograms(idHistograms);
         await done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
     }).catch(err => {
-        console.log(err);
-        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
+        if (err.name === "SequelizeUniqueConstraintError") {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Combined box existed!"));
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+        }
     });
 }
 
@@ -86,7 +89,11 @@ function editCombinedBox(payload, done, dbConnection) {
         }
     }).catch(err => {
         console.log(err);
-        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
+        if (err.name === "SequelizeUniqueConstraintError") {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Combined box existed!"));
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+        }
     });
 }
 
