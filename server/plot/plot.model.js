@@ -785,7 +785,7 @@ let exportData = function (payload, done, error, dbConnection) {
     })
 }
 
-let importPlotTemplate = function (req, done, dbConnection) {
+let importPlotTemplate = async function (req, done, dbConnection) {
     let filePath = path.join(__dirname + '/../..', req.file.path);
     let list = req.file.filename.split('.');
     let fileType = list[list.length - 1];
@@ -800,6 +800,7 @@ let importPlotTemplate = function (req, done, dbConnection) {
         plot.name = req.body.plotName ? req.body.plotName : myPlot.name;
         plot.option = myPlot.option;
         plot.idWell = req.body.idWell;
+        let well = await dbConnection.Well.findById(plot.idWell);
         searchReferenceCurve(req.body.idWell, dbConnection, function (err, idRefCurve) {
             plot.referenceCurve = idRefCurve;
             dbConnection.Plot.create(plot).then(rs => {
@@ -926,7 +927,11 @@ let importPlotTemplate = function (req, done, dbConnection) {
                                     function (cb) {
                                         asyncLoop(track.annotations, function (annotation, next) {
                                             annotation.idTrack = idTrack;
+                                            if (annotation.top < well.topDepth) annotation.top = well.topDepth;
+                                            if (annotation.bottom > well.bottomDepth) annotation.bottom = well.bottomDepth;
+                                            console.log("=============== ", annotation);
                                             dbConnection.Annotation.create(annotation).then(() => {
+                                                console.log("===============//// ", annotation);
                                                 next();
                                             }).catch(err => {
                                                 console.log(err);
