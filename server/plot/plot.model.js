@@ -914,12 +914,16 @@ let importPlotTemplate = async function (req, done, dbConnection) {
                                     function (cb) {
                                         asyncLoop(track.markers, function (marker, next) {
                                             marker.idTrack = idTrack;
-                                            dbConnection.Marker.create(marker).then(() => {
+                                            if (marker.depth < well.topDepth || marker.depth > well.bottomDepth) {
                                                 next();
-                                            }).catch(err => {
-                                                next();
-                                                console.log(err);
-                                            });
+                                            } else {
+                                                dbConnection.Marker.create(marker).then(() => {
+                                                    next();
+                                                }).catch(err => {
+                                                    next();
+                                                    console.log(err);
+                                                });
+                                            }
                                         }, function () {
                                             cb(null, true);
                                         });
