@@ -41,7 +41,7 @@ module.exports = function (sequelize, DataTypes) {
         referenceShowDepthGrid: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
-            defaultValue: false
+            defaultValue: true
         },
         discriminator: {
             type: DataTypes.TEXT,
