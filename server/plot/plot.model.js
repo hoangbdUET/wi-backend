@@ -933,9 +933,7 @@ let importPlotTemplate = async function (req, done, dbConnection) {
                                             annotation.idTrack = idTrack;
                                             if (annotation.top < well.topDepth) annotation.top = well.topDepth;
                                             if (annotation.bottom > well.bottomDepth) annotation.bottom = well.bottomDepth;
-                                            console.log("=============== ", annotation);
                                             dbConnection.Annotation.create(annotation).then(() => {
-                                                console.log("===============//// ", annotation);
                                                 next();
                                             }).catch(err => {
                                                 console.log(err);
