@@ -999,7 +999,12 @@ let importPlotTemplate = function (req, done, dbConnection) {
                         asyncLoop(myPlot.zone_tracks, function (zone_track, next) {
                             zone_track.idPlot = idPlot;
                             dbConnection.ZoneTrack.create(zone_track).then(zo => {
-                                dbConnection.ZoneSet.findOne({where: {name: zone_track.zoneset}}).then(zs => {
+                                dbConnection.ZoneSet.findOne({
+                                    where: {
+                                        idWell: plot.idWell,
+                                        name: zone_track.zoneset
+                                    }
+                                }).then(zs => {
                                     if (zs) {
                                         zo.idZoneSet = zs.idZoneSet;
                                         zo.save().then(() => {
