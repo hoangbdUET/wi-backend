@@ -1,13 +1,12 @@
-// var models = require('../models');
-// var Track = models.Track;
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
-var fs = require('fs');
-var asyncLoop = require('async/each');
-var path = require('path');
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
+let fs = require('fs');
+let asyncLoop = require('async/each');
+let asyncSeries = require('async/series');
+let path = require('path');
 
 function createNewTrack(trackInfo, done, dbConnection) {
-    var Track = dbConnection.Track;
+    let Track = dbConnection.Track;
     Track.sync()
         .then(
             function () {
@@ -121,7 +120,7 @@ let exportData = function (payload, done, error, dbConnection, username) {
         }, {
             model: dbConnection.Annotation
         }]
-    }).then(async(track => {
+    }).then(async track => {
         let myTrack = track.toJSON();
         delete myTrack.idTrack;
         delete myTrack.createdAt;
@@ -150,7 +149,7 @@ let exportData = function (payload, done, error, dbConnection, username) {
             });
 
         });
-    })).catch(err => {
+    }).catch(err => {
         console.log(err);
     })
 }
@@ -405,11 +404,124 @@ let importTrackTemplate = function (req, done, dbConnection) {
 
 }
 
+let duplicateTrack = function (payload, done, dbConnection) {
+    dbConnection.Track.findById(payload.idTrack, {include: {all: true}}).then(rs => {
+            let track = rs.toJSON();
+            delete track.idTrack;
+            delete track.createdAt;
+            delete track.updatedAt;
+            track.orderNum = payload.orderNum;
+            dbConnection.Track.create(track).then(rs => {
+                let idTrack = rs.idTrack;
+                let change = new Array();
+                asyncSeries([
+                    function (cb) {
+                        asyncLoop(track.lines, function (line, next) {
+                            let myObj = {};
+                            myObj.oldLine = line.idLine;
+                            delete line.idLine;
+                            delete line.createdAt;
+                            delete line.updatedAt;
+                            line.idTrack = idTrack;
+                            dbConnection.Line.create(line).then(l => {
+                                myObj.newLine = l.idLine;
+                                change.push(myObj);
+                                next();
+                            }).catch(err => {
+                                console.log(err);
+                                next();
+                            });
+                        }, function () {
+                            cb(null, true);
+                        });
+                    },
+                    function (cb) {
+                        asyncLoop(track.markers, function (marker, next) {
+                            delete marker.idMarker;
+                            delete marker.createdAt;
+                            delete marker.updatedAt;
+                            marker.idTrack = idTrack;
+                            dbConnection.Marker.create(marker).then(l => {
+                                next();
+                            }).catch(err => {
+                                console.log(err);
+                                next();
+                            });
+                        }, function () {
+                            cb(null, true);
+                        });
+                    },
+                    function (cb) {
+                        asyncLoop(track.annotations, function (annotation, next) {
+                            delete annotation.idAnnotation;
+                            delete annotation.createdAt;
+                            delete annotation.updatedAt;
+                            annotation.idTrack = idTrack;
+                            dbConnection.Annotation.create(annotation).then(l => {
+                                next();
+                            }).catch(err => {
+                                console.log(err);
+                                next();
+                            });
+                        }, function () {
+                            cb(null, true);
+                        });
+                    }
+                ], function (err, result) {
+                    asyncLoop(track.shadings, function (shading, next) {
+                        delete shading.idShading;
+                        delete shading.createdAt;
+                        delete shading.updatedAt;
+                        shading.idTrack = idTrack;
+                        asyncSeries([
+                            function (cb) {
+                                if (shading.idLeftLine) {
+                                    shading.idLeftLine = change.filter(c => c.oldLine === shading.idLeftLine).map(c => c.newLine);
+                                    console.log(shading.idLeftLine);
+                                    cb();
+                                } else {
+                                    cb();
+                                }
+                            },
+                            function (cb) {
+                                if (shading.idRightLine) {
+                                    shading.idRightLine = change.filter(c => c.oldLine === shading.idRightLine).map(c => c.newLine);
+                                    console.log(shading.idRightLine);
+                                    cb();
+                                } else {
+                                    cb();
+                                }
+                            }
+                        ], function () {
+                            dbConnection.Shading.create(shading).then(() => {
+                                next();
+                            }).catch(err => {
+                                console.log(err);
+                                next();
+                            });
+                        });
+                    }, function () {
+                        dbConnection.Track.findById(idTrack, {include: {all: true}}).then(t => {
+                            done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", t));
+                        });
+                    });
+                });
+            }).catch(err => {
+                console.log(err);
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
+            });
+        }
+    ).catch(err => {
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
+    });
+}
+
 module.exports = {
     createNewTrack: createNewTrack,
     deleteTrack: deleteTrack,
     editTrack: editTrack,
     getTrackInfo: getTrackInfo,
     exportData: exportData,
-    importTrackTemplate: importTrackTemplate
+    importTrackTemplate: importTrackTemplate,
+    duplicateTrack: duplicateTrack
 };

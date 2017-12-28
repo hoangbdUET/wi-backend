@@ -1,14 +1,14 @@
-var express = require('express');
-var router = express.Router();
-var trackModel = require('./track.model');
-var bodyParser = require('body-parser');
-var fs = require('fs');
+let express = require('express');
+let router = express.Router();
+let trackModel = require('./track.model');
+let bodyParser = require('body-parser');
+let fs = require('fs');
 const multer = require('multer');
 
 
 router.use(bodyParser.json());
 
-var storage = multer.diskStorage({
+let storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'uploads/');
     },
@@ -17,7 +17,7 @@ var storage = multer.diskStorage({
     }
 });
 
-var upload = multer({storage: storage});
+let upload = multer({storage: storage});
 
 router.post('/track/info', function (req, res) {
     trackModel.getTrackInfo(req.body, function (status) {
@@ -55,6 +55,12 @@ router.post('/track/import', upload.single('file'), function (req, res) {
     trackModel.importTrackTemplate(req, function (status) {
         res.send(status);
     }, req.dbConnection);
+});
+
+router.post('/track/duplicate', function (req, res) {
+    trackModel.duplicateTrack(req.body.idTrack, function (status) {
+        res.send(status);
+    }, req.dbConnection)
 });
 
 module.exports = router;
