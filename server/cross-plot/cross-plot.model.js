@@ -18,6 +18,9 @@ let findFamilyIdByName = function (familyName, dbConnection, callback) {
 
 function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
     // console.log(crossPlotInfo);
+    if (crossPlotInfo.axisColors && typeof(crossPlotInfo.axisColors === "object")) {
+        JSON.stringify(crossPlotInfo.axisColors);
+    }
     var CrossPlot = dbConnection.CrossPlot;
     var Well = dbConnection.Well;
     var PointSet = dbConnection.PointSet;
