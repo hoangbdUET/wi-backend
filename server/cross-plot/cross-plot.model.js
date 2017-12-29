@@ -185,7 +185,9 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
 }
 
 function editCrossPlot(crossPlotInfo, done, dbConnection) {
-    // console.log(crossPlotInfo);
+    if (typeof(crossPlotInfo.axisColors === "object")) {
+        JSON.stringify(crossPlotInfo.axisColors);
+    }
     var CrossPlot = dbConnection.CrossPlot;
     CrossPlot.findById(crossPlotInfo.idCrossPlot)
         .then(function (crossPlot) {
