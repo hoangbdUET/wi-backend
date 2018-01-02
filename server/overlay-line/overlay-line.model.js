@@ -107,11 +107,17 @@ function getListOverlayLineByCurves(payload, callback, dbConnection) {
                                 if (arrGroupX.indexOf(familyX) != -1) {
                                     response.push(overlayLine);
                                     next();
+                                } else if (arrGroupX.indexOf(familyY) != -1) {
+                                    response.push(overlayLine);
+                                    next();
                                 } else {
                                     next();
                                 }
                             } else {
                                 if (arrGroupX.indexOf(familyX) != -1 && arrGroupY.indexOf(familyY) != -1) {
+                                    response.push(overlayLine.toJSON());
+                                    next();
+                                } else if (arrGroupX.indexOf(familyY) != -1 && arrGroupY.indexOf(familyX) != -1) {
                                     response.push(overlayLine.toJSON());
                                     next();
                                 } else {
