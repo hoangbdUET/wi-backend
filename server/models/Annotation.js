@@ -18,6 +18,10 @@ module.exports = function (sequelize, DataTypes) {
             defaultValue: '{}',
             set(value) {
                 this.setDataValue('textStyle', typeof(value) === 'object' ? JSON.stringify(value) : value);
+            },
+            get() {
+                const value = this.getDataValue('textStyle');
+                return JSON.parse(value);
             }
         },
         vAlign: {
