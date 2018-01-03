@@ -320,15 +320,18 @@ let createNewPlot = function (plotInfo, done, dbConnection, username) {
 }
 
 let editPlot = function (plotInfo, done, dbConnection) {
+    if (typeof(plotInfo.currentState) == "object") plotInfo.currentState = JSON.stringify(plotInfo.currentState);
     const Plot = dbConnection.Plot;
     Plot.findById(plotInfo.idPlot)
         .then(function (plot) {
-            plot.idWell = plotInfo.idWell;
-            plot.name = plotInfo.name;
-            plot.referenceCurve = plotInfo.referenceCurve;
-            plot.option = plotInfo.option;
+            plot.idWell = plotInfo.idWell || plot.idWell;
+            plot.name = plotInfo.name || plot.name;
+            plot.referenceCurve = plotInfo.referenceCurve || plot.referenceCurve;
+            plot.option = plotInfo.option || plot.option;
+            plot.currentState = plotInfo.currentState || plot.currentState;
+            plot.cropDisplay = plotInfo.cropDisplay;
             plot.save()
-                .then(function () {
+                .then(function (a) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Plot success", plotInfo));
                 })
                 .catch(function (err) {

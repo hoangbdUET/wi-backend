@@ -18,6 +18,16 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 1
+        },
+        currentState: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: "{}"
+        },
+        cropDisplay: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+            defaultValue: false
         }
     }, {
         paranoid: true
