@@ -222,6 +222,8 @@ function createNewLine(lineInfo, done, dbConnection, username) {
 }
 
 function editLine(lineInfo, done, dbConnection) {
+    if (lineInfo.lineStyle) lineInfo.lineStyle = typeof(lineInfo.lineStyle) === 'object' ? JSON.stringify(lineInfo.lineStyle) : lineInfo.lineStyle;
+    if (lineInfo.symbolLineDash) lineInfo.symbolLineDash = typeof(lineInfo.symbolLineDash) === 'object' ? JSON.stringify(lineInfo.symbolLineDash) : lineInfo.symbolLineDash;
     delete lineInfo.changed;
     let Line = dbConnection.Line;
     Line.findById(lineInfo.idLine, {include: {all: true}}).then(line => {
