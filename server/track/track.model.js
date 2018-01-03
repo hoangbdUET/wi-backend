@@ -35,23 +35,22 @@ function editTrack(trackInfo, done, dbConnection) {
     var Track = dbConnection.Track;
     Track.findById(trackInfo.idTrack)
         .then(function (track) {
-            track.idPlot = trackInfo.idPlot || track.idPlot;
-            track.orderNum = trackInfo.orderNum || track.orderNum;
-            track.showTitle = trackInfo.showTitle || track.showTitle;
-            track.title = trackInfo.title || track.title;
-            track.topJustification = trackInfo.topJustification || track.topJustification;
-            track.bottomJustification = trackInfo.bottomJustification || track.bottomJustification;
-            track.showLabels = trackInfo.showLabels || track.showLabels;
-            track.showValueGrid = trackInfo.showValueGrid || track.showValueGrid;
-            track.majorTicks = trackInfo.majorTicks || track.majorTicks;
-            track.minorTicks = trackInfo.minorTicks || track.minorTicks;
-            track.showDepthGrid = trackInfo.showDepthGrid || track.showDepthGrid;
-            track.width = trackInfo.width || track.width;
-            track.color = trackInfo.color || track.color;
-            track.showEndLabels = trackInfo.showEndLabels || track.showEndLabels;
-            track.zoomFactor = trackInfo.zoomFactor || track.zoomFactor;
-
-            track.save()
+            Object.assign(track, trackInfo).save()
+            // track.idPlot = trackInfo.idPlot || track.idPlot;
+            // track.orderNum = trackInfo.orderNum || track.orderNum;
+            // track.showTitle = trackInfo.showTitle || track.showTitle;
+            // track.title = trackInfo.title || track.title;
+            // track.topJustification = trackInfo.topJustification || track.topJustification;
+            // track.bottomJustification = trackInfo.bottomJustification || track.bottomJustification;
+            // track.showLabels = trackInfo.showLabels || track.showLabels;
+            // track.showValueGrid = trackInfo.showValueGrid || track.showValueGrid;
+            // track.majorTicks = trackInfo.majorTicks || track.majorTicks;
+            // track.minorTicks = trackInfo.minorTicks || track.minorTicks;
+            // track.showDepthGrid = trackInfo.showDepthGrid || track.showDepthGrid;
+            // track.width = trackInfo.width || track.width;
+            // track.color = trackInfo.color || track.color;
+            // track.showEndLabels = trackInfo.showEndLabels || track.showEndLabels;
+            // track.zoomFactor = trackInfo.zoomFactor || track.zoomFactor;
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit track success", trackInfo));
                 })
