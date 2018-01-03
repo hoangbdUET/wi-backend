@@ -15,7 +15,10 @@ module.exports = function (sequelize, DataTypes) {
         textStyle: {
             type: DataTypes.STRING,
             allowNull: false,
-            defaultValue: '{}'
+            defaultValue: '{}',
+            set(value) {
+                this.setDataValue('textStyle', typeof(value) === 'object' ? JSON.stringify(value) : value);
+            }
         },
         vAlign: {
             type: DataTypes.ENUM('Top', 'Center', 'Bottom'),
