@@ -93,21 +93,20 @@ function getListOverlayLineByCurves(payload, callback, dbConnection) {
                 let familyX = families[0];
                 let familyY = families[1];
                 let response = [];
-                OverlayLine.findAll().then(overlayLines => {
+                OverlayLine.findAll({raw: true}).then(overlayLines => {
                     asyncLoop(overlayLines, function (overlayLine, next) {
+                        overlayLine.isSwap = false;
                         if (overlayLine.family_group_x == "" || overlayLine.family_group_y == "") {
                             next();
                         } else {
-                            // console.log("X : ", overlayLine.idOverlayLine, overlayLine.family_group_x);
-                            // console.log("Y : ", overlayLine.idOverlayLine, overlayLine.family_group_y);
                             let arrGroupX = eval(overlayLine.family_group_x);
                             let arrGroupY = eval(overlayLine.family_group_y);
-                            // console.log("==========", arrGroupY.length);
                             if (arrGroupY.length == 0) {
                                 if (arrGroupX.indexOf(familyX) != -1) {
                                     response.push(overlayLine);
                                     next();
                                 } else if (arrGroupX.indexOf(familyY) != -1) {
+                                    overlayLine.isSwap = true;
                                     response.push(overlayLine);
                                     next();
                                 } else {
@@ -115,10 +114,11 @@ function getListOverlayLineByCurves(payload, callback, dbConnection) {
                                 }
                             } else {
                                 if (arrGroupX.indexOf(familyX) != -1 && arrGroupY.indexOf(familyY) != -1) {
-                                    response.push(overlayLine.toJSON());
+                                    response.push(overlayLine);
                                     next();
                                 } else if (arrGroupX.indexOf(familyY) != -1 && arrGroupY.indexOf(familyX) != -1) {
-                                    response.push(overlayLine.toJSON());
+                                    overlayLine.isSwap = true;
+                                    response.push(overlayLine);
                                     next();
                                 } else {
                                     next();
