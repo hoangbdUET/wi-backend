@@ -40,53 +40,70 @@ function getOverlayLine(payload, callback, dbConnection) {
     let OverlayLine = dbConnection.OverlayLine;
     let idCurveX = payload.idCurveX;
     let idCurveY = payload.idCurveY;
+    console.log("CCurve ", idCurveX, " ", idCurveY);
     OverlayLine.findById(payload.idOverlayLine).then(rs => {
         asyncSeries([
             function (cb) {
                 if (idCurveX) {
                     dbConnection.Curve.findById(idCurveX).then(curve => {
+                        console.log("X : ", curve.idFamily);
                         if (curve.idFamily) {
                             dbConnection.Family.findById(curve.idFamily).then(family => {
-                                cb(family.name);
+                                console.log(family.name);
+                                console.log("CB NA");
+                                cb(null, family.name);
                             });
                         } else {
                             cb(null);
                         }
+                    }).catch(err => {
+                        console.log(err);
+                        cb(err);
                     });
                 } else {
                     cb(null);
                 }
             },
             function (cb) {
+                console.log("VAO DAY");
                 if (idCurveY) {
                     dbConnection.Curve.findById(idCurveY).then(curve => {
+                        console.log(curve.idFamily);
                         if (curve.idFamily) {
                             dbConnection.Family.findById(curve.idFamily).then(family => {
-                                cb(family.name);
+                                console.log(family.name);
+                                cb(null, family.name);
                             });
                         } else {
                             cb(null);
                         }
+                    }).catch(err => {
+                        console.log(err);
                     });
                 } else {
                     cb(null);
                 }
             }
-        ], function (result) {
+        ], function (err, result) {
+            console.log(result);
             let familyX = result[0];
+            console.log(familyX);
             let familyY = result[1];
+            console.log(familyY);
             if (rs) {
                 let response = rs.toJSON();
-                response.isSwap = false;
+                let isSwap = false;
                 let arrGroupX = eval(rs.family_group_x);
                 let arrGroupY = eval(rs.family_group_y);
                 if (arrGroupX.indexOf(familyY) != -1 && arrGroupY.indexOf(familyX) != -1) {
-                    response.isSwap = true;
+                    isSwap = true;
                 }
+                console.log(isSwap);
                 let file = path.join(__dirname, 'data', rs.overlay_line_specs);
                 try {
                     response.data = require(file);
-                    response.data.isSwap = response.isSwap;
+                    response.data.isSwap = isSwap;
+                    console.log(isSwap);
                     callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
                 } catch (err) {
                     response.data = {};
