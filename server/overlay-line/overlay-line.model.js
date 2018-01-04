@@ -38,20 +38,64 @@ function createOverlayLine() {
 
 function getOverlayLine(payload, callback, dbConnection) {
     let OverlayLine = dbConnection.OverlayLine;
+    let idCurveX = payload.idCurveX;
+    let idCurveY = payload.idCurveY;
     OverlayLine.findById(payload.idOverlayLine).then(rs => {
-        if (rs) {
-            let response = rs.toJSON();
-            let file = path.join(__dirname, 'data', rs.overlay_line_specs);
-            try {
-                response.data = require(file);
-                callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
-            } catch (err) {
-                response.data = {};
-                callback(ResponseJSON(ErrorCodes.SUCCESS, "No file found for this overlay line", response));
+        asyncSeries([
+            function (cb) {
+                if (idCurveX) {
+                    dbConnection.Curve.findById(idCurveX).then(curve => {
+                        if (curve.idFamily) {
+                            dbConnection.Family.findById(curve.idFamily).then(family => {
+                                cb(family.name);
+                            });
+                        } else {
+                            cb(null);
+                        }
+                    });
+                } else {
+                    cb(null);
+                }
+            },
+            function (cb) {
+                if (idCurveY) {
+                    dbConnection.Curve.findById(idCurveY).then(curve => {
+                        if (curve.idFamily) {
+                            dbConnection.Family.findById(curve.idFamily).then(family => {
+                                cb(family.name);
+                            });
+                        } else {
+                            cb(null);
+                        }
+                    });
+                } else {
+                    cb(null);
+                }
             }
-        } else {
-            callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Overlay Line found"));
-        }
+        ], function (result) {
+            let familyX = result[0];
+            let familyY = result[1];
+            if (rs) {
+                let response = rs.toJSON();
+                response.isSwap = false;
+                let arrGroupX = eval(rs.family_group_x);
+                let arrGroupY = eval(rs.family_group_y);
+                if (arrGroupX.indexOf(familyY) != -1 && arrGroupY.indexOf(familyX) != -1) {
+                    response.isSwap = true;
+                }
+                let file = path.join(__dirname, 'data', rs.overlay_line_specs);
+                try {
+                    response.data = require(file);
+                    response.data.isSwap = response.isSwap;
+                    callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
+                } catch (err) {
+                    response.data = {};
+                    callback(ResponseJSON(ErrorCodes.SUCCESS, "No file found for this overlay line", response));
+                }
+            } else {
+                callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Overlay Line found"));
+            }
+        });
     });
 }
 
