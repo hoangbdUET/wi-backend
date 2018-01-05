@@ -40,48 +40,43 @@ function getOverlayLine(payload, callback, dbConnection) {
     let OverlayLine = dbConnection.OverlayLine;
     let idCurveX = payload.idCurveX;
     let idCurveY = payload.idCurveY;
-    console.log("CCurve ", idCurveX, " ", idCurveY);
     OverlayLine.findById(payload.idOverlayLine).then(rs => {
         asyncSeries([
             function (cb) {
                 if (idCurveX) {
                     dbConnection.Curve.findById(idCurveX).then(curve => {
-                        console.log("X : ", curve.idFamily);
                         if (curve.idFamily) {
                             dbConnection.Family.findById(curve.idFamily).then(family => {
-                                console.log(family.name);
-                                console.log("CB NA");
                                 cb(null, family.name);
                             });
                         } else {
-                            cb(null);
+                            cb(null, null);
                         }
                     }).catch(err => {
                         console.log(err);
-                        cb(err);
+                        cb(err, null);
                     });
                 } else {
-                    cb(null);
+                    cb(null, null);
                 }
             },
             function (cb) {
-                console.log("VAO DAY");
                 if (idCurveY) {
                     dbConnection.Curve.findById(idCurveY).then(curve => {
                         console.log(curve.idFamily);
                         if (curve.idFamily) {
                             dbConnection.Family.findById(curve.idFamily).then(family => {
-                                console.log(family.name);
                                 cb(null, family.name);
                             });
                         } else {
-                            cb(null);
+                            cb(null, null);
                         }
                     }).catch(err => {
                         console.log(err);
+                        cb(null, null);
                     });
                 } else {
-                    cb(null);
+                    cb(null, null);
                 }
             }
         ], function (err, result) {
