@@ -73,3 +73,5 @@ config/production.json
 
 #yarn
 yarn.lock
+/server/ternary/data/
+!/server/ternary/data/readme.txt
