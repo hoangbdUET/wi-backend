@@ -1,66 +1,113 @@
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
-var asyncLoop = require('async/each');
-var asyncSeries = require('async/series');
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
+let asyncLoop = require('async/each');
+let asyncSeries = require('async/series');
 
 let findFamilyIdByName = function (familyName, dbConnection, callback) {
     dbConnection.Family.findOne({where: {name: familyName}}).then(family => {
         if (family) {
-            callback(family.idFamily);
+            callback(family.idFamily, {minScale: family.minScale, maxScale: family.maxScale});
         } else {
-            callback(null);
+            callback(null, null);
         }
     }).catch((err) => {
         console.log(err);
-        callback(null);
+        callback(null, null);
     })
 }
 
-function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
+async function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
     // console.log(crossPlotInfo);
     if (crossPlotInfo.axisColors && typeof(crossPlotInfo.axisColors === "object")) {
         JSON.stringify(crossPlotInfo.axisColors);
     }
-    var CrossPlot = dbConnection.CrossPlot;
-    var Well = dbConnection.Well;
-    var PointSet = dbConnection.PointSet;
+    let CrossPlot = dbConnection.CrossPlot;
+    let Well = dbConnection.Well;
+    let PointSet = dbConnection.PointSet;
     let foundCurveX = false;
     let foundCurveY = false;
-    Well.findById(crossPlotInfo.idWell).then(well => {
-        var myData;
-        crossPlotInfo.referenceTopDepth = well.topDepth;
-        crossPlotInfo.referenceBottomDepth = well.bottomDepth;
-        if (crossPlotInfo.crossTemplate) {
-            console.log("NEW CROSS TEMPLATE : ", crossPlotInfo.crossTemplate);
-            myData = null;
-            try {
-                myData = require('./cross-template/' + crossPlotInfo.crossTemplate + '.json');
-            } catch (err) {
-                return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CrossPlot type not found"));
-            }
-            myData.name = crossPlotInfo.name ? crossPlotInfo.name : myData.name;
-            // console.log(myData);
-            CrossPlot.create({
-                name: myData.name,
-                idWell: crossPlotInfo.idWell,
-                referenceTopDepth: crossPlotInfo.referenceTopDepth,
-                referenceBottomDepth: crossPlotInfo.referenceBottomDepth
-            }).then(crossPlot => {
-                let idCrossPlot = crossPlot.idCrossPlot;
-                let idWell = crossPlotInfo.idWell;
-                PointSet.create({
-                    idCrossPlot: idCrossPlot,
-                    idWell: idWell,
-                    intervalDepthTop: well.topDepth,
-                    intervalDepthBottom: well.bottomDepth,
-                    majorX: 5,
-                    majorY: 5,
-                    minorX: 5,
-                    minorY: 5
-                }).then(pointSet => {
-                    let idPointSet = pointSet.idPointSet;
-                    asyncLoop(myData.curveX.families, function (family, next) {
-                        findFamilyIdByName(family.name, dbConnection, function (idFamily) {
+    let well = await Well.findById(crossPlotInfo.idWell);
+    let myData;
+    crossPlotInfo.referenceTopDepth = well.topDepth;
+    crossPlotInfo.referenceBottomDepth = well.bottomDepth;
+    if (crossPlotInfo.crossTemplate) {
+        console.log("NEW CROSS TEMPLATE : ", crossPlotInfo.crossTemplate);
+        myData = null;
+        try {
+            myData = require('./cross-template/' + crossPlotInfo.crossTemplate + '.json');
+        } catch (err) {
+            return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CrossPlot type not found"));
+        }
+        myData.name = crossPlotInfo.name ? crossPlotInfo.name : myData.name;
+        // console.log(myData);
+        CrossPlot.create({
+            name: myData.name,
+            idWell: crossPlotInfo.idWell,
+            referenceTopDepth: crossPlotInfo.referenceTopDepth,
+            referenceBottomDepth: crossPlotInfo.referenceBottomDepth
+        }).then(crossPlot => {
+            let idCrossPlot = crossPlot.idCrossPlot;
+            let idWell = crossPlotInfo.idWell;
+            PointSet.create({
+                idCrossPlot: idCrossPlot,
+                idWell: idWell,
+                intervalDepthTop: well.topDepth,
+                intervalDepthBottom: well.bottomDepth,
+                majorX: 5,
+                majorY: 5,
+                minorX: 5,
+                minorY: 5
+            }).then(pointSet => {
+                let idPointSet = pointSet.idPointSet;
+                asyncLoop(myData.curveX.families, function (family, next) {
+                    findFamilyIdByName(family.name, dbConnection, function (idFamily, scale) {
+                        if (idFamily) {
+                            dbConnection.Dataset.findAll({where: {idWell: crossPlotInfo.idWell}}).then(datasets => {
+                                asyncLoop(datasets, function (dataset, next) {
+                                    dbConnection.Curve.findOne({
+                                        where: {
+                                            idFamily: idFamily,
+                                            idDataset: dataset.idDataset
+                                        }
+                                    }).then(curve => {
+                                        if (curve) {
+                                            let curveX = curve.toJSON();
+                                            curveX.scaleLeft = scale.minScale;
+                                            curveX.scaleRight = scale.maxScale;
+                                            next(curveX);
+                                        } else {
+                                            next();
+                                        }
+                                    }).catch();
+                                }, function (found) {
+                                    if (found) {
+                                        next(found);
+                                    } else {
+                                        next();
+                                    }
+                                });
+                            });
+                        } else {
+                            next();
+                        }
+                    });
+                }, function (curveX) {
+                    if (curveX) {
+                        foundCurveX = true;
+                        PointSet.update({
+                            idCurveX: curveX.idCurve,
+                            scaleLeft: curveX.scaleLeft,
+                            scaleRight: curveX.scaleRight
+                        }, {
+                            where: {
+                                idPointSet: idPointSet
+                            }
+                        }).then(rs => {
+                            console.log("Added curveX ", curveX.name, " to Point Set");
+                        }).catch();
+                    }
+                    asyncLoop(myData.curveY.families, function (family, next) {
+                        findFamilyIdByName(family.name, dbConnection, function (idFamily, scale) {
                             if (idFamily) {
                                 dbConnection.Dataset.findAll({where: {idWell: crossPlotInfo.idWell}}).then(datasets => {
                                     asyncLoop(datasets, function (dataset, next) {
@@ -71,7 +118,10 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
                                             }
                                         }).then(curve => {
                                             if (curve) {
-                                                next(curve);
+                                                let curveY = curve.toJSON();
+                                                curveY.scaleTop = scale.minScale;
+                                                curveY.scaleBottom = scale.maxScale;
+                                                next(curveY);
                                             } else {
                                                 next();
                                             }
@@ -88,110 +138,69 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
                                 next();
                             }
                         });
-                    }, function (curveX) {
-                        if (curveX) {
-                            foundCurveX = true;
+                    }, function (curveY) {
+                        if (curveY) {
+                            foundCurveY = true;
                             PointSet.update({
-                                idCurveX: curveX.idCurve
+                                idCurveY: curveY.idCurve,
+                                scaleTop: curveY.scaleTop,
+                                scaleBottom: curveY.scaleBottom
                             }, {
                                 where: {
                                     idPointSet: idPointSet
                                 }
                             }).then(rs => {
-                                console.log("Added curveX ", curveX.name, " to Point Set");
-                            }).catch();
+                                console.log("Added curveY ", curveY.name, " to Point Set");
+                            }).catch()
                         }
-                        asyncLoop(myData.curveY.families, function (family, next) {
-                            findFamilyIdByName(family.name, dbConnection, function (idFamily) {
-                                if (idFamily) {
-                                    dbConnection.Dataset.findAll({where: {idWell: crossPlotInfo.idWell}}).then(datasets => {
-                                        asyncLoop(datasets, function (dataset, next) {
-                                            dbConnection.Curve.findOne({
-                                                where: {
-                                                    idFamily: idFamily,
-                                                    idDataset: dataset.idDataset
-                                                }
-                                            }).then(curve => {
-                                                if (curve) {
-                                                    next(curve);
-                                                } else {
-                                                    next();
-                                                }
-                                            }).catch();
-                                        }, function (found) {
-                                            if (found) {
-                                                next(found);
-                                            } else {
-                                                next();
-                                            }
-                                        });
-                                    });
-                                } else {
-                                    next();
-                                }
-                            });
-                        }, function (curveY) {
-                            if (curveY) {
-                                foundCurveY = true;
-                                PointSet.update({
-                                    idCurveY: curveY.idCurve
-                                }, {
-                                    where: {
-                                        idPointSet: idPointSet
-                                    }
-                                }).then(rs => {
-                                    console.log("Added curveY ", curveY.name, " to Point Set");
-                                }).catch()
-                            }
-                            CrossPlot.findById(idCrossPlot).then(cross => {
-                                cross = cross.toJSON();
-                                cross.foundCurveX = foundCurveX;
-                                cross.foundCurveY = foundCurveY;
-                                done(ResponseJSON(ErrorCodes.SUCCESS, "ALL DONE", cross));
-                            });
+                        CrossPlot.findById(idCrossPlot).then(cross => {
+                            cross = cross.toJSON();
+                            cross.foundCurveX = foundCurveX;
+                            cross.foundCurveY = foundCurveY;
+                            done(ResponseJSON(ErrorCodes.SUCCESS, "ALL DONE", cross));
                         });
                     });
-                }).catch(err => {
-                    console.log(err.message);
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Some err", err));
                 });
             }).catch(err => {
-                    console.log(err.message);
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Cross Plot name existed", err.message));
+                console.log(err.message);
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Some err", err));
+            });
+        }).catch(err => {
+                console.log(err.message);
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Cross Plot name existed", err.message));
+            }
+        )
+    } else {
+        CrossPlot.sync()
+            .then(
+                function () {
+                    let crossPlot = CrossPlot.build({
+                        idWell: crossPlotInfo.idWell,
+                        name: crossPlotInfo.name,
+                        referenceTopDepth: well.topDepth,
+                        referenceBottomDepth: well.bottomDepth
+                    });
+                    crossPlot.save()
+                        .then(function (crossPlot) {
+                            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new CrossPlot success", crossPlot.toJSON()));
+                        })
+                        .catch(function (err) {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Cross Plot existed!"));
+                        })
+                },
+                function () {
+                    done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
                 }
             )
-        } else {
-            CrossPlot.sync()
-                .then(
-                    function () {
-                        var crossPlot = CrossPlot.build({
-                            idWell: crossPlotInfo.idWell,
-                            name: crossPlotInfo.name,
-                            referenceTopDepth: well.topDepth,
-                            referenceBottomDepth: well.bottomDepth
-                        });
-                        crossPlot.save()
-                            .then(function (crossPlot) {
-                                done(ResponseJSON(ErrorCodes.SUCCESS, "Create new CrossPlot success", crossPlot.toJSON()));
-                            })
-                            .catch(function (err) {
-                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Cross Plot existed!"));
-                            })
-                    },
-                    function () {
-                        done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
-                    }
-                )
 
-        }
-    });
+    }
 }
 
 function editCrossPlot(crossPlotInfo, done, dbConnection) {
     if (typeof(crossPlotInfo.axisColors === "object")) {
         JSON.stringify(crossPlotInfo.axisColors);
     }
-    var CrossPlot = dbConnection.CrossPlot;
+    let CrossPlot = dbConnection.CrossPlot;
     CrossPlot.findById(crossPlotInfo.idCrossPlot)
         .then(function (crossPlot) {
             if (crossPlot) {
@@ -220,7 +229,7 @@ function editCrossPlot(crossPlotInfo, done, dbConnection) {
 }
 
 function deleteCrossPlot(crossPlotInfo, done, dbConnection) {
-    var CrossPlot = dbConnection.CrossPlot;
+    let CrossPlot = dbConnection.CrossPlot;
     CrossPlot.findById(crossPlotInfo.idCrossPlot)
         .then(function (crossPlot) {
             crossPlot.destroy()
@@ -237,7 +246,7 @@ function deleteCrossPlot(crossPlotInfo, done, dbConnection) {
 }
 
 function getCrossPlotInfo(crossPlot, done, dbConnection) {
-    var CrossPlot = dbConnection.CrossPlot;
+    let CrossPlot = dbConnection.CrossPlot;
     CrossPlot.findById(crossPlot.idCrossPlot, {include: [{all: true, include: [{all: true}]}]})
         .then(function (crossPlot) {
             if (!crossPlot) throw "not exists";
@@ -298,7 +307,7 @@ function getCrossPlotInfo(crossPlot, done, dbConnection) {
 function duplicateCrossplot(payload, done, dbConnection) {
     let CrossPLot = dbConnection.CrossPlot;
     CrossPLot.findById(payload.idCrossPlot, {include: {all: true, include: {all: true}}}).then(crossplot => {
-        var newCrossPlot;
+        let newCrossPlot;
         if (crossplot) {
             newCrossPlot = crossplot.toJSON();
             delete newCrossPlot.idCrossPlot;
