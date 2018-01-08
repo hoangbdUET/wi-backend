@@ -1,9 +1,9 @@
-// var models = require('../models');
-// var Line = models.Line;
-var ErrorCodes = require('../../error-codes').CODES;
-// var Curve = models.Curve;
+// let models = require('../models');
+// let Line = models.Line;
+let ErrorCodes = require('../../error-codes').CODES;
+// let Curve = models.Curve;
 const ResponseJSON = require('../response');
-var curveModel = require('../curve/curve.model');
+let curveModel = require('../curve/curve.model');
 const asyncLoop = require('async/each');
 const asyncSeries = require('async/series');
 
@@ -23,9 +23,9 @@ function getWellIdByTrack(idTrack, dbConnection, callback) {
 
 //TODO: GIU CAI NAY LAI DE SAU NAY DUNG :D
 // function createNewLine_(lineInfo, done, dbConnection) {
-//     var Line = dbConnection.Line;
-//     var Curve = dbConnection.Curve;
-//     var Dataset = dbConnection.Dataset;
+//     let Line = dbConnection.Line;
+//     let Curve = dbConnection.Curve;
+//     let Dataset = dbConnection.Dataset;
 //     Line.sync()
 //         .then(
 //             function () {
@@ -89,9 +89,9 @@ function getWellIdByTrack(idTrack, dbConnection, callback) {
 //
 // }
 function createNewLineWithoutResponse(lineInfo, dbConnection, username, callback) {
-    var Line = dbConnection.Line;
-    var Curve = dbConnection.Curve;
-    var Dataset = dbConnection.Dataset;
+    let Line = dbConnection.Line;
+    let Curve = dbConnection.Curve;
+    let Dataset = dbConnection.Dataset;
     Line.sync()
         .then(
             function () {
@@ -156,9 +156,9 @@ function createNewLineWithoutResponse(lineInfo, dbConnection, username, callback
 
 function createNewLine(lineInfo, done, dbConnection, username) {
     delete lineInfo.changed;
-    var Line = dbConnection.Line;
-    var Curve = dbConnection.Curve;
-    var Dataset = dbConnection.Dataset;
+    let Line = dbConnection.Line;
+    let Curve = dbConnection.Curve;
+    let Dataset = dbConnection.Dataset;
     Line.sync()
         .then(
             function () {
@@ -304,26 +304,37 @@ function editLine(lineInfo, done, dbConnection) {
 }
 
 function deleteLine(lineInfo, done, dbConnection) {
-    var Line = dbConnection.Line;
+    let Line = dbConnection.Line;
     Line.findById(lineInfo.idLine)
         .then(function (line) {
-            line.destroy({
-                force: true
-            })
-                .then(function () {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Line is deleted", line));
-                })
-                .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Line" + err.errors[0].message));
-                })
+            let Sequelize = require('sequelize');
+            dbConnection.Shading.findAll({
+                where: Sequelize.or(
+                    {idLeftLine: line.idLine},
+                    {idRightLine: line.idLine}
+                )
+            }).then(shadings => {
+                line.destroy()
+                    .then(function () {
+                        line = line.toJSON();
+                        line.shadings = shadings;
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Line is deleted", line));
+                    })
+                    .catch(function (err) {
+                        done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Line" + err.errors[0].message));
+                    });
+            }).catch(err => {
+
+            });
         })
-        .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Line not found for delete"));
+        .catch(function (err) {
+            console.log(err);
+            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Line not found for delete", err));
         })
 }
 
 function getLineInfo(line, done, dbConnection) {
-    var Line = dbConnection.Line;
+    let Line = dbConnection.Line;
     Line.findById(line.idLine, {include: [{all: true, include: [{all: true}]}]})
         .then(function (line) {
             if (!line) throw "not exist";
