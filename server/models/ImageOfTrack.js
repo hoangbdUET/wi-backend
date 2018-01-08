@@ -40,6 +40,11 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.DOUBLE,
             allowNull: false,
             defaultValue: 100
+        },
+        smartDisplay: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: 0
         }
     });
 };
