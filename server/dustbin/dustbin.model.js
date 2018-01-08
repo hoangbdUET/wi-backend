@@ -13,6 +13,7 @@ function getDustbin(payload, callback, dbConnection) {
             paranoid: false,
             include: [{
                 model: dbConnection.Dataset,
+                paranoid: false,
                 include: [{
                     model: dbConnection.Curve,
                     paranoid: false,
