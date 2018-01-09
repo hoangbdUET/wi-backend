@@ -1,19 +1,20 @@
 {
-  "Database":{
-    "dialect":"mysql",  // "postgres" for PostgreSql, "mysql" for MySql, "sqlite" for sqLite
-    "host":"localhost",
-    "port":3306,
-    "user":"root",
-    "password":"qwertyui",
-    "logging":false,     //Logging all database query if is set "true"
-    "storage":"/tmp/wi_backend.sqlite", //Path to database.sqlite (used for sqlite only)
-    "dbName":"wi_backend"
+  "Database": {
+    "dialect": "mysql",
+    "host": "localhost",
+    "port": 3306,
+    "user": "root",
+    "password": "qwertyui",
+    "logging": false,
+    "storage": "/tmp/wi_backend.sqlite",
+    "dbName": "wi_backend"
   },
-  "Application":{
-    "port":3000
+  "Application": {
+    "port": 3000
+  },
+  "Service": {
+    "inventory": "inv.sflow.me"
   },
   "curveBasePath": "../data",
   "imageBasePath": "wi-images"
 }
-
-// should ignore from git

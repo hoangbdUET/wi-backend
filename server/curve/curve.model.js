@@ -1,23 +1,21 @@
 "use strict";
 
-var config = require('config');
-// var Curve = models.Curve;
-// var Dataset = models.Dataset;
-var exporter = require('./export');
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
-var asyncLoop = require('async/each');
-// var FamilyCondition = models.FamilyCondition;
-var fs = require('fs-extra');
+let config = require('config');
+let exporter = require('./export');
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
+let asyncLoop = require('async/each');
+let fs = require('fs-extra');
+let request = require('request');
 
-var wiImport = require('wi-import');
-var hashDir = wiImport.hashDir;
+let wiImport = require('wi-import');
+let hashDir = wiImport.hashDir;
 
 function createNewCurve(curveInfo, done, dbConnection) {
-    var Curve = dbConnection.Curve;
+    let Curve = dbConnection.Curve;
     Curve.sync()
         .then(() => {
-                var curve = Curve.build({
+                let curve = Curve.build({
                     idDataset: curveInfo.idDataset,
                     name: curveInfo.name,
                     dataset: curveInfo.dataset,
@@ -40,10 +38,10 @@ function createNewCurve(curveInfo, done, dbConnection) {
 }
 
 function editCurve(curveInfo, done, dbConnection, username) {
-    var Curve = dbConnection.Curve;
-    var Dataset = dbConnection.Dataset;
-    var Well = dbConnection.Well;
-    var Project = dbConnection.Project;
+    let Curve = dbConnection.Curve;
+    let Dataset = dbConnection.Dataset;
+    let Well = dbConnection.Well;
+    let Project = dbConnection.Project;
     Curve.findById(curveInfo.idCurve)
         .then(curve => {
             if (curve.name != curveInfo.name) {
@@ -64,7 +62,7 @@ function editCurve(curveInfo, done, dbConnection, username) {
                                     let curveName = curve.name;
                                     let path = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curveName, curveName + '.txt');
                                     let newPath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curveInfo.name, curveInfo.name + '.txt');
-                                    var copy = fs.createReadStream(path).pipe(fs.createWriteStream(newPath));
+                                    let copy = fs.createReadStream(path).pipe(fs.createWriteStream(newPath));
                                     copy.on('close', function () {
                                         hashDir.deleteFolder(config.curveBasePath, username + project.name + well.name + dataset.name + curveName);
                                     });
@@ -144,7 +142,7 @@ function editCurve(curveInfo, done, dbConnection, username) {
 
 
 function getCurveInfo(curve, done, dbConnection, username) {
-    var Curve = dbConnection.Curve;
+    let Curve = dbConnection.Curve;
     Curve.findById(curve.idCurve, {include: [{all: true}]})
         .then(curve => {
             if (!curve) throw "not exits";
@@ -188,10 +186,10 @@ function getCurveInfo(curve, done, dbConnection, username) {
 ///curve advance acrions
 
 function copyCurve(param, done, dbConnection, username) {
-    var Curve = dbConnection.Curve;
-    var Dataset = dbConnection.Dataset;
-    var Well = dbConnection.Well;
-    var Project = dbConnection.Project;
+    let Curve = dbConnection.Curve;
+    let Dataset = dbConnection.Dataset;
+    let Well = dbConnection.Well;
+    let Project = dbConnection.Project;
     Curve.findById(param.idCurve).then(curve => {
         if (curve) {
             Dataset.findById(curve.idDataset).then(srcDataset => {
@@ -205,7 +203,7 @@ function copyCurve(param, done, dbConnection, username) {
                                     let cp = hashDir.copyFile(config.curveBasePath, srcHashPath, username + srcProject.name + desWell.name + desDataset.name + curve.name, curve.name + ".txt");
                                     console.log("CP : " + cp);
                                     if (cp) {
-                                        var newCurve = curve.toJSON();
+                                        let newCurve = curve.toJSON();
                                         newCurve.idDataset = desDataset.idDataset;
                                         delete newCurve.idCurve;
                                         //console.log("New Curve : " + JSON.stringify(newCurve));
@@ -264,10 +262,10 @@ function copyCurve(param, done, dbConnection, username) {
 }
 
 function moveCurve(param, rs, dbConnection, username) {
-    var Curve = dbConnection.Curve;
-    var Dataset = dbConnection.Dataset;
-    var Well = dbConnection.Well;
-    var Project = dbConnection.Project;
+    let Curve = dbConnection.Curve;
+    let Dataset = dbConnection.Dataset;
+    let Well = dbConnection.Well;
+    let Project = dbConnection.Project;
     Curve.findById(param.idCurve).then(curve => {
         if (curve) {
             Dataset.findById(curve.idDataset).then(srcDataset => {
@@ -336,10 +334,10 @@ function moveCurve(param, rs, dbConnection, username) {
 }
 
 function deleteCurve(curveInfo, done, dbConnection, username) {
-    var Curve = dbConnection.Curve;
-    var Dataset = dbConnection.Dataset;
-    var Well = dbConnection.Well;
-    var Project = dbConnection.Project;
+    let Curve = dbConnection.Curve;
+    let Dataset = dbConnection.Dataset;
+    let Well = dbConnection.Well;
+    let Project = dbConnection.Project;
     Curve.findById(curveInfo.idCurve)
         .then(curve => {
             if (curve) {
@@ -376,14 +374,12 @@ function deleteCurve(curveInfo, done, dbConnection, username) {
         })
 }
 
-///curve advance acrions end
 
 function getData(param, successFunc, errorFunc, dbConnection, username) {
-    //console.log("GET DATA");
-    var Curve = dbConnection.Curve;
-    var Dataset = dbConnection.Dataset;
-    var Well = dbConnection.Well;
-    var Project = dbConnection.Project;
+    let Curve = dbConnection.Curve;
+    let Dataset = dbConnection.Dataset;
+    let Well = dbConnection.Well;
+    let Project = dbConnection.Project;
     Curve.findById(param.idCurve)
         .then(curve => {
             if (curve) {
@@ -394,7 +390,6 @@ function getData(param, successFunc, errorFunc, dbConnection, username) {
                         Well.findById(dataset.idWell).then(well => {
                             if (well) {
                                 Project.findById(well.idProject).then(project => {
-                                    //console.log("helo");
                                     successFunc(hashDir.createJSONReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt', '{\n"code": 200,\n"content":', '}\n'));
                                 });
                             }
@@ -406,7 +401,6 @@ function getData(param, successFunc, errorFunc, dbConnection, username) {
             } else {
                 errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found"));
             }
-            //successFunc( hashDir.createJSONReadStream(config.curveBasePath, curve.dataset + curve.name, curve.name + '.txt', '{\n"code": 200,\n"content":', '}\n') );
         })
         .catch((err) => {
             console.log(err);
@@ -415,10 +409,10 @@ function getData(param, successFunc, errorFunc, dbConnection, username) {
 }
 
 function exportData(param, successFunc, errorFunc, dbConnection, username) {
-    var Curve = dbConnection.Curve;
-    var Dataset = dbConnection.Dataset;
-    var Well = dbConnection.Well;
-    var Project = dbConnection.Project;
+    let Curve = dbConnection.Curve;
+    let Dataset = dbConnection.Dataset;
+    let Well = dbConnection.Well;
+    let Project = dbConnection.Project;
     Curve.findById(param.idCurve)
         .then(function (curve) {
             if (curve) {
@@ -429,7 +423,6 @@ function exportData(param, successFunc, errorFunc, dbConnection, username) {
                         Well.findById(dataset.idWell).then(well => {
                             if (well) {
                                 Project.findById(well.idProject).then(project => {
-                                    //console.log(project.name + well.name + dataset.name + curve.name);
                                     exporter.exportData(hashDir.createReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt'), successFunc);
                                 });
                             }
@@ -448,153 +441,7 @@ function exportData(param, successFunc, errorFunc, dbConnection, username) {
         .catch(function () {
             errorFunc(404);
         })
-}
-
-function updateData(req, result) {
-    result(ResponseJSON(ErrorCodes.SUCCESS, "Dang lam :D"));
-    fs.unlink(req.tmpPath);
-    // var dbConnection = req.dbConnection;
-    // var Curve = dbConnection.Curve;
-    // var Dataset = dbConnection.Dataset;
-    // var Line = dbConnection.Line;
-    // let projectName = req.body.projectname;
-    // let wellName = req.body.wellname;
-    // let isBackup = req.body.isBackup;
-    // let idDataset = req.body.idDataset;
-    // let idSrcCurve = req.body.idSrcCurve;
-    // let idDesCurve = req.body.idDesCurve;
-    // let idLine = req.body.idLine;
-    // let filePath = req.tmpPath;
-    // let newCurvename = req.body.newCurveName;
-    // Dataset.findById(idDataset).then(dataset => {
-    //     Curve.findById(idSrcCurve).then(srcCurve => {
-    //         if (srcCurve) {
-    //             if (newCurvename) {
-    //                 //create new curve
-    //                 Line.findById(idLine).then(line => {
-    //                     let buildCurve = new Object();
-    //                     buildCurve.idDataset = idDataset;
-    //                     buildCurve.name = newCurvename;
-    //                     buildCurve.unit = srcCurve.unit;
-    //                     buildCurve.initValue = srcCurve.initValue;
-    //                     Curve.create(buildCurve).then(curve => {
-    //                         let newPath = hashDir.createPath(config.curveBasePath, req.decoded.username + projectName + wellName + dataset.name + curve.name, curve.name + '.txt');
-    //                         fs.copy(filePath, newPath, function (err) {
-    //                             if (err) {
-    //                                 console.log("ERR COPY FILE : ", err);
-    //                             }
-    //                             console.log("Copy file success!");
-    //                             fs.unlink(filePath);
-    //                             let lineInfo = line.toJSON();
-    //                             lineInfo.idCurve = curve.idCurve;
-    //                             Object.assign(line, lineInfo).save().then(rs => {
-    //                                 console.log("SAVE LINE DONE");
-    //                                 //response line
-    //                                 result(ResponseJSON(ErrorCodes.SUCCESS, "Success", line));
-    //                             }).catch(err => {
-    //                                 console.log(err);
-    //                             });
-    //                         });
-    //                     }).catch(err => {
-    //                         result(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CURVE EXISTED!"));
-    //                         // console.log(err);
-    //                     });
-    //                 }).catch(err => {
-    //                     console.log(err);
-    //                 });
-    //             } else {
-    //                 //update curve data to existed curve
-    //                 if (isBackup == "true" || isBackup == true) {
-    //                     Line.findAll({where: {idCurve: idSrcCurve}}).then(lines => {
-    //                         Curve.findById(idDesCurve).then(desCurve => {
-    //                             let curveInfo = desCurve.toJSON();
-    //                             delete curveInfo.idCurve;
-    //                             delete curveInfo.createdAt;
-    //                             delete curveInfo.updatedAt;
-    //                             curveInfo.name = desCurve.name + "_backup";
-    //                             console.log(curveInfo);
-    //                             Curve.create(curveInfo).then(curve => {
-    //                                 let newPath = hashDir.createPath(config.curveBasePath, req.decoded.username + projectName + wellName + dataset.name + curve.name, curve.name + '.txt');
-    //                                 let oldPath = hashDir.createPath(config.curveBasePath, req.decoded.username + projectName + wellName + dataset.name + desCurve.name, desCurve.name + '.txt');
-    //                                 fs.copy(oldPath, newPath, function (err) {
-    //                                     if (err) {
-    //                                         console.log("ERR COPY FILE : ", err);
-    //                                     }
-    //                                     asyncLoop(lines, function (line, next) {
-    //                                         if (line) {
-    //                                             let lineInfo = line.toJSON();
-    //                                             lineInfo.idCurve = idDesCurve;
-    //                                             lineInfo.unit = desCurve.unit;
-    //                                             Object.assign(line, lineInfo).save().then(rs => {
-    //                                                 let newPath = hashDir.createPath(config.curveBasePath, req.decoded.username + projectName + wellName + dataset.name + desCurve.name, desCurve.name + '.txt');
-    //                                                 fs.copy(filePath, newPath, function (err) {
-    //                                                     if (err) {
-    //                                                         console.log("ERR COPY FILE : ", err);
-    //                                                     }
-    //                                                     console.log("Copy file success!");
-    //                                                     fs.unlink(filePath);
-    //                                                     next();
-    //                                                 });
-    //                                             }).catch(err => {
-    //                                                 // result(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
-    //                                                 console.log(err);
-    //                                                 next();
-    //                                             });
-    //                                         } else {
-    //                                             next();
-    //                                         }
-    //                                     }, function () {
-    //                                         result(ResponseJSON(ErrorCodes.SUCCESS, "Successfully"));
-    //                                     })
-    //                                 });
-    //                             }).catch(err => {
-    //                                 console.log(err);
-    //                                 result(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve backup existed!", err));
-    //                             });
-    //                         });
-    //                     }).catch();
-    //                 } else {
-    //                     Line.findAll({where: {idCurve: idSrcCurve}}).then(lines => {
-    //                         Curve.findById(idDesCurve).then(desCurve => {
-    //                             asyncLoop(lines, function (line, next) {
-    //                                 if (line) {
-    //                                     let lineInfo = line.toJSON();
-    //                                     lineInfo.idCurve = idDesCurve;
-    //                                     lineInfo.unit = desCurve.unit;
-    //                                     Object.assign(line, lineInfo).save().then(rs => {
-    //                                         let newPath = hashDir.createPath(config.curveBasePath, req.decoded.username + projectName + wellName + dataset.name + desCurve.name, desCurve.name + '.txt');
-    //                                         fs.copy(filePath, newPath, function (err) {
-    //                                             if (err) {
-    //                                                 console.log("ERR COPY FILE : ", err);
-    //                                             }
-    //                                             console.log("Copy file success!");
-    //                                             fs.unlink(filePath);
-    //                                             next();
-    //                                         });
-    //                                     }).catch(err => {
-    //                                         console.log(err);
-    //                                         next();
-    //                                     });
-    //                                 } else {
-    //                                     next();
-    //                                 }
-    //                             }, function () {
-    //                                 result(ResponseJSON(ErrorCodes.SUCCESS, "Successful"));
-    //                             })
-    //                         });
-    //                     }).catch();
-    //                 }
-    //             }
-    //         } else {
-    //             //send not found curve
-    //             result(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Not found curve"));
-    //         }
-    //     }).catch(err => {
-    //         console.log(err);
-    //         result(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Some err", err));
-    //     });
-    // });
-}
+};
 
 let getScale = function (req, done, dbConnection) {
     calculateScale(req.body.idCurve, req.decoded.username, dbConnection, function (err, result) {
@@ -604,12 +451,13 @@ let getScale = function (req, done, dbConnection) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "min max curve success", result));
         }
     });
-}
+};
+
 let calculateScale = function (idCurve, username, dbConnection, callback) {
-    var Curve = dbConnection.Curve;
-    var Dataset = dbConnection.Dataset;
-    var Project = dbConnection.Project;
-    var Well = dbConnection.Well;
+    let Curve = dbConnection.Curve;
+    let Dataset = dbConnection.Dataset;
+    let Project = dbConnection.Project;
+    let Well = dbConnection.Well;
     Curve.findById(idCurve, {paranoid: false})
         .then(function (curve) {
             if (curve) {
@@ -621,9 +469,6 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
                             if (well) {
                                 Project.findById(well.idProject, {paranoid: false}).then(project => {
                                     let inputStream = hashDir.createReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
-                                    // if (inputStream.bytesRead == 0) {
-                                    //     return callback('No File', null);
-                                    // }
                                     let lineReader = require('readline').createInterface({
                                         input: inputStream
                                     });
@@ -653,10 +498,6 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
                                             }
                                         });
                                         callback(null, {minScale: min, maxScale: max, meanValue: sum / arrY.length});
-                                        // res.send(ResponseJSON(ErrorCodes.SUCCESS, "min max curve success", {
-                                        //     minScale: min,
-                                        //     maxScale: max
-                                        // }));
                                     });
                                 }).catch(err => {
                                     console.log("LOI");
@@ -800,6 +641,61 @@ let processingCurve = function (req, done, dbConnection) {
         }
     }).catch();
 }
+
+async function getCurveDataFromInventory(curveInfo, token, callback, dbConnection, username) {
+    let options = {
+        method: 'POST',
+        url: 'http://' + config.Service.inventory + '/user/well/dataset/curve/data',
+        headers:
+            {
+                Authorization: token,
+                'Content-Type': 'application/json'
+            },
+        body: {idCurve: curveInfo.idInvCurve},
+        json: true
+    };
+    let idDataset = curveInfo.idDesDataset;
+    let dataset = await dbConnection.Dataset.findById(idDataset);
+    let well = await dbConnection.Well.findById(dataset.idWell);
+    let project = await dbConnection.Project.findById(well.idProject);
+    let curve = {};
+    curve.name = curveInfo.name;
+    curve.unit = curveInfo.unit;
+    curve.initValue = 0;
+    curve.idDataset = dataset.idDataset;
+    dbConnection.Curve.findOrCreate({
+        where: {
+            name: curve.name,
+            idDataset: curve.idDataset
+        },
+        defaults: {
+            name: curve.name,
+            idDataset: curve.idDataset,
+            initValue: curve.initValue,
+            unit: curve.unit
+        }
+    }).then(rs => {
+        // console.log(rs);
+        let _curve = rs[0];
+        let curvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + _curve.name, _curve.name + '.txt');
+        console.log(curvePath);
+        try {
+            let stream = request(options).pipe(fs.createWriteStream(curvePath));
+            stream.on('close', function () {
+                callback(null, _curve);
+            });
+            stream.on('error', function (err) {
+                callback(err, null);
+            });
+        } catch (err) {
+            callback(err, null);
+        }
+    }).catch(err => {
+        console.log(err);
+        callback(err, null);
+    });
+}
+
 module.exports = {
     createNewCurve: createNewCurve,
     editCurve: editCurve,
@@ -809,9 +705,9 @@ module.exports = {
     exportData: exportData,
     copyCurve: copyCurve,
     moveCurve: moveCurve,
-    updateData: updateData,
     getScale: getScale,
     calculateScale: calculateScale,
-    processingCurve: processingCurve
+    processingCurve: processingCurve,
+    getCurveDataFromInventory: getCurveDataFromInventory
 };
 
