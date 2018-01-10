@@ -1,41 +1,45 @@
 module.exports = function (sequelize, DataTypes) {
     return sequelize.define('shading', {
-        idShading:{
-            type:DataTypes.INTEGER,
-            autoIncrement:true,
-            allowNull:false,
-            primaryKey:true
+        idShading: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            allowNull: false,
+            primaryKey: true
         },
-        name:{
-            type:DataTypes.STRING(150),
-            allowNull:false,
+        name: {
+            type: DataTypes.STRING(150),
+            allowNull: false,
         },
-        leftFixedValue:{
-            type:DataTypes.FLOAT,
-            allowNull:true
+        leftFixedValue: {
+            type: DataTypes.FLOAT,
+            allowNull: true
         },
-        rightFixedValue:{
-            type:DataTypes.FLOAT,
-            allowNull:true
+        rightFixedValue: {
+            type: DataTypes.FLOAT,
+            allowNull: true
         },
-        negativeFill:{
-            type:DataTypes.TEXT,
-            allowNull:true
+        negativeFill: {
+            type: DataTypes.TEXT,
+            allowNull: true
         },
-	fill:{
-            type:DataTypes.TEXT,
-            allowNull:true
+        fill: {
+            type: DataTypes.TEXT,
+            allowNull: true
         },
 
-        positiveFill:{
-            type:DataTypes.TEXT,
-            allowNull:true //truoc la false
+        positiveFill: {
+            type: DataTypes.TEXT,
+            allowNull: true //truoc la false
         },
-        isNegPosFill:{
-            type:DataTypes.BOOLEAN,
-            allowNull:false,
-            defaultValue:true
+        isNegPosFill: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true
+        },
+        orderNum: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: 'a'
         }
-
     });
 };
