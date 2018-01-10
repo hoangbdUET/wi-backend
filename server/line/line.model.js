@@ -180,7 +180,8 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                                     lineWidth: family.lineWidth,
                                     lineColor: family.lineColor,
                                     symbolFillStyle: family.lineColor,
-                                    symbolStrokeStyle: family.lineColor
+                                    symbolStrokeStyle: family.lineColor,
+                                    orderNum: lineInfo.orderNum
                                 }).save()
                                     .then(function (line) {
                                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", line));
