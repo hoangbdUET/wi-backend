@@ -20,7 +20,8 @@ function createNewShading(shadingInfo, done, dbConnection) {
                     positiveFill: JSON.stringify(shadingInfo.positiveFill),
                     fill: JSON.stringify(shadingInfo.fill),
                     isNegPosFill: shadingInfo.isNegPosFill,
-                    idControlCurve: shadingInfo.idControlCurve
+                    idControlCurve: shadingInfo.idControlCurve,
+                    orderNum: shadingInfo.orderNum
                 });
                 shading.save()
                     .then(function (result) {
