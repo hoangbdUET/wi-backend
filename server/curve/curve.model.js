@@ -486,8 +486,8 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
 
                                     lineReader.on('close', function () {
                                         //console.log(arrY);
-                                        let min = arrY[0];
-                                        let max = arrY[0];
+                                        let min = parseFloat(arrY[0]);
+                                        let max = parseFloat(arrY[0]);
                                         let sum = 0;
                                         arrY.forEach(function (element, i) {
                                             if (element != 'null') {

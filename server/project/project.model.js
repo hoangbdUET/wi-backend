@@ -4,6 +4,7 @@
 var ErrorCodes = require('../../error-codes').CODES;
 const ResponseJSON = require('../response');
 var asyncLoop = require('async/each');
+let asyncSeries = require('async/parallel');
 
 function createNewProject(projectInfo, done, dbConnection) {
     var Project = dbConnection.Project;
@@ -95,7 +96,85 @@ function deleteProject(projectInfo, done, dbConnection) {
         });
 }
 
-function getProjectFullInfo(project, done, dbConnection) {
+async function getProjectFullInfo(payload, done, dbConnection) {
+    let project = await dbConnection.Project.findById(payload.idProject);
+    let response = project.toJSON();
+    let wells = await dbConnection.Well.findAll({where: {idProject: project.idProject}});
+    let groups = await dbConnection.Groups.findAll({where: {idProject: project.idProject}});
+    response.wells = [];
+    response.groups = groups;
+    if (wells.length == 0) {
+        return done(ResponseJSON(ErrorCodes.SUCCESS, "Get full info Project success", response));
+    }
+    asyncLoop(wells, function (well, nextWell) {
+        let wellObj = well.toJSON();
+        asyncSeries([
+            function (cb) {
+                dbConnection.Dataset.findAll({where: {idWell: well.idWell}}).then(datasets => {
+                    let datasetArr = [];
+                    let datasetObj = {};
+                    asyncLoop(datasets, function (dataset, nextDataset) {
+                        datasetObj = dataset.toJSON();
+                        dbConnection.Curve.findAll({
+                            where: {idDataset: dataset.idDataset},
+                            include: {
+                                model: dbConnection.Family,
+                                as: "LineProperty"
+                            }
+                        }).then(curves => {
+                            datasetObj.curves = curves;
+                            datasetArr.push(datasetObj);
+                            nextDataset();
+                        });
+                    }, function () {
+                        cb(null, datasetArr);
+                    });
+                });
+            },
+            function (cb) {
+                dbConnection.ZoneSet.findAll({
+                    where: {idWell: well.idWell},
+                    include: {model: dbConnection.Zone}
+                }).then(zonesets => {
+                    cb(null, zonesets);
+                });
+            },
+            function (cb) {
+                dbConnection.Plot.findAll({where: {idWell: well.idWell}}).then(plots => {
+                    cb(null, plots);
+                });
+            },
+            function (cb) {
+                dbConnection.Histogram.findAll({where: {idWell: well.idWell}}).then(histograms => {
+                    cb(null, histograms);
+                });
+            },
+            function (cb) {
+                dbConnection.CrossPlot.findAll({where: {idWell: well.idWell}}).then(crossplots => {
+                    cb(null, crossplots);
+                });
+            },
+            function (cb) {
+                dbConnection.CombinedBox.findAll({where: {idWell: well.idWell}}).then(combined_boxes => {
+                    cb(null, combined_boxes);
+                });
+            }
+        ], function (err, result) {
+            wellObj.datasets = result[0];
+            wellObj.zonesets = result[1];
+            wellObj.plots = result[2];
+            wellObj.histograms = result[3];
+            wellObj.crossplots = result[4];
+            wellObj.combined_boxes = result[5];
+            response.wells.push(wellObj);
+            nextWell();
+        });
+    }, function () {
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Get full info Project success", response));
+    });
+}
+
+function _getProjectFullInfo(project, done, dbConnection) {
     let idProject = project.idProject;
     let response = new Object();
     dbConnection.Project.findById(idProject, {
@@ -143,47 +222,6 @@ function getProjectFullInfo(project, done, dbConnection) {
     });
 }
 
-function _getProjectFullInfo(project, done, dbConnection) {
-    // console.log("GET FULL INFO ", project);
-    var Project = dbConnection.Project;
-    Project.findById(project.idProject, {
-        include: [{
-            model: dbConnection.Well,
-            include: [{
-                model: dbConnection.Dataset,
-                include: [{
-                    model: dbConnection.Curve,
-                    include: [{
-                        model: dbConnection.Family,
-                        as: "LineProperty"
-                    }]
-                }]
-            }, {
-                model: dbConnection.Plot
-            }, {
-                model: dbConnection.CrossPlot
-            }, {
-                model: dbConnection.Histogram
-            }, {
-                model: dbConnection.ZoneSet,
-                include: [{
-                    model: dbConnection.Zone
-                }]
-            }, {
-                model: dbConnection.CombinedBox
-            }]
-        }, {
-            model: dbConnection.Groups
-        }]
-    })
-        .then(function (project) {
-            if (!project) throw "not exists";
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Get full info Project success", project));
-        })
-        .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Project not found for full info"));
-        });
-}
 
 function genLocationOfNewProject() {
     return "";
