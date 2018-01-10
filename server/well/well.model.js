@@ -26,7 +26,11 @@ function createNewWell(wellInfo, done, dbConnection) {
                     })
                     .catch(function (err) {
                         // console.log(err);
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.errors.message));
+                        if (err.name === "SequelizeUniqueConstraintError") {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Well name existed!"));
+                        } else {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                        }
                     });
             },
             function () {
@@ -76,7 +80,11 @@ function editWell(wellInfo, done, dbConnection, username) {
                                     });
                                 }, function (err) {
                                     if (err) {
-                                        return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
+                                        if (err.name === "SequelizeUniqueConstraintError") {
+                                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Well name existed!"));
+                                        } else {
+                                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                                        }
                                     }
                                     done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", well));
                                 });
@@ -96,7 +104,11 @@ function editWell(wellInfo, done, dbConnection, username) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Well success", well));
                     })
                     .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Well " + err.name));
+                        if (err.name === "SequelizeUniqueConstraintError") {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Well name existed!"));
+                        } else {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                        }
                     });
             }
         } else {

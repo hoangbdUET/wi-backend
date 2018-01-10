@@ -22,7 +22,11 @@ function createNewDataset(datasetInfo, done, dbConnection) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Dataset success", {idDataset: dataset.idDataset}));
                     })
                     .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Dataset name existed!"));
+                        if (err.name === "SequelizeUniqueConstraintError") {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Dataset name existed!"));
+                        } else {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                        }
                     });
             },
             function () {
@@ -69,7 +73,11 @@ function editDataset(datasetInfo, done, dbConnection, username) {
                         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
                     });
                 }).catch(err => {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Dataset name existed", err));
+                    if (err.name === "SequelizeUniqueConstraintError") {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Dataset name existed!"));
+                    } else {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    }
                 });
             } else {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Nothing", datasetInfo));
