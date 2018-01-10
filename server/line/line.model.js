@@ -200,7 +200,8 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                                         idCurve: curve.idCurve,
                                         alias: curve.name,
                                         minValue: result.minScale,
-                                        maxValue: result.maxScale
+                                        maxValue: result.maxScale,
+                                        orderNum: lineInfo.orderNum
                                     }).save()
                                         .then(function (line) {
                                             done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", line.toJSON()));
