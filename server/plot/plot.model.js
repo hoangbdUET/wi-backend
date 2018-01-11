@@ -806,7 +806,6 @@ let importPlotTemplate = async function (req, done, dbConnection) {
         let well = await dbConnection.Well.findById(plot.idWell);
         searchReferenceCurve(req.body.idWell, dbConnection, function (err, idRefCurve) {
             plot.referenceCurve = idRefCurve ? idRefCurve : null;
-            console.log(plot);
             dbConnection.Plot.create(plot).then(rs => {
                 let idPlot = rs.idPlot;
                 asyncSeries([
