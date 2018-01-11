@@ -96,7 +96,7 @@ function deleteProject(projectInfo, done, dbConnection) {
         });
 }
 
-async function _getProjectFullInfo(payload, done, dbConnection) {
+async function getProjectFullInfo(payload, done, dbConnection) {
     let project = await dbConnection.Project.findById(payload.idProject);
     let response = project.toJSON();
     let wells = await dbConnection.Well.findAll({where: {idProject: project.idProject}});
@@ -113,6 +113,7 @@ async function _getProjectFullInfo(payload, done, dbConnection) {
                 dbConnection.Dataset.findAll({where: {idWell: well.idWell}}).then(datasets => {
                     let datasetArr = [];
                     asyncLoop(datasets, function (dataset, nextDataset) {
+                        let datasetObj = dataset.toJSON();
                         dbConnection.Curve.findAll({
                             where: {idDataset: dataset.idDataset},
                             include: {
@@ -120,7 +121,6 @@ async function _getProjectFullInfo(payload, done, dbConnection) {
                                 as: "LineProperty"
                             }
                         }).then(curves => {
-                            let datasetObj = dataset.toJSON();
                             datasetObj.curves = curves;
                             datasetArr.push(datasetObj);
                             nextDataset();
@@ -173,7 +173,7 @@ async function _getProjectFullInfo(payload, done, dbConnection) {
     });
 }
 
-function getProjectFullInfo(project, done, dbConnection) {
+function _getProjectFullInfo(project, done, dbConnection) {
     let idProject = project.idProject;
     let response = new Object();
     dbConnection.Project.findById(idProject, {
