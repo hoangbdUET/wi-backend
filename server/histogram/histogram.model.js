@@ -1,12 +1,6 @@
 "use strict";
-var models = require('../models');
-var Histogram = models.Histogram;
-var Zone = models.Zone;
-var ZoneSet = models.ZoneSet;
-var Curve = models.Curve;
-var Well = models.Well;
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
 let asyncLoop = require('async/each');
 
 let findFamilyIdByName = function (familyName, dbConnection, callback) {
@@ -23,28 +17,33 @@ let findFamilyIdByName = function (familyName, dbConnection, callback) {
 }
 
 function createNewHistogram(histogramInfo, done, dbConnection) {
-    var Histogram = dbConnection.Histogram;
-    var Well = dbConnection.Well;
+    let Histogram = dbConnection.Histogram;
+    let Well = dbConnection.Well;
     Well.findById(parseInt(histogramInfo.idWell)).then(well => {
-        var myData;
+        let myData;
         histogramInfo.referenceTopDepth = well.topDepth;
         histogramInfo.referenceBottomDepth = well.bottomDepth;
         if (histogramInfo.histogramTemplate) {
             console.log("NEW HISTOGRAM TEMPLATE ", histogramInfo.histogramTemplate);
             myData = null;
+            let loga = false;
             try {
                 myData = require('./histogram-template/' + histogramInfo.histogramTemplate + '.json');
             } catch (err) {
                 return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No histogarm template found"));
             }
             myData.name = histogramInfo.name ? histogramInfo.name : myData.name;
+            if (histogramInfo.histogramTemplate === "ShadowResistivity" || histogramInfo.histogramTemplate === "DeepResistivity") {
+                loga = true;
+            }
             Histogram.create({
                 name: myData.name,
                 idWell: histogramInfo.idWell,
                 referenceTopDepth: histogramInfo.referenceTopDepth,
                 referenceBottomDepth: histogramInfo.referenceBottomDepth,
                 intervalDepthTop: histogramInfo.referenceTopDepth,
-                intervalDepthBottom: histogramInfo.referenceBottomDepth
+                intervalDepthBottom: histogramInfo.referenceBottomDepth,
+                loga: loga
             }).then(histogram => {
                 // let idHistogram = histogram.idHistogram;
                 asyncLoop(myData.families, function (family, next) {
@@ -155,12 +154,12 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
 }
 
 function getHistogram(histogramId, done, dbConnection) {
-    var Histogram = dbConnection.Histogram;
-    var Curve = dbConnection.Curve;
-    var ZoneSet = dbConnection.ZoneSet;
-    var Zone = dbConnection.Zone;
-    var ReferenceCurve = dbConnection.ReferenceCurve;
-    var Discrim = dbConnection.Discrim;
+    let Histogram = dbConnection.Histogram;
+    let Curve = dbConnection.Curve;
+    let ZoneSet = dbConnection.ZoneSet;
+    let Zone = dbConnection.Zone;
+    let ReferenceCurve = dbConnection.ReferenceCurve;
+    let Discrim = dbConnection.Discrim;
     Histogram.findById(histogramId.idHistogram, {
         include: [{
             model: ZoneSet,
@@ -217,7 +216,7 @@ function getHistogram(histogramId, done, dbConnection) {
 }
 
 function editHistogram(histogramInfo, done, dbConnection) {
-    var Histogram = dbConnection.Histogram;
+    let Histogram = dbConnection.Histogram;
     Histogram.findById(histogramInfo.idHistogram)
         .then(function (histogram) {
             histogramInfo.discriminator = JSON.stringify(histogramInfo.discriminator);
@@ -240,7 +239,7 @@ function editHistogram(histogramInfo, done, dbConnection) {
 }
 
 function deleteHistogram(histogramInfo, done, dbConnection) {
-    var Histogram = dbConnection.Histogram;
+    let Histogram = dbConnection.Histogram;
     Histogram.findById(histogramInfo.idHistogram)
         .then(function (histogram) {
             histogram.destroy()
