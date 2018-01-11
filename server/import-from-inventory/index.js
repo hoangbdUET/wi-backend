@@ -20,14 +20,16 @@ router.post('/inventory/import/curve', function (req, res) {
     let curves = req.body;
     let response = [];
     asyncEach(curves, function (curve, next) {
-        curveModels.getCurveDataFromInventory(curve, token, function (err, result) {
-            if (err) {
-                response.push(err);
-            } else {
-                response.push(result);
-            }
-            next();
-        }, req.dbConnection, req.decoded.username);
+        setTimeout(function () {
+            curveModels.getCurveDataFromInventory(curve, token, function (err, result) {
+                if (err) {
+                    response.push(err);
+                } else {
+                    response.push(result);
+                }
+                next();
+            }, req.dbConnection, req.decoded.username);
+        }, 100);
     }, function () {
         res.send(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
     });
@@ -54,16 +56,18 @@ router.post('/inventory/import/dataset', function (req, res) {
         }).then(rs => {
             let _dataset = rs[0];
             asyncEach(dataset.curves, function (curve, nextCurve) {
-                curve.idDesDataset = _dataset.idDataset;
-                curveModels.getCurveDataFromInventory(curve, token, function (err, result) {
-                    if (err) {
-                        response.push(err);
-                        nextCurve();
-                    } else {
-                        response.push(result);
-                        nextCurve();
-                    }
-                }, req.dbConnection, req.decoded.username);
+                setTimeout(function () {
+                    curve.idDesDataset = _dataset.idDataset;
+                    curveModels.getCurveDataFromInventory(curve, token, function (err, result) {
+                        if (err) {
+                            response.push(err);
+                            nextCurve();
+                        } else {
+                            response.push(result);
+                            nextCurve();
+                        }
+                    }, req.dbConnection, req.decoded.username);
+                }, 100);
             }, function () {
                 next();
             });

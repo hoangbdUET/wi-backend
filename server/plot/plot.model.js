@@ -805,7 +805,8 @@ let importPlotTemplate = async function (req, done, dbConnection) {
         plot.idWell = req.body.idWell;
         let well = await dbConnection.Well.findById(plot.idWell);
         searchReferenceCurve(req.body.idWell, dbConnection, function (err, idRefCurve) {
-            plot.referenceCurve = idRefCurve;
+            plot.referenceCurve = idRefCurve ? idRefCurve : null;
+            console.log(plot);
             dbConnection.Plot.create(plot).then(rs => {
                 let idPlot = rs.idPlot;
                 asyncSeries([
@@ -934,8 +935,8 @@ let importPlotTemplate = async function (req, done, dbConnection) {
                                     function (cb) {
                                         asyncLoop(track.annotations, function (annotation, next) {
                                             annotation.idTrack = idTrack;
-                                            if (annotation.top < well.topDepth) annotation.top = well.topDepth;
-                                            if (annotation.bottom > well.bottomDepth) annotation.bottom = well.bottomDepth;
+                                            if (annotation.top <= parseFloat(well.topDepth)) annotation.top = well.topDepth;
+                                            if (annotation.bottom >= parseFloat(well.bottomDepth)) annotation.bottom = well.bottomDepth;
                                             dbConnection.Annotation.create(annotation).then(() => {
                                                 next();
                                             }).catch(err => {
