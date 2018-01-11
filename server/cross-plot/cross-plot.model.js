@@ -119,8 +119,8 @@ async function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
                                         }).then(curve => {
                                             if (curve) {
                                                 let curveY = curve.toJSON();
-                                                curveY.scaleTop = scale.minScale;
-                                                curveY.scaleBottom = scale.maxScale;
+                                                curveY.scaleTop = scale.maxScale;
+                                                curveY.scaleBottom = scale.minScale;
                                                 next(curveY);
                                             } else {
                                                 next();
