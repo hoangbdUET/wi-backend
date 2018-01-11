@@ -96,7 +96,7 @@ function deleteProject(projectInfo, done, dbConnection) {
         });
 }
 
-async function getProjectFullInfo(payload, done, dbConnection) {
+async function _getProjectFullInfo(payload, done, dbConnection) {
     let project = await dbConnection.Project.findById(payload.idProject);
     let response = project.toJSON();
     let wells = await dbConnection.Well.findAll({where: {idProject: project.idProject}});
@@ -173,7 +173,7 @@ async function getProjectFullInfo(payload, done, dbConnection) {
     });
 }
 
-function _getProjectFullInfo(project, done, dbConnection) {
+function getProjectFullInfo(project, done, dbConnection) {
     let idProject = project.idProject;
     let response = new Object();
     dbConnection.Project.findById(idProject, {
