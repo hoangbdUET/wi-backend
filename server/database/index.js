@@ -1,136 +1,128 @@
 "use strict";
 
-var express = require("express");
-var router = express.Router();
-var Sequelize = require("sequelize");
-var bodyParser = require("body-parser");
-var config = require("config").Database;
-var models = require("../models");
-var updateFamilyModel = require('../family/global.family.models');
-var updateOverlayLineModel = require('../overlay-line/overlay-line.model');
-// console.log(config);
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
+let express = require("express");
+let router = express.Router();
+let Sequelize = require("sequelize");
+let bodyParser = require("body-parser");
+let config = require("config").Database;
+let models = require("../models");
+let updateFamilyModel = require('../family/global.family.models');
+let updateOverlayLineModel = require('../overlay-line/overlay-line.model');
+let jwt = require('jsonwebtoken');
+
 router.use(bodyParser.json());
 
-router.post('/database/test.js', function (req, res) {
-    // console.log(req);
-    res.send("Hello Tan");
-});
-
 router.post('/database/update', function (req, res) {
-    let response = {
-        code: 200,
-        reason: "SUCCESSFUL",
-        content: null
-    }
-    let sequelize = new Sequelize('wi_backend', config.user, config.password, {
-        define: {
-            freezeTableName: true
-        },
-        dialect: config.dialect,
-        port: config.port,
-        logging: config.logging,
-        dialectOptions: {
-            charset: 'utf8'
-        },
-        pool: {
-            max: 2,
-            min: 0,
-            idle: 200
-        },
-        operatorsAliases: Sequelize.Op,
-        storage: config.storage
-    });
-    let dbName = req.body.dbName;
-    let token = req.body.token;
-    sequelize.query("CREATE DATABASE IF NOT EXISTS " + dbName).then(rs => {
-        if (rs[0].warningStatus == 0) {
-            models(dbName).sequelize.sync().then(() => {
-                updateFamilyModel.syncFamilyData({username: dbName.substring(3).toLowerCase()}, function (result) {
-                    console.log("CREATED NEW DATABASE ", dbName);
-                    response.content = rs;
-                    console.log("Successfull update family for user : ", dbName);
-                    updateOverlayLineModel.syncOverlayLine(dbName.substring(3).toLowerCase(), function (err, success) {
-                        if (err) {
-                            console.log(err);
-                        } else {
-                            console.log("Overlay line sync : ", success);
-                        }
-                    });
-                    res.status(200).send(response);
+    let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
+    if (token) {
+        jwt.verify(token, 'secretKey', function (err, decoded) {
+            if (err) {
+                return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Authentication failed", "Authentication failed"));
+            } else {
+                let sequelize = new Sequelize('wi_backend', config.user, config.password, {
+                    define: {
+                        freezeTableName: true
+                    },
+                    dialect: config.dialect,
+                    port: config.port,
+                    logging: config.logging,
+                    dialectOptions: {
+                        charset: 'utf8'
+                    },
+                    pool: {
+                        max: 2,
+                        min: 0,
+                        idle: 200
+                    },
+                    operatorsAliases: Sequelize.Op,
+                    storage: config.storage
                 });
-            }).catch(function (err) {
-                console.log(err);
-                response.code = 500;
-                response.reason = "SOME ERR";
-                response.content = err;
-                res.status(200).send(response);
-            });
-        } else {
-            console.log("DATABASE EXISTS ", dbName);
-            response.code = 200;
-            response.reason = "SUCCESSFUL WITH DATABASE EXISTED";
-            response.content = rs;
-            res.status(200).send(response);
-        }
-        sequelize.close();
-    }).catch(err => {
-        console.log(err.message);
-        response.code = 500;
-        response.reason = "SOME ERR";
-        response.content = err;
-        res.status(200).send(response);
-    });
+                let dbName = 'wi_' + decoded.username;
+                sequelize.query("CREATE DATABASE IF NOT EXISTS " + dbName).then(rs => {
+                    if (rs[0].warningStatus == 0) {
+                        models(dbName).sequelize.sync().then(() => {
+                            updateFamilyModel.syncFamilyData({username: dbName.substring(3).toLowerCase()}, function (result) {
+                                console.log("CREATED NEW DATABASE ", dbName);
+                                console.log("Successfull update family for user : ", dbName);
+                                updateOverlayLineModel.syncOverlayLine(dbName.substring(3).toLowerCase(), function (err, success) {
+                                    if (err) {
+                                        console.log(err);
+                                    } else {
+                                        console.log("Overlay line sync : ", success);
+                                    }
+                                });
+                                res.send(ResponseJSON(ErrorCodes.SUCCESS, "Create database successful", {database: dbName}));
+                            });
+                        }).catch(function (err) {
+                            console.log(err);
+                            res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error while sync database", err.message));
+                        });
+                    } else {
+                        console.log("DATABASE EXISTS ", dbName);
+                        res.send(ResponseJSON(ErrorCodes.SUCCESS, "Database existed", dbName));
+                    }
+                    sequelize.close();
+                }).catch(err => {
+                    console.log(err.message);
+                    res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Some error", err.message));
+                });
+            }
+        });
+    } else {
+        return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No token provided"));
+    }
 });
 
 router.delete('/database/update', function (req, res) {
-    let response = {
-        code: 200,
-        reason: "SUCCESSFUL",
-        content: null
-    }
-    let sequelize = new Sequelize('wi_backend', config.user, config.password, {
-        define: {
-            freezeTableName: true
-        },
-        dialect: config.dialect,
-        port: config.port,
-        logging: config.logging,
-        dialectOptions: {
-            charset: 'utf8'
-        },
-        pool: {
-            max: 2,
-            min: 0,
-            idle: 200
-        },
-        operatorsAliases: Sequelize.Op,
-        storage: config.storage
-    });
-    let dbName = req.body.dbName;
-    let token = req.body.token;
-    sequelize.query("DROP DATABASE IF EXISTS " + dbName).then(rs => {
-        if (rs[0].warningStatus == 0) {
-            console.log("DROP DATABASE ", dbName);
-            response.content = rs;
-            models(dbName, function () {
+    let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
+    if (token) {
+        jwt.verify(token, 'secretKey', function (err, decoded) {
+            if (err) {
+                return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Authentication failed", "Authentication failed"));
+            } else {
+                let sequelize = new Sequelize('wi_backend', config.user, config.password, {
+                    define: {
+                        freezeTableName: true
+                    },
+                    dialect: config.dialect,
+                    port: config.port,
+                    logging: config.logging,
+                    dialectOptions: {
+                        charset: 'utf8'
+                    },
+                    pool: {
+                        max: 2,
+                        min: 0,
+                        idle: 200
+                    },
+                    operatorsAliases: Sequelize.Op,
+                    storage: config.storage
+                });
+                let dbName = 'wi_' + decoded.username;
+                sequelize.query("DROP DATABASE IF EXISTS " + dbName).then(rs => {
+                    if (rs[0].warningStatus == 0) {
+                        console.log("DROP DATABASE ", dbName);
+                        models(dbName, function () {
 
-            }, true);
-            res.status(200).send(response);
-        } else {
-            console.log("NO DATABASE EXISTS ", dbName);
-            response.code = 200;
-            response.reason = "NO DATABSE FOR DROP";
-            response.content = rs;
-            res.status(200).send(response);
-        }
-        sequelize.close();
-    }).catch(err => {
-        console.log(err.message);
-        response.code = 500;
-        response.reason = "SOME ERR";
-        response.content = err;
-        res.status(200).send(response);
-    });
+                        }, true);
+                        res.status(200).send(ResponseJSON(ErrorCodes.SUCCESS, "Drop database successful", {database: dbName}));
+                    } else {
+                        console.log("NO DATABASE EXISTS ", dbName);
+                        res.status(200).send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No database"));
+                    }
+                    sequelize.close();
+                }).catch(err => {
+                    console.log(err.message);
+                    res.status(200).send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Some error", err.message));
+                });
+            }
+        });
+    } else {
+        return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No token provided"));
+    }
+
 });
 
 module.exports = router;
