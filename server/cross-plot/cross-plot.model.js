@@ -4,9 +4,22 @@ let asyncLoop = require('async/each');
 let asyncSeries = require('async/series');
 
 let findFamilyIdByName = function (familyName, dbConnection, callback) {
-    dbConnection.Family.findOne({where: {name: familyName}}).then(family => {
+    dbConnection.Family.findOne({
+        where: {name: familyName},
+        include: {model: dbConnection.FamilySpec, as: 'family_spec', where: {isDefault: true}}
+    }).then(family => {
         if (family) {
-            callback(family.idFamily, {minScale: family.minScale, maxScale: family.maxScale});
+            let familyObj = family.toJSON();
+            familyObj.blockPosition = familyObj.family_spec[0].blockPosition;
+            familyObj.displayMode = familyObj.family_spec[0].displayMode;
+            familyObj.displayType = familyObj.family_spec[0].displayType;
+            familyObj.lineColor = familyObj.family_spec[0].lineColor;
+            familyObj.lineStyle = familyObj.family_spec[0].lineStyle;
+            familyObj.lineWidth = familyObj.family_spec[0].lineWidth;
+            familyObj.maxScale = familyObj.family_spec[0].maxScale;
+            familyObj.minScale = familyObj.family_spec[0].minScale;
+            familyObj.unit = familyObj.family_spec[0].unit;
+            callback(familyObj.idFamily, {minScale: familyObj.minScale, maxScale: familyObj.maxScale});
         } else {
             callback(null, null);
         }

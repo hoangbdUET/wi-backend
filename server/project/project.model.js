@@ -1,13 +1,10 @@
-// var models = require('../models');
-// var Project = models.Project;
-// var Well = models.Well;
-var ErrorCodes = require('../../error-codes').CODES;
+let ErrorCodes = require('../../error-codes').CODES;
 const ResponseJSON = require('../response');
-var asyncLoop = require('async/each');
+let asyncLoop = require('async/each');
 let asyncSeries = require('async/parallel');
 
 function createNewProject(projectInfo, done, dbConnection) {
-    var Project = dbConnection.Project;
+    let Project = dbConnection.Project;
     Project.sync()
         .then(function () {
             return Project.create({
@@ -31,7 +28,7 @@ function createNewProject(projectInfo, done, dbConnection) {
 };
 
 function editProject(projectInfo, done, dbConnection) {
-    var Project = dbConnection.Project;
+    let Project = dbConnection.Project;
     Project.findById(projectInfo.idProject)
         .then(function (project) {
             project.name = projectInfo.name;
@@ -56,7 +53,7 @@ function editProject(projectInfo, done, dbConnection) {
 }
 
 function getProjectInfo(project, done, dbConnection) {
-    var Project = dbConnection.Project;
+    let Project = dbConnection.Project;
     Project.findById(project.idProject)
         .then(function (project) {
             if (!project) throw "not exits";
@@ -68,7 +65,7 @@ function getProjectInfo(project, done, dbConnection) {
 }
 
 function getProjectList(owner, done, dbConnection) {
-    var Project = dbConnection.Project;
+    let Project = dbConnection.Project;
     Project.all()
         .then(function (projects) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get List Project success", projects));
@@ -79,7 +76,7 @@ function getProjectList(owner, done, dbConnection) {
 }
 
 function deleteProject(projectInfo, done, dbConnection) {
-    var Project = dbConnection.Project;
+    let Project = dbConnection.Project;
     Project.findById(projectInfo.idProject)
         .then(function (project) {
             project.destroy()
@@ -118,12 +115,38 @@ async function getProjectFullInfo(payload, done, dbConnection) {
                             where: {idDataset: dataset.idDataset},
                             include: {
                                 model: dbConnection.Family,
-                                as: "LineProperty"
+                                as: "LineProperty",
+                                include: {
+                                    model: dbConnection.FamilySpec,
+                                    as: "family_spec",
+                                    where: {
+                                        isDefault: true
+                                    }
+                                }
                             }
                         }).then(curves => {
-                            datasetObj.curves = curves;
-                            datasetArr.push(datasetObj);
-                            nextDataset();
+                            let curveArr = [];
+                            asyncLoop(curves, function (curve, nextCurve) {
+                                let curveObj = curve.toJSON();
+                                if (curveObj.LineProperty) {
+                                    curveObj.LineProperty.blockPosition = curveObj.LineProperty.family_spec[0].blockPosition;
+                                    curveObj.LineProperty.displayMode = curveObj.LineProperty.family_spec[0].displayMode;
+                                    curveObj.LineProperty.displayType = curveObj.LineProperty.family_spec[0].displayType;
+                                    curveObj.LineProperty.lineColor = curveObj.LineProperty.family_spec[0].lineColor;
+                                    curveObj.LineProperty.lineStyle = curveObj.LineProperty.family_spec[0].lineStyle;
+                                    curveObj.LineProperty.lineWidth = curveObj.LineProperty.family_spec[0].lineWidth;
+                                    curveObj.LineProperty.maxScale = curveObj.LineProperty.family_spec[0].maxScale;
+                                    curveObj.LineProperty.minScale = curveObj.LineProperty.family_spec[0].minScale;
+                                    curveObj.LineProperty.unit = curveObj.LineProperty.family_spec[0].unit;
+                                    delete curveObj.LineProperty.family_spec;
+                                }
+                                curveArr.push(curveObj);
+                                nextCurve();
+                            }, function () {
+                                datasetObj.curves = curveArr;
+                                datasetArr.push(datasetObj);
+                                nextDataset();
+                            });
                         });
                     }, function () {
                         cb(null, datasetArr);

@@ -1,14 +1,14 @@
 "use strict";
-var modelMaster = require('../models-master/index');
-var User = modelMaster.User;
-var Sequelize = require('sequelize');
-var config = require('config').Database;
-var configCommon = require('config');
+let modelMaster = require('../models-master/index');
+let User = modelMaster.User;
+let Sequelize = require('sequelize');
+let config = require('config').Database;
+let configCommon = require('config');
 
-var wiImport = require('wi-import');
-var hashDir = wiImport.hashDir;
+let wiImport = require('wi-import');
+let hashDir = wiImport.hashDir;
 
-var sequelizeCache = new Object();
+let sequelizeCache = new Object();
 
 function SequelizeCache() {
 }
@@ -25,7 +25,7 @@ SequelizeCache.prototype.remove = function (dbName) {
     delete this[dbName];
 }
 
-var __CACHE = new SequelizeCache();
+let __CACHE = new SequelizeCache();
 //console.log('start batch job', __CACHE);
 setInterval(function () {
     //watchDog
@@ -47,7 +47,7 @@ module.exports = function (dbName, callback, isDelete) {
     if (isDelete) {
         return __CACHE.remove(dbName);
     } else {
-        var cacheItem = __CACHE.get(dbName);
+        let cacheItem = __CACHE.get(dbName);
         if (cacheItem) {
             cacheItem.timestamp = Date.now();
             return cacheItem.instance;
@@ -66,7 +66,7 @@ module.exports = function (dbName, callback, isDelete) {
 }
 
 function newDbInstance(dbName, callback) {
-    var object = new Object();
+    let object = new Object();
     const sequelize = new Sequelize(dbName, config.user, config.password, {
         define: {
             freezeTableName: true
@@ -92,7 +92,7 @@ function newDbInstance(dbName, callback) {
             callback(err);
         });
 
-    var models = [
+    let models = [
         'Annotation',
         'CombinedBox',
         'CombinedBoxTool',
@@ -103,6 +103,7 @@ function newDbInstance(dbName, callback) {
         'DepthAxis',
         'Family',
         'FamilyCondition',
+        'FamilySpec',
         'Groups',
         'Histogram',
         'Image',
@@ -231,6 +232,7 @@ function newDbInstance(dbName, callback) {
         m.Line.belongsTo(m.Curve, {foreignKey: {name: "idCurve", allowNull: false}, onDelete: 'CASCADE'});
 
         m.FamilyCondition.belongsTo(m.Family, {foreignKey: 'idFamily'});
+        m.Family.hasMany(m.FamilySpec, {as: 'family_spec', foreignKey: 'idFamily'});
         m.Curve.belongsTo(m.Family, {as: 'LineProperty', foreignKey: 'idFamily'});
 
         m.Shading.belongsTo(m.Line, {foreignKey: 'idLeftLine', as: 'leftLine', onDelete: 'CASCADE'});
@@ -323,23 +325,20 @@ function newDbInstance(dbName, callback) {
     })(object);
 
     object.sequelize = sequelize;
-
-    var familyUpdate = require('../family/FamilyUpdater');
-    var familyConditionUpdate = require('../family/FamilyConditionUpdater');
     //Register hook
-    var FamilyCondition = object.FamilyCondition;
-    var Family = object.Family;
-    var Dataset = object.Dataset;
-    var Well = object.Well;
-    var Curve = object.Curve;
-    var Project = object.Project;
-    var Groups = object.Groups;
-    var Histogram = object.Histogram;
-    var CrossPlot = object.CrossPlot;
-    var Plot = object.Plot;
-    var ZoneSet = object.ZoneSet;
-    var Zone = object.Zone;
-    var SelectionPoint = object.SelectionPoint;
+    let FamilyCondition = object.FamilyCondition;
+    let Family = object.Family;
+    let Dataset = object.Dataset;
+    let Well = object.Well;
+    let Curve = object.Curve;
+    let Project = object.Project;
+    let Groups = object.Groups;
+    let Histogram = object.Histogram;
+    let CrossPlot = object.CrossPlot;
+    let Plot = object.Plot;
+    let ZoneSet = object.ZoneSet;
+    let Zone = object.Zone;
+    let SelectionPoint = object.SelectionPoint;
     let username = dbName.substring(dbName.indexOf("_") + 1);
     SelectionPoint.hook('beforeDestroy', function (selectionPoint) {
         hashDir.deleteFolder(configCommon.curveBasePath, username + selectionPoint.XPoints);
@@ -349,7 +348,7 @@ function newDbInstance(dbName, callback) {
             ((curveName, unit) => {
                 FamilyCondition.findAll()
                     .then(conditions => {
-                        var result = conditions.find(function (aCondition) {
+                        let result = conditions.find(function (aCondition) {
                             return new RegExp("^" + aCondition.curveName + "$").test(curveName) && new RegExp("^" + aCondition.unit + "$").test(unit);
                         });
                         if (!result) {

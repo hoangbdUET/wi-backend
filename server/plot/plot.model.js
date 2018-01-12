@@ -161,47 +161,6 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
                         if (done) nextTrack();
                         nextTrack();
                     });
-                    // asyncLoop(track.lines, function (line, next) {
-                    //     asyncLoop(line.families, function (family, next) {
-                    //         findFamilyIdByName(family.name, dbConnection, function (idFamily) {
-                    //             console.log("ID FAMILY ", idFamily);
-                    //             if (idFamily) {
-                    //                 dbConnection.Dataset.findAll({where: {idWell: myPlot.idWell}}).then(datasets => {
-                    //                     asyncLoop(datasets, function (dataset, nextDataset) {
-                    //                         dbConnection.Curve.findOne({
-                    //                             where: {
-                    //                                 idFamily: idFamily,
-                    //                                 idDataset: dataset.idDataset
-                    //                             }
-                    //                         }).then(curve => {
-                    //                             if (curve) {
-                    //                                 // console.log("FOUND CURVE : NEXT ", curve.name);
-                    //                                 lineModel.createNewLineWithoutResponse({
-                    //                                     idCurve: curve.idCurve,
-                    //                                     idTrack: idTrack
-                    //                                 }, dbConnection, username, function (line) {
-                    //                                     nextDataset();
-                    //                                 });
-                    //                             } else {
-                    //                                 // console.log("NOT FOUND CURVE NEXT");
-                    //                                 familyWithErr.push(family.name);
-                    //                                 nextDataset();
-                    //                             }
-                    //                         });
-                    //                     }, function () {
-                    //                         next();
-                    //                     });
-                    //                 });
-                    //             } else {
-                    //                 next();
-                    //             }
-                    //         });
-                    //     }, function (curve) {
-                    //         next();
-                    //     });
-                    // }, function (line) {
-                    //     next();
-                    // });
                 }).catch(err => {
                     // next(err);
                 });

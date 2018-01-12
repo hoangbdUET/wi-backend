@@ -24,7 +24,8 @@ sequelize.sync()
 var models = [
     'Family',
     'FamilyCondition',
-    'OverlayLine'
+    'OverlayLine',
+    'FamilySpec'
 ];
 models.forEach(function (model) {
     module.exports[model] = sequelize.import(__dirname + '/' + model);
@@ -32,5 +33,7 @@ models.forEach(function (model) {
 
 (function (m) {
     m.FamilyCondition.belongsTo(m.Family, {foreignKey: 'idFamily'});
+    m.Family.hasMany(m.FamilySpec, {foreignKey: 'idFamily'});
+
 })(module.exports);
 module.exports.sequelize = sequelize;

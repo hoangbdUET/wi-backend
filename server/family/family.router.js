@@ -1,7 +1,7 @@
-var express = require('express');
-var router = express.Router();
-var familyModel = require('./family.model');
-var bodyParser = require('body-parser');
+let express = require('express');
+let router = express.Router();
+let familyModel = require('./family.model');
+let bodyParser = require('body-parser');
 
 router.use(bodyParser.json());
 router.post('/family/info', function (req, res) {
@@ -30,6 +30,12 @@ router.delete('/family/delete', function (req, res) {
 
 router.post('/family/list', function (req, res) {
     familyModel.getFamilyList(function (status) {
+        res.send(status);
+    }, req.dbConnection);
+});
+
+router.post('/family/update-spec', function (req, res) {
+    familyModel.editFamilySpec(req.body, function (status) {
         res.send(status);
     }, req.dbConnection);
 });

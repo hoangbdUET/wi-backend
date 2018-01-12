@@ -1,8 +1,9 @@
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
+let asyncEach = require('async/each');
 
 function createNewFamily(familyInfo, done, dbConnection) {
-    var Family = dbConnection.Family;
+    let Family = dbConnection.Family;
     Family.sync()
         .then(function () {
             delete familyInfo.idFamily;
@@ -21,7 +22,7 @@ function createNewFamily(familyInfo, done, dbConnection) {
 }
 
 function editFamily(familyInfo, done, dbConnection) {
-    var Family = dbConnection.Family;
+    let Family = dbConnection.Family;
     Family.findById(familyInfo.idFamily)
         .then(function (family) {
             delete familyInfo.idFamily;
@@ -40,7 +41,7 @@ function editFamily(familyInfo, done, dbConnection) {
 }
 
 function deleteFamily(familyInfo, done, dbConnection) {
-    var Family = dbConnection.Family;
+    let Family = dbConnection.Family;
     Family.findById(familyInfo.idFamily)
         .then(function (family) {
             family.destroy()
@@ -57,7 +58,7 @@ function deleteFamily(familyInfo, done, dbConnection) {
 }
 
 function getFamilyInfo(familyInfo, done, dbConnection) {
-    var Family = dbConnection.Family;
+    let Family = dbConnection.Family;
     Family.findById(familyInfo.idFamily)
         .then(function (family) {
             if (!family) throw 'not exists';
@@ -69,9 +70,13 @@ function getFamilyInfo(familyInfo, done, dbConnection) {
 }
 
 function getFamilyList(done, dbConnection) {
-    var Family = dbConnection.Family;
+    let Family = dbConnection.Family;
     Family.all({
-        order: ['name']
+        order: ['name'],
+        include: {
+            model: dbConnection.FamilySpec,
+            'as': 'family_spec'
+        }
     })
         .then(function (families) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get List Family success", families));
@@ -85,7 +90,7 @@ function checkCurveInFamilyGroup(curveName, curveUnit, familyGroup, dbConnection
     let Family = dbConnection.Family;
     let FamilyCondition = dbConnection.FamilyCondition;
     FamilyCondition.findAll().then(conditions => {
-        var result = conditions.find(function (aCondition) {
+        let result = conditions.find(function (aCondition) {
             return new RegExp("^" + aCondition.curveName + "$").test(curveName) && new RegExp("^" + aCondition.unit + "$").test(curveUnit);
         });
         if (!result) {
@@ -104,7 +109,39 @@ function checkCurveInFamilyGroup(curveName, curveUnit, familyGroup, dbConnection
 
         }
     });
+}
 
+function editFamilySpec(data, done, dbConnection) {
+    dbConnection.FamilySpec.findAll({where: {idFamily: data.idFamily}}).then(familySpecs => {
+        if (!familySpecs) {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No family spec"));
+        } else {
+            asyncEach(familySpecs, function (familySpec, next) {
+                if (familySpec.idFamilySpec == data.idFamilySpec) {
+                    familySpec.isDefault = true;
+                    familySpec.save().then(() => {
+                        next();
+                    }).catch(err => {
+                        console.log(err);
+                    })
+                } else {
+                    familySpec.isDefault = false;
+                    familySpec.save().then(() => {
+                        next();
+                    }).catch(err => {
+                        console.log(err);
+                    })
+                }
+            }, function (err) {
+                if (err) {
+                    return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
+                }
+                return done(ResponseJSON(ErrorCodes.SUCCESS, "Succeffull"));
+            });
+        }
+    }).catch(err => {
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
+    });
 }
 
 module.exports = {
@@ -113,5 +150,6 @@ module.exports = {
     editFamily: editFamily,
     deleteFamily: deleteFamily,
     getFamilyInfo: getFamilyInfo,
-    getFamilyList: getFamilyList
+    getFamilyList: getFamilyList,
+    editFamilySpec: editFamilySpec
 }

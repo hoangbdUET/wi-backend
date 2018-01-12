@@ -91,67 +91,40 @@ function getWellIdByTrack(idTrack, dbConnection, callback) {
 function createNewLineWithoutResponse(lineInfo, dbConnection, username, callback) {
     let Line = dbConnection.Line;
     let Curve = dbConnection.Curve;
-    let Dataset = dbConnection.Dataset;
-    Line.sync()
-        .then(
-            function () {
-                Curve.findById(lineInfo.idCurve)
-                    .then(function (curve) {
-                        curve.getLineProperty()
-                            .then(function (family) {
-                                Line.build({
-                                    idTrack: lineInfo.idTrack,
-                                    idCurve: curve.idCurve,
-                                    alias: curve.name,
-                                    unit: curve.unit,
-                                    minValue: family.minScale,
-                                    maxValue: family.maxScale,
-                                    displayMode: family.displayMode,
-                                    blockPosition: family.blockPosition,
-                                    displayType: family.displayType,
-                                    lineStyle: family.lineStyle,
-                                    lineWidth: family.lineWidth,
-                                    lineColor: family.lineColor,
-                                    symbolFillStyle: family.lineColor,
-                                    symbolStrokeStyle: family.lineColor
-                                }).save()
-                                    .then(function (line) {
-                                        callback(line);
-                                    })
-                                    .catch(function (err) {
-                                        callback(null);
-                                    });
-                            })
-                            .catch(function (err) {
-                                //console.log(err);
-                                //console.log("No family " + lineInfo.idTrack);
-                                //fix create new line error without family
-                                curveModel.calculateScale(curve.idCurve, username, dbConnection, function (err, result) {
-                                    Line.build({
-                                        idTrack: lineInfo.idTrack,
-                                        idCurve: curve.idCurve,
-                                        alias: curve.name,
-                                        minValue: result.minScale,
-                                        maxValue: result.maxScale
-                                    }).save()
-                                        .then(function (line) {
-                                            callback(line);
-                                        })
-                                        .catch(function (err) {
-                                            callback(null);
-                                        });
-                                });
-                            });
-                    })
-                    .catch(function () {
-                        callback(null);
-                    })
-            },
-            function () {
-                callback(null);
+    Curve.findById(lineInfo.idCurve, {
+        include: {
+            model: dbConnection.Family,
+            as: 'LineProperty',
+            include: {
+                model: dbConnection.FamilySpec,
+                as: 'family_spec',
+                where: {isDefault: true}
             }
-        )
-
+        }
+    }).then(curve => {
+        Line.build({
+            idTrack: lineInfo.idTrack,
+            idCurve: curve.idCurve,
+            alias: curve.name,
+            unit: curve.LineProperty.family_spec[0].unit,
+            minValue: curve.LineProperty.family_spec[0].minScale,
+            maxValue: curve.LineProperty.family_spec[0].maxScale,
+            displayMode: curve.LineProperty.family_spec[0].displayMode,
+            blockPosition: curve.LineProperty.family_spec[0].blockPosition,
+            displayType: curve.LineProperty.family_spec[0].displayType,
+            lineStyle: curve.LineProperty.family_spec[0].lineStyle,
+            lineWidth: curve.LineProperty.family_spec[0].lineWidth,
+            lineColor: curve.LineProperty.family_spec[0].lineColor,
+            symbolFillStyle: curve.LineProperty.family_spec[0].lineColor,
+            symbolStrokeStyle: curve.LineProperty.family_spec[0].lineColor
+        }).save()
+            .then(function (line) {
+                callback(line);
+            })
+            .catch(function (err) {
+                callback(null);
+            });
+    });
 }
 
 function createNewLine(lineInfo, done, dbConnection, username) {
@@ -166,34 +139,41 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                     .then(function (curve) {
                         curve.getLineProperty()
                             .then(function (family) {
-                                Line.build({
-                                    idTrack: lineInfo.idTrack,
-                                    idCurve: curve.idCurve,
-                                    alias: curve.name,
-                                    unit: curve.unit,
-                                    minValue: family.minScale,
-                                    maxValue: family.maxScale,
-                                    displayMode: family.displayMode,
-                                    blockPosition: family.blockPosition,
-                                    displayType: family.displayType,
-                                    lineStyle: family.lineStyle,
-                                    lineWidth: family.lineWidth,
-                                    lineColor: family.lineColor,
-                                    symbolFillStyle: family.lineColor,
-                                    symbolStrokeStyle: family.lineColor,
-                                    orderNum: lineInfo.orderNum
-                                }).save()
-                                    .then(function (line) {
-                                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", line));
-                                    })
-                                    .catch(function (err) {
-                                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name + " idTrack not exist"));
-                                    });
+                                dbConnection.Family.findById(family.idFamily, {
+                                    include: {
+                                        model: dbConnection.FamilySpec,
+                                        as: 'family_spec',
+                                        where: {isDefault: true}
+                                    }
+                                }).then(familyInfo => {
+                                    Line.build({
+                                        idTrack: lineInfo.idTrack,
+                                        idCurve: curve.idCurve,
+                                        alias: curve.name,
+                                        unit: curve.unit,
+                                        minValue: familyInfo.family_spec[0].minScale,
+                                        maxValue: familyInfo.family_spec[0].maxScale,
+                                        displayMode: familyInfo.family_spec[0].displayMode,
+                                        blockPosition: familyInfo.family_spec[0].blockPosition,
+                                        displayType: familyInfo.family_spec[0].displayType,
+                                        lineStyle: familyInfo.family_spec[0].lineStyle,
+                                        lineWidth: familyInfo.family_spec[0].lineWidth,
+                                        lineColor: familyInfo.family_spec[0].lineColor,
+                                        symbolFillStyle: familyInfo.family_spec[0].lineColor,
+                                        symbolStrokeStyle: familyInfo.family_spec[0].lineColor,
+                                        orderNum: lineInfo.orderNum
+                                    }).save()
+                                        .then(function (line) {
+                                            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", line));
+                                        })
+                                        .catch(function (err) {
+                                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name + " idTrack not exist"));
+                                        });
+                                }).catch(err => {
+                                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name + " idTrack not exist"));
+                                });
                             })
                             .catch(function (err) {
-                                //console.log(err);
-                                //console.log("No family " + lineInfo.idTrack);
-                                //fix create new line error without family
                                 curveModel.calculateScale(curve.idCurve, username, dbConnection, function (err, result) {
                                     Line.build({
                                         idTrack: lineInfo.idTrack,

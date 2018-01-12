@@ -143,7 +143,17 @@ function editCurve(curveInfo, done, dbConnection, username) {
 
 function getCurveInfo(curve, done, dbConnection, username) {
     let Curve = dbConnection.Curve;
-    Curve.findById(curve.idCurve, {include: [{all: true}]})
+    Curve.findById(curve.idCurve, {
+        include: {
+            model: dbConnection.Family,
+            as: 'LineProperty',
+            include: {
+                model: dbConnection.FamilySpec,
+                as: 'family_spec',
+                where: {isDefault: true}
+            }
+        }
+    })
         .then(curve => {
             if (!curve) throw "not exits";
             if (!curve.idFamily) {
@@ -175,7 +185,18 @@ function getCurveInfo(curve, done, dbConnection, username) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Curve success", curve));
                 });
             } else {
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Curve success", curve));
+                let curveObj = curve.toJSON();
+                curveObj.LineProperty.blockPosition = curveObj.LineProperty.family_spec[0].blockPosition;
+                curveObj.LineProperty.displayMode = curveObj.LineProperty.family_spec[0].displayMode;
+                curveObj.LineProperty.displayType = curveObj.LineProperty.family_spec[0].displayType;
+                curveObj.LineProperty.lineColor = curveObj.LineProperty.family_spec[0].lineColor;
+                curveObj.LineProperty.lineStyle = curveObj.LineProperty.family_spec[0].lineStyle;
+                curveObj.LineProperty.lineWidth = curveObj.LineProperty.family_spec[0].lineWidth;
+                curveObj.LineProperty.maxScale = curveObj.LineProperty.family_spec[0].maxScale;
+                curveObj.LineProperty.minScale = curveObj.LineProperty.family_spec[0].minScale;
+                curveObj.LineProperty.unit = curveObj.LineProperty.family_spec[0].unit;
+                delete curveObj.LineProperty.family_spec;
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Curve success", curveObj));
             }
         })
         .catch(() => {
