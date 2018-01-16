@@ -233,7 +233,8 @@ let createLine = function (lineInfo, dbConnection, callback) {
         alias: lineInfo.alias,
         unit: lineInfo.unit,
         idCurve: lineInfo.idCurve,
-        idTrack: lineInfo.idTrack
+        idTrack: lineInfo.idTrack,
+        orderNum: lineInfo.orderNum
     }).then(line => {
         callback(line.idLine);
     }).catch(err => {
@@ -276,7 +277,9 @@ let createShading = function (shadingInfo, dbConnection, callback) {
         callback(null);
     });
 }
-let importTrackTemplate = function (req, done, dbConnection) {
+
+//thieu marker
+let importTrackTemplate = async function (req, done, dbConnection) {
     let filePath = path.join(__dirname + '/../..', req.file.path);
     let list = req.file.filename.split('.');
     let fileType = list[list.length - 1];
@@ -284,6 +287,7 @@ let importTrackTemplate = function (req, done, dbConnection) {
         fs.unlink(filePath);
         return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Only .track files allowed!"));
     }
+    let well = await dbConnection.Well.findById(req.body.idWell);
     let isCurveNotFound = false;
     let curveHasError = new Array();
     fs.readFile(filePath, 'utf8', function (err, data) {
@@ -292,7 +296,6 @@ let importTrackTemplate = function (req, done, dbConnection) {
         } else {
             let myTrack = JSON.parse(data);
             myTrack.idPlot = req.body.idPlot;
-            // console.log(myTrack);
             createTrack(myTrack, dbConnection, function (idTrack) {
                 if (idTrack) {
                     asyncLoop(myTrack.lines, function (line, next) {
@@ -368,6 +371,8 @@ let importTrackTemplate = function (req, done, dbConnection) {
                                         if (!annotation) annotation = {};
                                         delete annotation.idAnnotation;
                                         annotation.idTrack = idTrack;
+                                        if (annotation.top <= parseFloat(well.topDepth)) annotation.top = well.topDepth;
+                                        if (annotation.bottom >= parseFloat(well.bottomDepth)) annotation.bottom = well.bottomDepth;
                                         dbConnection.Annotation.create(annotation).then(() => {
                                             next();
                                         }).catch(() => {
@@ -384,7 +389,9 @@ let importTrackTemplate = function (req, done, dbConnection) {
                                                 console.log("DONE TRACK");
                                                 done(ResponseJSON(ErrorCodes.SUCCESS, "Done", aTrack));
                                             }
+                                            fs.unlinkSync(filePath);
                                         }).catch(err => {
+                                            fs.unlinkSync(filePath);
                                             console.log("ERR TRACK  : ", err);
                                             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Done"));
                                         });
@@ -400,7 +407,6 @@ let importTrackTemplate = function (req, done, dbConnection) {
             });
         }
     });
-
 }
 
 let duplicateTrack = function (payload, done, dbConnection) {
