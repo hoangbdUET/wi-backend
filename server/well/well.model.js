@@ -7,13 +7,14 @@ let hashDir = wiImport.hashDir;
 let config = require('config');
 let fs = require('fs');
 let asyncEach = require('async/each');
+let fsExtra = require('fs-extra');
 
 function createNewWell(wellInfo, done, dbConnection) {
-    var Well = dbConnection.Well;
+    let Well = dbConnection.Well;
     Well.sync()
         .then(
             function () {
-                var well = Well.build({
+                let well = Well.build({
                     idProject: wellInfo.idProject,
                     name: wellInfo.name,
                     topDepth: wellInfo.topDepth,
@@ -120,7 +121,7 @@ function editWell(wellInfo, done, dbConnection, username) {
 }
 
 function deleteWell(wellInfo, done, dbConnection) {
-    var Well = dbConnection.Well;
+    let Well = dbConnection.Well;
     Well.findById(wellInfo.idWell)
         .then(function (well) {
             well.destroy()
@@ -137,7 +138,7 @@ function deleteWell(wellInfo, done, dbConnection) {
 }
 
 function getWellInfo(well, done, dbConnection) {
-    var Well = dbConnection.Well;
+    let Well = dbConnection.Well;
     Well.findById(well.idWell, {include: [{all: true, include: [{all: true}]}]})
         .then(function (well) {
             if (!well) throw "not exist";
@@ -148,9 +149,66 @@ function getWellInfo(well, done, dbConnection) {
         })
 }
 
+async function exportToProject(info, done, dbConnection, username) {
+    let idDesProject = info.idDesProject;
+    let fullWellData = await dbConnection.Well.findById(info.idWell, {
+        include: {
+            model: dbConnection.Dataset,
+            include: dbConnection.Curve
+        }
+    });
+    let srcProject = await dbConnection.Project.findById(fullWellData.idProject);
+    let desProject = await dbConnection.Project.findById(idDesProject);
+    dbConnection.Well.create({
+        name: fullWellData.name,
+        topDepth: fullWellData.topDepth,
+        bottomDepth: fullWellData.bottomDepth,
+        step: fullWellData.step,
+        idProject: idDesProject
+    }).then(well => {
+        asyncEach(fullWellData.datasets, function (dataset, nextDataset) {
+            dbConnection.Dataset.create({
+                name: dataset.name,
+                datasetLabel: dataset.datasetLabel,
+                datasetKey: dataset.datasetKey,
+                idWell: well.idWell
+            }).then(newDataset => {
+                asyncEach(dataset.curves, function (curve, nextCurve) {
+                    dbConnection.Curve.create({
+                        name: curve.name,
+                        unit: curve.unit,
+                        initValue: curve.initValue,
+                        idDataset: newDataset.idDataset,
+                        idFamily: curve.idFamily
+                    }).then(newCurve => {
+                        let oldPath = hashDir.createPath(config.curveBasePath, username + srcProject.name + fullWellData.name + dataset.name + curve.name, curve.name + '.txt');
+                        let cpPath = hashDir.createPath(config.curveBasePath, username + desProject.name + well.name + newDataset.name + newCurve.name, newCurve.name + '.txt');
+                        fsExtra.copy(oldPath, cpPath, function (err) {
+                            if (err) {
+                                console.log("Copy file error ", err);
+                            }
+                            console.log("Done : ", cpPath);
+                            nextCurve();
+                        });
+                    });
+                }, function () {
+                    nextDataset();
+                    //done all curve
+                });
+            });
+        }, function () {
+            //done all dataset
+            done(ResponseJSON(ErrorCodes.SUCCESS, "", well));
+        });
+    }).catch(err => {
+        console.log(err);
+    });
+};
+
 module.exports = {
     createNewWell: createNewWell,
     editWell: editWell,
     deleteWell: deleteWell,
-    getWellInfo: getWellInfo
+    getWellInfo: getWellInfo,
+    exportToProject: exportToProject
 };
