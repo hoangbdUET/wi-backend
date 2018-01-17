@@ -201,6 +201,7 @@ async function exportToProject(info, done, dbConnection, username) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "", well));
         });
     }).catch(err => {
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Well name existed!", well));
         console.log(err);
     });
 };
