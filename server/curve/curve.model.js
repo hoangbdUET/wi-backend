@@ -179,7 +179,7 @@ function getCurveInfo(curve, done, dbConnection, username) {
                             "blockPosition": "NONE",
                             "lineStyle": "[0]",
                             "lineWidth": 1,
-                            "lineColor": "fuchsia",
+                            "lineColor": "red",
                         }
                     }
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Curve success", curve));
