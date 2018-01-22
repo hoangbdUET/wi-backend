@@ -169,7 +169,8 @@ let createTrack = function (myTrack, dbConnection, callback) {
         color: myTrack.color,
         showEndLabels: myTrack.showEndLabels,
         labelFormat: myTrack.labelFormat,
-        idPlot: myTrack.idPlot
+        idPlot: myTrack.idPlot,
+        zoomFactor: myTrack.zoomFactor
     }).then(track => {
         callback(track.idTrack);
     }).catch(err => {
