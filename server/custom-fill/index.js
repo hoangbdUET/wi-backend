@@ -5,7 +5,6 @@ const fs = require('fs');
 const cors = require('cors');
 const path = require('path');
 
-let dataFile = path.join(__dirname, 'data.json');
 let errorCodes = require('../../error-codes');
 let ResponseJSON = require('../response');
 let router = express.Router();
@@ -14,11 +13,16 @@ router.use(cors());
 
 router.post('/save', (req, res) => {
     //appendFileSync if exists
+    if (!fs.existsSync(path.join(__dirname, 'data', req.decoded.username))) {
+        fs.mkdirSync(path.join(__dirname, 'data', req.decoded.username));
+        fs.writeFileSync(path.join(__dirname, 'data', req.decoded.username, 'data.json'), "[]");
+    }
+    let dataFile = path.join(__dirname, 'data', req.decoded.username, 'data.json');
     let newFill = new Object();
     let exists = false;
     newFill.name = req.body.name;
     newFill.content = req.body.content;
-    let oldData = require('./data.json');
+    let oldData = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', req.decoded.username, 'data.json')).toString());
     oldData.forEach(function (data) {
         if (data.name == newFill.name) {
             data.content = newFill.content;
@@ -36,12 +40,21 @@ router.post('/save', (req, res) => {
 });
 
 router.post('/all', (req, res) => {
-    let data = require('./data.json');
+    if (!fs.existsSync(path.join(__dirname, 'data', req.decoded.username))) {
+        fs.mkdirSync(path.join(__dirname, 'data', req.decoded.username));
+        fs.writeFileSync(path.join(__dirname, 'data', req.decoded.username, 'data.json'), "[]");
+    }
+    let data = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', req.decoded.username, 'data.json')).toString());
     res.send(ResponseJSON(errorCodes.CODES.SUCCESS, "Successful", data));
 });
 
 router.post('/clear', (req, res) => {
+    if (!fs.existsSync(path.join(__dirname, 'data', req.decoded.username))) {
+        fs.mkdirSync(path.join(__dirname, 'data', req.decoded.username));
+        fs.writeFileSync(path.join(__dirname, 'data', req.decoded.username, 'data.json'), "[]");
+    }
     let data = new Array();
+    let dataFile = path.join(__dirname, 'data', req.decoded.username, 'data.json');
     fs.writeFileSync(dataFile, JSON.stringify(data));
     res.send(ResponseJSON(errorCodes.CODES.SUCCESS, "Clear data successfull"));
 });
