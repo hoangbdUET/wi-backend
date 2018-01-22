@@ -60,6 +60,11 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 1
+        },
+        showHistogram: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+            defaultValue: 0
         }
     }, {
         paranoid: true
