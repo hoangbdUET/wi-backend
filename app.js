@@ -77,8 +77,22 @@ function main() {
      Attach all routers to app
      */
 
-    app.use(express.static(path.join(__dirname, '/server/plot/plot-template/')));
     app.use(express.static(path.join(__dirname, fullConfig.imageBasePath)));
+    app.use('/img', express.static(__dirname + '/wi-images'));
+    app.get('/img/16x16', function (req, res) {
+        let response = [];
+        fs.readdirSync(path.join(__dirname, 'wi-images', '16x16')).forEach(file => {
+            response.push(file);
+        });
+        res.send(response);
+    });
+    app.get('/img/32x32', function (req, res) {
+        let response = [];
+        fs.readdirSync(path.join(__dirname, 'wi-images', '32x32')).forEach(file => {
+            response.push(file);
+        });
+        res.send(response);
+    });
     app.use('/', globalFamilyRouter);
     app.get('/', function (req, res) {
         res.send("WELCOME TO WI-SYSTEM");
