@@ -82,7 +82,7 @@ function main() {
     app.use('/', globalFamilyRouter);
     app.get('/', function (req, res) {
         res.send("WELCOME TO WI-SYSTEM");
-    };
+    });
     app.use('/', databaseRouter);
     authenticate = require('./server/authenticate/authenticate');
     app.use(authenticate());
