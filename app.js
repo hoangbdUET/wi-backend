@@ -78,25 +78,11 @@ function main() {
      */
 
     app.use(express.static(path.join(__dirname, fullConfig.imageBasePath)));
-    app.use('/img', express.static(__dirname + '/wi-images'));
-    app.get('/img/16x16', function (req, res) {
-        let response = [];
-        fs.readdirSync(path.join(__dirname, 'wi-images', '16x16')).forEach(file => {
-            response.push(file);
-        });
-        res.send(response);
-    });
-    app.get('/img/32x32', function (req, res) {
-        let response = [];
-        fs.readdirSync(path.join(__dirname, 'wi-images', '32x32')).forEach(file => {
-            response.push(file);
-        });
-        res.send(response);
-    });
+    //app.use('/img', express.static(__dirname + '/wi-images'));
     app.use('/', globalFamilyRouter);
     app.get('/', function (req, res) {
         res.send("WELCOME TO WI-SYSTEM");
-    });
+    };
     app.use('/', databaseRouter);
     authenticate = require('./server/authenticate/authenticate');
     app.use(authenticate());
