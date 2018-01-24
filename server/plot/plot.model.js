@@ -616,8 +616,6 @@ let exportData = function (payload, done, error, dbConnection) {
                                 delete shading.createdAt;
                                 delete shading.updatedAt;
                                 delete shading.idTrack;
-                                delete shading.curve;
-                                delete shading.idControlCurve;
                                 asyncSeries([
                                     function (cb) {
                                         if (shading.idLeftLine) {
@@ -636,10 +634,27 @@ let exportData = function (payload, done, error, dbConnection) {
                                             shading.rightLine = null;
                                             cb();
                                         }
+                                    }, function (cb) {
+                                        if (shading.idControlCurve) {
+                                            // console.log(shading);
+                                            dbConnection.Dataset.findById(shading.curve.idDataset).then(dataset => {
+                                                let curve = {
+                                                    datasetName: dataset.name,
+                                                    curveName: shading.curve.name
+                                                }
+                                                shading.controlCurve = curve;
+                                                cb();
+                                            });
+                                        } else {
+                                            shading.controlCurve = null;
+                                            cb();
+                                        }
                                     }
                                 ], function () {
                                     delete shading.idLeftLine;
                                     delete shading.idRightLine;
+                                    delete shading.idControlCurve;
+                                    delete shading.curve;
                                     next();
                                 });
                             }, function () {
@@ -814,7 +829,6 @@ let importPlotTemplate = async function (req, done, dbConnection) {
                                     function (cb) {
                                         asyncLoop(track.shadings, function (shading, next) {
                                             shading.idTrack = idTrack;
-                                            delete shading.idControlCurve;
                                             asyncSeries([
                                                 function (c) {
                                                     if (shading.leftLine) {
@@ -826,11 +840,12 @@ let importPlotTemplate = async function (req, done, dbConnection) {
                                                         }).then(line => {
                                                             if (line) {
                                                                 shading.idLeftLine = line.idLine;
-                                                                dbConnection.Shading.create(shading).then(() => {
-                                                                    c();
-                                                                }).catch(err => {
-                                                                    c();
-                                                                });
+                                                                c();
+                                                                // dbConnection.Shading.create(shading).then(() => {
+                                                                //     c();
+                                                                // }).catch(err => {
+                                                                //     c();
+                                                                // });
                                                             } else {
                                                                 c();
                                                             }
@@ -851,11 +866,12 @@ let importPlotTemplate = async function (req, done, dbConnection) {
                                                         }).then(line => {
                                                             if (line) {
                                                                 shading.idRightLine = line.idLine;
-                                                                dbConnection.Shading.create(shading).then(() => {
-                                                                    c();
-                                                                }).catch(err => {
-                                                                    c();
-                                                                });
+                                                                c();
+                                                                // dbConnection.Shading.create(shading).then(() => {
+                                                                //     c();
+                                                                // }).catch(err => {
+                                                                //     c();
+                                                                // });
                                                             } else {
                                                                 c();
                                                             }
@@ -865,9 +881,44 @@ let importPlotTemplate = async function (req, done, dbConnection) {
                                                     } else {
                                                         c();
                                                     }
+                                                },
+                                                function (c) {
+                                                    if (shading.controlCurve) {
+                                                        if (shading.controlCurve.datasetName && shading.controlCurve.curveName) {
+                                                            dbConnection.Dataset.findOne({
+                                                                where: {
+                                                                    idWell: plot.idWell,
+                                                                    name: shading.controlCurve.datasetName
+                                                                }
+                                                            }).then(dataset => {
+                                                                if (dataset) {
+                                                                    dbConnection.Curve.findOne({
+                                                                        where: {
+                                                                            idDataset: dataset.idDataset,
+                                                                            name: shading.controlCurve.curveName
+                                                                        }
+                                                                    }).then(curve => {
+                                                                        shading.idControlCurve = curve.idCurve;
+                                                                        c();
+                                                                    });
+                                                                } else {
+                                                                    c();
+                                                                }
+                                                            });
+                                                        } else {
+                                                            c();
+                                                        }
+                                                    } else {
+                                                        c();
+                                                    }
                                                 }
                                             ], function () {
-                                                next();
+                                                dbConnection.Shading.create(shading).then(() => {
+                                                    next();
+                                                }).catch(err => {
+                                                    console.log(err);
+                                                    next();
+                                                });
                                             });
                                         }, function () {
                                             cb(null, true);
