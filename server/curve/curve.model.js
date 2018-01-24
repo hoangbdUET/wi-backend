@@ -69,11 +69,10 @@ function editCurve(curveInfo, done, dbConnection, username) {
                                     copy.on('error', function (err) {
                                         return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit Curve name", err));
                                     });
-                                    curve.idDataset = curveInfo.idDataset;
+                                    curve.idDataset = curveInfo.idDataset ? curveInfo.idDataset : curve.idDataset;
                                     curve.name = curveInfo.name;
-                                    curve.dataset = curveInfo.dataset;
-                                    curve.unit = curveInfo.unit;
-                                    curve.initValue = curveInfo.initValue;
+                                    curve.unit = curveInfo.unit ? curveInfo.unit : curve.unit;
+                                    curve.initValue = curveInfo.initValue ? curveInfo.initValue : curve.initValue;
                                     curve.save()
                                         .then(() => {
                                             done(ResponseJSON(ErrorCodes.SUCCESS, "Edit curve success", curveInfo));
