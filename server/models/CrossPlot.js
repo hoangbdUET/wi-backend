@@ -12,7 +12,18 @@ module.exports = function (sequelize, DataTypes) {
             defaultValue: "BlankCrossPlot",
             unique: "name-idWell"
         },
-
+        title: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: '{}',
+            set(value) {
+                this.setDataValue('title', typeof(value) === 'object' ? JSON.stringify(value) : value);
+            },
+            get() {
+                const value = this.getDataValue('title');
+                return JSON.parse(value);
+            }
+        },
         referenceTopDepth: {
             type: DataTypes.DOUBLE,
             allowNull: false,
