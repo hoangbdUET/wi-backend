@@ -1,7 +1,7 @@
-var express = require('express');
-var datasetModel = require('./dataset.model');
-var router = express.Router();
-var bodyParser = require('body-parser');
+let express = require('express');
+let datasetModel = require('./dataset.model');
+let router = express.Router();
+let bodyParser = require('body-parser');
 
 router.use(bodyParser.json());
 
@@ -24,6 +24,11 @@ router.delete('/dataset/delete', function (req, res) {
     datasetModel.deleteDataset(req.body, function (status) {
         res.send(status);
     }, req.dbConnection)
+});
+router.post('/dataset/duplicate', function (req, res) {
+    datasetModel.duplicateDataset(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection, req.decoded.username);
 });
 
 module.exports = router;

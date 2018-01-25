@@ -1,15 +1,14 @@
-// var models = require('../models');
-// var ZoneSet = models.ZoneSet;
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
+let asyncEach = require('async/each');
 
 function createNewZoneSet(zoneSetInfo, done, dbConnection) {
-    var ZoneSet = dbConnection.ZoneSet;
+    let ZoneSet = dbConnection.ZoneSet;
     ZoneSet.sync()
         .then(
             function () {
                 delete zoneSetInfo.idZoneSet;
-                var zoneSet = ZoneSet.build(zoneSetInfo);
+                let zoneSet = ZoneSet.build(zoneSetInfo);
                 zoneSet.save()
                     .then(function (zoneSet) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new ZoneSet success", zoneSet));
@@ -29,7 +28,7 @@ function createNewZoneSet(zoneSetInfo, done, dbConnection) {
 }
 
 function editZoneSet(zoneSetInfo, done, dbConnection) {
-    var ZoneSet = dbConnection.ZoneSet;
+    let ZoneSet = dbConnection.ZoneSet;
     ZoneSet.findById(zoneSetInfo.idZoneSet)
         .then(function (zoneSet) {
             zoneSet = Object.assign(zoneSet, zoneSetInfo);
@@ -51,7 +50,7 @@ function editZoneSet(zoneSetInfo, done, dbConnection) {
 }
 
 function deleteZoneSet(zoneSetInfo, done, dbConnection) {
-    var ZoneSet = dbConnection.ZoneSet;
+    let ZoneSet = dbConnection.ZoneSet;
     ZoneSet.findById(zoneSetInfo.idZoneSet)
         .then(function (zoneSet) {
             zoneSet.destroy()
@@ -68,7 +67,7 @@ function deleteZoneSet(zoneSetInfo, done, dbConnection) {
 }
 
 function getZoneSetInfo(zoneSet, done, dbConnection) {
-    var ZoneSet = dbConnection.ZoneSet;
+    let ZoneSet = dbConnection.ZoneSet;
     ZoneSet.findById(zoneSet.idZoneSet, {include: [{all: true}]})
         .then(function (zoneSet) {
             if (!zoneSet) throw "not exits";
@@ -80,7 +79,7 @@ function getZoneSetInfo(zoneSet, done, dbConnection) {
 }
 
 function getZoneSetList(setInfo, done, dbConnection) {
-    var ZoneSet = dbConnection.ZoneSet;
+    let ZoneSet = dbConnection.ZoneSet;
     ZoneSet.findAll({where: {idWell: setInfo.idWell}})
         .then(function (zoneSetList) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get list zoneset success", zoneSetList));
@@ -90,11 +89,33 @@ function getZoneSetList(setInfo, done, dbConnection) {
         })
 }
 
+async function duplicateZoneSet(data, done, dbConnection) {
+    let zoneset = await dbConnection.ZoneSet.findById(data.idZoneSet, {include: {all: true}});
+    let newZoneset = zoneset.toJSON();
+    delete newZoneset.idZoneSet;
+    newZoneset.name = zoneset.name + '_Copy_' + zoneset.duplicated;
+    zoneset.duplicated++;
+    await zoneset.save();
+    let _zoneset = await dbConnection.ZoneSet.create(newZoneset);
+    asyncEach(newZoneset.zones, function (zone, next) {
+        delete zone.idZone;
+        zone.idZoneSet = _zoneset.idZoneSet;
+        dbConnection.Zone.create(zone).then(() => {
+            next();
+        }).catch(err => {
+            next();
+        });
+    }, function (err) {
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Done", _zoneset));
+    });
+}
+
 module.exports = {
     createNewZoneSet: createNewZoneSet,
     deleteZoneSet: deleteZoneSet,
     editZoneSet: editZoneSet,
     getZoneSetInfo: getZoneSetInfo,
-    getZoneSetList: getZoneSetList
+    getZoneSetList: getZoneSetList,
+    duplicateZoneSet: duplicateZoneSet
 };
 

@@ -17,6 +17,11 @@ module.exports = function (sequelize, DataTypes) {
         datasetLabel: {
             type: DataTypes.STRING(250),
             allowNull: true
+        },
+        duplicated: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 1
         }
     }, {
         paranoid: true

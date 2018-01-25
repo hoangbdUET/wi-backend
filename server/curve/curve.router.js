@@ -124,4 +124,10 @@ router.post('/curve/import-from-inventory', function (req, res) {
     }, req.dbConnection, req.decoded.username);
 });
 
+router.post('/curve/duplicate', function (req, res) {
+    curveModel.duplicateCurve(req.body, function (done) {
+        res.send(done);
+    }, req.dbConnection, req.decoded.username);
+});
+
 module.exports = router;

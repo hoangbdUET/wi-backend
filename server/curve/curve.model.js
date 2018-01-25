@@ -716,6 +716,41 @@ async function getCurveDataFromInventory(curveInfo, token, callback, dbConnectio
     });
 }
 
+function duplicateCurve(data, done, dbConnection, username) {
+    dbConnection.Curve.findById(data.idCurve).then(async curve => {
+        if (curve) {
+            try {
+                let dataset = await dbConnection.Dataset.findById(curve.idDataset);
+                let well = await dbConnection.Well.findById(dataset.idWell);
+                let project = await dbConnection.Project.findById(well.idProject);
+                let curvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+                let newCurve = curve.toJSON();
+                newCurve.name = curve.name + '_Copy_' + curve.duplicated;
+                delete newCurve.idCurve;
+                curve.duplicated += 1;
+                await curve.save();
+                dbConnection.Curve.create(newCurve).then(_Curve => {
+                    let newCurvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + _Curve.name, _Curve.name + '.txt');
+                    fs.copy(curvePath, newCurvePath, function (err) {
+                        if (err) {
+                            throw err;
+                        }
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Done", _Curve));
+                    });
+
+                }).catch(err => {
+                    console.log(err);
+                    throw err;
+                })
+            } catch (err) {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Some err : " + err.message, err))
+            }
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No curve found by ID"));
+        }
+    });
+};
+
 module.exports = {
     createNewCurve: createNewCurve,
     editCurve: editCurve,
@@ -728,6 +763,7 @@ module.exports = {
     getScale: getScale,
     calculateScale: calculateScale,
     processingCurve: processingCurve,
-    getCurveDataFromInventory: getCurveDataFromInventory
+    getCurveDataFromInventory: getCurveDataFromInventory,
+    duplicateCurve: duplicateCurve
 };
 

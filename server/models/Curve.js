@@ -23,6 +23,11 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING(250),
             allowNull: false
         },
+        duplicated: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 1
+        }
     }, {
         paranoid: true
     });
