@@ -7,11 +7,11 @@ module.exports = function (sequelize, DataTypes) {
             unique: true
         },
         name: {
-            type: DataTypes.STRING(50),
+            type: DataTypes.STRING(),
             allowNull: false
         },
         familyGroup: {
-            type: DataTypes.STRING(50),
+            type: DataTypes.STRING(),
             allowNull: false
         }
     });
