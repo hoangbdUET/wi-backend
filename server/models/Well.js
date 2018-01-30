@@ -21,6 +21,11 @@ module.exports = function (sequelize, DataTypes) {
         step: {
             type: DataTypes.STRING(250),
             allowNull: false
+        },
+        duplicated: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            defaultValue: 1
         }
     }, {
         paranoid: true

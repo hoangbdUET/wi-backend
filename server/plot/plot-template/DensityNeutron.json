@@ -15,7 +15,7 @@
         {
           "families": [
             {
-              "name": "Characteristic caliper diameter."
+              "name": "Caliper"
             }
           ]
         },
@@ -23,6 +23,9 @@
           "families": [
             {
               "name": "Gamma Ray"
+            },
+            {
+              "name": "Gamma Ray 1"
             }
           ]
         }
@@ -35,18 +38,15 @@
         {
           "families": [
             {
-              "name": "Thermal Neutron Porosity"
+              "name": "Neutron Porosity"
             },
             {
-              "name": "Neutron Porosity"
+              "name": "Thermal Neutron Porosity"
             }
           ]
         },
         {
           "families": [
-            {
-              "name": "Density"
-            },
             {
               "name": "Bulk Density"
             }
