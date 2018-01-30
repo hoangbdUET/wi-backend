@@ -349,7 +349,13 @@ function newDbInstance(dbName, callback) {
                 FamilyCondition.findAll()
                     .then(conditions => {
                         let result = conditions.find(function (aCondition) {
-                            return new RegExp("^" + aCondition.curveName + "$").test(curveName) && new RegExp("^" + aCondition.unit + "$").test(unit);
+                            let regex;
+                            try {
+                                regex = new RegExp("^" + aCondition.curveName + "$").test(curveName) && new RegExp("^" + aCondition.unit + "$").test(unit);
+                            } catch (err) {
+                                console.log(err);
+                            }
+                            return regex;
                         });
                         if (!result) {
                             return;

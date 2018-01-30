@@ -464,6 +464,36 @@ function exportData(param, successFunc, errorFunc, dbConnection, username) {
 };
 
 let getScale = function (req, done, dbConnection) {
+    // dbConnection.Curve.findById(req.body.idCurve).then(curve => {
+    //     dbConnection.FamilyCondition.findAll()
+    //         .then(conditions => {
+    //             let result = conditions.find(function (aCondition) {
+    //                 let regex;
+    //                 try {
+    //                     console.log(curve.name + "        " + aCondition.curveName + "               " + aCondition.unit);
+    //                     regex = new RegExp("^" + aCondition.curveName + "$").test(curve.name) && new RegExp("^" + aCondition.unit + "$").test(curve.unit);
+    //                 } catch (err) {
+    //                     console.log(err);
+    //                 }
+    //                 return regex;
+    //             });
+    //             console.log("RESULT  ", result);
+    //             if (!result) {
+    //                 return;
+    //             }
+    //             result.getFamily()
+    //                 .then(aFamily => {
+    //                     curve.setLineProperty(aFamily);
+    //                     calculateScale(req.body.idCurve, req.decoded.username, dbConnection, function (err, result) {
+    //                         if (err) {
+    //                             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "ERROR", err));
+    //                         } else {
+    //                             done(ResponseJSON(ErrorCodes.SUCCESS, "min max curve success", result));
+    //                         }
+    //                     });
+    //                 });
+    //         })
+    // });
     calculateScale(req.body.idCurve, req.decoded.username, dbConnection, function (err, result) {
         if (err) {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "ERROR", err));
