@@ -5,16 +5,19 @@ function createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, dbConn
     var Well = dbConnection.Well;
     var Dataset = dbConnection.Dataset;
     var Curve = dbConnection.Curve;
-    return Well.create({
-        idProject: projectInfo.idProject,
-        name: wellInfo.name,
-        topDepth: wellInfo.topDepth,
-        bottomDepth: wellInfo.bottomDepth,
-        step: wellInfo.step,
-        datasets: datasetInfo
-    }, {
-        include: [{model: Dataset, include: [Curve]}]
-    });
+    return dbConnection.sequelize.transaction((t)=> {
+        return Well.create({
+            idProject: projectInfo.idProject,
+            name: wellInfo.name,
+            topDepth: wellInfo.topDepth,
+            bottomDepth: wellInfo.bottomDepth,
+            step: wellInfo.step,
+            datasets: datasetInfo
+        }, {
+            include: [{model: Dataset, include: [Curve]}],
+            transaction:t
+        });
+    })
 }
 
 function createCurvesWithWellExist(wellInfo, datasetInfo, option, dbConnection) {
@@ -22,6 +25,7 @@ function createCurvesWithWellExist(wellInfo, datasetInfo, option, dbConnection) 
     var Well = dbConnection.Well;
     var Curve = dbConnection.Curve;
     return dbConnection.sequelize.transaction(function (t) {
+        console.log('Vao DAYYYY')
         return Dataset.create({
             idWell: wellInfo.idWell,
             name: wellInfo.name,
@@ -63,6 +67,7 @@ function createCurvesWithDatasetExist(wellInfo, datasetInfo, curvesInfo, option,
         return Curve.bulkCreate(curvesInfo, {transaction: t, individualHooks: true})
             .then(function (dataset) {
                 if (option.overwrite) {
+                    console.log("HAHAHAHAH")
                     return Well.findById(wellInfo.idWell, {
                         include: [{all: true, include: {all: true}}],
                         transaction: t
