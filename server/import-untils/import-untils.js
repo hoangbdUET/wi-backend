@@ -5,7 +5,7 @@ function createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, dbConn
     var Well = dbConnection.Well;
     var Dataset = dbConnection.Dataset;
     var Curve = dbConnection.Curve;
-    return dbConnection.sequelize.transaction((t)=> {
+    return dbConnection.sequelize.transaction().then((t)=> {
         return Well.create({
             idProject: projectInfo.idProject,
             name: wellInfo.name,
@@ -16,6 +16,10 @@ function createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, dbConn
         }, {
             include: [{model: Dataset, include: [Curve]}],
             transaction:t
+        }).then(function () {
+            return t.commit();
+        }).catch(function (err) {
+            return t.commit();
         });
     })
 }
