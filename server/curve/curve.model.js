@@ -470,28 +470,32 @@ let getScale = function (req, done, dbConnection) {
     //             let result = conditions.find(function (aCondition) {
     //                 let regex;
     //                 try {
-    //                     console.log(curve.name + "        " + aCondition.curveName + "               " + aCondition.unit);
-    //                     regex = new RegExp("^" + aCondition.curveName + "$").test(curve.name) && new RegExp("^" + aCondition.unit + "$").test(curve.unit);
+    //                     // console.log(curve.name + "id: " + aCondition.idFamilyCondition + " curveName: " + aCondition.curveName + " unit: " + aCondition.unit);
+    //                     regex = new RegExp("^" + aCondition.curveName + "$", "i").test(curve.name) && new RegExp("^" + aCondition.unit + "$", "i").test(curve.unit);
+    //                     if (regex) console.log("=====", curve.name + "id: " + aCondition.idFamilyCondition + " curveName: " + aCondition.curveName + " unit: " + aCondition.unit);
     //                 } catch (err) {
     //                     console.log(err);
     //                 }
     //                 return regex;
     //             });
-    //             console.log("RESULT  ", result);
+    //             console.log("RESULT ", result ? result.idFamilyCondition : "Null");
     //             if (!result) {
+    //                 done(ResponseJSON(ErrorCodes.SUCCESS, "min max curve success", {
+    //                     minScale: 0,
+    //                     maxScale: 100,
+    //                     meanValue: 50
+    //                 }));
     //                 return;
     //             }
     //             result.getFamily()
     //                 .then(aFamily => {
     //                     curve.setLineProperty(aFamily);
-    //                     calculateScale(req.body.idCurve, req.decoded.username, dbConnection, function (err, result) {
-    //                         if (err) {
-    //                             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "ERROR", err));
-    //                         } else {
-    //                             done(ResponseJSON(ErrorCodes.SUCCESS, "min max curve success", result));
-    //                         }
-    //                     });
     //                 });
+    //             done(ResponseJSON(ErrorCodes.SUCCESS, "min max curve success", {
+    //                 minScale: 0,
+    //                 maxScale: 100,
+    //                 meanValue: 50
+    //             }));
     //         })
     // });
     calculateScale(req.body.idCurve, req.decoded.username, dbConnection, function (err, result) {

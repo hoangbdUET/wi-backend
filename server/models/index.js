@@ -346,12 +346,12 @@ function newDbInstance(dbName, callback) {
     Curve.hook('afterCreate', function (curve, options) {
         if (!curve.idFamily) {
             return ((curveName, unit) => {
-                return FamilyCondition.findAll({transaction:options.transaction})
+                return FamilyCondition.findAll({transaction: options.transaction})
                     .then(conditions => {
                         let result = conditions.find(function (aCondition) {
                             let regex;
                             try {
-                                regex = new RegExp("^" + aCondition.curveName + "$").test(curveName) && new RegExp("^" + aCondition.unit + "$").test(unit);
+                                regex = new RegExp("^" + aCondition.curveName + "$", "i").test(curveName) && new RegExp("^" + aCondition.unit + "$", "i").test(unit);
                             } catch (err) {
                                 console.log(err);
                             }
@@ -360,9 +360,9 @@ function newDbInstance(dbName, callback) {
                         if (!result) {
                             return;
                         }
-                        return result.getFamily({transaction:options.transaction})
+                        return result.getFamily({transaction: options.transaction})
                             .then(aFamily => {
-                                return curve.setLineProperty(aFamily,{transaction:options.transaction});
+                                return curve.setLineProperty(aFamily, {transaction: options.transaction});
                             })
                     })
             })(curve.name, curve.unit);
