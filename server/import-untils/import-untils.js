@@ -2,34 +2,26 @@
 
 
 function createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, dbConnection) {
-    var Well = dbConnection.Well;
-    var Dataset = dbConnection.Dataset;
-    var Curve = dbConnection.Curve;
-    return dbConnection.sequelize.transaction().then((t)=> {
-        return Well.create({
-            idProject: projectInfo.idProject,
-            name: wellInfo.name,
-            topDepth: wellInfo.topDepth,
-            bottomDepth: wellInfo.bottomDepth,
-            step: wellInfo.step,
-            datasets: datasetInfo
-        }, {
-            include: [{model: Dataset, include: [Curve]}],
-            transaction:t
-        }).then(function () {
-            return t.commit();
-        }).catch(function (err) {
-            return t.commit();
-        });
-    })
+    let Well = dbConnection.Well;
+    let Dataset = dbConnection.Dataset;
+    let Curve = dbConnection.Curve;
+    return Well.create({
+        idProject: projectInfo.idProject,
+        name: wellInfo.name,
+        topDepth: wellInfo.topDepth,
+        bottomDepth: wellInfo.bottomDepth,
+        step: wellInfo.step,
+        datasets: datasetInfo
+    }, {
+        include: [{model: Dataset, include: [Curve]}]
+    });
 }
 
 function createCurvesWithWellExist(wellInfo, datasetInfo, option, dbConnection) {
-    var Dataset = dbConnection.Dataset;
-    var Well = dbConnection.Well;
-    var Curve = dbConnection.Curve;
+    let Dataset = dbConnection.Dataset;
+    let Well = dbConnection.Well;
+    let Curve = dbConnection.Curve;
     return dbConnection.sequelize.transaction(function (t) {
-        console.log('Vao DAYYYY')
         return Dataset.create({
             idWell: wellInfo.idWell,
             name: wellInfo.name,
@@ -71,7 +63,6 @@ function createCurvesWithDatasetExist(wellInfo, datasetInfo, curvesInfo, option,
         return Curve.bulkCreate(curvesInfo, {transaction: t, individualHooks: true})
             .then(function (dataset) {
                 if (option.overwrite) {
-                    console.log("HAHAHAHAH")
                     return Well.findById(wellInfo.idWell, {
                         include: [{all: true, include: {all: true}}],
                         transaction: t
@@ -96,9 +87,9 @@ function createCurvesWithDatasetExist(wellInfo, datasetInfo, curvesInfo, option,
 }
 
 function createCurvesWithWellExistLAS3(wellInfo, datasetInfo, option, callback, dbConnection) {
-    var Dataset = dbConnection.Dataset;
-    var Curve = dbConnection.Curve;
-    var Well = dbConnection.Well;
+    let Dataset = dbConnection.Dataset;
+    let Curve = dbConnection.Curve;
+    let Well = dbConnection.Well;
     if (option.overwrite) {
 
     } else {
@@ -135,9 +126,9 @@ function createCurvesWithWellExistLAS3(wellInfo, datasetInfo, option, callback, 
 }
 
 function createCurvesWithDatasetExistLAS3(wellInfo, datasetInfo, option, callback, dbConnection) {
-    var Dataset = dbConnection.Dataset;
-    var Curve = dbConnection.Curve;
-    var Well = dbConnection.Well;
+    let Dataset = dbConnection.Dataset;
+    let Curve = dbConnection.Curve;
+    let Well = dbConnection.Well;
     if (option.overwrite) {
 
     } else {
