@@ -264,39 +264,42 @@ router.post('/file', upload.single('file'), function (req, res) {
                                                     include: {model: req.dbConnection.Curve}
                                                 }
                                             });
-                                            let asyncEach = require('async/each');
-                                            asyncEach(well.datasets, function (dataset, doneDataset) {
-                                                asyncEach(dataset.curves, function (curve, doneCurve) {
-                                                    ((curveName, unit) => {
-                                                        req.dbConnection.FamilyCondition.findAll()
-                                                            .then(conditions => {
-                                                                let result = conditions.find(function (aCondition) {
-                                                                    let regex;
-                                                                    try {
-                                                                        regex = new RegExp("^" + aCondition.curveName + "$", "i").test(curveName) && new RegExp("^" + aCondition.unit + "$", "i").test(unit);
-                                                                    } catch (err) {
-                                                                        console.log(err);
-                                                                    }
-                                                                    return regex;
-                                                                });
-                                                                if (!result) {
-                                                                    doneCurve();
-                                                                } else {
-                                                                    result.getFamily()
-                                                                        .then(aFamily => {
-                                                                            curve.setLineProperty(aFamily);
-                                                                            doneCurve();
-                                                                        });
-                                                                }
-                                                            });
-                                                    })(curve.name, curve.unit);
-                                                }, function () {
-                                                    doneDataset();
-                                                });
-                                            }, function () {
-                                                if (err) return res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, err)));
-                                                res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, rs)));
-                                            });
+                                            // let asyncEach = require('async/each');
+                                            // asyncEach(well.datasets, function (dataset, doneDataset) {
+                                            //     asyncEach(dataset.curves, function (curve, doneCurve) {
+                                            //         ((curveName, unit) => {
+                                            //             req.dbConnection.FamilyCondition.findAll()
+                                            //                 .then(conditions => {
+                                            //                     let result = conditions.find(function (aCondition) {
+                                            //                         let regex;
+                                            //                         try {
+                                            //                             regex = new RegExp("^" + aCondition.curveName + "$", "i").test(curveName) && new RegExp("^" + aCondition.unit + "$", "i").test(unit);
+                                            //                         } catch (err) {
+                                            //                             console.log(err);
+                                            //                         }
+                                            //                         return regex;
+                                            //                     });
+                                            //                     if (!result) {
+                                            //                         doneCurve();
+                                            //                     } else {
+                                            //                         result.getFamily()
+                                            //                             .then(aFamily => {
+                                            //                                 curve.setLineProperty(aFamily);
+                                            //                                 doneCurve();
+                                            //                             });
+                                            //                     }
+                                            //                 });
+                                            //         })(curve.name, curve.unit);
+                                            //     }, function () {
+                                            //         doneDataset();
+                                            //     });
+                                            // }, function () {
+                                            //     if (err) return res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, err)));
+                                            //     res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, rs)));
+                                            // });
+                                            if (err) return res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, err)));
+                                            res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, well)));
+
                                         }, req.dbConnection);
                                     }
                                 });
