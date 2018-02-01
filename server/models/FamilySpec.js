@@ -7,16 +7,16 @@ module.exports = function (sequelize, DataTypes) {
             unique: true
         },
         unit: {
-            type: DataTypes.STRING(10),
-            allowNull: false
+            type: DataTypes.STRING(50),
+            allowNull: true
         },
         minScale: {
             type: DataTypes.FLOAT,
-            allowNull: false
+            allowNull: true
         },
         maxScale: {
             type: DataTypes.FLOAT,
-            allowNull: false
+            allowNull: true
         },
         displayType: {
             type: DataTypes.STRING(30),

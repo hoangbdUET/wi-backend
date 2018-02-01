@@ -356,8 +356,6 @@ function moveCurve(param, rs, dbConnection, username) {
 function deleteCurve(curveInfo, done, dbConnection, username) {
     let Curve = dbConnection.Curve;
     let Dataset = dbConnection.Dataset;
-    let Well = dbConnection.Well;
-    let Project = dbConnection.Project;
     Curve.findById(curveInfo.idCurve)
         .then(curve => {
             if (curve) {
