@@ -95,8 +95,8 @@ function buildFamilySpec(row, sheet) {
     newComponent.idFamilySpec = parseInt(getValueAtCell(row, 0, sheet));
     newComponent.idFamily = parseInt(getValueAtCell(row, 1, sheet));
     newComponent.unit = getValueAtCell(row, 2, sheet) || null;
-    newComponent.minScale = parseFloat(getValueAtCell(row, 3, sheet)) || null;
-    newComponent.maxScale = parseFloat(getValueAtCell(row, 4, sheet)) || null;
+    newComponent.minScale = parseFloat(getValueAtCell(row, 3, sheet)) === NaN ? null : parseFloat(getValueAtCell(row, 3, sheet));
+    newComponent.maxScale = parseFloat(getValueAtCell(row, 4, sheet)) === NaN ? null : parseFloat(getValueAtCell(row, 4, sheet));
     newComponent.displayType = getValueAtCell(row, 5, sheet);
     newComponent.displayMode = getValueAtCell(row, 6, sheet);
     newComponent.blockPosition = getValueAtCell(row, 7, sheet);
