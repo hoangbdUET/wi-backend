@@ -37,4 +37,22 @@ router.post('/well/export-to-project', function (req, res) {
     }, req.dbConnection, req.decoded.username);
 });
 
+router.post('/well/get-well-header', function (req, res) {
+    wellModel.getWellHeader(req.body.idWell, function (status) {
+        res.send(status);
+    }, req.dbConnection);
+});
+
+router.post('/well/update-well-header', function (req, res) {
+    wellModel.updateWellHeader(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection);
+});
+
+router.post('/well/bulk-update-well-header', function (req, res) {
+    wellModel.bulkUpdateWellHeader(req.body.headers, req.body.idWell, function (status) {
+        res.send(status);
+    }, req.dbConnection);
+});
+
 module.exports = router;

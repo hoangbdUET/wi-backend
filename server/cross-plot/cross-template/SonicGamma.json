@@ -4,6 +4,9 @@
     "families": [
       {
         "name": "Acoustic"
+      },
+      {
+        "name": "Compressional Slowness"
       }
     ]
   },
@@ -11,6 +14,9 @@
     "families": [
       {
         "name": "Gamma Ray"
+      },
+      {
+        "name": "Gamma Ray 1"
       }
     ]
   }

@@ -71,7 +71,7 @@ function updateFamilySpec(workbook, sheetName, callback) {
                 eventEmitter.emit('fc-done');
             })
             .catch(function (err) {
-                console.log("FAIL: FamilyCondition " + aFamilySpec.idFamilySpec + " Error:" + err, aFamilySpec.minScale);
+                // console.log("FAIL: FamilyCondition " + aFamilySpec.idFamilySpec + " Error:" + err, aFamilySpec.minScale);
                 eventEmitter.emit('fc-done');
             });
 

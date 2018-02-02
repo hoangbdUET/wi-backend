@@ -180,6 +180,11 @@ async function getProjectFullInfo(payload, done, dbConnection) {
                 dbConnection.CombinedBox.findAll({where: {idWell: well.idWell}}).then(combined_boxes => {
                     cb(null, combined_boxes);
                 });
+            },
+            function (cb) {
+                dbConnection.WellHeader.findAll({where: {idWell: well.idWell}}).then(headers => {
+                    cb(null, headers);
+                });
             }
         ], function (err, result) {
             wellObj.datasets = result[0];
@@ -188,6 +193,7 @@ async function getProjectFullInfo(payload, done, dbConnection) {
             wellObj.histograms = result[3];
             wellObj.crossplots = result[4];
             wellObj.combined_boxes = result[5];
+            wellObj.wellheaders = result[6];
             response.wells.push(wellObj);
             nextWell();
         });

@@ -128,6 +128,7 @@ function newDbInstance(dbName, callback) {
         'UserDefineLine',
         'Well',
         'WellData',
+        'WellHeader',
         'Zone',
         'ZoneSet',
         'ZoneTrack'
@@ -190,6 +191,10 @@ function newDbInstance(dbName, callback) {
         });
         m.Well.hasMany(m.CombinedBox, {
             foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
+            onDelete: 'CASCADE'
+        });
+        m.Well.hasMany(m.WellHeader, {
+            foreignKey: {name: "idWell", allowNull: false},
             onDelete: 'CASCADE'
         });
         m.Curve.hasMany(m.SelectionPoint, {
@@ -330,6 +335,7 @@ function newDbInstance(dbName, callback) {
     let Family = object.Family;
     let Dataset = object.Dataset;
     let Well = object.Well;
+    let WellHeader = object.WellHeader;
     let Curve = object.Curve;
     let Project = object.Project;
     let Groups = object.Groups;
@@ -398,6 +404,36 @@ function newDbInstance(dbName, callback) {
         }
     });
 
+    Well.hook('afterCreate', function (well, options) {
+        console.log("Hook after create well");
+        let headers = {
+            STRT: well.topDepth,
+            STOP: well.bottomDepth,
+            STEP: well.step,
+            TOP: well.topDepth
+        };
+        for (let header in headers) {
+            WellHeader.create({idWell: well.idWell, header: header, value: headers[header]});
+        }
+    });
+
+    Well.hook('beforeUpdate', async function (well, options) {
+        console.log("Hook before update well");
+        let headers = {
+            STRT: well.topDepth,
+            STOP: well.bottomDepth,
+            STEP: well.step,
+            TOP: well.topDepth
+        };
+        for (let header in headers) {
+            let h = await WellHeader.findOne({where: {idWell: well.idWell, header: header}});
+            if (h) {
+                await h.update({value: headers[header]});
+            } else {
+                await WellHeader.create({header: header, value: headers[header], idWell: well.idWell})
+            }
+        }
+    });
     Dataset.hook('beforeDestroy', function (dataset, options) {
         console.log("Hooks delete dataset");
         if (dataset.deletedAt) {

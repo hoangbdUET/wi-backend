@@ -4,6 +4,9 @@
     "families": [
       {
         "name": "Acoustic"
+      },
+      {
+        "name": "Compressional Slowness"
       }
     ]
   },

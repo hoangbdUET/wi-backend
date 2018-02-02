@@ -206,10 +206,87 @@ async function exportToProject(info, done, dbConnection, username) {
     });
 };
 
+function getWellHeader(idWell, done, dbConnection) {
+    dbConnection.WellHeader.findAll({where: {idWell: idWell}}).then(headers => {
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", headers));
+    });
+}
+
+function updateWellHeader(payload, done, dbConnection) {
+    if (payload.idWellHeader) {
+        dbConnection.WellHeader.findById(payload.idWellHeader).then((header) => {
+            header.value = payload.value;
+            header.save().then(() => {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", header));
+            }).catch(err => {
+                console.log(err);
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
+            })
+        });
+    } else {
+        dbConnection.WellHeader.findOrCreate({
+            where: {
+                idWell: payload.idWell,
+                header: payload.header
+            }, defaults: {header: payload.header, value: payload.value, idWell: payload.idWell}
+        }).then(rs => {
+            if (rs[1]) {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull created new header", rs[0]));
+                //created
+            } else {
+                //found
+                rs[0].value = payload.value;
+                rs[0].save().then(() => {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull update header", rs[0]));
+                }).catch(err => {
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error " + err.message, err));
+                });
+            }
+        }).catch(err => {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error " + err.message, err));
+        });
+    }
+}
+
+function bulkUpdateWellHeader(headers, idWell, done, dbConnection) {
+    let response = [];
+    asyncEach(headers, function (header, next) {
+        dbConnection.WellHeader.findOrCreate({
+            where: {idWell: idWell, header: header.header},
+            defaults: {idWell: idWell, header: header.header, value: header.value}
+        }).then(rs => {
+            if (rs[1]) {
+                //create
+                response.push({header: header, result: "CREATED"});
+                next();
+            } else {
+                //found
+                rs[0].value = header.value;
+                rs[0].save().then(() => {
+                    response.push({header: header, result: "UPDATED"});
+                    next();
+                }).catch(err => {
+                    response.push({header: header, result: "ERROR : " + err.message});
+                    next();
+                });
+            }
+        }).catch(err => {
+            console.log(err);
+            response.push({header: header, result: "Error " + err});
+            next();
+        })
+    }, function () {
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", response));
+    });
+}
+
 module.exports = {
     createNewWell: createNewWell,
     editWell: editWell,
     deleteWell: deleteWell,
     getWellInfo: getWellInfo,
-    exportToProject: exportToProject
+    exportToProject: exportToProject,
+    getWellHeader: getWellHeader,
+    updateWellHeader: updateWellHeader,
+    bulkUpdateWellHeader: bulkUpdateWellHeader
 };

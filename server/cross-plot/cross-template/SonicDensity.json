@@ -4,14 +4,14 @@
     "families": [
       {
         "name": "Acoustic"
+      },
+      {
+        "name": "Compressional Slowness"
       }
     ]
   },
   "curveY": {
     "families": [
-      {
-        "name": "Density"
-      },
       {
         "name": "Bulk Density"
       }

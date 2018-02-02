@@ -2,9 +2,6 @@
   "name": "RHOB Histogram",
   "families": [
     {
-      "name": "Density"
-    },
-    {
       "name": "Bulk Density"
     }
   ]

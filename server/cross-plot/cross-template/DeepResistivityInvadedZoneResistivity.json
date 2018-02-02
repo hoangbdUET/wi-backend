@@ -11,6 +11,9 @@
     "families": [
       {
         "name": "Invaded Zone Resistivity"
+      },
+      {
+        "name": "Flushed Zone Resistivity"
       }
     ]
   }

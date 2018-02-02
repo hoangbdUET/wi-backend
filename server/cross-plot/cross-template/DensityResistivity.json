@@ -3,9 +3,6 @@
   "curveX": {
     "families": [
       {
-        "name": "Density"
-      },
-      {
         "name": "Bulk Density"
       }
     ]

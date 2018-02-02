@@ -13,9 +13,6 @@
   "curveY": {
     "families": [
       {
-        "name": "Density"
-      },
-      {
         "name": "Bulk Density"
       }
     ]

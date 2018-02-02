@@ -3,9 +3,6 @@
   "curveX": {
     "families": [
       {
-        "name": "Density"
-      },
-      {
         "name": "Bulk Density"
       }
     ]
@@ -14,6 +11,9 @@
     "families": [
       {
         "name": "Gamma Ray"
+      },
+      {
+        "name": "Gamma Ray 1"
       }
     ]
   }
