@@ -31,7 +31,7 @@ module.exports = function (sequelize, DataTypes) {
             defaultValue: false
         },
         displayMode: {
-            type: DataTypes.ENUM('Line', 'Symbol', 'Both', 'None'),
+            type: DataTypes.STRING(50),
             allowNull: false,
             defaultValue: 'Line'
         },//Family

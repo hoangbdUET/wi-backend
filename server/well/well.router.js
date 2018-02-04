@@ -55,4 +55,17 @@ router.post('/well/bulk-update-well-header', function (req, res) {
     }, req.dbConnection);
 });
 
+router.post('/well/duplicate', function (req, res) {
+    wellModel.duplicateWell(req.body.idWell, function (status) {
+        res.send(status);
+    }, req.dbConnection);
+});
+
+router.post('/well/import-from-inventory', function (req, res) {
+    let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
+    wellModel.importWell(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection, req.decoded.username, token);
+});
+
 module.exports = router;

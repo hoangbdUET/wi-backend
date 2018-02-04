@@ -8,6 +8,7 @@ let config = require('config');
 let fs = require('fs');
 let asyncEach = require('async/each');
 let fsExtra = require('fs-extra');
+let importFromInventory = require('../import-from-inventory/import.model');
 
 function createNewWell(wellInfo, done, dbConnection) {
     let Well = dbConnection.Well;
@@ -280,6 +281,58 @@ function bulkUpdateWellHeader(headers, idWell, done, dbConnection) {
     });
 }
 
+function duplicateWell(idWell, done, dbConnection) {
+    dbConnection.Well.findById(idWell, {
+        include: [
+            {
+                model: dbConnection.Dataset,
+                include: {model: dbConnection.Curve}
+            },
+            {
+                model: dbConnection.Plot
+            },
+            {
+                model: dbConnection.CrossPlot
+            },
+            {
+                model: dbConnection.Histogram
+            },
+            {
+                model: dbConnection.ZoneSet,
+                include: {model: dbConnection.Zone}
+            }
+        ]
+    }).then(async well => {
+        let newWell;
+        if (well) {
+            newWell = well.toJSON();
+            delete newWell.createdAt;
+            delete newWell.updatedAt;
+            delete newWell.deletedAt;
+            delete newWell.idWell;
+            newWell.duplicated = 1;
+            newWell.name = newWell.name + "_Copy_" + well.duplicated;
+            well.duplicated++;
+            await well.save();
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", well));
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Well Found"));
+        }
+    }).catch(err => {
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
+    })
+}
+
+function importWell(payload, done, dbConnection, username, token) {
+    importFromInventory.importWell(payload, token, function (err, res) {
+        if (err) {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "error", err));
+        } else {
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", res));
+        }
+    }, dbConnection, username);
+}
+
 module.exports = {
     createNewWell: createNewWell,
     editWell: editWell,
@@ -288,5 +341,7 @@ module.exports = {
     exportToProject: exportToProject,
     getWellHeader: getWellHeader,
     updateWellHeader: updateWellHeader,
-    bulkUpdateWellHeader: bulkUpdateWellHeader
+    bulkUpdateWellHeader: bulkUpdateWellHeader,
+    duplicateWell: duplicateWell,
+    importWell: importWell
 };

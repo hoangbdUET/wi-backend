@@ -198,7 +198,8 @@ function getCurveInfo(curve, done, dbConnection, username) {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Curve success", curveObj));
             }
         })
-        .catch(() => {
+        .catch((e) => {
+            console.log(e);
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found for get info"));
         });
 }
