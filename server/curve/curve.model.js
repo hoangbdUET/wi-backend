@@ -365,7 +365,7 @@ function deleteCurve(curveInfo, done, dbConnection, username) {
                         console.log("No dataset");
                     } else {
                         /*hashDir.createJSONReadStream(config.curveBasePath, dataset.name + curve.name, curve.name + '.txt');*/
-                        curve.destroy()
+                        curve.destroy({hooks: false})
                             .then(() => {
                                 dbConnection.Line.findAll({where: {idCurve: curve.idCurve}}).then(lines => {
                                     asyncLoop(lines, function (line, next) {

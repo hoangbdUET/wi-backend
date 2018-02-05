@@ -332,13 +332,11 @@ function newDbInstance(dbName, callback) {
     object.sequelize = sequelize;
     //Register hook
     let FamilyCondition = object.FamilyCondition;
-    let Family = object.Family;
     let Dataset = object.Dataset;
     let Well = object.Well;
     let WellHeader = object.WellHeader;
     let Curve = object.Curve;
     let Project = object.Project;
-    let Groups = object.Groups;
     let Histogram = object.Histogram;
     let CrossPlot = object.CrossPlot;
     let Plot = object.Plot;
@@ -375,19 +373,15 @@ function newDbInstance(dbName, callback) {
         }
     });
     Curve.hook('beforeDestroy', function (curve, options) {
-        console.log("GO HOOKS : ", curve.deletedAt);
-        if (curve.deletedAt) {
-            Dataset.findById(curve.idDataset).then(dataset => {
-                Well.findById(dataset.idWell).then(well => {
-                    Project.findById(well.idProject).then(project => {
-                        hashDir.deleteFolder(configCommon.curveBasePath, username + project.name + well.name + dataset.name + curve.name);
-                    });
+        Dataset.findById(curve.idDataset, {paranoid: false}).then(dataset => {
+            Well.findById(dataset.idWell, {paranoid: false}).then(well => {
+                Project.findById(well.idProject).then(project => {
+                    hashDir.deleteFolder(configCommon.curveBasePath, username + project.name + well.name + dataset.name + curve.name);
                 });
-
-            }).catch(err => {
-                console.log("ERR WHILE DELETE CURVE : " + err);
             });
-        }
+        }).catch(err => {
+            console.log("ERR WHILE DELETE CURVE : " + err);
+        });
     });
 
     Well.hook('beforeDestroy', function (well, options) {
@@ -486,18 +480,18 @@ function newDbInstance(dbName, callback) {
         }
     });
 
-    // ZoneSet.hook('beforeDestroy', function (zoneset, options) {
-    //     console.log("Hooks delete zoneset");
-    //     if (zoneset.deletedAt) {
-    //
-    //     } else {
-    //         let time = Date.now();
-    //         zoneset.name = '$' + time + zoneset.name;
-    //         zoneset.save().catch(err => {
-    //             console.log(err);
-    //         });
-    //     }
-    // });
+    ZoneSet.hook('beforeDestroy', function (zoneset, options) {
+        console.log("Hooks delete zoneset");
+        if (zoneset.deletedAt) {
+
+        } else {
+            let time = Date.now();
+            zoneset.name = '$' + time + zoneset.name;
+            zoneset.save().catch(err => {
+                console.log(err);
+            });
+        }
+    });
     //End register hook
     return object;
 };

@@ -58,7 +58,7 @@ function getDustbin(payload, callback, dbConnection) {
             let Plot = new Array();
             let Histogram = new Array();
             let CrossPlot = new Array();
-            // let ZoneSet = new Array();
+            let ZoneSet = new Array();
             // let Group = new Array();
             asyncEach(response.wells, function (well, next) {
                 if (well.deletedAt) {
@@ -102,13 +102,13 @@ function getDustbin(payload, callback, dbConnection) {
                                     }
                                     next();
                                 }, function () {
-                                    // asyncEach(well.zonesets, function (zoneset, next) {
-                                    //     if (zoneset.deletedAt) {
-                                    //         zoneset.name = zoneset.name.substring(14);
-                                    //         ZoneSet.push(zoneset);
-                                    //     }
-                                    //     next();
-                                    // })
+                                    asyncEach(well.zonesets, function (zoneset, next) {
+                                        if (zoneset.deletedAt) {
+                                            zoneset.name = zoneset.name.substring(14);
+                                            ZoneSet.push(zoneset);
+                                        }
+                                        next();
+                                    })
                                 })
                             })
                         });
@@ -124,134 +124,16 @@ function getDustbin(payload, callback, dbConnection) {
                     plots: Plot,
                     crossplots: CrossPlot,
                     histograms: Histogram,
-                    // zonsets: ZoneSet,
+                    zonsets: ZoneSet,
                     // groups: Group
                 }));
             });
         });
     });
-    // Project.findById(payload.idProject, {
-    //     paranoid: false,
-    //     include: [{
-    //         model: dbConnection.Well,
-    //         paranoid: false,
-    //         include: [{
-    //             model: dbConnection.Dataset,
-    //             paranoid: false,
-    //             include: [{
-    //                 paranoid: false,
-    //                 model: dbConnection.Curve,
-    //                 include: {
-    //                     model: dbConnection.Family,
-    //                     as: "LineProperty"
-    //                 }
-    //             }]
-    //         }, {
-    //             paranoid: false,
-    //             model: dbConnection.Plot
-    //         }, {
-    //             paranoid: false,
-    //             model: dbConnection.CrossPlot
-    //         }, {
-    //             paranoid: false,
-    //             model: dbConnection.Histogram
-    //         }, {
-    //             paranoid: false,
-    //             model: dbConnection.ZoneSet,
-    //             include: [{
-    //                 paranoid: false,
-    //                 model: dbConnection.Zone
-    //             }]
-    //         }]
-    //     }, {
-    //         paranoid: false,
-    //         model: dbConnection.Groups
-    //     }]
-    // }).then(rs => {
-    //     let Well = new Array();
-    //     let Dataset = new Array()
-    //     let Curve = new Array();
-    //     let Plot = new Array();
-    //     let Histogram = new Array();
-    //     let CrossPlot = new Array();
-    //     // let ZoneSet = new Array();
-    //     // let Group = new Array();
-    //     asyncEach(rs.wells, function (well, next) {
-    //         if (well.deletedAt) {
-    //             console.log("Pushed well : ", well.name);
-    //             well.name = well.name.substring(14);
-    //             Well.push(well);
-    //         } else {
-    //             asyncEach(well.datasets, function (dataset, next) {
-    //                 if (dataset.deletedAt) {
-    //                     console.log("Pushed dataset : ", dataset.name);
-    //                     dataset.name = dataset.name.substring(14);
-    //                     Dataset.push(dataset);
-    //                 } else {
-    //                     asyncEach(dataset.curves, function (curve, next) {
-    //                         if (curve.deletedAt) {
-    //                             Curve.push(curve);
-    //                         }
-    //                         next();
-    //                     });
-    //                 }
-    //                 next();
-    //             }, function () {
-    //                 asyncEach(well.plots, function (plot, next) {
-    //                     if (plot.deletedAt) {
-    //                         plot.name = plot.name.substring(14);
-    //                         Plot.push(plot);
-    //                     }
-    //                     next();
-    //                 }, function () {
-    //                     asyncEach(well.histograms, function (histogram, next) {
-    //                         if (histogram.deletedAt) {
-    //                             histogram.name = histogram.name.substring(14);
-    //                             Histogram.push(histogram);
-    //                         }
-    //                         next();
-    //                     }, function () {
-    //                         asyncEach(well.crossplots, function (crossplot, next) {
-    //                             if (crossplot.deletedAt) {
-    //                                 crossplot.name = crossplot.name.substring(14);
-    //                                 CrossPlot.push(crossplot);
-    //                             }
-    //                             next();
-    //                         }, function () {
-    //                             // asyncEach(well.zonesets, function (zoneset, next) {
-    //                             //     if (zoneset.deletedAt) {
-    //                             //         zoneset.name = zoneset.name.substring(14);
-    //                             //         ZoneSet.push(zoneset);
-    //                             //     }
-    //                             //     next();
-    //                             // })
-    //                         })
-    //                     })
-    //                 });
-    //             });
-    //         }
-    //         next();
-    //     }, function () {
-    //         console.log("finished");
-    //         callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", {
-    //             wells: Well,
-    //             datasets: Dataset,
-    //             curves: Curve,
-    //             plots: Plot,
-    //             crossplots: CrossPlot,
-    //             histograms: Histogram,
-    //             // zonsets: ZoneSet,
-    //             // groups: Group
-    //         }));
-    //     });
-    // }).catch(err => {
-    //     console.log(err);
-    // })
 }
 
 function deleteObject(payload, callback, dbConnection) {
     let Well = dbConnection.Well;
-    let Group = dbConnection.Group;
     let Dataset = dbConnection.Dataset;
     let Curve = dbConnection.Curve;
     let Plot = dbConnection.Plot;
@@ -262,48 +144,33 @@ function deleteObject(payload, callback, dbConnection) {
     let objectType = payload.type;
     switch (objectType) {
         case 'well' : {
-            Well.destroy({
-                where: {idWell: payload.idObject},
-                force: true
-            }).then(rs => {
-                if (rs != 0) {
+            Well.findById(payload.idObject, {paranoid: false}).then(rs => {
+                rs.destroy({force: true}).then(() => {
                     callback(ResponseJSON(ErrorCodes.SUCCESS, "DONE"));
-                } else {
-                    callback(ResponseJSON(ErrorCodes.SUCCESS, "CANT_DELETE"));
-                }
-            }).catch(err => {
-                callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
-            })
+                }).catch(err => {
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
+                });
+            });
             break;
         }
         case 'dataset' : {
-            Dataset.destroy({
-                where: {idDataset: payload.idObject},
-                force: true
-            }).then(rs => {
-                if (rs != 0) {
+            Dataset.findById(payload.idObject, {paranoid: false}).then(rs => {
+                rs.destroy({force: true}).then(() => {
                     callback(ResponseJSON(ErrorCodes.SUCCESS, "DONE"));
-                } else {
-                    callback(ResponseJSON(ErrorCodes.SUCCESS, "CANT_DELETE"));
-                }
-            }).catch(err => {
-                callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
-            })
+                }).catch(err => {
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
+                });
+            });
             break;
         }
         case 'curve' : {
-            Curve.destroy({
-                where: {idCurve: payload.idObject},
-                force: true
-            }).then(rs => {
-                if (rs != 0) {
+            Curve.findById(payload.idObject, {paranoid: false}).then(curve => {
+                curve.destroy({force: true}).then(() => {
                     callback(ResponseJSON(ErrorCodes.SUCCESS, "DONE"));
-                } else {
-                    callback(ResponseJSON(ErrorCodes.SUCCESS, "CANT_DELETE"));
-                }
-            }).catch(err => {
-                callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
-            })
+                }).catch(err => {
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
+                });
+            });
             break;
         }
         case 'logplot' : {
@@ -318,7 +185,7 @@ function deleteObject(payload, callback, dbConnection) {
                 }
             }).catch(err => {
                 callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
-            })
+            });
             break;
         }
         case 'crossplot' : {
@@ -333,7 +200,7 @@ function deleteObject(payload, callback, dbConnection) {
                 }
             }).catch(err => {
                 callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
-            })
+            });
             break;
         }
         case 'histogram' : {
@@ -348,24 +215,24 @@ function deleteObject(payload, callback, dbConnection) {
                 }
             }).catch(err => {
                 callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
+            });
+            break;
+        }
+        case 'zoneset' : {
+            ZoneSet.destroy({
+                where: {idZoneSet: payload.idObject},
+                force: true
+            }).then(rs => {
+                if (rs != 0) {
+                    callback(ResponseJSON(ErrorCodes.SUCCESS, "DONE"));
+                } else {
+                    callback(ResponseJSON(ErrorCodes.SUCCESS, "CANT_DELETE"));
+                }
+            }).catch(err => {
+                callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
             })
             break;
         }
-        // case 'zoneset' : {
-        //     ZoneSet.destroy({
-        //         where: {idZoneSet: payload.idObject},
-        //         force: true
-        //     }).then(rs => {
-        //         if (rs != 0) {
-        //             callback(ResponseJSON(ErrorCodes.SUCCESS, "DONE"));
-        //         } else {
-        //             callback(ResponseJSON(ErrorCodes.SUCCESS, "CANT_DELETE"));
-        //         }
-        //     }).catch(err => {
-        //         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
-        //     })
-        //     break;
-        // }
         default: {
             callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "WRONG_TYPE"));
             break;
