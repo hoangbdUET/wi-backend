@@ -124,7 +124,7 @@ function getDustbin(payload, callback, dbConnection) {
                     plots: Plot,
                     crossplots: CrossPlot,
                     histograms: Histogram,
-                    zonsets: ZoneSet,
+                    zonesets: ZoneSet,
                     // groups: Group
                 }));
             });
