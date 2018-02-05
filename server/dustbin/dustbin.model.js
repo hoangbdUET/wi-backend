@@ -349,21 +349,21 @@ function restoreObject(payload, callback, dbConnection) {
             });
             break;
         }
-        // case 'zoneset': {
-        //     ZoneSet.findById(payload.idObject, {
-        //         paranoid: false
-        //     }).then(rs => {
-        //         rs.name = rs.name.substring(14);
-        //         rs.save().then(r => {
-        //             rs.restore().then(() => {
-        //                 callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", r));
-        //             });
-        //         }).catch(err => {
-        //             callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CANT_RESTORE", err.message));
-        //         })
-        //     });
-        //     break;
-        // }
+        case 'zoneset': {
+            ZoneSet.findById(payload.idObject, {
+                paranoid: false
+            }).then(rs => {
+                rs.name = rs.name.substring(14);
+                rs.save().then(r => {
+                    rs.restore().then(() => {
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", r));
+                    });
+                }).catch(err => {
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CANT_RESTORE", err.message));
+                })
+            });
+            break;
+        }
         default: {
             callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "WRONG_TYPE"));
             break;
