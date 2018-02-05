@@ -4,6 +4,7 @@ let express = require('express');
 let router = express.Router();
 let wellModel = require('./well.model');
 let bodyParser = require('body-parser');
+let wellTopUpdate = require('./well-top-update');
 
 router.use(bodyParser.json());
 
@@ -58,7 +59,7 @@ router.post('/well/bulk-update-well-header', function (req, res) {
 router.post('/well/duplicate', function (req, res) {
     wellModel.duplicateWell(req.body.idWell, function (status) {
         res.send(status);
-    }, req.dbConnection);
+    }, req.dbConnection, req.decoded.username);
 });
 
 router.post('/well/import-from-inventory', function (req, res) {
@@ -66,6 +67,12 @@ router.post('/well/import-from-inventory', function (req, res) {
     wellModel.importWell(req.body, function (status) {
         res.send(status);
     }, req.dbConnection, req.decoded.username, token);
+});
+
+router.post('/well/well-top-update', function (req, res) {
+    wellTopUpdate.executeJob(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection);
 });
 
 module.exports = router;

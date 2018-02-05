@@ -7,6 +7,7 @@ let hashDir = wiImport.hashDir;
 let config = require('config');
 let fs = require('fs');
 let asyncEach = require('async/each');
+let asyncParallel = require('async/parallel');
 let fsExtra = require('fs-extra');
 let importFromInventory = require('../import-from-inventory/import.model');
 
@@ -281,7 +282,7 @@ function bulkUpdateWellHeader(headers, idWell, done, dbConnection) {
     });
 }
 
-function duplicateWell(idWell, done, dbConnection) {
+function duplicateWell(idWell, done, dbConnection, username) {
     dbConnection.Well.findById(idWell, {
         include: [
             {
@@ -300,6 +301,9 @@ function duplicateWell(idWell, done, dbConnection) {
             {
                 model: dbConnection.ZoneSet,
                 include: {model: dbConnection.Zone}
+            },
+            {
+                model: dbConnection.WellHeader
             }
         ]
     }).then(async well => {
@@ -314,7 +318,74 @@ function duplicateWell(idWell, done, dbConnection) {
             newWell.name = newWell.name + "_Copy_" + well.duplicated;
             well.duplicated++;
             await well.save();
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", well));
+            let _well = await dbConnection.Well.create(newWell);
+            let _project = await dbConnection.Project.findById(newWell.idProject);
+            asyncParallel([
+                function (cb) {
+                    asyncEach(well.datasets, function (dataset, nextDataset) {
+                        dbConnection.Dataset.create({
+                            name: dataset.name,
+                            datasetKey: dataset.datasetKey,
+                            datasetLabel: dataset.datasetLabel,
+                            idWell: _well.idWell
+                        }).then(_dataset => {
+                            asyncEach(dataset.curves, function (curve, nextCurve) {
+                                let curvePath = hashDir.createPath(config.curveBasePath, username + _project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+                                dbConnection.Curve.create({
+                                    name: curve.name,
+                                    unit: curve.unit,
+                                    idDataset: _dataset.idDataset,
+                                    initValue: "duplicated"
+                                }).then(_curve => {
+                                    let newCurvePath = hashDir.createPath(config.curveBasePath, username + _project.name + _well.name + _dataset.name + _curve.name, _curve.name + '.txt');
+                                    try {
+                                        fsExtra.copy(curvePath, newCurvePath, function (err) {
+                                            if (err) {
+                                                throw err;
+                                            }
+                                            nextCurve();
+                                        });
+                                    } catch (e) {
+                                        console.log(e);
+                                        nextCurve();
+                                    }
+                                });
+                            }, function () {
+                                nextDataset();
+                            });
+                        });
+                    }, function () {
+                        cb();
+                    });
+                },
+                function (cb) {
+                    asyncEach(well.plots, function (plot, next) {
+                        let newPlot = plot.toJSON();
+                        delete newPlot.idPlot;
+                        delete newPlot.createdAt;
+                        delete newPlot.updatedAt;
+                        console.log(newPlot);
+                        // dbConnection.Plot.create()
+                        next();
+                    }, function () {
+                        cb();
+                    });
+                },
+                function (cb) {
+                    cb();
+                },
+                function (cb) {
+                    cb();
+                },
+                function (cb) {
+                    cb();
+                },
+                function (cb) {
+                    cb();
+                }
+            ], function () {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", well));
+            });
         } else {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Well Found"));
         }
