@@ -152,7 +152,7 @@ function importDataset(datasets, token, callback, dbConnection, username) {
         newDataset.datasetKey = dataset.name;
         newDataset.datasetLabel = dataset.name;
         newDataset.idWell = dataset.idDesWell;
-        req.dbConnection.Dataset.findOrCreate({
+        dbConnection.Dataset.findOrCreate({
             where: {name: newDataset.name, idWell: newDataset.idWell},
             defaults: {
                 name: newDataset.name,
