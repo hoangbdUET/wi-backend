@@ -6,7 +6,7 @@ let wiImport = require('wi-import');
 let hashDir = wiImport.hashDir;
 let config = require('config');
 let fsExtra = require('fs-extra');
-let asyncSeries = require('async/series');
+let asyncWaterfall = require('async/waterfall');
 
 module.exports = function (idWell, done, dbConnection, username) {
     dbConnection.Well.findById(idWell, {
@@ -46,8 +46,9 @@ module.exports = function (idWell, done, dbConnection, username) {
             await well.save();
             let _well = await dbConnection.Well.create(newWell);
             let _project = await dbConnection.Project.findById(newWell.idProject);
-            asyncSeries([
+            asyncWaterfall([
                 function (cb) {
+                    let curvesReference = {};
                     asyncEach(well.datasets, function (dataset, nextDataset) {
                         dbConnection.Dataset.create({
                             name: dataset.name,
@@ -63,6 +64,7 @@ module.exports = function (idWell, done, dbConnection, username) {
                                     idDataset: _dataset.idDataset,
                                     initValue: "well-duplicated"
                                 }).then(_curve => {
+                                    curvesReference[curve.idCurve] = _curve.idCurve;
                                     let newCurvePath = hashDir.createPath(config.curveBasePath, username + _project.name + _well.name + _dataset.name + _curve.name, _curve.name + '.txt');
                                     try {
                                         fsExtra.copy(curvePath, newCurvePath, function (err) {
@@ -81,10 +83,11 @@ module.exports = function (idWell, done, dbConnection, username) {
                             });
                         });
                     }, function () {
-                        cb();
+                        cb(null, curvesReference);
                     });
                 },
-                function (cb) {
+                function (curvesReference, cb) {
+                    let zonesetsReference = {};
                     asyncEach(well.zonesets, function (zoneset, nextzs) {
                         let zs = zoneset.toJSON();
                         delete zs.idZoneSet;
@@ -100,6 +103,7 @@ module.exports = function (idWell, done, dbConnection, username) {
                                     delete z.updatedAt;
                                     z.idZoneSet = rs.idZoneSet;
                                     dbConnection.Zone.create(z).then(rs => {
+                                        zonesetsReference[zoneset.idZoneSet] = rs.idZoneSet;
                                         nextz();
                                     }).catch(err => {
                                         console.log(err);
@@ -116,24 +120,40 @@ module.exports = function (idWell, done, dbConnection, username) {
                             nextzs();
                         });
                     }, function () {
-                        cb();
+                        cb(null, curvesReference, zonesetsReference);
                     });
                 },
-                function (cb) {
-                    asyncEach(well.plots, function (plot, next) {
-                        let newPlot = plot.toJSON();
-                        delete newPlot.idPlot;
-                        delete newPlot.createdAt;
-                        delete newPlot.updatedAt;
-                        console.log(newPlot);
-                        // dbConnection.Plot.create()
+                function (curvesReference, zonesetsReference, cb) {
+                    asyncEach(well.histograms, function (histogram, next) {
+                        let newHistogram = histogram.toJSON();
+                        delete newHistogram.idHistogram;
+                        delete newHistogram.createdAt;
+                        delete newHistogram.updatedAt;
+                        newHistogram.idWell = _well.idWell;
+                        newHistogram.idCurve = curvesReference[newHistogram.idCurve];
+                        newHistogram.idZoneSet = zonesetsReference[newHistogram.idZoneSet];
+                        dbConnection.Histogram.create(newHistogram).then(h => {
+                            next();
+                        }).catch(err => {
+                            console.log(err);
+                            next();
+                        });
+                    }, function () {
+                        cb(null, curvesReference, zonesetsReference);
+                    });
+                },
+                function (curvesReferencecb, zonesetsReference, cb) {
+                    asyncEach(well.crossplots, function (crossplot, next) {
+                        let newCrossPlot = crossplot.toJSON();
+                        console.log(newCrossPlot);
+                        delete newCrossPlot.idCrossPlot;
+                        delete newCrossPlot.createdAt;
+                        delete newCrossPlot.updatedAt;
+                        newCrossPlot.idWell = _well.idWell;
                         next();
                     }, function () {
                         cb();
                     });
-                },
-                function (cb) {
-                    cb();
                 },
                 function (cb) {
                     cb();
