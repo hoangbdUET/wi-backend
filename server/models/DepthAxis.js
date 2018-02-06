@@ -44,7 +44,7 @@ module.exports = function (sequelize, DataTypes) {
         //     //TODO add default value
         // },
         trackBackground: {
-            type: DataTypes.STRING(20),
+            type: DataTypes.STRING(50),
             allowNull: false,
             defaultValue: 'rgba(255,255,255,0)'
         },
