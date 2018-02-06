@@ -5,6 +5,7 @@ let router = express.Router();
 let wellModel = require('./well.model');
 let bodyParser = require('body-parser');
 let wellTopUpdate = require('./well-top-update');
+let duplicateWell = require('./duplicate-well');
 
 router.use(bodyParser.json());
 
@@ -57,7 +58,7 @@ router.post('/well/bulk-update-well-header', function (req, res) {
 });
 
 router.post('/well/duplicate', function (req, res) {
-    wellModel.duplicateWell(req.body.idWell, function (status) {
+    duplicateWell(req.body.idWell, function (status) {
         res.send(status);
     }, req.dbConnection, req.decoded.username);
 });

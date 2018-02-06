@@ -282,117 +282,6 @@ function bulkUpdateWellHeader(headers, idWell, done, dbConnection) {
     });
 }
 
-function duplicateWell(idWell, done, dbConnection, username) {
-    dbConnection.Well.findById(idWell, {
-        include: [
-            {
-                model: dbConnection.Dataset,
-                include: {model: dbConnection.Curve}
-            },
-            {
-                model: dbConnection.Plot
-            },
-            {
-                model: dbConnection.CrossPlot
-            },
-            {
-                model: dbConnection.Histogram
-            },
-            {
-                model: dbConnection.ZoneSet,
-                include: {model: dbConnection.Zone}
-            },
-            {
-                model: dbConnection.WellHeader
-            }
-        ]
-    }).then(async well => {
-        let newWell;
-        if (well) {
-            newWell = well.toJSON();
-            delete newWell.createdAt;
-            delete newWell.updatedAt;
-            delete newWell.deletedAt;
-            delete newWell.idWell;
-            newWell.duplicated = 1;
-            newWell.name = newWell.name + "_Copy_" + well.duplicated;
-            well.duplicated++;
-            await well.save();
-            let _well = await dbConnection.Well.create(newWell);
-            let _project = await dbConnection.Project.findById(newWell.idProject);
-            asyncParallel([
-                function (cb) {
-                    asyncEach(well.datasets, function (dataset, nextDataset) {
-                        dbConnection.Dataset.create({
-                            name: dataset.name,
-                            datasetKey: dataset.datasetKey,
-                            datasetLabel: dataset.datasetLabel,
-                            idWell: _well.idWell
-                        }).then(_dataset => {
-                            asyncEach(dataset.curves, function (curve, nextCurve) {
-                                let curvePath = hashDir.createPath(config.curveBasePath, username + _project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
-                                dbConnection.Curve.create({
-                                    name: curve.name,
-                                    unit: curve.unit,
-                                    idDataset: _dataset.idDataset,
-                                    initValue: "duplicated"
-                                }).then(_curve => {
-                                    let newCurvePath = hashDir.createPath(config.curveBasePath, username + _project.name + _well.name + _dataset.name + _curve.name, _curve.name + '.txt');
-                                    try {
-                                        fsExtra.copy(curvePath, newCurvePath, function (err) {
-                                            if (err) {
-                                                throw err;
-                                            }
-                                            nextCurve();
-                                        });
-                                    } catch (e) {
-                                        console.log(e);
-                                        nextCurve();
-                                    }
-                                });
-                            }, function () {
-                                nextDataset();
-                            });
-                        });
-                    }, function () {
-                        cb();
-                    });
-                },
-                function (cb) {
-                    asyncEach(well.plots, function (plot, next) {
-                        let newPlot = plot.toJSON();
-                        delete newPlot.idPlot;
-                        delete newPlot.createdAt;
-                        delete newPlot.updatedAt;
-                        console.log(newPlot);
-                        // dbConnection.Plot.create()
-                        next();
-                    }, function () {
-                        cb();
-                    });
-                },
-                function (cb) {
-                    cb();
-                },
-                function (cb) {
-                    cb();
-                },
-                function (cb) {
-                    cb();
-                },
-                function (cb) {
-                    cb();
-                }
-            ], function () {
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", well));
-            });
-        } else {
-            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Well Found"));
-        }
-    }).catch(err => {
-        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
-    })
-}
 
 function importWell(payload, done, dbConnection, username, token) {
     importFromInventory.importWell(payload, token, function (err, res) {
@@ -413,6 +302,5 @@ module.exports = {
     getWellHeader: getWellHeader,
     updateWellHeader: updateWellHeader,
     bulkUpdateWellHeader: bulkUpdateWellHeader,
-    duplicateWell: duplicateWell,
     importWell: importWell
 };
