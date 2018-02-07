@@ -30,7 +30,14 @@ function createNewWell(wellInfo, done, dbConnection) {
                     .catch(function (err) {
                         // console.log(err);
                         if (err.name === "SequelizeUniqueConstraintError") {
-                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Well name existed!"));
+                            dbConnection.Well.findOne({
+                                where: {
+                                    name: wellInfo.name,
+                                    idProject: wellInfo.idProject
+                                }
+                            }).then(w => {
+                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Well name existed!", w));
+                            });
                         } else {
                             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                         }
