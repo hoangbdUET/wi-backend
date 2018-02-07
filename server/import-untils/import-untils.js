@@ -1,19 +1,59 @@
 "use strict";
+let asyncEach = require('async/each');
 
+// function _createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, dbConnection) {
+//     let Well = dbConnection.Well;
+//     let Dataset = dbConnection.Dataset;
+//     let Curve = dbConnection.Curve;
+//     return Well.create({
+//         idProject: projectInfo.idProject,
+//         name: wellInfo.name,
+//         topDepth: wellInfo.topDepth,
+//         bottomDepth: wellInfo.bottomDepth,
+//         step: wellInfo.step,
+//         datasets: datasetInfo
+//     }, {
+//         include: [{model: Dataset, include: [Curve]}]
+//     });
+// }
 
 function createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, dbConnection) {
-    let Well = dbConnection.Well;
-    let Dataset = dbConnection.Dataset;
-    let Curve = dbConnection.Curve;
-    return Well.create({
-        idProject: projectInfo.idProject,
-        name: wellInfo.name,
-        topDepth: wellInfo.topDepth,
-        bottomDepth: wellInfo.bottomDepth,
-        step: wellInfo.step,
-        datasets: datasetInfo
-    }, {
-        include: [{model: Dataset, include: [Curve]}]
+    return new Promise(function (resolve, reject) {
+        dbConnection.Well.findOrCreate({
+            where: {name: wellInfo.name, idProject: projectInfo.idProject}, defaults: {
+                name: wellInfo.name,
+                topDepth: wellInfo.topDepth,
+                bottomDepth: wellInfo.bottomDepth,
+                step: wellInfo.step
+            }
+        }).then(rs => {
+            let well = rs[0];
+            dbConnection.Dataset.findOrCreate({
+                where: {name: datasetInfo.name, idWell: well.idWell}, defaults: {
+                    name: datasetInfo.name,
+                    datasetKey: datasetInfo.datasetKey,
+                    datasetLabel: datasetInfo.datasetLabel
+                }
+            }).then(d => {
+                let dataset = d[0];
+                asyncEach(datasetInfo.curves, function (curve, next) {
+                    dbConnection.Curve.findOrCreate({
+                        where: {name: curve.name, idDataset: dataset.idDataset}, defaults: {
+                            name: curve.name,
+                            unit: curve.unit,
+                            initValue: curve.initValue
+                        }
+                    }).then(() => {
+                        next();
+                    }).catch(err => {
+                        console.log(err);
+                        next();
+                    })
+                }, function () {
+                    resolve();
+                });
+            });
+        })
     });
 }
 
