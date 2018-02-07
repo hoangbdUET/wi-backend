@@ -23,12 +23,16 @@ class Options {
 
 function getWellFromInventory(well, token) {
     return new Promise(function (resolve, reject) {
-        let options = new Options('/user/well/full-info', token, {idWell: well.idWell});
+        let options = new Options('/user/well/full-info', token, {idWell: well.idWell, name: well.name});
         request(options, function (error, response, body) {
             if (error) {
-                reject(err);
+                reject(error);
             } else {
-                resolve(body.content);
+                if (body.content) {
+                    resolve(body.content);
+                } else {
+                    reject(body)
+                }
             }
         });
     });
@@ -45,7 +49,7 @@ async function importWell(well, token, callback, dbConnection, username) {
                 description: "Project created by batch service",
             }
         }))[0];
-        let _well = await getWellFromInventory({idWell: well.idWell}, token);
+        let _well = await getWellFromInventory({idWell: well.idWell, name: well.name}, token);
         let topDepth = _well.well_headers.find(h => h.header === 'STRT').value;
         let bottomDepth = _well.well_headers.find(h => h.header === 'STOP').value;
         let step = _well.well_headers.find(h => h.header === 'STEP').value;
