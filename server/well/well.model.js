@@ -52,6 +52,17 @@ function createNewWell(wellInfo, done, dbConnection) {
 
 function getWellList(payload, done, dbConnection) {
     let forward = true;
+    try {
+        let a = payload.forward.toString();
+        if (a == 'true') {
+            forward = true;
+        } else {
+            forward = false;
+        }
+    } catch (e) {
+        forward = true;
+    }
+    console.log(forward);
     let start = payload.start || 0;
     let limit = payload.limit || 50;
     let match = payload.match || '';
