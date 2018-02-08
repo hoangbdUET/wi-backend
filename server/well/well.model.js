@@ -50,6 +50,42 @@ function createNewWell(wellInfo, done, dbConnection) {
 
 }
 
+function getWellList(payload, done, dbConnection) {
+    let forward = true;
+    let start = payload.start || 0;
+    let limit = payload.limit || 50;
+    let match = payload.match || '';
+    match = '%' + match;
+    const Op = require('sequelize').Op;
+    let options = {
+        where: {
+            idProject: payload.idProject,
+            name: {[Op.like]: match}
+        },
+        include: {
+            model: dbConnection.WellHeader,
+            attributes: ['header', 'value']
+        },
+        order: ['idWell'],
+        limit: limit
+    }
+    if (forward) {
+        options.where.idWell = {
+            [Op.gt]: start
+        }
+    } else {
+        options.where.idWell = {
+            [Op.lt]: start
+        },
+            options.order = [['idWell', 'DESC']]
+    }
+    dbConnection.Well.findAll(options).then(wells => {
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", wells));
+    }).catch(err => {
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
+    });
+};
+
 function editWell(wellInfo, done, dbConnection, username) {
     dbConnection.Well.findById(wellInfo.idWell).then(well => {
         if (well) {
@@ -310,5 +346,6 @@ module.exports = {
     getWellHeader: getWellHeader,
     updateWellHeader: updateWellHeader,
     bulkUpdateWellHeader: bulkUpdateWellHeader,
-    importWell: importWell
+    importWell: importWell,
+    getWellList: getWellList
 };

@@ -76,4 +76,10 @@ router.post('/well/well-top-update', function (req, res) {
     }, req.dbConnection);
 });
 
+router.post('/well/list', function (req, res) {
+    wellModel.getWellList(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection);
+});
+
 module.exports = router;
