@@ -278,6 +278,7 @@ function deleteObject(payload, callback, dbConnection) {
     let CrossPlot = dbConnection.CrossPlot;
     let Histogram = dbConnection.Histogram;
     let ZoneSet = dbConnection.ZoneSet;
+    let Zone = dbConnection.Zone;
     //type = well,group,dataset,curve,plot,crossplot,histogram,zoneset
     let objectType = payload.type;
     switch (objectType) {
@@ -371,6 +372,21 @@ function deleteObject(payload, callback, dbConnection) {
             })
             break;
         }
+        case 'zone' : {
+            Zone.destroy({
+                where: {idZone: payload.idObject},
+                force: true
+            }).then(rs => {
+                if (rs != 0) {
+                    callback(ResponseJSON(ErrorCodes.SUCCESS, "DONE"));
+                } else {
+                    callback(ResponseJSON(ErrorCodes.SUCCESS, "CANT_DELETE"));
+                }
+            }).catch(err => {
+                callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
+            })
+            break;
+        }
         default: {
             callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "WRONG_TYPE"));
             break;
@@ -389,6 +405,7 @@ function restoreObject(payload, callback, dbConnection) {
     let Histogram = dbConnection.Histogram;
     let ZoneSet = dbConnection.ZoneSet;
     let objectType = payload.type;
+    let Zone = dbConnection.Zone;
     switch (objectType) {
         case 'well': {
             Well.findById(payload.idObject, {
@@ -489,6 +506,21 @@ function restoreObject(payload, callback, dbConnection) {
         }
         case 'zoneset': {
             ZoneSet.findById(payload.idObject, {
+                paranoid: false
+            }).then(rs => {
+                rs.name = rs.name.substring(14);
+                rs.save().then(r => {
+                    rs.restore().then(() => {
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", r));
+                    });
+                }).catch(err => {
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CANT_RESTORE", err.message));
+                })
+            });
+            break;
+        }
+        case 'zone' : {
+            Zone.findById(payload.idObject, {
                 paranoid: false
             }).then(rs => {
                 rs.name = rs.name.substring(14);

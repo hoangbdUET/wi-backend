@@ -492,6 +492,19 @@ function newDbInstance(dbName, callback) {
             });
         }
     });
+
+    Zone.hook('beforeDestroy', function (zone, options) {
+        console.log("Hooks delete zone");
+        if (zone.deletedAt) {
+
+        } else {
+            let time = Date.now();
+            zone.name = '$' + time + zone.name;
+            zone.save().catch(err => {
+                console.log(err);
+            });
+        }
+    });
     //End register hook
     return object;
 };
