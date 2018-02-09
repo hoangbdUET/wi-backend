@@ -1,14 +1,15 @@
-// var models = require('../models');
-// var Shading=models.Shading;
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
+// let models = require('../models');
+// let Shading=models.Shading;
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
 
 function createNewShading(shadingInfo, done, dbConnection) {
-    var Shading = dbConnection.Shading;
+    let ts = Date.now();
+    let Shading = dbConnection.Shading;
     Shading.sync()
         .then(
             function () {
-                var shading = Shading.build({
+                let shading = Shading.build({
                     idTrack: shadingInfo.idTrack,
                     idLeftLine: shadingInfo.idLeftLine,
                     idRightLine: shadingInfo.idRightLine,
@@ -25,6 +26,7 @@ function createNewShading(shadingInfo, done, dbConnection) {
                 });
                 shading.save()
                     .then(function (result) {
+                        console.log("New shading done took: ", Date.now() - ts, "ms");
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new shading success", result));
                     })
                     .catch(function (err) {
@@ -40,7 +42,7 @@ function createNewShading(shadingInfo, done, dbConnection) {
 
 function _editShading(shadingInfo, done, dbConnection) {
     delete shadingInfo.changed;
-    var Shading = dbConnection.Shading;
+    let Shading = dbConnection.Shading;
     Shading.findById(shadingInfo.idShading)
         .then(function (shading) {
             shadingInfo.positiveFill = JSON.stringify(shadingInfo.positiveFill);
@@ -85,7 +87,7 @@ function editShading(shadingInfo, done, dbConnection) {
 };
 
 function deleteShading(shadingInfo, done, dbConnection) {
-    var Shading = dbConnection.Shading;
+    let Shading = dbConnection.Shading;
     Shading.findById(shadingInfo.idShading)
         .then(function (shading) {
             shading.destroy()
@@ -102,7 +104,7 @@ function deleteShading(shadingInfo, done, dbConnection) {
 }
 
 function getShadingInfo(shading, done, dbConnection) {
-    var Shading = dbConnection.Shading;
+    let Shading = dbConnection.Shading;
     Shading.findById(shading.idShading)
         .then(function (shading) {
             if (!shading) throw "not exists";

@@ -66,12 +66,14 @@ function getWellList(payload, done, dbConnection) {
     let start = payload.start || 0;
     let limit = payload.limit || 50;
     let match = payload.match || '';
-    match = '%' + match;
+    let match1 = '%' + match;
+    let match2 = '%' + match + "%";
+    let match3 = match + "%";
     const Op = require('sequelize').Op;
     let options = {
         where: {
             idProject: payload.idProject,
-            name: {[Op.like]: match}
+            name: {[Op.or]: [{[Op.like]: match1}, {[Op.like]: match2}, {[Op.like]: match3}]}
         },
         include: {
             model: dbConnection.WellHeader,
