@@ -116,6 +116,11 @@ module.exports = function (sequelize, DataTypes) {
             validate: {
                 isIn: [['Curve', 'Zone']]
             }
+        },
+        depthType: {
+            type: DataTypes.STRING(30),
+            defaultValue: "intervalDepth",
+            allowNull: true
         }
         // referenceTopDepth: {
         //     type: DataTypes.DOUBLE,
