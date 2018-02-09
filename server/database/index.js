@@ -39,7 +39,7 @@ router.post('/database/update', function (req, res) {
                     operatorsAliases: Sequelize.Op,
                     storage: config.storage
                 });
-                let dbName = 'wi_' + decoded.username;
+                let dbName = 'wi_' + decoded.username.toLowerCase();
                 sequelize.query("CREATE DATABASE IF NOT EXISTS " + dbName).then(rs => {
                     if (rs[0].warningStatus == 0) {
                         models(dbName).sequelize.sync().then(() => {
