@@ -585,7 +585,9 @@ let processingCurve = function (req, done, dbConnection) {
     let idDataset = req.body.idDataset;
     let filePath = req.tmpPath;
     let newCurveName = req.body.curveName;
+    // console.log("=======", req.body.unit);
     let unit = req.body.unit ? req.body.unit : "US/F";
+    // let unit = "US/F";
     let idFamily = req.body.idFamily ? (req.body.idFamily == 'null' ? null : req.body.idFamily) : null;
     let idDesCurve = req.body.idDesCurve;
     Dataset.findById(idDataset).then(dataset => {
@@ -611,8 +613,9 @@ let processingCurve = function (req, done, dbConnection) {
                                 done(ResponseJSON(ErrorCodes.SUCCESS, "Success", curve));
                             });
                         }).catch(err => {
+                            console.log(err);
                             fs.unlink(filePath);
-                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve existed"));
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error occurred!", err.message));
                         });
                     } else {
                         //overwrite curve
