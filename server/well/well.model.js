@@ -342,10 +342,10 @@ function bulkUpdateWellHeader(headers, idWell, done, dbConnection) {
 function importWell(payload, done, dbConnection, username, token) {
     importFromInventory.importWell(payload, token, function (err, res) {
         if (err) {
-            // console.log(err);
-            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "error", err.message));
+            console.log(err);
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
         } else {
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", res));
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", res.toJSON()));
         }
     }, dbConnection, username);
 }

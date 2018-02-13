@@ -23,7 +23,7 @@ class Options {
 
 function getWellFromInventory(well, token) {
     return new Promise(function (resolve, reject) {
-        let options = new Options('/user/well/full-info', token, {idWell: well.idWell, name: well.name});
+        let options = new Options('/user/well/full-info', token, {name: well.name});
         request(options, function (error, response, body) {
             if (error) {
                 reject(error);
@@ -39,17 +39,18 @@ function getWellFromInventory(well, token) {
 };
 
 async function importWell(well, token, callback, dbConnection, username) {
+    let Op = require('sequelize').Op;
+    let wiProject = (await dbConnection.Project.findOrCreate({
+        where: {
+            name: {[Op.eq]: well.projectName}
+        },
+        defaults: {
+            name: well.projectName,
+            description: "Project created by batch service",
+        }
+    }))[0];
     try {
-        let wiProject = (await dbConnection.Project.findOrCreate({
-            where: {
-                name: well.projectName
-            },
-            defaults: {
-                name: well.projectName,
-                description: "Project created by batch service",
-            }
-        }))[0];
-        let _well = await getWellFromInventory({idWell: well.idWell, name: well.name}, token);
+        let _well = await getWellFromInventory({name: well.name}, token);
         let topDepth = _well.well_headers.find(h => h.header === 'STRT').value;
         let bottomDepth = _well.well_headers.find(h => h.header === 'STOP').value;
         let step = _well.well_headers.find(h => h.header === 'STEP').value;
@@ -118,13 +119,14 @@ async function importWell(well, token, callback, dbConnection, username) {
                     }
                 })
             });
-            callback(null, _well.name);
+            callback(null, wiWell);
         });
     } catch (e) {
         if (e.name === "SequelizeUniqueConstraintError") {
-            callback("Well existed!", null);
+            callback({idProject: wiProject.idProject, reason: "Well existed!"}, null);
         } else {
-            callback(e, null);
+            console.log(e);
+            callback({idProject: wiProject.idProject, reason: e}, null);
         }
     }
 
