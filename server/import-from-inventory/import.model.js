@@ -131,7 +131,7 @@ async function importWell(well, token, callback, dbConnection, username) {
                         ]
                     }
                 }).then(existedWell => {
-                    callback({idProject: wiProject.idProject, reason: "Well existed!", well_existed: existedWell}, null);
+                    callback(null, existedWell);
                 });
             } else {
                 callback({idProject: wiProject.idProject, reason: "Error"}, null);

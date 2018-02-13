@@ -345,7 +345,8 @@ function importWell(payload, done, dbConnection, username, token) {
             console.log(err);
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
         } else {
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", res.toJSON()));
+            console.log(res);
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", res));
         }
     }, dbConnection, username);
 }
