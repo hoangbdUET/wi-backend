@@ -71,7 +71,7 @@ router.post('/curve/export', function (req, res) {
             fs.unlinkSync(fileResult);
         });
     }, function (code) {
-        res.status(code).end();
+        res.send(code);
     }, req.dbConnection, req.decoded.username)
 });
 

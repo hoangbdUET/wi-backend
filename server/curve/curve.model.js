@@ -409,7 +409,13 @@ function getData(param, successFunc, errorFunc, dbConnection, username) {
                         Well.findById(dataset.idWell).then(well => {
                             if (well) {
                                 Project.findById(well.idProject).then(project => {
-                                    successFunc(hashDir.createJSONReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt', '{\n"code": 200,\n"content":', '}\n'));
+                                    hashDir.createJSONReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt', '{\n"code": 200,\n"content":', '}\n', function (err, stream) {
+                                        if (err) {
+                                            errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve Data Was Lost"));
+                                        } else {
+                                            successFunc(stream);
+                                        }
+                                    });
                                 });
                             }
                         });
@@ -442,7 +448,11 @@ function exportData(param, successFunc, errorFunc, dbConnection, username) {
                         Well.findById(dataset.idWell).then(well => {
                             if (well) {
                                 Project.findById(well.idProject).then(project => {
-                                    exporter.exportData(hashDir.createReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt'), successFunc);
+                                    let stream = hashDir.createReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+                                    stream.on('error', function (err) {
+                                        errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve Data Was Lost"));
+                                    });
+                                    exporter.exportData(stream, successFunc);
                                 });
                             }
                         });
@@ -499,7 +509,7 @@ let getScale = function (req, done, dbConnection) {
     // });
     calculateScale(req.body.idCurve, req.decoded.username, dbConnection, function (err, result) {
         if (err) {
-            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "ERROR", err));
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
         } else {
             done(ResponseJSON(ErrorCodes.SUCCESS, "min max curve success", result));
         }
@@ -522,6 +532,9 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
                             if (well) {
                                 Project.findById(well.idProject, {paranoid: false}).then(project => {
                                     let inputStream = hashDir.createReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+                                    inputStream.on("error", function () {
+                                        callback("Curve Data Was Lost", null);
+                                    });
                                     let lineReader = require('readline').createInterface({
                                         input: inputStream
                                     });
@@ -553,7 +566,7 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
                                         callback(null, {minScale: min, maxScale: max, meanValue: sum / arrY.length});
                                     });
                                 }).catch(err => {
-                                    console.log("LOI");
+                                    console.log("LOI : ", err);
                                 });
                             }
                         });
