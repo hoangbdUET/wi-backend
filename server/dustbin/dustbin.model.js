@@ -424,12 +424,30 @@ function restoreObject(payload, callback, dbConnection) {
         }
         case 'dataset': {
             Dataset.findById(payload.idObject, {
-                paranoid: false
+                paranoid: false,
+                include: {all: true, paranoid: false}
             }).then(rs => {
                 rs.name = rs.name.substring(14);
                 rs.save().then(r => {
                     rs.restore().then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", r));
+                        asyncEach(rs.curves, function (curve, nextCurve) {
+                            curve.restore().then(() => {
+                                dbConnection.Line.findAll({
+                                    where: {idCurve: curve.idCurve},
+                                    paranoid: false
+                                }).then(lines => {
+                                    asyncEach(lines, function (line, next) {
+                                        line.restore().then(() => {
+                                            next();
+                                        })
+                                    }, function () {
+                                        nextCurve();
+                                    });
+                                });
+                            });
+                        }, function () {
+                            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", r));
+                        });
                     });
                 }).catch(err => {
                     callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CANT_RESTORE", err.message));

@@ -368,12 +368,22 @@ function deleteCurve(curveInfo, done, dbConnection, username) {
                         curve.destroy({hooks: false})
                             .then(() => {
                                 dbConnection.Line.findAll({where: {idCurve: curve.idCurve}}).then(lines => {
-                                    asyncLoop(lines, function (line, next) {
+                                    asyncLoop(lines, function (line, nextLine) {
                                         line.destroy().then(() => {
-                                            next();
+                                            nextLine();
                                         });
                                     }, function () {
-                                        done(ResponseJSON(ErrorCodes.SUCCESS, "Curve is deleted", curve));
+                                        dbConnection.ReferenceCurve.findAll({where: {idCurve: curve.idCurve}}).then(refs => {
+                                            asyncLoop(refs, function (ref, nextRef) {
+                                                ref.destroy().then(() => {
+                                                    nextRef();
+                                                }).catch(() => {
+                                                    nextRef();
+                                                });
+                                            }, function () {
+                                                done(ResponseJSON(ErrorCodes.SUCCESS, "Curve is deleted", curve));
+                                            });
+                                        });
                                     })
                                 })
                             })
