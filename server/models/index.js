@@ -129,6 +129,8 @@ function newDbInstance(dbName, callback) {
         'Well',
         'WellData',
         'WellHeader',
+        'Workflow',
+        'WorkflowSpec',
         'Zone',
         'ZoneSet',
         'ZoneTrack'
@@ -326,6 +328,15 @@ function newDbInstance(dbName, callback) {
         m.Histogram.belongsTo(m.SelectionPoint, {foreignKey: {name: 'idSelectionPoint', allowNull: true}});
         m.PointSet.belongsTo(m.SelectionPoint, {foreignKey: {name: 'idSelectionPointX', allowNull: true}});
         m.PointSet.belongsTo(m.SelectionPoint, {foreignKey: {name: 'idSelectionPointY', allowNull: true}});
+
+        // m.Project.hasMany(m.WorkflowSpec, {
+        //     foreignKey: {name: 'idProject', allowNull: false},
+        //     onDelete: 'CASCADE'
+        // });
+        m.WorkflowSpec.hasMany(m.Workflow, {
+            foreignKey: {name: 'idWorkflowSpec', allowNull: false},
+            onDelete: 'CASCADE'
+        });
 
     })(object);
 

@@ -46,6 +46,8 @@ function main() {
     let crossPlotRouter = require('./server/cross-plot/cross-plot.router');
     let pointSetRouter = require('./server/pointset/pointset.router');
     let polygonRouter = require('./server/polygon/polygon.router');
+    let workflowRouter = require('./server/workflow/workflow.router');
+    let workflowSpecRouter = require('./server/workflow-spec/workflow-spec.router');
 
     let histogramRouter = require('./server/histogram/histogram.router');
     let palRouter = require('./server/pal/index');
@@ -93,6 +95,8 @@ function main() {
     app.use('/', familyRouter);
     app.use('/', imageUpload);
     app.use('/', dustbinRouter);
+    app.use('/', workflowRouter);
+    app.use('/', workflowSpecRouter);
     app.use('/pal', palRouter);
     app.use('/custom-fill', customFillRouter);
     app.use('/project', wellRouter);
