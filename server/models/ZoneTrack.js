@@ -40,6 +40,11 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.FLOAT,
             allowNull: false,
             defaultValue: 1
+        },
+        zoomFactor: {
+            type: DataTypes.DOUBLE,
+            allowNull: false,
+            defaultValue: 1.0
         }
     });
 };

@@ -1,15 +1,15 @@
-// var models = require('../models');
-// var ZoneTrack = models.ZoneTrack;
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
+// let models = require('../models');
+// let ZoneTrack = models.ZoneTrack;
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
 
 function createNewZoneTrack(zoneTrackInfo,done,dbConnection) {
-    var ZoneTrack = dbConnection.ZoneTrack;
+    let ZoneTrack = dbConnection.ZoneTrack;
     ZoneTrack.sync()
         .then(
             function () {
                 delete zoneTrackInfo.idZoneTrack;
-                var zoneTrack = ZoneTrack.build(zoneTrackInfo);
+                let zoneTrack = ZoneTrack.build(zoneTrackInfo);
                 zoneTrack.save()
                     .then(function (zoneTrack) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new ZoneTrack success", {idZoneTrack: zoneTrack.idZoneTrack, orderNum: zoneTrack.orderNum}));
@@ -24,7 +24,7 @@ function createNewZoneTrack(zoneTrackInfo,done,dbConnection) {
         )
 }
 function editZoneTrack(zoneTrackInfo, done,dbConnection) {
-    var ZoneTrack = dbConnection.ZoneTrack;
+    let ZoneTrack = dbConnection.ZoneTrack;
     ZoneTrack.findById(zoneTrackInfo.idZoneTrack)
         .then(function (zoneTrack) {
             zoneTrack = Object.assign(zoneTrack, zoneTrackInfo);
@@ -41,7 +41,7 @@ function editZoneTrack(zoneTrackInfo, done,dbConnection) {
         });
 }
 function deleteZoneTrack(zoneTrackInfo, done,dbConnection) {
-    var ZoneTrack = dbConnection.ZoneTrack;
+    let ZoneTrack = dbConnection.ZoneTrack;
     ZoneTrack.findById(zoneTrackInfo.idZoneTrack)
         .then(function (zoneTrack) {
             zoneTrack.destroy()
@@ -57,7 +57,7 @@ function deleteZoneTrack(zoneTrackInfo, done,dbConnection) {
         })
 }
 function getZoneTrackInfo(zoneTrack,done,dbConnection) {
-    var ZoneTrack=dbConnection.ZoneTrack;
+    let ZoneTrack=dbConnection.ZoneTrack;
     ZoneTrack.findById(zoneTrack.idZoneTrack, {include: [{all: true}]})
         .then(function (zoneTrack) {
             if (!zoneTrack) throw "not exits";
