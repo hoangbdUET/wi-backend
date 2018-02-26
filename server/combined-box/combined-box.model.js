@@ -1,6 +1,6 @@
 "use strict";
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
 
 function createNewCombinedBox(payload, done, dbConnection) {
     let Model = dbConnection.CombinedBox;
@@ -30,6 +30,10 @@ function infoCombinedBox(payload, done, dbConnection) {
             model: dbConnection.CrossPlot
         }, {
             model: dbConnection.Histogram
+        }, {
+            model: dbConnection.SelectionTool
+        }, {
+            model: dbConnection.CombinedBoxTool
         }]
     }).then(rs => {
         if (rs) {

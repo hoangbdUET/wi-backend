@@ -69,7 +69,7 @@ function main() {
     let groupsRouter = require('./server/groups/groups.router');
     let axisColorRouter = require('./server/cross-plot/axis-color-template/index');
     let dustbinRouter = require('./server/dustbin/dustbin.router');
-    let selectionPointRouter = require('./server/selection-point/selection-point.router');
+    let selectionToolRouter = require('./server/selection-tool/selection-tool.router');
     let testRouter = require('./test.js');
     let combinedBoxToolRouter = require('./server/combined-box-tool/combined-box-tool.router');
     let combinedBoxRouter = require('./server/combined-box/combined-box.router');
@@ -107,8 +107,8 @@ function main() {
     app.use('/project/well', histogramRouter);
     app.use('/project/well', crossPlotRouter);
     app.use('/project/well', referenceCurveRouter);
-    app.use('/project/well', selectionPointRouter);
     app.use('/project/well', combinedBoxRouter);
+    app.use('/project/well/combined-box', selectionToolRouter);
     app.use('/project/well/combined-box', combinedBoxToolRouter);
     app.use('/project/well/plot', imageTrackRouter);
     app.use('/project/well/plot', depthAxisRouter);

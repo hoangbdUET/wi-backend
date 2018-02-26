@@ -1,6 +1,6 @@
 "use strict";
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
 
 function createNewComboBoxSelect(payload, done, dbConnection) {
     let Model = dbConnection.CombinedBoxTool;
@@ -14,7 +14,7 @@ function createNewComboBoxSelect(payload, done, dbConnection) {
 
 function infoComboBoxSelect(payload, done, dbConnection) {
     let Model = dbConnection.CombinedBoxTool;
-    Model.findById(payload.idCombinedBoxTool).then(rs => {
+    Model.findById(payload.idCombinedBoxTool, {include: {all: true}}).then(rs => {
         if (rs) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
         } else {

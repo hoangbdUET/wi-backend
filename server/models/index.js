@@ -121,7 +121,7 @@ function newDbInstance(dbName, callback) {
         'Property',
         'ReferenceCurve',
         'RegressionLine',
-        'SelectionPoint',
+        'SelectionTool',
         'Shading',
         'Ternary',
         'Track',
@@ -197,10 +197,6 @@ function newDbInstance(dbName, callback) {
         });
         m.Well.hasMany(m.WellHeader, {
             foreignKey: {name: "idWell", allowNull: false},
-            onDelete: 'CASCADE'
-        });
-        m.Curve.hasMany(m.SelectionPoint, {
-            foreignKey: {name: "idCurve", allowNull: false},
             onDelete: 'CASCADE'
         });
 
@@ -324,10 +320,14 @@ function newDbInstance(dbName, callback) {
             onDelete: 'CASCADE'
         });
 
-        m.Plot.belongsTo(m.SelectionPoint, {foreignKey: {name: 'idSelectionPoint', allowNull: true}});
-        m.Histogram.belongsTo(m.SelectionPoint, {foreignKey: {name: 'idSelectionPoint', allowNull: true}});
-        m.PointSet.belongsTo(m.SelectionPoint, {foreignKey: {name: 'idSelectionPointX', allowNull: true}});
-        m.PointSet.belongsTo(m.SelectionPoint, {foreignKey: {name: 'idSelectionPointY', allowNull: true}});
+        m.CombinedBox.hasMany(m.SelectionTool, {
+            foreignKey: {name: 'idCombinedBox', allowNull: false},
+            onDelete: 'CASCADE'
+        });
+        m.CombinedBoxTool.hasOne(m.SelectionTool, {
+            foreignKey: {name: 'idCombinedBoxTool', allowNull: false},
+            onDelete: 'CASCADE'
+        });
 
         // m.Project.hasMany(m.WorkflowSpec, {
         //     foreignKey: {name: 'idProject', allowNull: false},
@@ -353,11 +353,7 @@ function newDbInstance(dbName, callback) {
     let Plot = object.Plot;
     let ZoneSet = object.ZoneSet;
     let Zone = object.Zone;
-    let SelectionPoint = object.SelectionPoint;
     let username = dbName.substring(dbName.indexOf("_") + 1);
-    SelectionPoint.hook('beforeDestroy', function (selectionPoint) {
-        hashDir.deleteFolder(configCommon.curveBasePath, username + selectionPoint.XPoints);
-    });
     Curve.hook('afterCreate', function (curve, options) {
         if (!curve.idFamily) {
             ((curveName, unit) => {

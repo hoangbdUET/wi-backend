@@ -1,11 +1,11 @@
 let express = require('express');
 let router = express.Router();
 let bodyParser = require('body-parser');
-let selectionPointModel = require('./selection-tool.model');
+let selectionToolModel = require('./selection-tool.model');
 router.use(bodyParser.json());
 
 router.post('/selection-tool/new', function (req, res) {
-    selectionPointModel.createSelectionTool(req, function (status) {
+    selectionToolModel.createSelectionTool(req.body, function (status) {
         res.send(status);
     }, req.dbConnection);
 });
@@ -17,13 +17,13 @@ router.post('/selection-tool/info', function (req, res) {
 });
 
 router.post('/selection-tool/edit', function (req, res) {
-    selectionToolModel.editSelectionTool(req, function (status) {
+    selectionToolModel.editSelectionTool(req.body, function (status) {
         res.send(status);
     }, req.dbConnection);
 });
 
 router.delete('/selection-tool/delete', function (req, res) {
-    selectionToolModel.deleteSelectionTool(req, function (status) {
+    selectionToolModel.deleteSelectionTool(req.body, function (status) {
         res.send(status);
     }, req.dbConnection);
 });

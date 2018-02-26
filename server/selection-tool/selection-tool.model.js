@@ -1,54 +1,25 @@
 let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
-let fs = require('fs-extra');
-let asyncLoop = require('async/each');
-let path = require('path');
-let wiImport = require('wi-import');
-let hashDir = wiImport.hashDir;
-let config = require('config');
 
-function createSelectionPoint(payload, done, dbConnection) {
-    let Model = dbConnection.SelectionPoint;
-    let selectionObject = new Object();
-    selectionObject.idCurve = payload.body.idCurve;
-    let PointsPath = null;
-    selectionObject.Points = Date.now() + '_Points';
-    Model.create(selectionObject).then(rs => {
-        PointsPath = hashDir.createPath(config.curveBasePath, payload.decoded.username + selectionObject.Points, selectionObject.Points + '.txt');
-        fs.copy(payload.PointsPath, PointsPath, function (err) {
-            if (err) {
-                console.log("Err copy points file ", err);
-            }
-            console.log("Copy Points file success! ", PointsPath);
-            fs.unlink(payload.PointsPath);
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
-        });
+function createSelectionTool(payload, done, dbConnection) {
+    let Model = dbConnection.SelectionTool;
+    Model.create(payload).then(rs => {
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
     }).catch(err => {
         console.log(err);
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
-    })
-    // console.log(selectionObject);
+    });
 }
 
-function editSelectionPoint(payload, done, dbConnection) {
-    let Model = dbConnection.SelectionPoint;
-    let PointsPath = null;
-    Model.findById(payload.body.idSelectionPoint).then(row => {
+function editSelectionTool(payload, done, dbConnection) {
+    let Model = dbConnection.SelectionTool;
+    Model.findById(payload.idSelectionTool).then(row => {
         if (row) {
-            let newRow = row.toJSON();
-            newRow.idCurve = payload.body.idCurve || newRow.idCurve;
-            Object.assign(row, newRow).save().then(row => {
-                hashDir.deleteFolder(config.curveBasePath, payload.decoded.username + row.Points);
-                PointsPath = hashDir.createPath(config.curveBasePath, payload.decoded.username + row.Points, row.Points + '.txt');
-                fs.copy(payload.PointsPath, PointsPath, function (err) {
-                    if (err) {
-                        console.log("Err copy points file ", err);
-                    }
-                    console.log("Copy Points file success! ", PointsPath);
-                    fs.unlink(payload.PointsPath);
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", row));
-                });
-            })
+            Object.assign(row, payload).save().then(() => {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", row));
+            }).catch(err => {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
+            });
         } else {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No selection point found"));
         }
@@ -57,9 +28,9 @@ function editSelectionPoint(payload, done, dbConnection) {
     });
 }
 
-function infoSelectionPoint(payload, done, dbConnection) {
-    let Model = dbConnection.SelectionPoint;
-    Model.findById(payload.idSelectionPoint).then(rs => {
+function infoSelectionTool(payload, done, dbConnection) {
+    let Model = dbConnection.SelectionTool;
+    Model.findById(payload.idSelectionTool).then(rs => {
         if (rs) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
         } else {
@@ -71,9 +42,9 @@ function infoSelectionPoint(payload, done, dbConnection) {
     });
 }
 
-function deleteSelectionPoint(payload, done, dbConnection) {
-    let Model = dbConnection.SelectionPoint;
-    Model.findById(payload.body.idSelectionPoint).then(rs => {
+function deleteSelectionTool(payload, done, dbConnection) {
+    let Model = dbConnection.SelectionTool;
+    Model.findById(payload.idSelectionTool).then(rs => {
         if (rs) {
             rs.destroy().then(() => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
@@ -83,29 +54,12 @@ function deleteSelectionPoint(payload, done, dbConnection) {
         }
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "err", err.message));
-    })
+    });
 }
-
-function getDataSelectionPoint(payload, callback, dbConnection) {
-    let Model = dbConnection.SelectionPoint;
-    Model.findById(payload.body.idSelectionPoint).then(row => {
-        if (row) {
-            let resultStreaming = hashDir.createJSONReadStream(config.curveBasePath, payload.decoded.username + row.Points, row.Points + ".txt", '{\n"code": 200,\n"content" : ', '\n}');
-            callback(resultStreaming);
-        } else {
-            callback("NO_ROW");
-        }
-    }).catch(err => {
-        console.log(err);
-        callback("ERR");
-    })
-}
-
 
 module.exports = {
-    createSelectionPoint: createSelectionPoint,
-    infoSelectionPoint: infoSelectionPoint,
-    deleteSelectionPoint: deleteSelectionPoint,
-    editSelectionPoint: editSelectionPoint,
-    getDataSelectionPoint: getDataSelectionPoint
-}
+    createSelectionTool: createSelectionTool,
+    infoSelectionTool: infoSelectionTool,
+    deleteSelectionTool: deleteSelectionTool,
+    editSelectionTool: editSelectionTool
+};
