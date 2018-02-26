@@ -2,6 +2,13 @@ let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
 let asyncEach = require('async/each');
 
+function genColor() {
+    let rand = function () {
+        return Math.floor(Math.random() * 255);
+    };
+    return "rgb(" + rand() + "," + rand() + "," + rand() + ")";
+}
+
 async function executeJob(data, cb, dbConnection) {
     try {
         let response = [];
@@ -38,7 +45,7 @@ async function executeJob(data, cb, dbConnection) {
                                         endDepth: parseFloat(well.depths[i + 1]),
                                         fill: JSON.stringify({
                                             "pattern": {
-                                                "background": "rgb(199,229,91)",
+                                                "background": genColor(),
                                                 "foreground": "white",
                                                 "name": "none"
                                             }

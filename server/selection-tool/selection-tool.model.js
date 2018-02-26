@@ -1,11 +1,11 @@
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
-var fs = require('fs-extra');
-var asyncLoop = require('async/each');
-var path = require('path');
-var wiImport = require('wi-import');
-var hashDir = wiImport.hashDir;
-var config = require('config');
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
+let fs = require('fs-extra');
+let asyncLoop = require('async/each');
+let path = require('path');
+let wiImport = require('wi-import');
+let hashDir = wiImport.hashDir;
+let config = require('config');
 
 function createSelectionPoint(payload, done, dbConnection) {
     let Model = dbConnection.SelectionPoint;
