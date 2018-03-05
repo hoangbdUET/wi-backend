@@ -6,6 +6,12 @@ let router = express.Router();
 let bodyParser = require('body-parser');
 router.use(bodyParser.json());
 
+router.post('/workflow-spec/list', function (req, res) {
+    workflowSpecModel.listWorkflowSpec(req.body, function (done) {
+        res.send(done);
+    }, req.dbConnection);
+});
+
 router.post('/workflow-spec/new', function (req, res) {
     req.body.content = req.body.content || "{}";
     workflowSpecModel.createWorkflowSpec(req.body, function (done) {

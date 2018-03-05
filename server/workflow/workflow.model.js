@@ -45,7 +45,7 @@ let deleteWorkflow = function (data, callback, dbConnection) {
     dbConnection.Workflow.findById(data.idWorkflow).then(w => {
         if (w) {
             w.destroy().then(() => {
-                callback(ErrorCodes.SUCCESS, "Successfull", w);
+                callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", w));
             });
         } else {
             callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No workflow found by id"));
@@ -55,9 +55,18 @@ let deleteWorkflow = function (data, callback, dbConnection) {
     });
 };
 
+let listWorkflow = function (data, callback, dbConnection) {
+    dbConnection.Workflow.findAll().then(w => {
+        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", w));
+    }).catch(err => {
+        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
+    });
+};
+
 module.exports = {
     createWorkflow: createWorkflow,
     editWorkflow: editWorkflow,
     infoWorkflow: infoWorkflow,
-    deleteWorkflow: deleteWorkflow
+    deleteWorkflow: deleteWorkflow,
+    listWorkflow: listWorkflow
 };

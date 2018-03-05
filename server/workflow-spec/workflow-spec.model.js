@@ -45,7 +45,7 @@ let deleteWorkflowSpec = function (data, callback, dbConnection) {
     dbConnection.WorkflowSpec.findById(data.idWorkflowSpec).then(w => {
         if (w) {
             w.destroy().then(() => {
-                callback(ErrorCodes.SUCCESS, "Successfull", w);
+                callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", w));
             });
         } else {
             callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No workflow spec found by id"));
@@ -55,9 +55,18 @@ let deleteWorkflowSpec = function (data, callback, dbConnection) {
     });
 };
 
+let listWorkflowSpec = function (data, callback, dbConnection) {
+    dbConnection.WorkflowSpec.findAll().then(w => {
+        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", w));
+    }).catch(err => {
+        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
+    });
+};
+
 module.exports = {
     createWorkflowSpec: createWorkflowSpec,
     editWorkflowSpec: editWorkflowSpec,
     infoWorkflowSpec: infoWorkflowSpec,
-    deleteWorkflowSpec: deleteWorkflowSpec
+    deleteWorkflowSpec: deleteWorkflowSpec,
+    listWorkflowSpec: listWorkflowSpec
 };
