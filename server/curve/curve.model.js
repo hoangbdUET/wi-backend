@@ -419,6 +419,7 @@ function getData(param, successFunc, errorFunc, dbConnection, username) {
                         Well.findById(dataset.idWell).then(well => {
                             if (well) {
                                 Project.findById(well.idProject).then(project => {
+                                    console.log("Hash : ", config.curveBasePath, username + project.name + well.name + dataset.name + curve.name + '.txt');
                                     hashDir.createJSONReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt', '{\n"code": 200,\n"content":', '}\n', function (err, stream) {
                                         if (err) {
                                             errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve Data Was Lost"));
