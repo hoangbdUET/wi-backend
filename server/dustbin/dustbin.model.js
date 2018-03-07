@@ -41,7 +41,7 @@ function getDustbin(payload, callback, dbConnection) {
                                 asyncEach(curves, function (curve, nextCurve) {
                                     if (curve.deletedAt) {
                                         let _curve = curve.toJSON();
-                                        _curve.name = _curve.name.substring(14);
+                                        // _curve.name = _curve.name.substring(14);
                                         Curves.push(_curve);
                                     }
                                     nextCurve();
