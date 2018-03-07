@@ -87,7 +87,8 @@ router.post('/curve/getData', function (req, res) {
 });
 
 function writeToTmpFile(data, callback) {
-    let tmpPath = path.join(__dirname, 'tmp.txt');
+    let name = Date.now();
+    let tmpPath = path.join(__dirname, name + '.txt');
     let text = new String();
     let count = 0;
     data.forEachDone(function (row) {
