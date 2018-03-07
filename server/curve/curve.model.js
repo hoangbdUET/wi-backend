@@ -542,6 +542,7 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
                         Well.findById(dataset.idWell, {paranoid: false}).then(well => {
                             if (well) {
                                 Project.findById(well.idProject, {paranoid: false}).then(project => {
+                                    console.log("Hash : ", config.curveBasePath, username + project.name + well.name + dataset.name + curve.name + '.txt');
                                     let inputStream = hashDir.createReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
                                     inputStream.on("error", function () {
                                         callback("Curve Data Was Lost", null);
