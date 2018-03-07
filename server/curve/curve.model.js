@@ -638,9 +638,13 @@ let processingCurve = function (req, done, dbConnection) {
                                 done(ResponseJSON(ErrorCodes.SUCCESS, "Success", curve));
                             });
                         }).catch(err => {
-                            console.log(err);
                             fs.unlink(filePath);
-                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error occurred!", err.message));
+                            if (err.name === "SequelizeUniqueConstraintError") {
+                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve name existed!"));
+                            } else {
+                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error occurred!", err.message));
+                            }
+
                         });
                     } else {
                         //overwrite curve
