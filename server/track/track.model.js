@@ -33,7 +33,7 @@ function _createNewTrack(trackInfo, done, dbConnection) {
 
 function createNewTrack(trackInfo, done, dbConnection) {
     dbConnection.Track.create(trackInfo).then(track => {
-        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Track success", track);
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Track success", track));
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Error while create new track", err));
     });
