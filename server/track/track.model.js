@@ -5,7 +5,7 @@ let asyncLoop = require('async/each');
 let asyncSeries = require('async/series');
 let path = require('path');
 
-function createNewTrack(trackInfo, done, dbConnection) {
+function _createNewTrack(trackInfo, done, dbConnection) {
     let Track = dbConnection.Track;
     Track.sync()
         .then(
@@ -29,6 +29,14 @@ function createNewTrack(trackInfo, done, dbConnection) {
                 done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
             }
         )
+}
+
+function createNewTrack(trackInfo, done, dbConnection) {
+    dbConnection.Track.create(trackInfo).then(track => {
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Track success", track);
+    }).catch(err => {
+        done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Error while create new track", err));
+    });
 }
 
 function editTrack(trackInfo, done, dbConnection) {
