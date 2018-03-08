@@ -44,7 +44,7 @@ function editCurve(curveInfo, done, dbConnection, username) {
     let Project = dbConnection.Project;
     Curve.findById(curveInfo.idCurve)
         .then(curve => {
-            if (curve.name != curveInfo.name) {
+            if (curve.name !== curveInfo.name) {
                 console.log(curve.name, "-", curveInfo.name);
                 Curve.findOne({
                     where: {
@@ -557,7 +557,7 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
                                     let arrY = [];
                                     lineReader.on('line', function (line) {
                                         let arrXY = line.split(/\s+/g).slice(1, 2);
-                                        if (arrXY[0] != 'null') {
+                                        if (arrXY[0] !== 'null') {
                                             arrY.push(arrXY[0]);
                                         }
                                     });
@@ -568,7 +568,7 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
                                         let max = parseFloat(arrY[0]);
                                         let sum = 0;
                                         arrY.forEach(function (element, i) {
-                                            if (element != 'null') {
+                                            if (element !== 'null') {
                                                 element = parseFloat(element);
                                                 sum += element;
                                                 if (element < min) min = element;
@@ -613,13 +613,13 @@ let processingCurve = function (req, done, dbConnection) {
     // console.log("=======", req.body.unit);
     let unit = req.body.unit ? req.body.unit : "US/F";
     // let unit = "US/F";
-    let idFamily = req.body.idFamily ? (req.body.idFamily == 'null' ? null : req.body.idFamily) : null;
+    let idFamily = req.body.idFamily ? (req.body.idFamily === 'null' ? null : req.body.idFamily) : null;
     let idDesCurve = req.body.idDesCurve;
     Dataset.findById(idDataset).then(dataset => {
         if (dataset) {
             Well.findById(dataset.idWell).then(well => {
                 Project.findById(well.idProject).then(project => {
-                    if (newCurveName && newCurveName != 'null') {
+                    if (newCurveName && newCurveName !== 'null') {
                         //create new curve
                         Curve.create({
                             name: newCurveName,
