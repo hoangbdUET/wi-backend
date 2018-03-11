@@ -1,5 +1,5 @@
 module.exports = function (sequelize, DataTypes) {
-    return sequelize.define('zoneset', {
+    return sequelize.define('zone_set', {
         idZoneSet: {
             type: DataTypes.INTEGER,
             allowNull: false,

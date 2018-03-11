@@ -1,5 +1,5 @@
 module.exports = function (sequelize, DataTypes) {
-    return sequelize.define('regressionline', {
+    return sequelize.define('regression_line', {
         idRegressionLine:{
             type:DataTypes.INTEGER,
             primaryKey:true,

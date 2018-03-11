@@ -98,7 +98,6 @@ function newDbInstance(dbName, callback) {
         'CombinedBoxTool',
         'CrossPlot',
         'Curve',
-        'CurveData',
         'Dataset',
         'DepthAxis',
         'Family',
@@ -127,7 +126,6 @@ function newDbInstance(dbName, callback) {
         'Track',
         'UserDefineLine',
         'Well',
-        'WellData',
         'WellHeader',
         'Workflow',
         'WorkflowSpec',
@@ -140,7 +138,7 @@ function newDbInstance(dbName, callback) {
     });
 
     (function (m) {
-        m.Project_Well = m.Project.hasMany(m.Well, {
+        m.Project.hasMany(m.Well, {
             foreignKey: {
                 name: "idProject",
                 allowNull: false,
@@ -168,14 +166,14 @@ function newDbInstance(dbName, callback) {
             }, onDelete: 'CASCADE'
         });
 
-        m.Well_Dataset = m.Well.hasMany(m.Dataset, {
+        m.Well.hasMany(m.Dataset, {
             foreignKey: {
                 name: "idWell",
                 allowNull: false,
                 unique: "name-idWell"
             }, onDelete: 'CASCADE', hooks: true
         });
-        m.Well_Plot = m.Well.hasMany(m.Plot, {
+        m.Well.hasMany(m.Plot, {
             foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
             onDelete: 'CASCADE'
         });
@@ -200,15 +198,15 @@ function newDbInstance(dbName, callback) {
             onDelete: 'CASCADE'
         });
 
-        m.Dataset_Curve = m.Dataset.hasMany(m.Curve, {
+        m.Dataset.hasMany(m.Curve, {
             foreignKey: {
                 name: "idDataset",
                 allowNull: false,
                 unique: "name-idDataset"
             }, onDelete: 'CASCADE', hooks: true
         });
-        m.Plot_Track = m.Plot.hasMany(m.Track, {foreignKey: {name: "idPlot", allowNull: false}, onDelete: 'CASCADE'});
-        m.Plot_DepthAxis = m.Plot.hasMany(m.DepthAxis, {
+        m.Plot.hasMany(m.Track, {foreignKey: {name: "idPlot", allowNull: false}, onDelete: 'CASCADE'});
+        m.Plot.hasMany(m.DepthAxis, {
             foreignKey: {name: "idPlot", allowNull: false},
             onDelete: 'CASCADE'
         });
@@ -340,7 +338,6 @@ function newDbInstance(dbName, callback) {
             foreignKey: {name: 'idWorkflowSpec', allowNull: true},
             onDelete: 'CASCADE'
         });
-
     })(object);
 
     object.sequelize = sequelize;

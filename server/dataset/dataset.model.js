@@ -22,6 +22,7 @@ function createNewDataset(datasetInfo, done, dbConnection) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Dataset success", {idDataset: dataset.idDataset}));
                     })
                     .catch(function (err) {
+                        console.log(err);
                         if (err.name === "SequelizeUniqueConstraintError") {
                             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Dataset name existed!"));
                         } else {
