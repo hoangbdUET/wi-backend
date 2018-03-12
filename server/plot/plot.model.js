@@ -220,7 +220,7 @@ let createNewPlot = function (plotInfo, done, dbConnection, username) {
                         //existed
                         if (isOverride) {
                             dbConnection.Plot.findById(rs[0].idPlot).then(delPlot => {
-                                delPlot.destroy().then(() => {
+                                delPlot.destroy({force: true}).then(() => {
                                     dbConnection.Plot.create(newPlot).then((p) => {
                                         done(ResponseJSON(ErrorCodes.SUCCESS, "Override plot success", p.toJSON()));
                                     }).catch(err => {
@@ -279,7 +279,7 @@ let createNewPlot = function (plotInfo, done, dbConnection, username) {
                         //existed
                         if (isOverride) {
                             dbConnection.Plot.findById(rs[0].idPlot).then(delPlot => {
-                                delPlot.destroy().then(() => {
+                                delPlot.destroy({force: true}).then(() => {
                                     dbConnection.Plot.create(newPlot).then((p) => {
                                         done(ResponseJSON(ErrorCodes.SUCCESS, "Override plot success", p.toJSON()));
                                     }).catch(err => {
