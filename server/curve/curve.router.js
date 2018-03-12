@@ -131,4 +131,10 @@ router.post('/curve/duplicate', function (req, res) {
     }, req.dbConnection, req.decoded.username);
 });
 
+router.post('/curve/is-existed', function (req, res) {
+    curveModel.checkCurveExisted(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection)
+});
+
 module.exports = router;

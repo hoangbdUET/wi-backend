@@ -816,6 +816,23 @@ function duplicateCurve(data, done, dbConnection, username) {
     });
 };
 
+function checkCurveExisted(payload, callback, dbConnection) {
+    dbConnection.Curve.findOne({
+        where: {
+            name: payload.name,
+            idDataset: payload.idDataset
+        }
+    }).then(c => {
+        if (c) {
+            callback(ResponseJSON(ErrorCodes.SUCCESS, "Found curve", c));
+        } else {
+            callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No curve found by name"));
+        }
+    }).catch(err => {
+        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+    })
+}
+
 module.exports = {
     createNewCurve: createNewCurve,
     editCurve: editCurve,
@@ -829,6 +846,7 @@ module.exports = {
     calculateScale: calculateScale,
     processingCurve: processingCurve,
     getCurveDataFromInventory: getCurveDataFromInventory,
-    duplicateCurve: duplicateCurve
+    duplicateCurve: duplicateCurve,
+    checkCurveExisted: checkCurveExisted
 };
 
