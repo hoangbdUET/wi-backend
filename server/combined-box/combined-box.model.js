@@ -9,7 +9,7 @@ function createNewCombinedBox(payload, done, dbConnection) {
     let idHistograms = payload.idHistograms || [];
     Model.create(payload).then(async rs => {
         await rs.setPlots(idPlots);
-        await rs.setCrossplots(idCrossplots);
+        await rs.setCross_plots(idCrossplots);
         await rs.setHistograms(idHistograms);
         await done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
     }).catch(err => {
@@ -81,7 +81,7 @@ function editCombinedBox(payload, done, dbConnection) {
             Object.assign(rs, newCb);
             rs.save().then(async () => {
                 await rs.setPlots(idPlots);
-                await rs.setCrossplots(idCrossplots);
+                await rs.setCross_plots(idCrossplots);
                 await rs.setHistograms(idHistograms);
                 await done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", newCb));
             }).catch(err => {
