@@ -265,6 +265,8 @@ function getCrossPlotInfo(crossPlot, done, dbConnection) {
             if (!crossPlot) throw "not exists";
             crossPlot = crossPlot.toJSON();
             crossPlot.pointsets = crossPlot.point_sets;
+            crossPlot.regressionLines = crossPlot.regression_lines;
+            delete crossPlot.regression_lines;
             delete crossPlot.point_sets;
             asyncSeries([
                 function (cb) {
