@@ -202,31 +202,44 @@ let createNewPlot = function (plotInfo, done, dbConnection, username) {
                     }
                 }, username);
             } else {
-                Plot.sync()
-                    .then(
-                        function () {
-                            const plot = Plot.build({
-                                idWell: plotInfo.idWell,
-                                name: plotInfo.name,
-                                referenceCurve: plotInfo.referenceCurve,
-                                option: plotInfo.option
+                let newPlot = {
+                    idWell: plotInfo.idWell,
+                    name: plotInfo.name,
+                    referenceCurve: plotInfo.referenceCurve,
+                    option: plotInfo.option
+                };
+                let isOverride = plotInfo.override || false;
+                dbConnection.Plot.findOrCreate({
+                    where: {name: plotInfo.name, idWell: plotInfo.idWell},
+                    defaults: newPlot
+                }).then(rs => {
+                    if (rs[1]) {
+                        //created new
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Plot success", rs[0]));
+                    } else {
+                        //existed
+                        if (isOverride) {
+                            dbConnection.Plot.findById(rs[0].idPlot).then(delPlot => {
+                                delPlot.destroy().then(() => {
+                                    dbConnection.Plot.create(newPlot).then((p) => {
+                                        done(ResponseJSON(ErrorCodes.SUCCESS, "Override plot success", p.toJSON()));
+                                    }).catch(err => {
+                                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
+                                    });
+                                })
                             });
-                            plot.save()
-                                .then(function (plot) {
-                                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Plot success", plot.toJSON()));
-                                })
-                                .catch(function (err) {
-                                    if (err.name === "SequelizeUniqueConstraintError") {
-                                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed!"));
-                                    } else {
-                                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
-                                    }
-                                })
-                        },
-                        function () {
-                            done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
+                        } else {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed!"));
                         }
-                    )
+                    }
+                }).catch(err => {
+                    console.log(err);
+                    if (err.name === "SequelizeUniqueConstraintError") {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed!"));
+                    } else {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    }
+                });
             }
         } else {
             plotInfo.referenceCurve = idRefCurve;
@@ -248,31 +261,44 @@ let createNewPlot = function (plotInfo, done, dbConnection, username) {
                     }
                 }, username);
             } else {
-                Plot.sync()
-                    .then(
-                        function () {
-                            const plot = Plot.build({
-                                idWell: plotInfo.idWell,
-                                name: plotInfo.name,
-                                referenceCurve: plotInfo.referenceCurve,
-                                option: plotInfo.option
-                            });
-                            plot.save()
-                                .then(function (plot) {
-                                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Plot success", plot.toJSON()));
+                let newPlot = {
+                    idWell: plotInfo.idWell,
+                    name: plotInfo.name,
+                    referenceCurve: plotInfo.referenceCurve,
+                    option: plotInfo.option
+                };
+                let isOverride = plotInfo.override || false;
+                dbConnection.Plot.findOrCreate({
+                    where: {name: plotInfo.name, idWell: plotInfo.idWell},
+                    defaults: newPlot
+                }).then(rs => {
+                    if (rs[1]) {
+                        //created new
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Plot success", rs[0]));
+                    } else {
+                        //existed
+                        if (isOverride) {
+                            dbConnection.Plot.findById(rs[0].idPlot).then(delPlot => {
+                                delPlot.destroy().then(() => {
+                                    dbConnection.Plot.create(newPlot).then((p) => {
+                                        done(ResponseJSON(ErrorCodes.SUCCESS, "Override plot success", p.toJSON()));
+                                    }).catch(err => {
+                                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
+                                    });
                                 })
-                                .catch(function (err) {
-                                    if (err.name === "SequelizeUniqueConstraintError") {
-                                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed!"));
-                                    } else {
-                                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
-                                    }
-                                });
-                        },
-                        function () {
-                            done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
+                            });
+                        } else {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed!"));
                         }
-                    )
+                    }
+                }).catch(err => {
+                    console.log(err);
+                    if (err.name === "SequelizeUniqueConstraintError") {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed!"));
+                    } else {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    }
+                });
             }
         }
     });
