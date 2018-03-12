@@ -826,7 +826,7 @@ function checkCurveExisted(payload, callback, dbConnection) {
         if (c) {
             callback(ResponseJSON(ErrorCodes.SUCCESS, "Found curve", c));
         } else {
-            callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No curve found by name"));
+            callback(ResponseJSON(ErrorCodes.SUCCESS, "No curve found by name"));
         }
     }).catch(err => {
         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
