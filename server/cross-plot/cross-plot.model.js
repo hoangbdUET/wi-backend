@@ -263,6 +263,9 @@ function getCrossPlotInfo(crossPlot, done, dbConnection) {
     CrossPlot.findById(crossPlot.idCrossPlot, {include: [{all: true, include: [{all: true}]}]})
         .then(function (crossPlot) {
             if (!crossPlot) throw "not exists";
+            crossPlot = crossPlot.toJSON();
+            crossPlot.pointsets = crossPlot.point_sets;
+            delete crossPlot.point_sets;
             asyncSeries([
                 function (cb) {
                     dbConnection.Curve.findById(crossPlot.pointsets[0].idCurveX).then(curve => {
@@ -312,7 +315,7 @@ function getCrossPlotInfo(crossPlot, done, dbConnection) {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Get info CrossPlot success", crossPlot));
             });
         })
-        .catch(function () {
+        .catch(function (e) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "CrossPlot not found for get info"));
         })
 }
@@ -335,7 +338,7 @@ function duplicateCrossplot(payload, done, dbConnection) {
                 let idCrossPlot = cr.idCrossPlot;
                 asyncSeries([
                         function (callback) {
-                            let newPointSet = newCrossPlot.pointsets[0];
+                            let newPointSet = newCrossPlot.point_sets[0];
                             delete newPointSet.idPointSet;
                             delete newPointSet.createdAt;
                             delete newPointSet.updatedAt;
