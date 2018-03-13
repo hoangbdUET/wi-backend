@@ -2,6 +2,9 @@
 
 let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
+let masterWorkflowSpec = require('../models-master').WorkflowSpec;
+let asyncLoop = require('async/each');
+let userModel = require('../models');
 
 let createWorkflowSpec = function (data, callback, dbConnection) {
     dbConnection.WorkflowSpec.create(data).then(w => {
@@ -71,10 +74,41 @@ let listWorkflowSpec = function (data, callback, dbConnection) {
     });
 };
 
+let syncWorkflowSpec = function (username, callback) {
+    let userDbConnection = userModel("wi_" + username, function (err) {
+        if (err) {
+            return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "ERROR", err));
+        }
+    });
+    userDbConnection.WorkflowSpec.destroy({where: {}}).then(() => {
+        masterWorkflowSpec.findAll().then(globalWorkflowSpecs => {
+            asyncLoop(globalWorkflowSpecs, function (globalWorkflowSpec, next) {
+                globalWorkflowSpec = globalWorkflowSpec.toJSON();
+                userDbConnection.WorkflowSpec.create(globalWorkflowSpec).then(() => {
+                    next();
+                }).catch(err => {
+                    console.log(err);
+                    next(err);
+                });
+            }, function (err) {
+                if (err) console.log(err);
+                callback(null, "DONE ALL GLOBAL WORKFLOW SPEC");
+            });
+        }).catch(err => {
+            console.log(err);
+            callback(err, null);
+        });
+    }).catch(err => {
+        console.log(err);
+        callback(err, null);
+    });
+};
+
 module.exports = {
     createWorkflowSpec: createWorkflowSpec,
     editWorkflowSpec: editWorkflowSpec,
     infoWorkflowSpec: infoWorkflowSpec,
     deleteWorkflowSpec: deleteWorkflowSpec,
-    listWorkflowSpec: listWorkflowSpec
+    listWorkflowSpec: listWorkflowSpec,
+    syncWorkflowSpec: syncWorkflowSpec
 };

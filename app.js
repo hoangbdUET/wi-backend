@@ -4,11 +4,14 @@
 let familyUpdate = require('./server/family/GlobalFamilyUpdater');
 let familyConditionUpdate = require('./server/family/GlobalFamilyConditionUpdater');
 let overlayLineUpdate = require('./server/overlay-line/overlay-line.update');
+let workflowSpecUpdate = require('./server/workflow-spec/workflow-spec.update');
 
 familyUpdate(function () {
     familyConditionUpdate(function () {
         overlayLineUpdate(function () {
-            main();
+            workflowSpecUpdate(function () {
+                main();
+            });
         });
     });
 });

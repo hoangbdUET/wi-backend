@@ -1,13 +1,13 @@
 XLSX = require('xlsx');
-var EventEmitter = require('events').EventEmitter;
-var OverlayLineModel = require('../models-master').OverlayLine;
+let EventEmitter = require('events').EventEmitter;
+let OverlayLineModel = require('../models-master').OverlayLine;
 
 function updateOverlayLine(workbook, sheetName, callback) {
-    var eventEmitter = new EventEmitter();
-    var worksheet = workbook.Sheets[sheetName];
-    var range = XLSX.utils.decode_range(worksheet['!ref']);
-    var rowCount = 0;
-    var totalRow = range.e.r - range.s.r;
+    let eventEmitter = new EventEmitter();
+    let worksheet = workbook.Sheets[sheetName];
+    let range = XLSX.utils.decode_range(worksheet['!ref']);
+    let rowCount = 0;
+    let totalRow = range.e.r - range.s.r;
 
     eventEmitter.on('row-done', function () {
         rowCount += 1;
@@ -16,7 +16,7 @@ function updateOverlayLine(workbook, sheetName, callback) {
         }
     });
 
-    for (var R = range.s.r + 1; R <= range.e.r; ++R) {
+    for (let R = range.s.r + 1; R <= range.e.r; ++R) {
         let aRow = buildData(R, worksheet);
         OverlayLineModel.create(aRow).then(rs => {
         }).catch(err => {
@@ -37,9 +37,9 @@ function buildData(row, sheet) {
 }
 
 function getValueAtCell(rowIndex, colIndex, sheet) {
-    var cellPositionObject = {r: rowIndex, c: colIndex};
-    var cellPositionString = XLSX.utils.encode_cell(cellPositionObject);
-    var cell = sheet[cellPositionString];
+    let cellPositionObject = {r: rowIndex, c: colIndex};
+    let cellPositionString = XLSX.utils.encode_cell(cellPositionObject);
+    let cell = sheet[cellPositionString];
     if (typeof cell === 'undefined') {
         return "";
     }

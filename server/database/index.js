@@ -10,6 +10,7 @@ let config = require("config").Database;
 let models = require("../models");
 let updateFamilyModel = require('../family/global.family.models');
 let updateOverlayLineModel = require('../overlay-line/overlay-line.model');
+let workflowSpecModel = require('../workflow-spec/workflow-spec.model');
 let jwt = require('jsonwebtoken');
 
 router.use(bodyParser.json());
@@ -44,13 +45,20 @@ router.post('/database/update', function (req, res) {
                     if (rs[0].warningStatus == 0) {
                         models(dbName).sequelize.sync().then(() => {
                             updateFamilyModel.syncFamilyData({username: dbName.substring(3).toLowerCase()}, function (result) {
-                                console.log("CREATED NEW DATABASE ", dbName);
                                 console.log("Successfull update family for user : ", dbName);
                                 updateOverlayLineModel.syncOverlayLine(dbName.substring(3).toLowerCase(), function (err, success) {
                                     if (err) {
                                         console.log(err);
                                     } else {
                                         console.log("Overlay line sync : ", success);
+                                        workflowSpecModel.syncWorkflowSpec(dbName.substring(3).toLowerCase(), function (error, successfull) {
+                                            if (error) {
+                                                console.log(error);
+                                            } else {
+                                                console.log("Workflow spec sync: DONE");
+                                                console.log("SUCCESSFULL CREATED NEW DATABASE ", dbName);
+                                            }
+                                        });
                                     }
                                 });
                                 res.send(ResponseJSON(ErrorCodes.SUCCESS, "Create database successful", {database: dbName}));

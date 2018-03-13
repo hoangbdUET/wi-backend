@@ -21,6 +21,7 @@ function syncOverlayLine(username, callback) {
             userDbConnection.OverlayLine.create(line).then(rs => {
                 next();
             }).catch(err => {
+                console.log(err);
                 next(err);
             });
         }, function (err) {
