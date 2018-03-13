@@ -51,7 +51,7 @@ async function importWell(well, token, callback, dbConnection, username) {
     }))[0];
     try {
         let _well = await getWellFromInventory({name: well.name}, token);
-        let topDepth = _well.well_headers.find(h => h.header === 'STRT').value;
+        let topDepth = _well.well_headers.find(h => h.header === 'TOP').value;
         let bottomDepth = _well.well_headers.find(h => h.header === 'STOP').value;
         let step = _well.well_headers.find(h => h.header === 'STEP').value;
         dbConnection.Well.create({
