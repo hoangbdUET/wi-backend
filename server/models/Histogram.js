@@ -153,6 +153,11 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 1
+        },
+        colorBy: {
+            type: DataTypes.STRING(15),
+            allowNull: false,
+            defaultValue: 'zone'
         }
     }, {
         paranoid: true

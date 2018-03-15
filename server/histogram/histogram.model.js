@@ -57,7 +57,8 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
                 referenceBottomDepth: histogramInfo.referenceBottomDepth,
                 intervalDepthTop: histogramInfo.referenceTopDepth,
                 intervalDepthBottom: histogramInfo.referenceBottomDepth,
-                loga: loga
+                loga: loga,
+                colorBy: histogramInfo.colorBy
             }).then(histogram => {
                 // let idHistogram = histogram.idHistogram;
                 asyncLoop(myData.families, function (family, next) {
