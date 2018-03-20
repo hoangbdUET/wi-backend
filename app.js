@@ -6,6 +6,20 @@ let familyConditionUpdate = require('./server/family/GlobalFamilyConditionUpdate
 let overlayLineUpdate = require('./server/overlay-line/overlay-line.update');
 let workflowSpecUpdate = require('./server/workflow-spec/workflow-spec.update');
 
+Object.defineProperty(Array.prototype, "forEachDone", {
+    enumerable: false,
+    value: function (task, cb) {
+        let obj = this;
+        let counter = 0;
+        Object.keys(obj).forEach(function (key, index, array) {
+            task(obj[key], key, obj);
+            if (array.length === ++counter) {
+                if (cb) cb();
+            }
+        });
+    }
+});
+
 familyUpdate(function () {
     familyConditionUpdate(function () {
         overlayLineUpdate(function () {

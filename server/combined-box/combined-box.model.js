@@ -1,6 +1,8 @@
 "use strict";
 let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
+let selectionModel = require('../selection-tool/selection-tool.model');
+let async = require('async');
 
 function createNewCombinedBox(payload, done, dbConnection) {
     let Model = dbConnection.CombinedBox;
@@ -21,7 +23,7 @@ function createNewCombinedBox(payload, done, dbConnection) {
     });
 }
 
-function infoCombinedBox(payload, done, dbConnection) {
+function infoCombinedBox(payload, done, dbConnection, username) {
     let Model = dbConnection.CombinedBox;
     Model.findById(payload.idCombinedBox, {
         include: [{
@@ -37,7 +39,15 @@ function infoCombinedBox(payload, done, dbConnection) {
         }]
     }).then(rs => {
         if (rs) {
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
+            rs = rs.toJSON();
+            async.each(rs.selection_tools, function (selectionTool, next) {
+                selectionModel.infoSelectionTool(selectionTool, function (status) {
+                    selectionTool.data = status.content.data;
+                    next();
+                }, dbConnection, username);
+            }, function () {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
+            });
         } else {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No row found by id"));
         }

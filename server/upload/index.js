@@ -408,20 +408,6 @@ router.post('/files/prepare', upload.array('file'), (req, res) => {
     }
 });
 
-Object.defineProperty(Array.prototype, "forEachDone", {
-    enumerable: false,
-    value: function (task, cb) {
-        var obj = this;
-        var counter = 0;
-        Object.keys(obj).forEach(function (key, index, array) {
-            task(obj[key], key, obj);
-            if (array.length === ++counter) {
-                if (cb) cb();
-            }
-        });
-    }
-});
-
 router.post('/files', upload.array('file'), (req, res) => {
     if (req.files.length > 0) {
         //console.log("Files uploaded : " + req.files.length);
