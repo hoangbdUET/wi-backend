@@ -820,7 +820,8 @@ function checkCurveExisted(payload, callback, dbConnection) {
     dbConnection.Curve.findOne({
         where: {
             name: payload.name,
-            idDataset: payload.idDataset
+            idDataset: payload.idDataset,
+            deletedAt: null
         }
     }).then(c => {
         if (c) {
