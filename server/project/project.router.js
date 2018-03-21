@@ -3,6 +3,7 @@ let projectModel = require('./project.model');
 let router = express.Router();
 let bodyParser = require('body-parser');
 let Project = require('../models').Project;
+let shareProject = require('./project.share');
 
 router.use(bodyParser.json());
 router.registerHooks = function (io) {
@@ -43,6 +44,10 @@ router.delete('/project/delete', function (req, res) {
         res.send(status);
     }, req.dbConnection)
 });
-
+router.post('/project/share', function (req, res) {
+    shareProject(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection, req.decoded.username)
+});
 
 module.exports = router;
