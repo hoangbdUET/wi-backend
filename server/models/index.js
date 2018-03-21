@@ -383,7 +383,11 @@ function newDbInstance(dbName, callback) {
         Dataset.findById(curve.idDataset, {paranoid: false}).then(dataset => {
             Well.findById(dataset.idWell, {paranoid: false}).then(well => {
                 Project.findById(well.idProject).then(project => {
-                    hashDir.deleteFolder(configCommon.curveBasePath, username + project.name + well.name + dataset.name + curve.name);
+                    if (curve.deletedAt) {
+                        hashDir.deleteFolder(configCommon.curveBasePath, username + project.name + well.name + dataset.name + curve.name.substring(14));
+                    } else {
+                        hashDir.deleteFolder(configCommon.curveBasePath, username + project.name + well.name + dataset.name + curve.name);
+                    }
                 });
             });
         }).catch(err => {

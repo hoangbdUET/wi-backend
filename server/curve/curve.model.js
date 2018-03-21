@@ -365,6 +365,11 @@ function deleteCurve(curveInfo, done, dbConnection, username) {
                         console.log("No dataset");
                     } else {
                         /*hashDir.createJSONReadStream(config.curveBasePath, dataset.name + curve.name, curve.name + '.txt');*/
+                        let time = Date.now();
+                        curve.name = '$' + time + curve.name;
+                        curve.save().catch(err => {
+                            console.log(err);
+                        });
                         curve.destroy({hooks: false})
                             .then(() => {
                                 dbConnection.Line.findAll({where: {idCurve: curve.idCurve}}).then(lines => {
@@ -543,7 +548,12 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
                             if (well) {
                                 Project.findById(well.idProject, {paranoid: false}).then(project => {
                                     console.log("Hash : ", config.curveBasePath, username + project.name + well.name + dataset.name + curve.name + '.txt');
-                                    let inputStream = hashDir.createReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+                                    let inputStream;
+                                    if (curve.deletedAt) {
+                                        inputStream = hashDir.createReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name.substring(14), curve.name.substring(14) + '.txt');
+                                    } else {
+                                        inputStream = hashDir.createReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+                                    }
                                     inputStream.on("error", function () {
                                         callback("Curve Data Was Lost", null);
                                     });

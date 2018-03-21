@@ -41,7 +41,7 @@ function getDustbin(payload, callback, dbConnection) {
                                 asyncEach(curves, function (curve, nextCurve) {
                                     if (curve.deletedAt) {
                                         let _curve = curve.toJSON();
-                                        // _curve.name = _curve.name.substring(14);
+                                        _curve.name = _curve.name.substring(14);
                                         Curves.push(_curve);
                                     }
                                     nextCurve();
@@ -459,6 +459,7 @@ function restoreObject(payload, callback, dbConnection) {
             Curve.findById(payload.idObject, {
                 paranoid: false
             }).then(rs => {
+                rs.name = rs.name.substring(14);
                 rs.save().then(r => {
                     rs.restore().then(() => {
                         dbConnection.Line.findAll({where: {idCurve: rs.idCurve}, paranoid: false}).then(lines => {
