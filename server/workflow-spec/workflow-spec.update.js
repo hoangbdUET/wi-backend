@@ -217,8 +217,8 @@ let wfs = [
         }
     },
     {
-        name: "CURVE_PREDICTION",
-        description: "CURVE_PREDICTION",
+        name: "[ML] Curve Prediction",
+        description: "[ML] Curve Prediction",
         content: {
             'name': 'CURVE_PREDICTION',
             'model': {
@@ -239,8 +239,8 @@ let wfs = [
         }
     },
     {
-        name: "PERM_DUAL_MODEL",
-        description: "PERM_DUAL_MODEL",
+        name: "[ML] Perm Dual Model",
+        description: "[ML] Perm Dual Model",
         content: {
             'name': 'PERM_DUAL_MODEL',
             'model': {
@@ -258,8 +258,8 @@ let wfs = [
         }
     },
     {
-        name: "FACIES_SINGLE_MODEL",
-        description: "FACIES_SINGLE_MODEL",
+        name: "[ML] Facies Single Model",
+        description: "[ML] Facies Single Model",
         content: {
             'name': 'FACIES_SINGLE_MODEL',
             'model': {
