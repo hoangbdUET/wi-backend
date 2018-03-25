@@ -279,10 +279,11 @@ let createShading = function (shadingInfo, dbConnection, callback) {
         idTrack: shadingInfo.idTrack,
         idLeftLine: shadingInfo.idLeftLine,
         idRightLine: shadingInfo.idRightLine,
-        idControlCurve: null
+        idControlCurve: shadingInfo.idControlCurve
     }).then(shading => {
         callback(shading.idShading);
     }).catch(err => {
+        console.log(err);
         callback(null);
     });
 }
@@ -305,6 +306,8 @@ let importTrackTemplate = async function (req, done, dbConnection) {
         } else {
             let myTrack = JSON.parse(data);
             myTrack.idPlot = req.body.idPlot;
+            //fix tam controlcurve
+            let idControlCurve = null;
             createTrack(myTrack, dbConnection, function (idTrack) {
                 if (idTrack) {
                     asyncLoop(myTrack.lines, function (line, next) {
@@ -319,6 +322,7 @@ let importTrackTemplate = async function (req, done, dbConnection) {
                                 console.log("FOUND CURVE : ", idCurve);
                                 line.idCurve = idCurve;
                                 line.idTrack = idTrack;
+                                idControlCurve = idCurve;
                                 createLine(line, dbConnection, function (idLine) {
                                     if (line) {
                                         console.log("DONE LINE ", idLine);
@@ -335,6 +339,7 @@ let importTrackTemplate = async function (req, done, dbConnection) {
                         console.log("ALL LINE DONE");
                         asyncLoop(myTrack.shadings, function (shading, next) {
                             if (!shading) shading = {};
+                            shading.idControlCurve = idControlCurve;
                             shading.idTrack = idTrack;
                             findLine({
                                 idTrack: idTrack,
