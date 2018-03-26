@@ -78,10 +78,14 @@ let listWorkflow = function (data, callback, dbConnection) {
         async.each(w, function (wf, next) {
             wf = wf.toJSON();
             dbConnection.WorkflowSpec.findById(wf.idWorkflowSpec).then(ws => {
-                wf.workflowSpec = {
-                    name: ws.name,
-                    idWorkflowSpec: ws.idWorkflowSpec
-                };
+                if (ws) {
+                    wf.workflowSpec = {
+                        name: ws.name,
+                        idWorkflowSpec: ws.idWorkflowSpec
+                    };
+                } else {
+                    wf.workflowSpec = null;
+                }
                 delete wf.idWorkflowSpec;
                 res.push(wf);
                 next();
