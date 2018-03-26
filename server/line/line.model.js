@@ -139,6 +139,7 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                     .then(function (curve) {
                         curve.getLineProperty()
                             .then(function (family) {
+				console.log("====idF ",family.idFamily);
                                 dbConnection.Family.findById(family.idFamily, {
                                     include: {
                                         model: dbConnection.FamilySpec,
@@ -146,6 +147,7 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                                         where: {isDefault: true}
                                     }
                                 }).then(familyInfo => {
+				    console.log("+++",familyInfo);
                                     Line.build({
                                         idTrack: lineInfo.idTrack,
                                         idCurve: curve.idCurve,
@@ -167,10 +169,12 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                                             done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", line));
                                         })
                                         .catch(function (err) {
-                                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name + " idTrack not exist"));
+						console.log(err);
+                                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
                                         });
                                 }).catch(err => {
-                                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name + " idTrack not exist"));
+				console.log(err);
+                                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name + " idTrack not exist",err));
                                 });
                             })
                             .catch(function (err) {

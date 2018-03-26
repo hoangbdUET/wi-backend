@@ -619,7 +619,7 @@ let processingCurve = function (req, done, dbConnection) {
     let PointSet = dbConnection.PointSet;
     let idDataset = req.body.idDataset;
     let filePath = req.tmpPath;
-    let newCurveName = req.body.curveName;
+    let newCurveName = req.body.curveName ? req.body.curveName.toUpperCase() : null;
     // console.log("=======", req.body.unit);
     let unit = req.body.unit ? req.body.unit : "US/F";
     // let unit = "US/F";
@@ -829,7 +829,7 @@ function duplicateCurve(data, done, dbConnection, username) {
 function checkCurveExisted(payload, callback, dbConnection) {
     dbConnection.Curve.findOne({
         where: {
-            name: payload.name,
+            name: payload.name.toUpperCase(),
             idDataset: payload.idDataset,
             deletedAt: null
         }

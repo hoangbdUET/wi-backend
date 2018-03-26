@@ -2,6 +2,7 @@
 
 let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
+let async = require('async');
 
 let createWorkflow = function (data, callback, dbConnection) {
     dbConnection.Workflow.create(data).then(w => {
@@ -72,8 +73,24 @@ let deleteWorkflow = function (data, callback, dbConnection) {
 };
 
 let listWorkflow = function (data, callback, dbConnection) {
+    let res = [];
     dbConnection.Workflow.findAll().then(w => {
-        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", w));
+        async.each(w, function (wf, next) {
+            wf = wf.toJSON();
+            dbConnection.WorkflowSpec.findById(wf.idWorkflowSpec).then(ws => {
+                wf.workflowSpec = {
+                    name: ws.name,
+                    idWorkflowSpec: ws.idWorkflowSpec
+                };
+                delete wf.idWorkflowSpec;
+                res.push(wf);
+                next();
+            });
+        }, function () {
+            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", res));
+        });
+
+
     }).catch(err => {
         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
     });

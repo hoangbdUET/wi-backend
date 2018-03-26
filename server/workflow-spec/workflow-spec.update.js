@@ -215,6 +215,66 @@ let wfs = [
                 }
             ]
         }
+    },
+    {
+        name: "[ML] Curve Prediction",
+        description: "[ML] Curve Prediction",
+        content: {
+            'name': 'CURVE_PREDICTION',
+            'model': {
+                'type': 'curve',
+                'inputs': [{class: 'curve input'}, {class: 'curve input'}, {class: 'curve output'}]
+            },
+            'steps': [
+                {
+                    'name': 'Train'
+                },
+                {
+                    'name': 'Verify'
+                },
+                {
+                    'name': 'Predict'
+                }
+            ]
+        }
+    },
+    {
+        name: "[ML] Perm Dual Model",
+        description: "[ML] Perm Dual Model",
+        content: {
+            'name': 'PERM_DUAL_MODEL',
+            'model': {
+                'type': 'anfis',
+                'inputs': [{class: 'GR'}, {class: 'NPHI'}, {class: 'RHOB'}, {class: 'DT'}, {class: 'VCL'}, {class: 'PHIE'}, {class: 'PERM_CORE'}]
+            },
+            'steps': [
+                {
+                    'name': 'Verify'
+                },
+                {
+                    'name': 'Predict'
+                }
+            ]
+        }
+    },
+    {
+        name: "[ML] Facies Single Model",
+        description: "[ML] Facies Single Model",
+        content: {
+            'name': 'FACIES_SINGLE_MODEL',
+            'model': {
+                'type': 'facies',
+                'inputs': [{class: 'MD'}, {class: 'TVDSS'}, {class: 'GR'}, {class: 'NPHI'}, {class: 'RHOZ'}, {class: 'DT'}, {class: 'VCL'}, {class: 'PHIE'}, {class: 'DELTAIC_FACIES'}]
+            },
+            'steps': [
+                {
+                    'name': 'Verify'
+                },
+                {
+                    'name': 'Predict'
+                }
+            ]
+        }
     }
 ];
 module.exports = function (callback) {
