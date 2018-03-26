@@ -331,6 +331,9 @@ function newDbInstance(dbName, callback) {
         //     foreignKey: {name: 'idProject', allowNull: false},
         //     onDelete: 'CASCADE'
         // });
+        m.Project.hasMany(m.Workflow, {
+            foreignKey: {name: 'idProject', allowNull: false}
+        });
         m.Plot.hasOne(m.Workflow, {
             foreignKey: {name: 'idPlot', allowNull: true}
         });

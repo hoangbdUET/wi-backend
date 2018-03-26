@@ -78,7 +78,7 @@ let deleteWorkflow = function (data, callback, dbConnection) {
 
 let listWorkflow = function (data, callback, dbConnection) {
     let res = [];
-    dbConnection.Workflow.findAll().then(w => {
+    dbConnection.Workflow.findAll({where: {idProject: data.idProject}}).then(w => {
         async.each(w, function (wf, next) {
             wf = wf.toJSON();
             dbConnection.WorkflowSpec.findById(wf.idWorkflowSpec).then(ws => {
