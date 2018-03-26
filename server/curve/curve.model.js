@@ -619,7 +619,7 @@ let processingCurve = function (req, done, dbConnection) {
     let PointSet = dbConnection.PointSet;
     let idDataset = req.body.idDataset;
     let filePath = req.tmpPath;
-    let newCurveName = req.body.curveName.toUpperCase();
+    let newCurveName = req.body.curveName ? req.body.curveName.toUpperCase() : null;
     // console.log("=======", req.body.unit);
     let unit = req.body.unit ? req.body.unit : "US/F";
     // let unit = "US/F";
