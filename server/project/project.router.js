@@ -14,7 +14,7 @@ router.registerHooks = function (io) {
 router.post('/project/list', function (req, res) {
     projectModel.getProjectList(req.body, function (status) {
         res.send(status);
-    }, req.dbConnection);
+    }, req.dbConnection, req.decoded.username, req.decoded.realUser, req.token);
 });
 router.post('/project/info', function (req, res) {
     projectModel.getProjectInfo(req.body, function (status) {
@@ -24,7 +24,7 @@ router.post('/project/info', function (req, res) {
 router.post('/project/fullinfo', function (req, res) {
     projectModel.getProjectFullInfo(req.body, function (status) {
         res.send(status);
-    }, req.dbConnection)
+    }, req)
 });
 router.post('/project/new', function (req, res) {
     // res.send("Show Create New Project Form");

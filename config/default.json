@@ -13,7 +13,8 @@
     "port": 3000
   },
   "Service": {
-    "inventory": "inv.sflow.me"
+    "inventory": "inv.sflow.me",
+    "authenticate": "login.sflow.me"
   },
   "curveBasePath": "../data",
   "imageBasePath": "wi-images"

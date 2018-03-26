@@ -2,6 +2,10 @@ let ErrorCodes = require('../../error-codes').CODES;
 const ResponseJSON = require('../response');
 let asyncLoop = require('async/each');
 let asyncSeries = require('async/parallel');
+let request = require('request');
+let config = require('config');
+let models = require('../models');
+let openProject = require('../authenticate/opening-project');
 
 function createNewProject(projectInfo, done, dbConnection) {
     let Project = dbConnection.Project;
@@ -64,12 +68,66 @@ function getProjectInfo(project, done, dbConnection) {
         });
 }
 
-function getProjectList(owner, done, dbConnection) {
+function getSharedProject(token, username) {
+    return new Promise(function (resolve, reject) {
+        let options = {
+            method: 'POST',
+            url: 'http://' + config.Service.authenticate + '/shared-project/list',
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            },
+            body: {username: username},
+            json: true
+        };
+        request(options, function (error, response, body) {
+            if (error) {
+                console.log(error);
+                resolve([]);
+            } else {
+                resolve(body.content);
+            }
+        });
+    });
+}
+
+async function getProjectList(owner, done, dbConnection, username, realUser, token) {
+    dbConnection = models('wi_' + realUser);
+    let response = [];
+    let projectList = await getSharedProject(token, realUser);
     let Project = dbConnection.Project;
-    Project.all()
-        .then(function (projects) {
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Get List Project success", projects));
-        }).catch(err => {
+    Project.all().then(function (projects) {
+        asyncLoop(projects, function (project, next) {
+            project = project.toJSON();
+            project.displayName = project.name;
+            response.push(project);
+            next();
+        }, function () {
+            if (projectList.length > 0) {
+                asyncLoop(projectList, function (prj, next) {
+                    let shareDbConnection = models('wi_' + prj.owner);
+                    shareDbConnection.Project.findOne({where: {name: prj.name}}).then(p => {
+                        if (!p) {
+                            next();
+                        } else {
+                            p = p.toJSON();
+                            p.displayName = p.name + '   || ' + prj.owner + ' || ' + prj.group;
+                            p.shared = true;
+                            p.owner = prj.owner;
+                            response.push(p);
+                            next();
+                        }
+                    });
+                }, function () {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Get List Project success", response));
+                });
+            } else {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Get List Project success", response));
+            }
+        });
+
+    }).catch(err => {
         console.log(err);
         done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "NO_DATABASE"));
     });
@@ -93,7 +151,15 @@ function deleteProject(projectInfo, done, dbConnection) {
         });
 }
 
-async function getProjectFullInfo(payload, done, dbConnection) {
+async function getProjectFullInfo(payload, done, req) {
+    if (payload.shared && payload.shared.toString() === 'true') {
+        await openProject.addRow({username: req.decoded.realUser, project: payload.name, owner: payload.owner});
+        req.dbConnection = models('wi_' + payload.owner.toLowerCase());
+    } else {
+        await openProject.removeRow({username: req.decoded.realUser});
+        req.dbConnection = models(('wi_' + req.decoded.realUser));
+    }
+    let dbConnection = req.dbConnection;
     let project = await dbConnection.Project.findById(payload.idProject);
     let response = project.toJSON();
     let wells = await dbConnection.Well.findAll({where: {idProject: project.idProject}});

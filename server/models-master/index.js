@@ -1,5 +1,5 @@
-var Sequelize = require('sequelize');
-var config = require('config').Database;
+let Sequelize = require('sequelize');
+let config = require('config').Database;
 
 
 const sequelize = new Sequelize(config.dbName, config.user, config.password, {
@@ -21,12 +21,13 @@ sequelize.sync()
     .catch(function (err) {
         console.log(err);
     });
-var models = [
+let models = [
     'Family',
     'FamilyCondition',
     'OverlayLine',
     'FamilySpec',
-    'WorkflowSpec'
+    'WorkflowSpec',
+    'OpenSharedProject'
 ];
 models.forEach(function (model) {
     module.exports[model] = sequelize.import(__dirname + '/' + model);
