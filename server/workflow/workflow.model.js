@@ -5,15 +5,19 @@ let ErrorCodes = require('../../error-codes').CODES;
 let async = require('async');
 
 let createWorkflow = function (data, callback, dbConnection) {
-    dbConnection.Workflow.create(data).then(w => {
-        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", w));
-    }).catch(err => {
-        if (err.name === "SequelizeUniqueConstraintError") {
-            callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Workflow name existed!"));
-        } else {
-            callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
-        }
-    });
+    if (!data.idWorkflowSpec) {
+        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "idWorkflowSpec can not be null", "idWorkflowSpec can not be null"));
+    } else {
+        dbConnection.Workflow.create(data).then(w => {
+            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", w));
+        }).catch(err => {
+            if (err.name === "SequelizeUniqueConstraintError") {
+                callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Workflow name existed!"));
+            } else {
+                callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+            }
+        });
+    }
 };
 
 let editWorkflow = function (data, callback, dbConnection) {
