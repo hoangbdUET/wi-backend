@@ -43,6 +43,7 @@ function main() {
     const cors = require('cors');
     let fullConfig = require('config');
     let config = fullConfig.Application;
+    let queue = require('express-queue');
 
     let projectRouter = require('./server/project/project.router');
     let wellRouter = require('./server/well/well.router');
@@ -92,6 +93,7 @@ function main() {
     let combinedBoxRouter = require('./server/combined-box/combined-box.router');
     let http = require('http').Server(app);
     app.use(cors());
+    // app.use(queue({activeLimit: 2, queuedLimit: 2}));
     /**
      Attach all routers to app
      */
@@ -106,6 +108,7 @@ function main() {
     authenticate = require('./server/authenticate/authenticate');
     app.use(authenticate());
     // app.use('/', testRouter);
+    app.use('/project/well/dataset/curve', queue({activeLimit: 2, queuedLimit: -1}));
     app.use('/', inventoryRouter);
     app.use('/', uploadRouter);
     app.use('/', projectRouter);
