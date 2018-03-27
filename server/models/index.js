@@ -346,6 +346,8 @@ function newDbInstance(dbName, callback) {
 
     object.sequelize = sequelize;
     //Register hook
+    let Family = object.Family;
+    let FamilySpec = object.FamilySpec;
     let FamilyCondition = object.FamilyCondition;
     let Dataset = object.Dataset;
     let Well = object.Well;
@@ -381,6 +383,13 @@ function newDbInstance(dbName, callback) {
                             })
                     })
             })(curve.name, curve.unit);
+        } else {
+            Family.findById(curve.idFamily, {include: {model: FamilySpec, as: 'family_spec'}}).then(family => {
+                curve.unit = family.family_spec[0].unit;
+                curve.save();
+            }).catch(err => {
+                console.log("err while update curve unit ", err);
+            });
         }
     });
     Curve.hook('beforeDestroy', function (curve, options) {
