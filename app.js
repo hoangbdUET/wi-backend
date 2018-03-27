@@ -87,7 +87,7 @@ function main() {
     let axisColorRouter = require('./server/cross-plot/axis-color-template/index');
     let dustbinRouter = require('./server/dustbin/dustbin.router');
     let selectionToolRouter = require('./server/selection-tool/selection-tool.router');
-    let testRouter = require('./test.js');
+    // let testRouter = require('./test.js');
     let combinedBoxToolRouter = require('./server/combined-box-tool/combined-box-tool.router');
     let combinedBoxRouter = require('./server/combined-box/combined-box.router');
     let http = require('http').Server(app);
@@ -105,7 +105,7 @@ function main() {
     app.use('/', databaseRouter);
     authenticate = require('./server/authenticate/authenticate');
     app.use(authenticate());
-    app.use('/', testRouter);
+    // app.use('/', testRouter);
     app.use('/', inventoryRouter);
     app.use('/', uploadRouter);
     app.use('/', projectRouter);
