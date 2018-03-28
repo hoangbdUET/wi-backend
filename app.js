@@ -5,6 +5,7 @@ let familyUpdate = require('./server/family/GlobalFamilyUpdater');
 let familyConditionUpdate = require('./server/family/GlobalFamilyConditionUpdater');
 let overlayLineUpdate = require('./server/overlay-line/overlay-line.update');
 let workflowSpecUpdate = require('./server/workflow-spec/workflow-spec.update');
+const QUEUE_TIME = 500;
 
 Object.defineProperty(Array.prototype, "forEachDone", {
     enumerable: false,
@@ -43,7 +44,6 @@ function main() {
     const cors = require('cors');
     let fullConfig = require('config');
     let config = fullConfig.Application;
-    let queue = require('express-queue');
 
     let projectRouter = require('./server/project/project.router');
     let wellRouter = require('./server/well/well.router');
@@ -91,6 +91,8 @@ function main() {
     // let testRouter = require('./test.js');
     let combinedBoxToolRouter = require('./server/combined-box-tool/combined-box-tool.router');
     let combinedBoxRouter = require('./server/combined-box/combined-box.router');
+    let asyncQueue = require('async/queue');
+    let queue = {};
     let http = require('http').Server(app);
     app.use(cors());
     // app.use(queue({activeLimit: 2, queuedLimit: 2}));
@@ -108,7 +110,6 @@ function main() {
     authenticate = require('./server/authenticate/authenticate');
     app.use(authenticate());
     // app.use('/', testRouter);
-    app.use('/project/well/dataset/curve', queue({activeLimit: 2, queuedLimit: -1}));
     app.use('/', inventoryRouter);
     app.use('/', uploadRouter);
     app.use('/', projectRouter);
@@ -128,6 +129,20 @@ function main() {
     app.use('/project/well', crossPlotRouter);
     app.use('/project/well', referenceCurveRouter);
     app.use('/project/well', combinedBoxRouter);
+    //middleware for all curve router to block spam request
+    app.use('/project/well/dataset/curve', function (req, res, next) {
+        if (!queue[req.decoded.username]) {
+            queue[req.decoded.username] = asyncQueue(function (next, cb) {
+                setTimeout(function () {
+                    next();
+                    cb();
+                }, QUEUE_TIME);
+            }, 6);
+        }
+        queue[req.decoded.username].push(next, function () {
+            // console.log("Push to queue");
+        });
+    });
     app.use('/project/well/combined-box', selectionToolRouter);
     app.use('/project/well/combined-box', combinedBoxToolRouter);
     app.use('/project/well/plot', imageTrackRouter);
