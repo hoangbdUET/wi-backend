@@ -264,7 +264,7 @@ let wfs = [
             'name': 'FACIES_SINGLE_MODEL',
             'model': {
                 'type': 'facies',
-                'inputs': [{class: 'MD'}, {class: 'TVDSS'}, {class: 'GR'}, {class: 'NPHI'}, {class: 'RHOZ'}, {class: 'DT'}, {class: 'VCL'}, {class: 'PHIE'}, {class: 'DELTAIC_FACIES'}]
+                'inputs': [{class: 'GR'}, {class: 'NPHI'}, {class: 'RHOZ'}, {class: 'DT'}, {class: 'VCL'}, {class: 'PHIE'}, {class: 'DELTAIC_FACIES'}]
             },
             'steps': [
                 {

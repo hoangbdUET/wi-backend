@@ -70,7 +70,7 @@ package-lock.json
 data/*
 wi-images/*
 config/production.json
-
+test.js
 #yarn
 yarn.lock
 /server/ternary/data/
