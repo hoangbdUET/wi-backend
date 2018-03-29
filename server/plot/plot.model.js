@@ -642,9 +642,10 @@ let exportData = function (payload, done, error, dbConnection) {
                                 delete shading.createdAt;
                                 delete shading.updatedAt;
                                 delete shading.idTrack;
+				//console.log(shading);
                                 asyncSeries([
                                     function (cb) {
-                                        if (shading.idLeftLine) {
+                                        if (shading.idLeftLine && shading.leftLine) {
                                             shading.leftLine = shading.leftLine.alias;
                                             cb();
                                         } else {
@@ -653,7 +654,7 @@ let exportData = function (payload, done, error, dbConnection) {
                                         }
                                     },
                                     function (cb) {
-                                        if (shading.idRightLine) {
+                                        if (shading.idRightLine && shading.rightLine) {
                                             shading.rightLine = shading.rightLine.alias;
                                             cb();
                                         } else {
