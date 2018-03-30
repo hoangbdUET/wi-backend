@@ -161,6 +161,7 @@ async function getProjectFullInfo(payload, done, req) {
     }
     let dbConnection = req.dbConnection;
     let project = await dbConnection.Project.findById(payload.idProject);
+    if (!project) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Project not found"));
     let response = project.toJSON();
     let wells = await dbConnection.Well.findAll({where: {idProject: project.idProject}});
     let groups = await dbConnection.Groups.findAll({where: {idProject: project.idProject}});
