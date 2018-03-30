@@ -111,7 +111,7 @@ function getDustbin(payload, callback, dbConnection) {
                     });
                 }
             ], function () {
-                dbConnection.Plot.findAll({where: {idWell: well.idWell}, paranoid: false}).then(plots => {
+                dbConnection.Plot.findAll({where: {idProject: payload.idProject}, paranoid: false}).then(plots => {
                     asyncEach(plots, function (plot, nextPlot) {
                         if (plot.deletedAt) {
                             let _plot = plot.toJSON();
