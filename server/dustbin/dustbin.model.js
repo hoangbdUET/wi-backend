@@ -55,20 +55,6 @@ function getDustbin(payload, callback, dbConnection) {
                     });
                 },
                 function (cb) {
-                    dbConnection.Plot.findAll({where: {idWell: well.idWell}, paranoid: false}).then(plots => {
-                        asyncEach(plots, function (plot, nextPlot) {
-                            if (plot.deletedAt) {
-                                let _plot = plot.toJSON();
-                                _plot.name = _plot.name.substring(14);
-                                Plots.push(_plot);
-                            }
-                            nextPlot();
-                        }, function () {
-                            cb();
-                        });
-                    });
-                },
-                function (cb) {
                     dbConnection.Histogram.findAll({where: {idWell: well.idWell}, paranoid: false}).then(histograms => {
                         asyncEach(histograms, function (histogram, nextHistogram) {
                             if (histogram.deletedAt) {
@@ -125,7 +111,18 @@ function getDustbin(payload, callback, dbConnection) {
                     });
                 }
             ], function () {
-                nextWell();
+                dbConnection.Plot.findAll({where: {idWell: well.idWell}, paranoid: false}).then(plots => {
+                    asyncEach(plots, function (plot, nextPlot) {
+                        if (plot.deletedAt) {
+                            let _plot = plot.toJSON();
+                            _plot.name = _plot.name.substring(14);
+                            Plots.push(_plot);
+                        }
+                        nextPlot();
+                    }, function () {
+                        nextWell();
+                    });
+                });
             });
         }, function () {
             callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", {
@@ -138,134 +135,6 @@ function getDustbin(payload, callback, dbConnection) {
                 histograms: Histograms,
                 plots: Plots
             }))
-        });
-    });
-}
-
-function _getDustbin(payload, callback, dbConnection) {
-    let Project = dbConnection.Project;
-    let response = new Object();
-    Project.findById(payload.idProject, {
-        include: [{
-            model: dbConnection.Well,
-            paranoid: false,
-            include: [{
-                model: dbConnection.Dataset,
-                paranoid: false,
-                include: [{
-                    model: dbConnection.Curve,
-                    paranoid: false,
-                    include: [{
-                        model: dbConnection.Family,
-                        as: "LineProperty"
-                    }]
-                }]
-            }, {
-                model: dbConnection.Plot,
-                paranoid: false,
-            }, {
-                model: dbConnection.CrossPlot,
-                paranoid: false,
-            }, {
-                model: dbConnection.Histogram,
-                paranoid: false,
-            }, {
-                model: dbConnection.CombinedBox,
-                paranoid: false,
-            }]
-        }, {
-            model: dbConnection.Groups,
-            paranoid: false,
-        }]
-    }).then(project => {
-        response = project.toJSON();
-        asyncEach(response.wells, function (well, next) {
-            dbConnection.ZoneSet.findAll({
-                where: {idWell: well.idWell},
-                include: {model: dbConnection.Zone},
-                paranoid: false,
-            }).then(zs => {
-                zs = JSON.parse(JSON.stringify(zs));
-                response.wells[response.wells.indexOf(well)].zonesets = zs;
-                next();
-            });
-        }, function () {
-            let Well = new Array();
-            let Dataset = new Array()
-            let Curve = new Array();
-            let Plot = new Array();
-            let Histogram = new Array();
-            let CrossPlot = new Array();
-            let ZoneSet = new Array();
-            // let Group = new Array();
-            asyncEach(response.wells, function (well, next) {
-                if (well.deletedAt) {
-                    console.log("Pushed well : ", well.name);
-                    well.name = well.name.substring(14);
-                    Well.push(well);
-                } else {
-                    asyncEach(well.datasets, function (dataset, next) {
-                        if (dataset.deletedAt) {
-                            console.log("Pushed dataset : ", dataset.name);
-                            dataset.name = dataset.name.substring(14);
-                            Dataset.push(dataset);
-                        } else {
-                            asyncEach(dataset.curves, function (curve, next) {
-                                if (curve.deletedAt) {
-                                    Curve.push(curve);
-                                }
-                                next();
-                            });
-                        }
-                        next();
-                    }, function () {
-                        asyncEach(well.plots, function (plot, next) {
-                            if (plot.deletedAt) {
-                                plot.name = plot.name.substring(14);
-                                Plot.push(plot);
-                            }
-                            next();
-                        }, function () {
-                            asyncEach(well.histograms, function (histogram, next) {
-                                if (histogram.deletedAt) {
-                                    histogram.name = histogram.name.substring(14);
-                                    Histogram.push(histogram);
-                                }
-                                next();
-                            }, function () {
-                                asyncEach(well.crossplots, function (crossplot, next) {
-                                    if (crossplot.deletedAt) {
-                                        crossplot.name = crossplot.name.substring(14);
-                                        CrossPlot.push(crossplot);
-                                    }
-                                    next();
-                                }, function () {
-                                    asyncEach(well.zonesets, function (zoneset, next) {
-                                        if (zoneset.deletedAt) {
-                                            zoneset.name = zoneset.name.substring(14);
-                                            ZoneSet.push(zoneset);
-                                        }
-                                        next();
-                                    })
-                                })
-                            })
-                        });
-                    });
-                }
-                next();
-            }, function () {
-                console.log("finished");
-                callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", {
-                    wells: Well,
-                    datasets: Dataset,
-                    curves: Curve,
-                    plots: Plot,
-                    crossplots: CrossPlot,
-                    histograms: Histogram,
-                    zonesets: ZoneSet,
-                    // groups: Group
-                }));
-            });
         });
     });
 }

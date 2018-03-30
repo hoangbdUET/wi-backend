@@ -173,8 +173,12 @@ function newDbInstance(dbName, callback) {
                 unique: "name-idWell"
             }, onDelete: 'CASCADE', hooks: true
         });
-        m.Well.hasMany(m.Plot, {
-            foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
+        // m.Well.hasMany(m.Plot, {
+        //     foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
+        //     onDelete: 'CASCADE'
+        // });
+        m.Project.hasMany(m.Plot, {
+            foreignKey: {name: "idProject", allowNull: false, unique: "name-idProject"},
             onDelete: 'CASCADE'
         });
         m.Well.hasMany(m.ZoneSet, {

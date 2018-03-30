@@ -122,7 +122,7 @@ function main() {
     app.use('/custom-fill', customFillRouter);
     app.use('/project', wellRouter);
     app.use('/project', groupsRouter);
-    app.use('/project/well', plotRouter);
+    app.use('/project', plotRouter);
     app.use('/project/well', datasetRouter);
     app.use('/project/well', zoneSetRouter);
     app.use('/project/well', histogramRouter);
@@ -145,16 +145,16 @@ function main() {
     });
     app.use('/project/well/combined-box', selectionToolRouter);
     app.use('/project/well/combined-box', combinedBoxToolRouter);
-    app.use('/project/well/plot', imageTrackRouter);
-    app.use('/project/well/plot', depthAxisRouter);
-    app.use('/project/well/plot', trackRouter);
-    app.use('/project/well/plot', zoneTrackRouter);
-    app.use('/project/well/plot', objectTrackRouter);
-    app.use('/project/well/plot/track', markerRouter);
-    app.use('/project/well/plot/track', shadingRouter);
-    app.use('/project/well/plot/track', lineRouter);
-    app.use('/project/well/plot/track', imageRouter);
-    app.use('/project/well/plot/track', annotationRouter);
+    app.use('/project/plot', imageTrackRouter);
+    app.use('/project/plot', depthAxisRouter);
+    app.use('/project/plot', trackRouter);
+    app.use('/project/plot', zoneTrackRouter);
+    app.use('/project/plot', objectTrackRouter);
+    app.use('/project/plot/track', markerRouter);
+    app.use('/project/plot/track', shadingRouter);
+    app.use('/project/plot/track', lineRouter);
+    app.use('/project/plot/track', imageRouter);
+    app.use('/project/plot/track', annotationRouter);
     app.use('/project/well/dataset', curveRouter);//change
     app.use('/project/well/zone-set', zoneRouter);
     app.use('/project/well/cross-plot', polygonRouter);
@@ -164,8 +164,8 @@ function main() {
     app.use('/project/well/cross-plot', regressionLineRouter);
     app.use('/project/well/cross-plot', overlayLineRouter);
     app.use('/project/well/cross-plot', axisColorRouter);
-    app.use('/project/well/plot/object-track', objectOfTrackRouter);
-    app.use('/project/well/plot/image-track', imageOfTrackRouter);
+    app.use('/project/plot/object-track', objectOfTrackRouter);
+    app.use('/project/plot/image-track', imageOfTrackRouter);
 
     accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});
     app.use(morgan('combined', {stream: accessLogStream}));

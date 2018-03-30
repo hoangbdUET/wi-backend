@@ -210,7 +210,7 @@ let createNewPlot = function (plotInfo, done, dbConnection, username) {
                 };
                 let isOverride = plotInfo.override || false;
                 dbConnection.Plot.findOrCreate({
-                    where: {name: plotInfo.name, idWell: plotInfo.idWell},
+                    where: {name: plotInfo.name, idProject: plotInfo.idProject},
                     defaults: newPlot
                 }).then(rs => {
                     if (rs[1]) {
@@ -269,7 +269,7 @@ let createNewPlot = function (plotInfo, done, dbConnection, username) {
                 };
                 let isOverride = plotInfo.override || false;
                 dbConnection.Plot.findOrCreate({
-                    where: {name: plotInfo.name, idWell: plotInfo.idWell},
+                    where: {name: plotInfo.name, idProject: plotInfo.idProject},
                     defaults: newPlot
                 }).then(rs => {
                     if (rs[1]) {
@@ -642,7 +642,7 @@ let exportData = function (payload, done, error, dbConnection) {
                                 delete shading.createdAt;
                                 delete shading.updatedAt;
                                 delete shading.idTrack;
-				//console.log(shading);
+                                //console.log(shading);
                                 asyncSeries([
                                     function (cb) {
                                         if (shading.idLeftLine && shading.leftLine) {

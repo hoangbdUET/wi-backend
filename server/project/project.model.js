@@ -98,8 +98,10 @@ async function getProjectFullInfo(payload, done, dbConnection) {
     let response = project.toJSON();
     let wells = await dbConnection.Well.findAll({where: {idProject: project.idProject}});
     let groups = await dbConnection.Groups.findAll({where: {idProject: project.idProject}});
+    let plots = await dbConnection.Plot.findAll({where: {idProject: project.idProject}});
     response.wells = [];
     response.groups = groups;
+    response.plots = plots;
     if (wells.length == 0) {
         return done(ResponseJSON(ErrorCodes.SUCCESS, "Get full info Project success", response));
     }
@@ -161,11 +163,11 @@ async function getProjectFullInfo(payload, done, dbConnection) {
                     cb(null, zonesets);
                 });
             },
-            function (cb) {
-                dbConnection.Plot.findAll({where: {idWell: well.idWell}}).then(plots => {
-                    cb(null, plots);
-                });
-            },
+            // function (cb) {
+            //     dbConnection.Plot.findAll({where: {idWell: well.idWell}}).then(plots => {
+            //         cb(null, plots);
+            //     });
+            // },
             function (cb) {
                 dbConnection.Histogram.findAll({where: {idWell: well.idWell}}).then(histograms => {
                     cb(null, histograms);
@@ -189,11 +191,11 @@ async function getProjectFullInfo(payload, done, dbConnection) {
         ], function (err, result) {
             wellObj.datasets = result[0];
             wellObj.zonesets = result[1];
-            wellObj.plots = result[2];
-            wellObj.histograms = result[3];
-            wellObj.crossplots = result[4];
-            wellObj.combined_boxes = result[5];
-            wellObj.wellheaders = result[6];
+            // wellObj.plots = result[2];
+            wellObj.histograms = result[2];
+            wellObj.crossplots = result[3];
+            wellObj.combined_boxes = result[4];
+            wellObj.wellheaders = result[5];
             response.wells.push(wellObj);
             nextWell();
         });

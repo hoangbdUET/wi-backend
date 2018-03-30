@@ -8,7 +8,7 @@ module.exports = function (sequelize, DataTypes) {
         name: {
             type: DataTypes.STRING(255),
             allowNull: false,
-            unique: "name-idWell"
+            unique: "name-idProject"
         },
         option: {
             type: DataTypes.STRING(250),
