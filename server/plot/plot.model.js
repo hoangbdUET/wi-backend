@@ -251,7 +251,7 @@ let createNewPlot = function (plotInfo, done, dbConnection, username) {
                     return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot type not existed!", "PLOT TYPE TEMPLATE NOT FOUND"));
                 }
                 myPlot.referenceCurve = plotInfo.referenceCurve;
-                myPlot.idWell = plotInfo.idWell;
+                myPlot.idProject = plotInfo.idProject;
                 myPlot.name = plotInfo.name ? plotInfo.name : myPlot.name;
                 createPlotTemplate(myPlot, dbConnection, function (err, result) {
                     if (err) {
@@ -262,7 +262,7 @@ let createNewPlot = function (plotInfo, done, dbConnection, username) {
                 }, username);
             } else {
                 let newPlot = {
-                    idWell: plotInfo.idWell,
+                    idProject: plotInfo.idProject,
                     name: plotInfo.name,
                     referenceCurve: plotInfo.referenceCurve,
                     option: plotInfo.option
@@ -309,7 +309,7 @@ let editPlot = function (plotInfo, done, dbConnection) {
     const Plot = dbConnection.Plot;
     Plot.findById(plotInfo.idPlot)
         .then(function (plot) {
-            plot.idWell = plotInfo.idWell || plot.idWell;
+            plot.idProject = plotInfo.idProject || plot.idProject;
             plot.name = plotInfo.name || plot.name;
             plot.referenceCurve = plotInfo.referenceCurve || plot.referenceCurve;
             plot.option = plotInfo.option || plot.option;
