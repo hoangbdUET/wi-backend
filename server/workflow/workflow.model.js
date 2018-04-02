@@ -84,7 +84,8 @@ let listWorkflow = function (data, callback, dbConnection) {
             dbConnection.WorkflowSpec.findById(wf.idWorkflowSpec).then(ws => {
                 wf.workflowSpec = {
                     name: ws.name,
-                    idWorkflowSpec: ws.idWorkflowSpec
+                    idWorkflowSpec: ws.idWorkflowSpec,
+                    type: ws.type
                 };
                 delete wf.idWorkflowSpec;
                 res.push(wf);
