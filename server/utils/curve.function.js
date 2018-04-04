@@ -13,9 +13,9 @@ function getFullCurveParents(curve, dbConnection) {
     return new Promise(function (resolve, reject) {
         dbConnection.Curve.findById(curve.idCurve, {paranoid: false}).then(async c => {
             if (c) {
-                let dataset = await dbConnection.Dataset.findById(c.idDataset);
-                let well = await dbConnection.Well.findById(dataset.idWell);
-                let project = await dbConnection.Project.findById(well.idProject);
+                let dataset = await dbConnection.Dataset.findById(c.idDataset, {paranoid: false});
+                let well = await dbConnection.Well.findById(dataset.idWell, {paranoid: false});
+                let project = await dbConnection.Project.findById(well.idProject, {paranoid: false});
                 resolve({
                     project: project.name,
                     well: well.name,
