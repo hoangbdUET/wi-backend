@@ -360,6 +360,8 @@ function newDbInstance(dbName, callback) {
     let ZoneSet = object.ZoneSet;
     let Zone = object.Zone;
     let username = dbName.substring(dbName.indexOf("_") + 1);
+    let async = require('async');
+    let curveFunction = require('../utils/curve.function');
     Curve.hook('afterCreate', function (curve, options) {
         if (!curve.idFamily) {
             ((curveName, unit) => {
@@ -397,7 +399,8 @@ function newDbInstance(dbName, callback) {
             Well.findById(dataset.idWell, {paranoid: false}).then(well => {
                 Project.findById(well.idProject).then(project => {
                     if (curve.deletedAt) {
-                        hashDir.deleteFolder(configCommon.curveBasePath, username + project.name + well.name + dataset.name + curve.name.substring(14));
+                        // hashDir.deleteFolder(configCommon.curveBasePath, username + project.name + well.name + dataset.name + curve.name.substring(14));
+                        hashDir.deleteFolder(configCommon.curveBasePath, username + project.name + well.name + dataset.name + curve.name);
                     } else {
                         hashDir.deleteFolder(configCommon.curveBasePath, username + project.name + well.name + dataset.name + curve.name);
                     }
@@ -408,19 +411,6 @@ function newDbInstance(dbName, callback) {
         });
     });
 
-    Well.hook('beforeDestroy', function (well, options) {
-        console.log("Hooks delete well");
-        if (well.deletedAt) {
-
-        } else {
-            let time = Date.now();
-            well.name = '$' + time + well.name;
-            well.save().catch(err => {
-                console.log(err);
-            });
-            //console.log(well.name);
-        }
-    });
 
     Well.hook('afterCreate', function (well, options) {
         console.log("Hook after create well");
@@ -452,17 +442,94 @@ function newDbInstance(dbName, callback) {
             }
         }
     });
+    let rename = require('../utils/function').renameObjectForDustbin;
+
+    Well.hook('beforeDestroy', function (well, options) {
+        console.log("Hooks delete well");
+        return new Promise(function (resolve) {
+            if (well.deletedAt) {
+                resolve(well, options);
+            } else {
+                let oldName = well.name;
+                rename(well, function (err, success) {
+                    Dataset.findAll({where: {idWell: well.idWell}}).then(datasets => {
+                        async.each(datasets, function (dataset, nextDataset) {
+                            Curve.findAll({where: {idDataset: dataset.idDataset}}).then(curves => {
+                                async.each(curves, function (curve, nextCurve) {
+                                    curveFunction.getFullCurveParents(curve, object).then(curveParents => {
+                                        curveParents.username = username;
+                                        let srcCurve = {
+                                            username: curveParents.username,
+                                            project: curveParents.project,
+                                            well: oldName,
+                                            dataset: curveParents.dataset,
+                                            curve: curveParents.curve
+                                        };
+                                        curveFunction.moveCurveData(srcCurve, curveParents, function () {
+                                            nextCurve();
+                                        });
+                                    })
+                                }, function () {
+                                    nextDataset();
+                                });
+                            })
+                        }, function () {
+                            resolve(well, options);
+                        })
+                    })
+                }, 'delete');
+            }
+        });
+    });
+
     Dataset.hook('beforeDestroy', function (dataset, options) {
         console.log("Hooks delete dataset");
-        if (dataset.deletedAt) {
+        return new Promise(function (resolve, reject) {
+            if (dataset.deletedAt) {
+                resolve(dataset, options);
+            } else {
+                let oldName = dataset.name;
+                rename(dataset, async function (err, success) {
+                    let curves = await Curve.findAll({where: {idDataset: dataset.idDataset}});
+                    async.each(curves, function (curve, nextCurve) {
+                        curveFunction.getFullCurveParents(curve, object).then(curveParents => {
+                            curveParents.username = username;
+                            let srcCurve = {
+                                username: curveParents.username,
+                                project: curveParents.project,
+                                well: curveParents.well,
+                                dataset: oldName,
+                                curve: curveParents.curve
+                            };
+                            curveFunction.moveCurveData(srcCurve, curveParents, function () {
+                                object.Line.findAll({where: {idCurve: curve.idCurve}}).then(lines => {
+                                    async.each(lines, function (line, nextLine) {
+                                        line.destroy().then(() => {
+                                            nextLine();
+                                        });
+                                    }, function () {
+                                        object.ReferenceCurve.findAll({where: {idCurve: curve.idCurve}}).then(refs => {
+                                            async.each(refs, function (ref, nextRef) {
+                                                ref.destroy().then(() => {
+                                                    nextRef();
+                                                }).catch(() => {
+                                                    nextRef();
+                                                })
+                                            }, function () {
+                                                nextCurve();
+                                            })
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    }, function () {
+                        resolve(dataset, options);
+                    });
+                }, 'delete');
+            }
+        })
 
-        } else {
-            let time = Date.now();
-            dataset.name = '$' + time + dataset.name;
-            dataset.save().catch(err => {
-                console.log(err);
-            });
-        }
     });
 
     Histogram.hook('beforeDestroy', function (histogram, options) {
@@ -470,11 +537,7 @@ function newDbInstance(dbName, callback) {
         if (histogram.deletedAt) {
 
         } else {
-            let time = Date.now();
-            histogram.name = '$' + time + histogram.name;
-            histogram.save().catch(err => {
-                console.log(err);
-            });
+            rename(histogram, null, 'delete');
         }
     });
 
@@ -483,11 +546,7 @@ function newDbInstance(dbName, callback) {
         if (crossplot.deletedAt) {
 
         } else {
-            let time = Date.now();
-            crossplot.name = '$' + time + crossplot.name;
-            crossplot.save().catch(err => {
-                console.log(err);
-            });
+            rename(crossplot, null, 'delete');
         }
     });
 
@@ -496,11 +555,7 @@ function newDbInstance(dbName, callback) {
         if (plot.deletedAt) {
 
         } else {
-            let time = Date.now();
-            plot.name = '$' + time + plot.name;
-            plot.save().catch(err => {
-                console.log(err);
-            });
+            rename(plot, null, 'delete');
         }
     });
 
@@ -509,11 +564,7 @@ function newDbInstance(dbName, callback) {
         if (zoneset.deletedAt) {
 
         } else {
-            let time = Date.now();
-            zoneset.name = '$' + time + zoneset.name;
-            zoneset.save().catch(err => {
-                console.log(err);
-            });
+            rename(zoneset, null, 'delete');
         }
     });
 
@@ -522,13 +573,9 @@ function newDbInstance(dbName, callback) {
         if (zone.deletedAt) {
 
         } else {
-            let time = Date.now();
-            zone.name = '$' + time + zone.name;
-            zone.save().catch(err => {
-                console.log(err);
-            });
+            rename(zone, null, 'delete');
         }
     });
     //End register hook
     return object;
-};
+}

@@ -7,6 +7,8 @@ let ErrorCodes = require('../../error-codes').CODES;
 let asyncLoop = require('async/each');
 let fs = require('fs-extra');
 let request = require('request');
+let rename = require('../utils/function').renameObjectForDustbin;
+let curveFunction = require('../utils/curve.function');
 
 let wiImport = require('wi-import');
 let hashDir = wiImport.hashDir;
@@ -60,21 +62,21 @@ function editCurve(curveInfo, done, dbConnection, username) {
                             Well.findById(dataset.idWell).then(well => {
                                 Project.findById(well.idProject).then(project => {
                                     let curveName = curve.name;
-                                    let path = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curveName, curveName + '.txt');
-                                    let newPath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curveInfo.name, curveInfo.name + '.txt');
-                                    let copy = fs.createReadStream(path).pipe(fs.createWriteStream(newPath));
-                                    copy.on('close', function () {
-                                        hashDir.deleteFolder(config.curveBasePath, username + project.name + well.name + dataset.name + curveName);
-                                    });
-                                    copy.on('error', function (err) {
-                                        return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit Curve name", err));
-                                    });
                                     curve.idDataset = curveInfo.idDataset ? curveInfo.idDataset : curve.idDataset;
                                     curve.name = curveInfo.name;
                                     curve.unit = curveInfo.unit ? curveInfo.unit : curve.unit;
                                     curve.initValue = curveInfo.initValue ? curveInfo.initValue : curve.initValue;
                                     curve.save()
                                         .then(() => {
+                                            let path = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curveName, curveName + '.txt');
+                                            let newPath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curveInfo.name, curveInfo.name + '.txt');
+                                            let copy = fs.createReadStream(path).pipe(fs.createWriteStream(newPath));
+                                            copy.on('close', function () {
+                                                hashDir.deleteFolder(config.curveBasePath, username + project.name + well.name + dataset.name + curveName);
+                                            });
+                                            copy.on('error', function (err) {
+                                                return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit Curve name", err));
+                                            });
                                             done(ResponseJSON(ErrorCodes.SUCCESS, "Edit curve success", curveInfo));
                                         })
                                         .catch(err => {
@@ -354,58 +356,46 @@ function moveCurve(param, rs, dbConnection, username) {
     });
 }
 
-function deleteCurve(curveInfo, done, dbConnection, username) {
+async function deleteCurve(curveInfo, done, dbConnection, username) {
     let Curve = dbConnection.Curve;
-    let Dataset = dbConnection.Dataset;
-    Curve.findById(curveInfo.idCurve)
-        .then(curve => {
-            if (curve) {
-                Dataset.findById(curve.idDataset).then(dataset => {
-                    if (!dataset) {
-                        console.log("No dataset");
-                    } else {
-                        /*hashDir.createJSONReadStream(config.curveBasePath, dataset.name + curve.name, curve.name + '.txt');*/
-                        let time = Date.now();
-                        curve.name = '$' + time + curve.name;
-                        curve.save().catch(err => {
-                            console.log(err);
-                        });
-                        curve.destroy({hooks: false})
-                            .then(() => {
-                                dbConnection.Line.findAll({where: {idCurve: curve.idCurve}}).then(lines => {
-                                    asyncLoop(lines, function (line, nextLine) {
-                                        line.destroy().then(() => {
-                                            nextLine();
-                                        });
-                                    }, function () {
-                                        dbConnection.ReferenceCurve.findAll({where: {idCurve: curve.idCurve}}).then(refs => {
-                                            asyncLoop(refs, function (ref, nextRef) {
-                                                ref.destroy().then(() => {
-                                                    nextRef();
-                                                }).catch(() => {
-                                                    nextRef();
-                                                });
-                                            }, function () {
-                                                done(ResponseJSON(ErrorCodes.SUCCESS, "Curve is deleted", curve));
-                                            });
-                                        });
-                                    })
-                                })
-                            })
-                            .catch(err => {
-                                done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Curve " + err.errors[0].message));
-                            })
-                    }
-                }).catch(err => {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Error while delete curve : " + err.message));
-                    console.log(err.stack);
-                });
-            }
+    let curve = await Curve.findById(curveInfo.idCurve);
+    if (!curve) return done(ErrorCodes.ERROR_INVALID_PARAMS, "No curve found by id");
 
-        })
-        .catch(() => {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found for delete"));
-        })
+    let curveParents = await curveFunction.getFullCurveParents(curve, dbConnection);
+    curveParents.username = username;
+    rename(curve, function (err, newCurve) {
+        if (!err) {
+            curveFunction.moveCurveData(curveParents, {
+                username: curveParents.username,
+                project: curveParents.project,
+                well: curveParents.well,
+                dataset: curveParents.dataset,
+                curve: newCurve.name
+            }, function () {
+                curve.destroy({hooks: false}).then(() => {
+                    dbConnection.Line.findAll({where: {idCurve: curve.idCurve}}).then(lines => {
+                        asyncLoop(lines, function (line, nextLine) {
+                            line.destroy().then(() => {
+                                nextLine();
+                            });
+                        }, function () {
+                            dbConnection.ReferenceCurve.findAll({where: {idCurve: curve.idCurve}}).then(refs => {
+                                asyncLoop(refs, function (ref, nextRef) {
+                                    ref.destroy().then(() => {
+                                        nextRef();
+                                    }).catch(() => {
+                                        nextRef();
+                                    });
+                                }, function () {
+                                    done(ResponseJSON(ErrorCodes.SUCCESS, "Curve is deleted", curve));
+                                });
+                            });
+                        })
+                    })
+                });
+            });
+        }
+    }, 'delete');
 }
 
 
@@ -548,12 +538,7 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
                             if (well) {
                                 Project.findById(well.idProject, {paranoid: false}).then(project => {
                                     console.log("Hash : ", config.curveBasePath, username + project.name + well.name + dataset.name + curve.name + '.txt');
-                                    let inputStream;
-                                    if (curve.deletedAt) {
-                                        inputStream = hashDir.createReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name.substring(14), curve.name.substring(14) + '.txt');
-                                    } else {
-                                        inputStream = hashDir.createReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
-                                    }
+                                    let inputStream = hashDir.createReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
                                     inputStream.on("error", function () {
                                         callback("Curve Data Was Lost", null);
                                     });
@@ -563,7 +548,7 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
                                     lineReader.on('error', function (err) {
                                         console.log("LOI NA");
                                         lineReader.close();
-                                    })
+                                    });
                                     let arrY = [];
                                     lineReader.on('line', function (line) {
                                         let arrXY = line.split(/\s+/g).slice(1, 2);
@@ -606,7 +591,7 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
         .catch(function (err) {
             callback(err, null)
         })
-}
+};
 
 let processingCurve = function (req, done, dbConnection) {
     let Curve = dbConnection.Curve;
@@ -735,7 +720,7 @@ let processingCurve = function (req, done, dbConnection) {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Dataset"));
         }
     }).catch();
-}
+};
 
 async function getCurveDataFromInventory(curveInfo, token, callback, dbConnection, username) {
     let options = {

@@ -4,6 +4,7 @@ let async = require('async');
 let wfs = [
     {
         name: "Clastic",
+        type: 0,
         description: "",
         content: {
             "name": "Clastic",
@@ -218,6 +219,7 @@ let wfs = [
     },
     {
         name: "[ML] Curve Prediction",
+        type: 1,
         description: "[ML] Curve Prediction",
         content: {
             'name': 'CURVE_PREDICTION',
@@ -240,6 +242,7 @@ let wfs = [
     },
     {
         name: "[ML] Perm Dual Model",
+        type: 1,
         description: "[ML] Perm Dual Model",
         content: {
             'name': 'PERM_DUAL_MODEL',
@@ -259,6 +262,7 @@ let wfs = [
     },
     {
         name: "[ML] Facies Single Model",
+        type: 1,
         description: "[ML] Facies Single Model",
         content: {
             'name': 'FACIES_SINGLE_MODEL',

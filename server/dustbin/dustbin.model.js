@@ -3,6 +3,8 @@ let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
 let asyncEach = require('async/each');
 let asyncParallel = require('async/parallel');
+let rename = require('../utils/function').renameObjectForDustbin;
+let curveFunction = require('../utils/curve.function');
 
 
 function getDustbin(payload, callback, dbConnection) {
@@ -22,7 +24,7 @@ function getDustbin(payload, callback, dbConnection) {
         asyncEach(wells, function (well, nextWell) {
             if (well.deletedAt) {
                 let _well = well.toJSON();
-                _well.name = _well.name.substring(14);
+                _well.name = _well.name.substring(1);
                 Wells.push(_well);
             }
             asyncParallel([
@@ -31,7 +33,7 @@ function getDustbin(payload, callback, dbConnection) {
                         asyncEach(datasets, function (dataset, nextDataset) {
                             if (dataset.deletedAt) {
                                 let _dataset = dataset.toJSON();
-                                _dataset.name = _dataset.name.substring(14);
+                                _dataset.name = _dataset.name.substring(1);
                                 Datasets.push(_dataset);
                             }
                             dbConnection.Curve.findAll({
@@ -41,7 +43,7 @@ function getDustbin(payload, callback, dbConnection) {
                                 asyncEach(curves, function (curve, nextCurve) {
                                     if (curve.deletedAt) {
                                         let _curve = curve.toJSON();
-                                        _curve.name = _curve.name.substring(14);
+                                        _curve.name = _curve.name.substring(1);
                                         Curves.push(_curve);
                                     }
                                     nextCurve();
@@ -59,7 +61,7 @@ function getDustbin(payload, callback, dbConnection) {
                         asyncEach(plots, function (plot, nextPlot) {
                             if (plot.deletedAt) {
                                 let _plot = plot.toJSON();
-                                _plot.name = _plot.name.substring(14);
+                                _plot.name = _plot.name.substring(1);
                                 Plots.push(_plot);
                             }
                             nextPlot();
@@ -73,7 +75,7 @@ function getDustbin(payload, callback, dbConnection) {
                         asyncEach(histograms, function (histogram, nextHistogram) {
                             if (histogram.deletedAt) {
                                 let _histogram = histogram.toJSON();
-                                _histogram.name = _histogram.name.substring(14);
+                                _histogram.name = _histogram.name.substring(1);
                                 Histograms.push(_histogram);
                             }
                             nextHistogram();
@@ -87,7 +89,7 @@ function getDustbin(payload, callback, dbConnection) {
                         asyncEach(crossplots, function (crossplot, nextCrossplot) {
                             if (crossplot.deletedAt) {
                                 let _crossplot = crossplot.toJSON();
-                                _crossplot.name = _crossplot.name.substring(14);
+                                _crossplot.name = _crossplot.name.substring(1);
                                 Crossplots.push(_crossplot);
                             }
                             nextCrossplot();
@@ -101,7 +103,7 @@ function getDustbin(payload, callback, dbConnection) {
                         asyncEach(zonesets, function (zoneset, nextZoneset) {
                             if (zoneset.deletedAt) {
                                 let _zoneset = zoneset.toJSON();
-                                _zoneset.name = _zoneset.name.substring(14);
+                                _zoneset.name = _zoneset.name.substring(1);
                                 Zonesets.push(_zoneset);
                             }
                             dbConnection.Zone.findAll({
@@ -111,7 +113,7 @@ function getDustbin(payload, callback, dbConnection) {
                                 asyncEach(zones, function (zone, nextZone) {
                                     if (zone.deletedAt) {
                                         let _zone = zone.toJSON();
-                                        _zone.name = _zone.name.substring(14);
+                                        _zone.name = _zone.name.substring(1);
                                         Zones.push(_zone);
                                     }
                                     nextZone();
@@ -138,134 +140,6 @@ function getDustbin(payload, callback, dbConnection) {
                 histograms: Histograms,
                 plots: Plots
             }))
-        });
-    });
-}
-
-function _getDustbin(payload, callback, dbConnection) {
-    let Project = dbConnection.Project;
-    let response = new Object();
-    Project.findById(payload.idProject, {
-        include: [{
-            model: dbConnection.Well,
-            paranoid: false,
-            include: [{
-                model: dbConnection.Dataset,
-                paranoid: false,
-                include: [{
-                    model: dbConnection.Curve,
-                    paranoid: false,
-                    include: [{
-                        model: dbConnection.Family,
-                        as: "LineProperty"
-                    }]
-                }]
-            }, {
-                model: dbConnection.Plot,
-                paranoid: false,
-            }, {
-                model: dbConnection.CrossPlot,
-                paranoid: false,
-            }, {
-                model: dbConnection.Histogram,
-                paranoid: false,
-            }, {
-                model: dbConnection.CombinedBox,
-                paranoid: false,
-            }]
-        }, {
-            model: dbConnection.Groups,
-            paranoid: false,
-        }]
-    }).then(project => {
-        response = project.toJSON();
-        asyncEach(response.wells, function (well, next) {
-            dbConnection.ZoneSet.findAll({
-                where: {idWell: well.idWell},
-                include: {model: dbConnection.Zone},
-                paranoid: false,
-            }).then(zs => {
-                zs = JSON.parse(JSON.stringify(zs));
-                response.wells[response.wells.indexOf(well)].zonesets = zs;
-                next();
-            });
-        }, function () {
-            let Well = new Array();
-            let Dataset = new Array()
-            let Curve = new Array();
-            let Plot = new Array();
-            let Histogram = new Array();
-            let CrossPlot = new Array();
-            let ZoneSet = new Array();
-            // let Group = new Array();
-            asyncEach(response.wells, function (well, next) {
-                if (well.deletedAt) {
-                    console.log("Pushed well : ", well.name);
-                    well.name = well.name.substring(14);
-                    Well.push(well);
-                } else {
-                    asyncEach(well.datasets, function (dataset, next) {
-                        if (dataset.deletedAt) {
-                            console.log("Pushed dataset : ", dataset.name);
-                            dataset.name = dataset.name.substring(14);
-                            Dataset.push(dataset);
-                        } else {
-                            asyncEach(dataset.curves, function (curve, next) {
-                                if (curve.deletedAt) {
-                                    Curve.push(curve);
-                                }
-                                next();
-                            });
-                        }
-                        next();
-                    }, function () {
-                        asyncEach(well.plots, function (plot, next) {
-                            if (plot.deletedAt) {
-                                plot.name = plot.name.substring(14);
-                                Plot.push(plot);
-                            }
-                            next();
-                        }, function () {
-                            asyncEach(well.histograms, function (histogram, next) {
-                                if (histogram.deletedAt) {
-                                    histogram.name = histogram.name.substring(14);
-                                    Histogram.push(histogram);
-                                }
-                                next();
-                            }, function () {
-                                asyncEach(well.crossplots, function (crossplot, next) {
-                                    if (crossplot.deletedAt) {
-                                        crossplot.name = crossplot.name.substring(14);
-                                        CrossPlot.push(crossplot);
-                                    }
-                                    next();
-                                }, function () {
-                                    asyncEach(well.zonesets, function (zoneset, next) {
-                                        if (zoneset.deletedAt) {
-                                            zoneset.name = zoneset.name.substring(14);
-                                            ZoneSet.push(zoneset);
-                                        }
-                                        next();
-                                    })
-                                })
-                            })
-                        });
-                    });
-                }
-                next();
-            }, function () {
-                console.log("finished");
-                callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", {
-                    wells: Well,
-                    datasets: Dataset,
-                    curves: Curve,
-                    plots: Plot,
-                    crossplots: CrossPlot,
-                    histograms: Histogram,
-                    zonesets: ZoneSet,
-                    // groups: Group
-                }));
-            });
         });
     });
 }
@@ -395,9 +269,8 @@ function deleteObject(payload, callback, dbConnection) {
 
 }
 
-function restoreObject(payload, callback, dbConnection) {
+function restoreObject(payload, callback, dbConnection, username) {
     let Well = dbConnection.Well;
-    let Group = dbConnection.Group;
     let Dataset = dbConnection.Dataset;
     let Curve = dbConnection.Curve;
     let Plot = dbConnection.Plot;
@@ -411,14 +284,41 @@ function restoreObject(payload, callback, dbConnection) {
             Well.findById(payload.idObject, {
                 paranoid: false
             }).then(rs => {
-                rs.name = rs.name.substring(14);
-                rs.save().then(r => {
-                    rs.restore().then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", r));
-                    });
-                }).catch(err => {
-                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CANT_RESTORE", err.message));
-                })
+                let oldName = rs.name;
+                rs.name = rs.name.substring(1);
+                rename(rs, function (err, success) {
+                    if (!err) {
+                        rs.restore().then(() => {
+                            Dataset.findAll({where: {idWell: rs.idWell}}).then(datasets => {
+                                asyncEach(datasets, function (dataset, nextDataset) {
+                                    Curve.findAll({where: {idDataset: dataset.idDataset}}).then(curves => {
+                                        asyncEach(curves, function (curve, nextCurve) {
+                                            curveFunction.getFullCurveParents(curve, dbConnection).then(curveParents => {
+                                                curveParents.username = username;
+                                                let srcCurve = {
+                                                    username: curveParents.username,
+                                                    project: curveParents.project,
+                                                    well: oldName,
+                                                    dataset: curveParents.dataset,
+                                                    curve: curveParents.curve
+                                                };
+                                                curveFunction.moveCurveData(srcCurve, curveParents, function () {
+                                                    nextCurve();
+                                                });
+                                            });
+                                        }, function () {
+                                            nextDataset();
+                                        });
+                                    })
+                                }, function () {
+                                    callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", success));
+                                });
+                            });
+                        });
+                    } else {
+                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    }
+                }, 'restore');
             });
             break;
         }
@@ -427,54 +327,78 @@ function restoreObject(payload, callback, dbConnection) {
                 paranoid: false,
                 include: {all: true, paranoid: false}
             }).then(rs => {
-                rs.name = rs.name.substring(14);
-                rs.save().then(r => {
-                    rs.restore().then(() => {
-                        asyncEach(rs.curves, function (curve, nextCurve) {
-                            curve.restore().then(() => {
-                                dbConnection.Line.findAll({
-                                    where: {idCurve: curve.idCurve},
-                                    paranoid: false
-                                }).then(lines => {
-                                    asyncEach(lines, function (line, next) {
-                                        line.restore().then(() => {
-                                            next();
-                                        })
-                                    }, function () {
-                                        nextCurve();
+                let oldName = rs.name;
+                rs.name = rs.name.substring(1);
+                rename(rs, function (err, r) {
+                    if (!err) {
+                        rs.restore().then(() => {
+                            asyncEach(rs.curves, function (curve, nextCurve) {
+                                curveFunction.getFullCurveParents(curve, dbConnection).then(function (curveParents) {
+                                    curveParents.username = username;
+                                    let srcCurve = {
+                                        username: curveParents.username,
+                                        project: curveParents.project,
+                                        well: curveParents.well,
+                                        dataset: oldName,
+                                        curve: curveParents.curve
+                                    };
+                                    curveFunction.moveCurveData(srcCurve, curveParents, function () {
+                                        curve.restore().then(() => {
+                                            dbConnection.Line.findAll({
+                                                where: {idCurve: curve.idCurve},
+                                                paranoid: false
+                                            }).then(lines => {
+                                                asyncEach(lines, function (line, next) {
+                                                    line.restore().then(() => {
+                                                        next();
+                                                    });
+                                                }, function () {
+                                                    nextCurve();
+                                                });
+                                            });
+                                        });
                                     });
                                 });
+                            }, function () {
+                                callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", r));
                             });
-                        }, function () {
-                            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", r));
                         });
-                    });
-                }).catch(err => {
-                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CANT_RESTORE", err.message));
-                })
+                    } else {
+                        console.log(err);
+                    }
+                }, 'restore');
             });
             break;
         }
         case 'curve': {
             Curve.findById(payload.idObject, {
                 paranoid: false
-            }).then(rs => {
-                rs.name = rs.name.substring(14);
-                rs.save().then(r => {
+            }).then(async rs => {
+                let curveParents = await curveFunction.getFullCurveParents(rs, dbConnection);
+                curveParents.username = username;
+                rs.name = rs.name.substring(1);
+                rename(rs, function (err, r) {
                     rs.restore().then(() => {
-                        dbConnection.Line.findAll({where: {idCurve: rs.idCurve}, paranoid: false}).then(lines => {
-                            asyncEach(lines, function (line, next) {
-                                line.restore().then(() => {
-                                    next();
-                                })
-                            }, function () {
-                                callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", r));
-                            });
-                        })
+                        let desCurve = {
+                            username: curveParents.username,
+                            project: curveParents.project,
+                            well: curveParents.well,
+                            dataset: curveParents.dataset,
+                            curve: r.name
+                        };
+                        curveFunction.moveCurveData(curveParents, desCurve, function () {
+                            dbConnection.Line.findAll({where: {idCurve: rs.idCurve}, paranoid: false}).then(lines => {
+                                asyncEach(lines, function (line, next) {
+                                    line.restore().then(() => {
+                                        next();
+                                    })
+                                }, function () {
+                                    callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", r));
+                                });
+                            })
+                        });
                     });
-                }).catch(err => {
-                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CANT_RESTORE", err.message));
-                })
+                }, 'restore');
             });
             break;
         }
@@ -482,14 +406,16 @@ function restoreObject(payload, callback, dbConnection) {
             Plot.findById(payload.idObject, {
                 paranoid: false
             }).then(rs => {
-                rs.name = rs.name.substring(14);
-                rs.save().then(r => {
-                    rs.restore().then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", r));
-                    });
-                }).catch(err => {
-                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CANT_RESTORE", err.message));
-                })
+                rs.name = rs.name.substring(1);
+                rename(rs, function (err, success) {
+                    if (!err) {
+                        rs.restore().then(() => {
+                            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", success));
+                        });
+                    } else {
+                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    }
+                }, 'restore');
             });
             break;
         }
@@ -497,14 +423,16 @@ function restoreObject(payload, callback, dbConnection) {
             Histogram.findById(payload.idObject, {
                 paranoid: false
             }).then(rs => {
-                rs.name = rs.name.substring(14);
-                rs.save().then(r => {
-                    rs.restore().then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", r));
-                    });
-                }).catch(err => {
-                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CANT_RESTORE", err.message));
-                })
+                rs.name = rs.name.substring(1);
+                rename(rs, function (err, success) {
+                    if (!err) {
+                        rs.restore().then(() => {
+                            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", success));
+                        });
+                    } else {
+                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    }
+                }, 'restore');
             });
             break;
         }
@@ -512,14 +440,16 @@ function restoreObject(payload, callback, dbConnection) {
             CrossPlot.findById(payload.idObject, {
                 paranoid: false
             }).then(rs => {
-                rs.name = rs.name.substring(14);
-                rs.save().then(r => {
-                    rs.restore().then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", r));
-                    });
-                }).catch(err => {
-                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CANT_RESTORE", err.message));
-                })
+                rs.name = rs.name.substring(1);
+                rename(rs, function (err, success) {
+                    if (!err) {
+                        rs.restore().then(() => {
+                            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", success));
+                        });
+                    } else {
+                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    }
+                }, 'restore');
             });
             break;
         }
@@ -527,14 +457,16 @@ function restoreObject(payload, callback, dbConnection) {
             ZoneSet.findById(payload.idObject, {
                 paranoid: false
             }).then(rs => {
-                rs.name = rs.name.substring(14);
-                rs.save().then(r => {
-                    rs.restore().then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", r));
-                    });
-                }).catch(err => {
-                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CANT_RESTORE", err.message));
-                })
+                rs.name = rs.name.substring(1);
+                rename(rs, function (err, success) {
+                    if (!err) {
+                        rs.restore().then(() => {
+                            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", success));
+                        });
+                    } else {
+                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    }
+                }, 'restore');
             });
             break;
         }
@@ -542,14 +474,16 @@ function restoreObject(payload, callback, dbConnection) {
             Zone.findById(payload.idObject, {
                 paranoid: false
             }).then(rs => {
-                rs.name = rs.name.substring(14);
-                rs.save().then(r => {
-                    rs.restore().then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", r));
-                    });
-                }).catch(err => {
-                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CANT_RESTORE", err.message));
-                })
+                rs.name = rs.name.substring(1);
+                rename(rs, function (err, success) {
+                    if (!err) {
+                        rs.restore().then(() => {
+                            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", success));
+                        });
+                    } else {
+                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    }
+                }, 'restore');
             });
             break;
         }

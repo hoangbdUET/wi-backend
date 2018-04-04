@@ -97,34 +97,7 @@ function deleteDataset(datasetInfo, done, dbConnection) {
         .then(function (dataset) {
             dataset.destroy()
                 .then(function () {
-                    asyncEach(dataset.curves, function (curve, nextCurve) {
-                        curve.destroy({hooks: false}).then(() => {
-                            dbConnection.Line.findAll({where: {idCurve: curve.idCurve}}).then(lines => {
-                                asyncEach(lines, function (line, nextLine) {
-                                    line.destroy().then(() => {
-                                        nextLine();
-                                    });
-                                }, function () {
-                                    dbConnection.ReferenceCurve.findAll({where: {idCurve: curve.idCurve}}).then(refs => {
-                                        asyncEach(refs, function (ref, nextRef) {
-                                            ref.destroy().then(() => {
-                                                nextRef();
-                                            }).catch(() => {
-                                                nextRef();
-                                            })
-                                        }, function () {
-                                            nextCurve();
-                                        })
-                                    });
-                                });
-                            });
-                        }).catch(err => {
-                            console.log(err);
-                            nextCurve();
-                        });
-                    }, function () {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Dataset is deleted", dataset));
-                    });
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Dataset is deleted", dataset));
                 })
                 .catch(function (err) {
                     done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.errors[0].message));

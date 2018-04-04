@@ -10,6 +10,7 @@ let asyncEach = require('async/each');
 let asyncParallel = require('async/parallel');
 let fsExtra = require('fs-extra');
 let importFromInventory = require('../import-from-inventory/import.model');
+let asyncSeries = require('async/series');
 
 function createNewWell(wellInfo, done, dbConnection) {
     let Well = dbConnection.Well;
@@ -197,14 +198,74 @@ function deleteWell(wellInfo, done, dbConnection) {
 
 function getWellInfo(well, done, dbConnection) {
     let Well = dbConnection.Well;
-    Well.findById(well.idWell, {include: [{all: true, include: [{all: true}]}]})
+    Well.findById(well.idWell, {include: [{all: true}]})
         .then(function (well) {
-            if (!well) throw "not exist";
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Well success", well));
+            let wellObj = well.toJSON();
+            asyncSeries([
+                function (cb) {
+                    dbConnection.Dataset.findAll({where: {idWell: well.idWell}}).then(datasets => {
+                        let datasetArr = [];
+                        asyncEach(datasets, function (dataset, nextDataset) {
+                            let datasetObj = dataset.toJSON();
+                            dbConnection.Curve.findAll({
+                                where: {idDataset: dataset.idDataset},
+                            }).then(curves => {
+                                datasetObj.curves = curves;
+                                datasetArr.push(datasetObj);
+                                nextDataset();
+                            });
+                        }, function () {
+                            cb(null, datasetArr);
+                        });
+                    });
+                },
+                function (cb) {
+                    dbConnection.ZoneSet.findAll({
+                        where: {idWell: well.idWell},
+                        include: {model: dbConnection.Zone}
+                    }).then(zonesets => {
+                        cb(null, zonesets);
+                    });
+                },
+                function (cb) {
+                    dbConnection.Plot.findAll({where: {idWell: well.idWell}}).then(plots => {
+                        cb(null, plots);
+                    });
+                },
+                function (cb) {
+                    dbConnection.Histogram.findAll({where: {idWell: well.idWell}}).then(histograms => {
+                        cb(null, histograms);
+                    });
+                },
+                function (cb) {
+                    dbConnection.CrossPlot.findAll({where: {idWell: well.idWell}}).then(crossplots => {
+                        cb(null, crossplots);
+                    });
+                },
+                function (cb) {
+                    dbConnection.CombinedBox.findAll({where: {idWell: well.idWell}}).then(combined_boxes => {
+                        cb(null, combined_boxes);
+                    });
+                },
+                function (cb) {
+                    dbConnection.WellHeader.findAll({where: {idWell: well.idWell}}).then(headers => {
+                        cb(null, headers);
+                    });
+                }
+            ], function (err, result) {
+                wellObj.datasets = result[0];
+                wellObj.zonesets = result[1];
+                wellObj.plots = result[2];
+                wellObj.histograms = result[3];
+                wellObj.crossplots = result[4];
+                wellObj.combined_boxes = result[5];
+                wellObj.wellheaders = result[6];
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", wellObj));
+            });
         })
         .catch(function () {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Well not found for get info"));
-        })
+        });
 }
 
 async function exportToProject(info, done, dbConnection, username) {
