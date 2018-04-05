@@ -218,7 +218,7 @@ let wfs = [
         }
     },
     {
-        name: "[ML] Curve Prediction",
+        name: "ML Toolkit",
         type: 1,
         description: "[ML] Curve Prediction",
         content: {
@@ -241,7 +241,7 @@ let wfs = [
         }
     },
     {
-        name: "[ML] Perm Dual Model",
+        name: "Permeability AI",
         type: 1,
         description: "[ML] Perm Dual Model",
         content: {
@@ -261,7 +261,7 @@ let wfs = [
         }
     },
     {
-        name: "[ML] Facies Single Model",
+        name: "Facies AI",
         type: 1,
         description: "[ML] Facies Single Model",
         content: {
