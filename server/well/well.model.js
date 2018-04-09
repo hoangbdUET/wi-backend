@@ -17,13 +17,7 @@ function createNewWell(wellInfo, done, dbConnection) {
     Well.sync()
         .then(
             function () {
-                let well = Well.build({
-                    idProject: wellInfo.idProject,
-                    name: wellInfo.name,
-                    topDepth: wellInfo.topDepth,
-                    bottomDepth: wellInfo.bottomDepth,
-                    step: wellInfo.step
-                });
+                let well = Well.build(wellInfo);
                 well.save()
                     .then(function (well) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new well success", well.toJSON()));
@@ -110,6 +104,7 @@ function editWell(wellInfo, done, dbConnection, username) {
                 well.bottomDepth = wellInfo.bottomDepth;
                 well.step = wellInfo.step;
                 well.idGroup = wellInfo.idGroup;
+                well.updatedBy = wellInfo.updatedBy;
                 well.save()
                     .then(function () {
                         dbConnection.Project.findById(well.idProject).then(function (project) {
@@ -183,6 +178,7 @@ function deleteWell(wellInfo, done, dbConnection) {
     let Well = dbConnection.Well;
     Well.findById(wellInfo.idWell)
         .then(function (well) {
+            well.setDataValue('updatedBy', wellInfo.updatedBy);
             well.destroy()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Well is deleted", well));

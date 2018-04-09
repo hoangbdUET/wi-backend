@@ -110,7 +110,7 @@ router.post('/curve/processing', upload.single('file'), function (req, res) {
         req.tmpPath = tmpPath;
         curveModel.processingCurve(req, function (result) {
             res.send(result);
-        }, req.dbConnection);
+        }, req.dbConnection, req.body.createdBy, req.body.updatedBy);
     });
 });
 

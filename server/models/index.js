@@ -117,7 +117,6 @@ function newDbInstance(dbName, callback) {
         'PointSet',
         'Polygon',
         'Project',
-        'Property',
         'ReferenceCurve',
         'RegressionLine',
         'SelectionTool',
@@ -362,6 +361,7 @@ function newDbInstance(dbName, callback) {
     let username = dbName.substring(dbName.indexOf("_") + 1);
     let async = require('async');
     let curveFunction = require('../utils/curve.function');
+    require('../models-hooks/index')(object);
     Curve.hook('afterCreate', function (curve, options) {
         if (!curve.idFamily) {
             ((curveName, unit) => {
@@ -398,12 +398,7 @@ function newDbInstance(dbName, callback) {
         Dataset.findById(curve.idDataset, {paranoid: false}).then(dataset => {
             Well.findById(dataset.idWell, {paranoid: false}).then(well => {
                 Project.findById(well.idProject).then(project => {
-                    if (curve.deletedAt) {
-                        // hashDir.deleteFolder(configCommon.curveBasePath, username + project.name + well.name + dataset.name + curve.name.substring(14));
-                        hashDir.deleteFolder(configCommon.curveBasePath, username + project.name + well.name + dataset.name + curve.name);
-                    } else {
-                        hashDir.deleteFolder(configCommon.curveBasePath, username + project.name + well.name + dataset.name + curve.name);
-                    }
+                    hashDir.deleteFolder(configCommon.curveBasePath, username + project.name + well.name + dataset.name + curve.name);
                 });
             });
         }).catch(err => {
@@ -418,10 +413,16 @@ function newDbInstance(dbName, callback) {
             STRT: well.topDepth,
             STOP: well.bottomDepth,
             STEP: well.step,
-            TOP: well.topDepth
+            TOP: well.topDepth,
         };
         for (let header in headers) {
-            WellHeader.create({idWell: well.idWell, header: header, value: headers[header]});
+            WellHeader.create({
+                idWell: well.idWell,
+                header: header,
+                createdBy: well.createdBy,
+                updatedBy: well.updatedBy,
+                value: headers[header]
+            });
         }
     });
 
@@ -431,14 +432,20 @@ function newDbInstance(dbName, callback) {
             STRT: well.topDepth,
             STOP: well.bottomDepth,
             STEP: well.step,
-            TOP: well.topDepth
+            TOP: well.topDepth,
         };
         for (let header in headers) {
             let h = await WellHeader.findOne({where: {idWell: well.idWell, header: header}});
             if (h) {
                 await h.update({value: headers[header]});
             } else {
-                await WellHeader.create({header: header, value: headers[header], idWell: well.idWell})
+                await WellHeader.create({
+                    header: header,
+                    value: headers[header],
+                    idWell: well.idWell,
+                    createdBy: well.createdBy,
+                    updatedBy: well.updatedBy
+                })
             }
         }
     });

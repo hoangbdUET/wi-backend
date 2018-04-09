@@ -15,7 +15,9 @@ function createNewDataset(datasetInfo, done, dbConnection) {
                     idWell: datasetInfo.idWell,
                     name: datasetInfo.name,
                     datasetKey: datasetInfo.datasetKey,
-                    datasetLabel: datasetInfo.datasetLabel
+                    datasetLabel: datasetInfo.datasetLabel,
+                    createdBy: datasetInfo.createdBy,
+                    updatedBy: datasetInfo.updatedBy
                 });
                 dataset.save()
                     .then(function (dataset) {
@@ -37,6 +39,7 @@ function createNewDataset(datasetInfo, done, dbConnection) {
 }
 
 function editDataset(datasetInfo, done, dbConnection, username) {
+    delete datasetInfo.createdBy;
     dbConnection.Dataset.findById(datasetInfo.idDataset).then(dataset => {
         if (dataset) {
             if (dataset.name != datasetInfo.name) {
@@ -128,6 +131,8 @@ function duplicateDataset(data, done, dbConnection, username) {
         let newDataset = dataset.toJSON();
         delete newDataset.idDataset;
         newDataset.name = dataset.name + '_Copy_' + dataset.duplicated;
+        newDataset.createdBy = data.createdBy;
+        newDataset.updatedBy = data.updatedBy;
         dataset.duplicated++;
         await dataset.save();
         dbConnection.Dataset.create(newDataset).then(_dataset => {

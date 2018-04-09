@@ -57,7 +57,9 @@ async function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
             name: myData.name,
             idWell: crossPlotInfo.idWell,
             referenceTopDepth: crossPlotInfo.referenceTopDepth,
-            referenceBottomDepth: crossPlotInfo.referenceBottomDepth
+            referenceBottomDepth: crossPlotInfo.referenceBottomDepth,
+            createdBy: crossPlotInfo.createdBy,
+            updatedBy: crossPlotInfo.updatedBy
         }).then(crossPlot => {
             let idCrossPlot = crossPlot.idCrossPlot;
             let idWell = crossPlotInfo.idWell;
@@ -69,7 +71,9 @@ async function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
                 majorX: 5,
                 majorY: 5,
                 minorX: 5,
-                minorY: 5
+                minorY: 5,
+                createdBy: crossPlotInfo.createdBy,
+                updatedBy: crossPlotInfo.updatedBy
             }).then(pointSet => {
                 let idPointSet = pointSet.idPointSet;
                 asyncLoop(myData.curveX.families, function (family, next) {
@@ -191,7 +195,9 @@ async function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
                         idWell: crossPlotInfo.idWell,
                         name: crossPlotInfo.name,
                         referenceTopDepth: well.topDepth,
-                        referenceBottomDepth: well.bottomDepth
+                        referenceBottomDepth: well.bottomDepth,
+                        createdBy: crossPlotInfo.createdBy,
+                        updatedBy: crossPlotInfo.updatedBy
                     });
                     crossPlot.save()
                         .then(function (crossPlot) {
@@ -210,6 +216,7 @@ async function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
 }
 
 function editCrossPlot(crossPlotInfo, done, dbConnection) {
+    delete crossPlotInfo.createdBy;
     if (typeof(crossPlotInfo.axisColors === "object")) {
         JSON.stringify(crossPlotInfo.axisColors);
     }
@@ -334,6 +341,8 @@ function duplicateCrossplot(payload, done, dbConnection) {
             // newCrossPlot.name = newCrossPlot.name + '_' + new Date().toLocaleString('en-US', {timeZone: "Asia/Ho_Chi_Minh"});
             newCrossPlot.duplicated = 1;
             newCrossPlot.name = newCrossPlot.name + "_Copy_" + crossplot.duplicated;
+            newCrossPlot.createdBy = payload.createdBy;
+            newCrossPlot.updatedBy = payload.updatedBy;
             crossplot.duplicated++;
             crossplot.save();
             CrossPLot.create(newCrossPlot).then(cr => {
@@ -344,6 +353,8 @@ function duplicateCrossplot(payload, done, dbConnection) {
                             delete newPointSet.idPointSet;
                             delete newPointSet.createdAt;
                             delete newPointSet.updatedAt;
+                            newPointSet.createdBy = payload.createdBy;
+                            newPointSet.updatedBy = payload.updatedBy;
                             newPointSet.idCrossPlot = idCrossPlot;
                             dbConnection.PointSet.create(newPointSet).then(ps => {
                                 callback(null, ps);
@@ -359,6 +370,8 @@ function duplicateCrossplot(payload, done, dbConnection) {
                                 delete polygon.updatedAt;
                                 delete polygon.createdAt;
                                 polygon.idCrossPlot = idCrossPlot;
+                                polygon.createdBy = payload.createdBy;
+                                polygon.updatedBy = payload.updatedBy;
                                 dbConnection.Polygon.create(polygon).then((pl) => {
                                     next();
                                 }).catch(err => {
@@ -374,6 +387,8 @@ function duplicateCrossplot(payload, done, dbConnection) {
                                 delete regression.idRegressionLine;
                                 delete regression.updatedAt;
                                 delete regression.createdAt;
+                                regression.createdBy = payload.createdBy;
+                                regression.updatedBy = payload.updatedBy;
                                 regression.idCrossPlot = idCrossPlot;
                                 dbConnection.RegressionLine.create(regression).then(() => {
                                     next();
@@ -390,6 +405,8 @@ function duplicateCrossplot(payload, done, dbConnection) {
                                 delete ternary.idTernary;
                                 delete ternary.updatedAt;
                                 delete ternary.createdAt;
+                                ternary.createdBy = payload.createdBy;
+                                ternary.updatedBy = payload.updatedBy;
                                 ternary.idCrossPlot = idCrossPlot;
                                 dbConnection.Ternary.create(ternary).then(() => {
                                     next();
@@ -407,6 +424,8 @@ function duplicateCrossplot(payload, done, dbConnection) {
                                 delete line.updatedAt;
                                 delete line.createdAt;
                                 line.idCrossPlot = idCrossPlot;
+                                line.createdBy = payload.createdBy;
+                                line.updatedBy = payload.updatedBy;
                                 dbConnection.UserDefineLine.create(line).then(() => {
                                     next();
                                 }).catch(err => {

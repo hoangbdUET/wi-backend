@@ -1,15 +1,11 @@
 "use strict";
-// var models = require('../models');
-// var Marker = models.Marker;
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
 
 function createNewMarker(markerInfo, done, dbConnection) {
-    var Marker = dbConnection.Marker;
+    let Marker = dbConnection.Marker;
     Marker.create(markerInfo).then(result => {
-        // Marker.findById(result.idMarker).then(marker => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Marker success", result));
-        // });
     }).catch(err => {
         console.log(err);
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Marker error", err));
@@ -17,7 +13,7 @@ function createNewMarker(markerInfo, done, dbConnection) {
 }
 
 function getMarkerInfo(markerID, done, dbConnection) {
-    var Marker = dbConnection.Marker;
+    let Marker = dbConnection.Marker;
     Marker.findById(markerID.idMarker, {
         include: [{all: true}]
     }).then(rs => {
@@ -28,7 +24,8 @@ function getMarkerInfo(markerID, done, dbConnection) {
 }
 
 function editMarker(markerInfo, done, dbConnection) {
-    var Marker = dbConnection.Marker;
+    delete markerInfo.createdBy;
+    let Marker = dbConnection.Marker;
     Marker.findById(markerInfo.idMarker)
         .then(function (marker) {
             Object.assign(marker, markerInfo)
@@ -46,9 +43,10 @@ function editMarker(markerInfo, done, dbConnection) {
 }
 
 function deleteMarker(markerInfo, done, dbConnection) {
-    var Marker = dbConnection.Marker;
+    let Marker = dbConnection.Marker;
     Marker.findById(markerInfo.idMarker)
         .then(function (marker) {
+            marker.setDataValue('updatedAt', markerInfo.updatedBy);
             marker.destroy()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Marker is deleted", marker));

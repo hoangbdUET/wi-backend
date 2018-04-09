@@ -1,10 +1,10 @@
-// var models = require('../models');
-// var Image = models.Image;
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
+// let models = require('../models');
+// let Image = models.Image;
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
 
 function createNewImage(imageInfo, done,dbConnection) {
-    var Image = dbConnection.Image;
+    let Image = dbConnection.Image;
     Image.sync()
         .then(function () {
             delete imageInfo.idImage;
@@ -21,7 +21,7 @@ function createNewImage(imageInfo, done,dbConnection) {
         });
 }
 function editImage(imageInfo,done,dbConnection) {
-    var Image = dbConnection.Image;
+    let Image = dbConnection.Image;
     Image.findById(imageInfo.idImage)
         .then(function (image) {
             delete imageInfo.idImage;
@@ -41,7 +41,7 @@ function editImage(imageInfo,done,dbConnection) {
 }
 
 function deleteImage(imageInfo,done,dbConnection) {
-    var Image = dbConnection.Image;
+    let Image = dbConnection.Image;
     Image.findById(imageInfo.idImage)
         .then(function (image) {
             image.destroy()
@@ -57,7 +57,7 @@ function deleteImage(imageInfo,done,dbConnection) {
         });
 }
 function getImageInfo(imageInfo,done,dbConnection) {
-    var Image = dbConnection.Image;
+    let Image = dbConnection.Image;
     Image.findById(imageInfo.idImage)
         .then(function (image) {
             if (!image) throw 'not exists';

@@ -28,6 +28,14 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.BOOLEAN,
             allowNull: true,
             defaultValue: false
+        },
+        createdBy: {
+            type: DataTypes.STRING(50),
+            allowNull: false,
+        },
+        updatedBy: {
+            type: DataTypes.STRING(50),
+            allowNull: false
         }
     }, {
         paranoid: true

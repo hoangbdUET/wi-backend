@@ -1,9 +1,9 @@
 "use strict";
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
 
 function createNewAnnotation(annotationInfo, done, dbConnection) {
-    var Annotation = dbConnection.Annotation;
+    let Annotation = dbConnection.Annotation;
     Annotation.create(annotationInfo).then(result => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Annotation success", result));
     }).catch(err => {
@@ -13,7 +13,7 @@ function createNewAnnotation(annotationInfo, done, dbConnection) {
 }
 
 function getAnnotationInfo(annotationID, done, dbConnection) {
-    var Annotation = dbConnection.Annotation;
+    let Annotation = dbConnection.Annotation;
     Annotation.findById(annotationID.idAnnotation, {
         include: [{all: true}]
     }).then(rs => {
@@ -28,7 +28,8 @@ function getAnnotationInfo(annotationID, done, dbConnection) {
 }
 
 function editAnnotation(annotationInfo, done, dbConnection) {
-    var Annotation = dbConnection.Annotation;
+    delete annotationInfo.createdBy;
+    let Annotation = dbConnection.Annotation;
     Annotation.findById(annotationInfo.idAnnotation)
         .then(function (annotation) {
             Object.assign(annotation, annotationInfo)
@@ -46,7 +47,7 @@ function editAnnotation(annotationInfo, done, dbConnection) {
 }
 
 function deleteAnnotation(annotationInfo, done, dbConnection) {
-    var Annotation = dbConnection.Annotation;
+    let Annotation = dbConnection.Annotation;
     Annotation.findById(annotationInfo.idAnnotation)
         .then(function (annotation) {
             annotation.destroy()

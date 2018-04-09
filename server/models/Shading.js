@@ -40,6 +40,14 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING,
             allowNull: false,
             defaultValue: 'a'
+        },
+        createdBy: {
+            type: DataTypes.STRING(50),
+            allowNull: false,
+        },
+        updatedBy: {
+            type: DataTypes.STRING(50),
+            allowNull: false
         }
     });
 };

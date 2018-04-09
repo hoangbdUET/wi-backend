@@ -26,6 +26,14 @@ module.exports = function (sequelize, DataTypes) {
         name: {
             type: DataTypes.STRING(100),
             allowNull: false//TODO: has defaultValue????
+        },
+        createdBy: {
+            type: DataTypes.STRING(50),
+            allowNull: false,
+        },
+        updatedBy: {
+            type: DataTypes.STRING(50),
+            allowNull: false
         }
     }, {
         paranoid: true

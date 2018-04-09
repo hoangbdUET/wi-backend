@@ -22,7 +22,9 @@ function createNewCurve(curveInfo, done, dbConnection) {
                     name: curveInfo.name,
                     dataset: curveInfo.dataset,
                     unit: curveInfo.unit,
-                    initValue: curveInfo.initValue
+                    initValue: curveInfo.initValue,
+                    createdBy: curveInfo.createdBy,
+                    updatedBy: curveInfo.updatedBy
                 });
                 curve.save()
                     .then(curve => {
@@ -40,6 +42,7 @@ function createNewCurve(curveInfo, done, dbConnection) {
 }
 
 function editCurve(curveInfo, done, dbConnection, username) {
+    delete curveInfo.createdBy;
     let Curve = dbConnection.Curve;
     let Dataset = dbConnection.Dataset;
     let Well = dbConnection.Well;
@@ -228,6 +231,8 @@ function copyCurve(param, done, dbConnection, username) {
                                     if (cp) {
                                         let newCurve = curve.toJSON();
                                         newCurve.idDataset = desDataset.idDataset;
+                                        newCurve.createdBy = param.createdBy;
+                                        newCurve.updatedBy = param.updatedBy;
                                         delete newCurve.idCurve;
                                         //console.log("New Curve : " + JSON.stringify(newCurve));
                                         Curve.findAll({
@@ -359,6 +364,7 @@ function moveCurve(param, rs, dbConnection, username) {
 async function deleteCurve(curveInfo, done, dbConnection, username) {
     let Curve = dbConnection.Curve;
     let curve = await Curve.findById(curveInfo.idCurve);
+    curve.setDataValue('updatedBy', curveInfo.updatedBy);
     if (!curve) return done(ErrorCodes.ERROR_INVALID_PARAMS, "No curve found by id");
 
     let curveParents = await curveFunction.getFullCurveParents(curve, dbConnection);
@@ -593,7 +599,7 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
         })
 };
 
-let processingCurve = function (req, done, dbConnection) {
+let processingCurve = function (req, done, dbConnection, createdBy, updatedBy) {
     let Curve = dbConnection.Curve;
     let Dataset = dbConnection.Dataset;
     let Well = dbConnection.Well;
@@ -621,7 +627,9 @@ let processingCurve = function (req, done, dbConnection) {
                             unit: unit,
                             initValue: "abc",
                             idDataset: idDataset,
-                            idFamily: idFamily
+                            idFamily: idFamily,
+                            createdBy: createdBy,
+                            updatedBy: updatedBy
                         }).then(curve => {
                             let newPath = hashDir.createPath(config.curveBasePath, req.decoded.username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
                             fs.copy(filePath, newPath, function (err) {
@@ -722,7 +730,7 @@ let processingCurve = function (req, done, dbConnection) {
     }).catch();
 };
 
-async function getCurveDataFromInventory(curveInfo, token, callback, dbConnection, username) {
+async function getCurveDataFromInventory(curveInfo, token, callback, dbConnection, username, createdBy, updatedBy) {
     let options = {
         method: 'POST',
         url: 'http://' + config.Service.inventory + '/user/well/dataset/curve/data',
@@ -752,7 +760,9 @@ async function getCurveDataFromInventory(curveInfo, token, callback, dbConnectio
             name: curve.name,
             idDataset: curve.idDataset,
             initValue: curve.initValue,
-            unit: curve.unit
+            unit: curve.unit,
+            createdBy: createdBy,
+            updatedBy: updatedBy
         }
     }).then(rs => {
         // console.log(rs);
@@ -785,6 +795,8 @@ function duplicateCurve(data, done, dbConnection, username) {
                 let project = await dbConnection.Project.findById(well.idProject);
                 let curvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
                 let newCurve = curve.toJSON();
+                newCurve.createdBy = data.createdBy;
+                newCurve.updatedBy = data.updatedBy;
                 newCurve.name = curve.name + '_Copy_' + curve.duplicated;
                 delete newCurve.idCurve;
                 curve.duplicated += 1;

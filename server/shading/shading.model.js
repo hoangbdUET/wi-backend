@@ -1,5 +1,3 @@
-// let models = require('../models');
-// let Shading=models.Shading;
 let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
 
@@ -20,9 +18,10 @@ function createNewShading(shadingInfo, done, dbConnection) {
                     negativeFill: JSON.stringify(shadingInfo.negativeFill),
                     positiveFill: JSON.stringify(shadingInfo.positiveFill),
                     fill: JSON.stringify(shadingInfo.fill),
-                    isNegPosFill: shadingInfo.isNegPosFill,
                     idControlCurve: shadingInfo.idControlCurve,
-                    orderNum: shadingInfo.orderNum
+                    orderNum: shadingInfo.orderNum,
+                    createdBy: shadingInfo.createdBy,
+                    updatedBy: shadingInfo.updatedBy
                 });
                 shading.save()
                     .then(function (result) {
@@ -40,34 +39,8 @@ function createNewShading(shadingInfo, done, dbConnection) {
         )
 }
 
-function _editShading(shadingInfo, done, dbConnection) {
-    delete shadingInfo.changed;
-    let Shading = dbConnection.Shading;
-    Shading.findById(shadingInfo.idShading)
-        .then(function (shading) {
-            shadingInfo.positiveFill = JSON.stringify(shadingInfo.positiveFill);
-            shadingInfo.negativeFill = JSON.stringify(shadingInfo.negativeFill);
-            shadingInfo.fill = JSON.stringify(shadingInfo.fill);
-            Object.keys(shadingInfo).forEach(prop => shading[prop] = shadingInfo[prop]);
-            delete shading.idShading;
-
-            shading.save()
-                .then(function (result) {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Edit shading success", result));
-                })
-                .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit shading" + err));
-                })
-        })
-        .catch(function (err) {
-            console.log(err);
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Shading not found for edit", err.message));
-        })
-}
-
 function editShading(shadingInfo, done, dbConnection) {
-    // console.log(shadingInfo);
-    delete shadingInfo.changed;
+    delete shadingInfo.updatedBy;
     shadingInfo.negativeFill = JSON.stringify(shadingInfo.negativeFill);
     shadingInfo.fill = JSON.stringify(shadingInfo.fill);
     shadingInfo.positiveFill = JSON.stringify(shadingInfo.positiveFill);

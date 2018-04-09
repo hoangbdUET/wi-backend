@@ -27,6 +27,14 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.DOUBLE,
             allowNull: false,
             defaultValue: 100
+        },
+        createdBy: {
+            type: DataTypes.STRING(50),
+            allowNull: false,
+        },
+        updatedBy: {
+            type: DataTypes.STRING(50),
+            allowNull: false
         }
     });
 };

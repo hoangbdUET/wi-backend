@@ -1,9 +1,7 @@
-// let models = require('../models');
-// let ZoneTrack = models.ZoneTrack;
 let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
 
-function createNewZoneTrack(zoneTrackInfo,done,dbConnection) {
+function createNewZoneTrack(zoneTrackInfo, done, dbConnection) {
     let ZoneTrack = dbConnection.ZoneTrack;
     ZoneTrack.sync()
         .then(
@@ -12,10 +10,13 @@ function createNewZoneTrack(zoneTrackInfo,done,dbConnection) {
                 let zoneTrack = ZoneTrack.build(zoneTrackInfo);
                 zoneTrack.save()
                     .then(function (zoneTrack) {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new ZoneTrack success", {idZoneTrack: zoneTrack.idZoneTrack, orderNum: zoneTrack.orderNum}));
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new ZoneTrack success", {
+                            idZoneTrack: zoneTrack.idZoneTrack,
+                            orderNum: zoneTrack.orderNum
+                        }));
                     })
                     .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new ZoneTrack "+err.name));
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new ZoneTrack " + err.name));
                     })
             },
             function () {
@@ -23,7 +24,9 @@ function createNewZoneTrack(zoneTrackInfo,done,dbConnection) {
             }
         )
 }
-function editZoneTrack(zoneTrackInfo, done,dbConnection) {
+
+function editZoneTrack(zoneTrackInfo, done, dbConnection) {
+    delete zoneTrackInfo.createdBy;
     let ZoneTrack = dbConnection.ZoneTrack;
     ZoneTrack.findById(zoneTrackInfo.idZoneTrack)
         .then(function (zoneTrack) {
@@ -40,24 +43,27 @@ function editZoneTrack(zoneTrackInfo, done,dbConnection) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "ZoneTrack not found for edit"))
         });
 }
-function deleteZoneTrack(zoneTrackInfo, done,dbConnection) {
+
+function deleteZoneTrack(zoneTrackInfo, done, dbConnection) {
     let ZoneTrack = dbConnection.ZoneTrack;
     ZoneTrack.findById(zoneTrackInfo.idZoneTrack)
         .then(function (zoneTrack) {
+            zoneTrack.setDataValue('updatedBy', zoneTrackInfo.updatedBy);
             zoneTrack.destroy()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "ZoneTrack is deleted", zoneTrack));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete ZoneTrack "+err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete ZoneTrack " + err.errors[0].message));
                 })
         })
         .catch(function () {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "ZoneTrack not found for delete"));
         })
 }
-function getZoneTrackInfo(zoneTrack,done,dbConnection) {
-    let ZoneTrack=dbConnection.ZoneTrack;
+
+function getZoneTrackInfo(zoneTrack, done, dbConnection) {
+    let ZoneTrack = dbConnection.ZoneTrack;
     ZoneTrack.findById(zoneTrack.idZoneTrack, {include: [{all: true}]})
         .then(function (zoneTrack) {
             if (!zoneTrack) throw "not exits";
@@ -69,9 +75,9 @@ function getZoneTrackInfo(zoneTrack,done,dbConnection) {
 }
 
 module.exports = {
-    createNewZoneTrack:createNewZoneTrack,
-    deleteZoneTrack:deleteZoneTrack,
-    editZoneTrack:editZoneTrack,
-    getZoneTrackInfo:getZoneTrackInfo
+    createNewZoneTrack: createNewZoneTrack,
+    deleteZoneTrack: deleteZoneTrack,
+    editZoneTrack: editZoneTrack,
+    getZoneTrackInfo: getZoneTrackInfo
 };
 

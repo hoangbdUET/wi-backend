@@ -38,11 +38,6 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: 1
         },
-        // cssStyle:{
-        //     type:DataTypes.STRING,
-        //     allowNull:false,
-        //     //TODO add default value
-        // },
         trackBackground: {
             type: DataTypes.STRING(50),
             allowNull: false,
@@ -62,6 +57,14 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.FLOAT,
             allowNull: false,
             defaultValue: 0.5
+        },
+        createdBy: {
+            type: DataTypes.STRING(50),
+            allowNull: false,
+        },
+        updatedBy: {
+            type: DataTypes.STRING(50),
+            allowNull: false
         }
     });
 };

@@ -1,16 +1,14 @@
-// var models = require('../models');
-// var Zone = models.Zone;
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
 
-function createNewZone(zoneInfo, done,dbConnection) {
-    var Zone=dbConnection.Zone;
+function createNewZone(zoneInfo, done, dbConnection) {
+    let Zone = dbConnection.Zone;
     zoneInfo.fill = JSON.stringify(zoneInfo.fill);
     Zone.sync()
         .then(
             function () {
                 delete zoneInfo.idZone;
-                var zone = Zone.build(zoneInfo);
+                let zone = Zone.build(zoneInfo);
                 zone.save()
                     .then(function (zone) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Zone success", {
@@ -29,8 +27,9 @@ function createNewZone(zoneInfo, done,dbConnection) {
         )
 }
 
-function editZone(zoneInfo, done,dbConnection) {
-    var Zone=dbConnection.Zone;
+function editZone(zoneInfo, done, dbConnection) {
+    delete zoneInfo.createdBy;
+    let Zone = dbConnection.Zone;
     Zone.findById(zoneInfo.idZone)
         .then(function (zone) {
             zone = Object.assign(zone, zoneInfo);
@@ -48,10 +47,11 @@ function editZone(zoneInfo, done,dbConnection) {
         });
 }
 
-function deleteZone(zoneInfo, done,dbConnection) {
-    var Zone=dbConnection.Zone;
+function deleteZone(zoneInfo, done, dbConnection) {
+    let Zone = dbConnection.Zone;
     Zone.findById(zoneInfo.idZone)
         .then(function (zone) {
+            zone.setDataValue('updatedBy', zoneInfo.updatedBy);
             zone.destroy()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Zone is deleted", zone));
@@ -65,8 +65,8 @@ function deleteZone(zoneInfo, done,dbConnection) {
         })
 }
 
-function getZoneInfo(zone, done,dbConnection) {
-    var Zone = dbConnection.Zone;
+function getZoneInfo(zone, done, dbConnection) {
+    let Zone = dbConnection.Zone;
     Zone.findById(zone.idZone, {include: [{all: true}]})
         .then(function (zone) {
             if (!zone) throw "not exits";
@@ -83,5 +83,3 @@ module.exports = {
     editZone: editZone,
     getZoneInfo: getZoneInfo
 };
-
-

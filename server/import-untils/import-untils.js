@@ -24,7 +24,9 @@ function createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, dbConn
                 name: wellInfo.name,
                 topDepth: wellInfo.topDepth,
                 bottomDepth: wellInfo.bottomDepth,
-                step: wellInfo.step
+                step: wellInfo.step,
+                createdBy: projectInfo.createdBy,
+                updatedBy: projectInfo.updatedBy
             }
         }).then(rs => {
             let well = rs[0];
@@ -32,7 +34,9 @@ function createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, dbConn
                 where: {name: datasetInfo.name, idWell: well.idWell}, defaults: {
                     name: datasetInfo.name,
                     datasetKey: datasetInfo.datasetKey,
-                    datasetLabel: datasetInfo.datasetLabel
+                    datasetLabel: datasetInfo.datasetLabel,
+                    createdBy: datasetInfo.createdBy,
+                    updatedBy: datasetInfo.updatedBy
                 }
             }).then(d => {
                 let dataset = d[0];
@@ -41,7 +45,9 @@ function createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, dbConn
                         where: {name: curve.name, idDataset: dataset.idDataset}, defaults: {
                             name: curve.name,
                             unit: curve.unit,
-                            initValue: curve.initValue
+                            initValue: curve.initValue,
+                            createdBy: curve.createdBy,
+                            updatedBy: curve.updatedBy
                         }
                     }).then(() => {
                         next();
@@ -82,6 +88,8 @@ function createCurvesWithWellExist(wellInfo, datasetInfo, option, dbConnection) 
                         well.topDepth = wellInfo.topDepth;
                         well.bottomDepth = wellInfo.bottomDepth;
                         well.step = wellInfo.step;
+                        well.createdBy = wellInfo.createdBy;
+                        well.updatedBy = wellInfo.updatedBy;
                         return well.save({transaction: t});
                     });
             }
@@ -112,6 +120,8 @@ function createCurvesWithDatasetExist(wellInfo, datasetInfo, curvesInfo, option,
                             well.topDepth = wellInfo.topDepth;
                             well.bottomDepth = wellInfo.bottomDepth;
                             well.step = wellInfo.step;
+                            well.createdBy = wellInfo.createdBy;
+                            well.updatedBy = wellInfo.updatedBy;
                             return well.save({transaction: t});
                         });
                 }

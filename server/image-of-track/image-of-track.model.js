@@ -1,8 +1,8 @@
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
-var config = require('config');
-var fs = require('fs');
-var path = require('path');
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
+let config = require('config');
+let fs = require('fs');
+let path = require('path');
 
 function createImageOfTrack(info, done, dbConnection) {
     let Model = dbConnection.ImageOfTrack;
@@ -27,6 +27,7 @@ function infoImageOfTrack(info, done, dbConnection) {
 }
 
 function editImageOfTrack(info, done, dbConnection) {
+    delete info.createdBy;
     let Model = dbConnection.ImageOfTrack;
     Model.findById(info.idImageOfTrack).then(result => {
         if (!result) {
@@ -47,6 +48,7 @@ function deleteImageOfTrack(info, done, dbConnection, username) {
     let Model = dbConnection.ImageOfTrack;
     Model.findById(info.idImageOfTrack).then(image => {
         if (image) {
+            Model.setDataValue('updatedBy', info.updatedBy);
             Model.destroy({where: {idImageOfTrack: info.idImageOfTrack}}).then(result => {
                 if (result > 0) {
                     let imgPath = path.join(__dirname, '../..', config.imageBasePath, image.imageUrl.substring(image.imageUrl.indexOf('/' + username + '/')));
@@ -68,7 +70,7 @@ function deleteImageOfTrack(info, done, dbConnection, username) {
 }
 
 function getListImage(imageInfo, done, dbConnection) {
-    var Model = dbConnection.ImageOfTrack;
+    let Model = dbConnection.ImageOfTrack;
     Model.findAll({where: {idImageTrack: imageInfo.idImageTrack}}).then(images => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Get image success", images));
     }).catch(err => {

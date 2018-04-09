@@ -1,12 +1,10 @@
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
 
 function createNewPointSet(pointSetInfo, done, dbConnection) {
-    var PointSet = dbConnection.PointSet;
-    var Well = dbConnection.Well;
+    let PointSet = dbConnection.PointSet;
+    let Well = dbConnection.Well;
     Well.findById(pointSetInfo.idWell).then(well => {
-        // pointSetInfo.referenceTopDepth = well.topDepth;
-        // pointSetInfo.referenceBottomDepth = well.bottomDepth;
         if (pointSetInfo.idZoneSet) {
             PointSet.sync()
                 .then(function () {
@@ -46,11 +44,10 @@ function createNewPointSet(pointSetInfo, done, dbConnection) {
 }
 
 function editPointSet(pointSetInfo, done, dbConnection) {
-    var PointSet = dbConnection.PointSet;
+    delete pointSetInfo.createdBy;
+    let PointSet = dbConnection.PointSet;
     PointSet.findById(pointSetInfo.idPointSet)
         .then(function (pointSet) {
-            delete pointSetInfo.idPointSet;
-            delete pointSetInfo.idCrossPlot;
             Object.assign(pointSet, pointSetInfo)
                 .save()
                 .then(function (result) {
@@ -66,9 +63,10 @@ function editPointSet(pointSetInfo, done, dbConnection) {
 }
 
 function deletePointSet(pointSetInfo, done, dbConnection) {
-    var PointSet = dbConnection.PointSet;
+    let PointSet = dbConnection.PointSet;
     PointSet.findById(pointSetInfo.idPointSet)
         .then(function (pointSet) {
+            pointSet.setDataValue('updatedBy', pointSetInfo.updatedBy);
             pointSet.destroy()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "PointSet is deleted", pointSet));
@@ -84,7 +82,7 @@ function deletePointSet(pointSetInfo, done, dbConnection) {
 
 
 function getPointSetInfo(pointSetInfo, done, dbConnection) {
-    var PointSet = dbConnection.PointSet;
+    let PointSet = dbConnection.PointSet;
     PointSet.findById(pointSetInfo.idPointSet)
         .then(function (pointSet) {
             if (!pointSet) throw 'not exists';

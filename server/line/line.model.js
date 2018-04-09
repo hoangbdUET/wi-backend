@@ -116,7 +116,9 @@ function createNewLineWithoutResponse(lineInfo, dbConnection, username, callback
             lineWidth: curve.LineProperty.family_spec[0].lineWidth,
             lineColor: curve.LineProperty.family_spec[0].lineColor,
             symbolFillStyle: curve.LineProperty.family_spec[0].lineColor,
-            symbolStrokeStyle: curve.LineProperty.family_spec[0].lineColor
+            symbolStrokeStyle: curve.LineProperty.family_spec[0].lineColor,
+            createdBy: lineInfo.createdBy,
+            updatedBy: lineInfo.updatedBy
         }).save()
             .then(function (line) {
                 callback(line);
@@ -128,7 +130,6 @@ function createNewLineWithoutResponse(lineInfo, dbConnection, username, callback
 }
 
 function createNewLine(lineInfo, done, dbConnection, username) {
-    delete lineInfo.changed;
     let Line = dbConnection.Line;
     let Curve = dbConnection.Curve;
     let Dataset = dbConnection.Dataset;
@@ -163,7 +164,9 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                                         lineColor: familyInfo.family_spec[0].lineColor,
                                         symbolFillStyle: familyInfo.family_spec[0].lineColor,
                                         symbolStrokeStyle: familyInfo.family_spec[0].lineColor,
-                                        orderNum: lineInfo.orderNum
+                                        orderNum: lineInfo.orderNum,
+                                        createdBy: lineInfo.createdBy,
+                                        updatedBy: lineInfo.updatedBy
                                     }).save()
                                         .then(function (line) {
                                             done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", line));
@@ -185,7 +188,9 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                                         alias: curve.name,
                                         minValue: result.minScale,
                                         maxValue: result.maxScale,
-                                        orderNum: lineInfo.orderNum
+                                        orderNum: lineInfo.orderNum,
+                                        createdBy: lineInfo.createdBy,
+                                        updatedBy: lineInfo.updatedBy
                                     }).save()
                                         .then(function (line) {
                                             done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", line.toJSON()));
@@ -208,9 +213,10 @@ function createNewLine(lineInfo, done, dbConnection, username) {
 }
 
 function editLine(lineInfo, done, dbConnection) {
+    delete lineInfo.createdBy;
+    delete lineInfo.createdBy;
     if (lineInfo.lineStyle) lineInfo.lineStyle = typeof(lineInfo.lineStyle) === 'object' ? JSON.stringify(lineInfo.lineStyle) : lineInfo.lineStyle;
     if (lineInfo.symbolLineDash) lineInfo.symbolLineDash = typeof(lineInfo.symbolLineDash) === 'object' ? JSON.stringify(lineInfo.symbolLineDash) : lineInfo.symbolLineDash;
-    delete lineInfo.changed;
     let Line = dbConnection.Line;
     Line.findById(lineInfo.idLine, {include: {all: true}}).then(line => {
         if (line) {
@@ -220,7 +226,6 @@ function editLine(lineInfo, done, dbConnection) {
                     include: {all: true}
                 }).then(shadings => {
                     asyncLoop(shadings, function (shading, next) {
-                        console.log(shading.toJSON());
                         if (shading.idLeftLine && shading.idRightLine) {
                             shading.destroy().then(() => {
                                 next();
@@ -293,6 +298,7 @@ function deleteLine(lineInfo, done, dbConnection) {
     let Line = dbConnection.Line;
     Line.findById(lineInfo.idLine)
         .then(function (line) {
+            line.setDataValue('updatedBy', lineInfo.updatedBy);
             let Sequelize = require('sequelize');
             dbConnection.Shading.findAll({
                 where: Sequelize.or(

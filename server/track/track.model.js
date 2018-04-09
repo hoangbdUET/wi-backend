@@ -5,65 +5,25 @@ let asyncLoop = require('async/each');
 let asyncSeries = require('async/series');
 let path = require('path');
 
-function _createNewTrack(trackInfo, done, dbConnection) {
-    let Track = dbConnection.Track;
-    Track.sync()
-        .then(
-            function () {
-                var track = Track.build({
-                    idPlot: trackInfo.idPlot,
-                    orderNum: trackInfo.orderNum
-                });
-                track.save()
-                    .then(function (track) {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Track success", {
-                            idTrack: track.idTrack,
-                            orderNum: track.orderNum
-                        }));
-                    })
-                    .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Track " + err.name));
-                    })
-            },
-            function () {
-                done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
-            }
-        )
-}
-
 function createNewTrack(trackInfo, done, dbConnection) {
     dbConnection.Track.create(trackInfo).then(track => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Track success", track));
     }).catch(err => {
-        done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Error while create new track", err));
+        done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, err.message, err.message));
     });
 }
 
 function editTrack(trackInfo, done, dbConnection) {
-    var Track = dbConnection.Track;
+    delete trackInfo.createdBy;
+    let Track = dbConnection.Track;
     Track.findById(trackInfo.idTrack)
         .then(function (track) {
             Object.assign(track, trackInfo).save()
-            // track.idPlot = trackInfo.idPlot || track.idPlot;
-            // track.orderNum = trackInfo.orderNum || track.orderNum;
-            // track.showTitle = trackInfo.showTitle || track.showTitle;
-            // track.title = trackInfo.title || track.title;
-            // track.topJustification = trackInfo.topJustification || track.topJustification;
-            // track.bottomJustification = trackInfo.bottomJustification || track.bottomJustification;
-            // track.showLabels = trackInfo.showLabels || track.showLabels;
-            // track.showValueGrid = trackInfo.showValueGrid || track.showValueGrid;
-            // track.majorTicks = trackInfo.majorTicks || track.majorTicks;
-            // track.minorTicks = trackInfo.minorTicks || track.minorTicks;
-            // track.showDepthGrid = trackInfo.showDepthGrid || track.showDepthGrid;
-            // track.width = trackInfo.width || track.width;
-            // track.color = trackInfo.color || track.color;
-            // track.showEndLabels = trackInfo.showEndLabels || track.showEndLabels;
-            // track.zoomFactor = trackInfo.zoomFactor || track.zoomFactor;
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit track success", trackInfo));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit track" + err));
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
                 })
         })
         .catch(function () {
@@ -72,15 +32,16 @@ function editTrack(trackInfo, done, dbConnection) {
 }
 
 function deleteTrack(trackInfo, done, dbConnection) {
-    var Track = dbConnection.Track;
+    let Track = dbConnection.Track;
     Track.findById(trackInfo.idTrack)
         .then(function (track) {
-            track.destroy()
+            track.setDataValue('updatedBy', trackInfo.updatedBy);
+            track.destroy({hooks: !dbConnection.hookPerm})
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Track is deleted", track));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Track " + err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.message, err.message));
                 })
         })
         .catch(function (err) {
@@ -89,7 +50,7 @@ function deleteTrack(trackInfo, done, dbConnection) {
 }
 
 function getTrackInfo(track, done, dbConnection) {
-    var Track = dbConnection.Track;
+    let Track = dbConnection.Track;
     Track.findById(track.idTrack, {include: [{all: true}]})
         .then(function (track) {
             if (!track) throw "not exits";
@@ -185,7 +146,7 @@ let createTrack = function (myTrack, dbConnection, callback) {
         console.log(err);
         callback(null);
     })
-}
+};
 let findCurve = function (curveInfo, dbConnection, callback) {
     let Curve = dbConnection.Curve;
     let Dataset = dbConnection.Dataset;
@@ -215,7 +176,7 @@ let findCurve = function (curveInfo, dbConnection, callback) {
             callback({curve: curveInfo.name, dataset: curveInfo.datasetName}, null);
         }
     });
-}
+};
 let createLine = function (lineInfo, dbConnection, callback) {
     let Line = dbConnection.Line;
     Line.create({
@@ -250,7 +211,7 @@ let createLine = function (lineInfo, dbConnection, callback) {
         console.log(err);
         callback(null);
     })
-}
+};
 let findLine = function (lineInfo, dbConnection, callback) {
     let Line = dbConnection.Line;
     Line.findOne({
@@ -265,7 +226,7 @@ let findLine = function (lineInfo, dbConnection, callback) {
         console.log(err);
         callback(null);
     })
-}
+};
 let createShading = function (shadingInfo, dbConnection, callback) {
     let Shading = dbConnection.Shading;
     Shading.create({
@@ -286,7 +247,7 @@ let createShading = function (shadingInfo, dbConnection, callback) {
         console.log(err);
         callback(null);
     });
-}
+};
 
 //thieu marker
 let importTrackTemplate = async function (req, done, dbConnection) {

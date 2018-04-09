@@ -21,6 +21,7 @@ let createWorkflow = function (data, callback, dbConnection) {
 };
 
 let editWorkflow = function (data, callback, dbConnection) {
+    delete data.createdBy;
     dbConnection.Workflow.findById(data.idWorkflow).then(w => {
         if (w) {
             Object.assign(w, data).save().then(rs => {
@@ -65,6 +66,7 @@ let infoWorkflow = function (data, callback, dbConnection) {
 let deleteWorkflow = function (data, callback, dbConnection) {
     dbConnection.Workflow.findById(data.idWorkflow).then(w => {
         if (w) {
+            w.setDataValue('updatedBy', data.updatedBy);
             w.destroy().then(() => {
                 callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", w));
             });

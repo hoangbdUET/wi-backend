@@ -1,5 +1,5 @@
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
 
 function createObjectTrack(info, done, dbConnection) {
     let Model = dbConnection.ObjectTrack;
@@ -24,6 +24,7 @@ function infoObjectTrack(info, done, dbConnection) {
 }
 
 function editObjectTrack(info, done, dbConnection) {
+    delete info.createdBy;
     let Model = dbConnection.ObjectTrack;
     Model.findById(info.idObjectTrack).then(result => {
         if (!result) {
@@ -42,14 +43,12 @@ function editObjectTrack(info, done, dbConnection) {
 
 function deleteObjectTrack(info, done, dbConnection) {
     let Model = dbConnection.ObjectTrack;
-    Model.destroy({where: {idObjectTrack: info.idObjectTrack}}).then(result => {
-        if (result > 0) {
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Delete ObjectTrack successful", info));
+    Model.findById(info.idObjectTrack).then(track => {
+        if (track) {
+            track.setDataValue('updatedBy', info.updatedBy);
         } else {
-            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Not found ObjectTrack for delete"));
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Not found"));
         }
-    }).catch(err => {
-        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Some err", err.message));
     });
 }
 
@@ -58,4 +57,4 @@ module.exports = {
     infoObjectTrack: infoObjectTrack,
     deleteObjectTrack: deleteObjectTrack,
     editObjectTrack: editObjectTrack
-}
+};

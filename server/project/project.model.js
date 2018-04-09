@@ -11,13 +11,7 @@ function createNewProject(projectInfo, done, dbConnection) {
     let Project = dbConnection.Project;
     Project.sync()
         .then(function () {
-            return Project.create({
-                name: projectInfo.name,
-                location: genLocationOfNewProject(),
-                company: projectInfo.company,
-                department: projectInfo.department,
-                description: projectInfo.description
-            });
+            return Project.create(projectInfo);
         })
         .then(function (project) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Create new project success", project));
@@ -32,6 +26,7 @@ function createNewProject(projectInfo, done, dbConnection) {
 };
 
 function editProject(projectInfo, done, dbConnection) {
+    delete projectInfo.createdBy;
     let Project = dbConnection.Project;
     Project.findById(projectInfo.idProject)
         .then(function (project) {
@@ -39,6 +34,7 @@ function editProject(projectInfo, done, dbConnection) {
             project.company = projectInfo.company;
             project.department = projectInfo.department;
             project.description = projectInfo.description;
+            project.updatedBy = projectInfo.updatedBy;
             project.save()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Project success", projectInfo));
@@ -268,55 +264,6 @@ async function getProjectFullInfo(payload, done, req) {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Get full info Project success", response));
     });
 }
-
-function _getProjectFullInfo(project, done, dbConnection) {
-    let idProject = project.idProject;
-    let response = new Object();
-    dbConnection.Project.findById(idProject, {
-        include: [{
-            model: dbConnection.Well,
-            include: [{
-                model: dbConnection.Dataset,
-                include: [{
-                    model: dbConnection.Curve,
-                    include: [{
-                        model: dbConnection.Family,
-                        as: "LineProperty"
-                    }]
-                }]
-            }, {
-                model: dbConnection.Plot
-            }, {
-                model: dbConnection.CrossPlot
-            }, {
-                model: dbConnection.Histogram
-            }, {
-                model: dbConnection.CombinedBox
-            }]
-        }, {
-            model: dbConnection.Groups
-        }]
-    }).then(project => {
-        if (project) {
-            response = project.toJSON();
-            asyncLoop(response.wells, function (well, next) {
-                dbConnection.ZoneSet.findAll({
-                    where: {idWell: well.idWell},
-                    include: {model: dbConnection.Zone}
-                }).then(zs => {
-                    zs = JSON.parse(JSON.stringify(zs));
-                    response.wells[response.wells.indexOf(well)].zonesets = zs;
-                    next();
-                });
-            }, function () {
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Get full info Project success", response));
-            });
-        } else {
-            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No project"));
-        }
-    });
-}
-
 
 function genLocationOfNewProject() {
     return "";

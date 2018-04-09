@@ -28,6 +28,7 @@ function createNewZoneSet(zoneSetInfo, done, dbConnection) {
 }
 
 function editZoneSet(zoneSetInfo, done, dbConnection) {
+    delete zoneSetInfo.createdBy;
     let ZoneSet = dbConnection.ZoneSet;
     ZoneSet.findById(zoneSetInfo.idZoneSet)
         .then(function (zoneSet) {
@@ -53,6 +54,7 @@ function deleteZoneSet(zoneSetInfo, done, dbConnection) {
     let ZoneSet = dbConnection.ZoneSet;
     ZoneSet.findById(zoneSetInfo.idZoneSet)
         .then(function (zoneSet) {
+            zoneSet.setDataValue('updatedBy', zoneSetInfo.updatedBy);
             zoneSet.destroy()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "ZoneSet is deleted", zoneSet));
@@ -95,6 +97,8 @@ async function duplicateZoneSet(data, done, dbConnection) {
     delete newZoneset.idZoneSet;
     newZoneset.name = zoneset.name + '_Copy_' + zoneset.duplicated;
     zoneset.duplicated++;
+    newZoneset.createdBy = data.createdBy;
+    newZoneset.updatedBy = data.updatedBy;
     await zoneset.save();
     let _zoneset = await dbConnection.ZoneSet.create(newZoneset);
     asyncEach(newZoneset.zones, function (zone, next) {

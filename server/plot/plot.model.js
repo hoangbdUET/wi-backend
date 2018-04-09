@@ -19,7 +19,7 @@ let findFamilyIdByName = function (familyName, dbConnection, callback) {
         console.log(err);
         callback(null);
     })
-}
+};
 
 let searchReferenceCurve = function (idWell, dbConnection, callback) {
     let FamilyModel = dbConnection.Family;
@@ -77,7 +77,7 @@ let searchReferenceCurve = function (idWell, dbConnection, callback) {
     }).catch(err => {
         callback(err, null);
     })
-}
+};
 
 function findCurveForTemplate(families, idWell, dbConnection, callback) {
     // console.log(families);
@@ -124,7 +124,9 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
         idWell: myPlot.idWell,
         name: myPlot.name,
         option: myPlot.option,
-        referenceCurve: myPlot.referenceCurve
+        referenceCurve: myPlot.referenceCurve,
+        createdBy: myPlot.createdBy,
+        updatedBy: myPlot.updatedBy
     }).then(plot => {
         let idPlot = plot.idPlot;
         asyncLoop(myPlot.depth_axes, function (depth_axis, next) {
@@ -140,7 +142,9 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
                 dbConnection.Track.create({
                     idPlot: track.idPlot,
                     orderNum: track.orderNum,
-                    title: track.title
+                    title: track.title,
+                    createdBy: myPlot.createdBy,
+                    updatedBy: myPlot.updatedBy
                 }).then(t => {
                     let idTrack = t.idTrack;
                     asyncLoop(track.lines, function (line, nextLine) {
@@ -149,7 +153,9 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
                                 console.log("FOUND CURVE : ", curve.name);
                                 lineModel.createNewLineWithoutResponse({
                                     idCurve: curve.idCurve,
-                                    idTrack: idTrack
+                                    idTrack: idTrack,
+                                    createdBy: myPlot.createdBy,
+                                    updatedBy: myPlot.updatedBy
                                 }, dbConnection, "", function () {
                                     nextLine();
                                 });
@@ -176,7 +182,7 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
         console.log(err.message);
         callback(err, null);
     });
-}
+};
 
 let createNewPlot = function (plotInfo, done, dbConnection, username) {
     let Plot = dbConnection.Plot;
@@ -194,6 +200,8 @@ let createNewPlot = function (plotInfo, done, dbConnection, username) {
                 myPlot.referenceCurve = plotInfo.referenceCurve;
                 myPlot.idWell = plotInfo.idWell;
                 myPlot.name = plotInfo.name ? plotInfo.name : myPlot.name;
+                myPlot.createdBy = plotInfo.createdBy;
+                myPlot.updatedBy = plotInfo.updatedBy;
                 createPlotTemplate(myPlot, dbConnection, function (err, result) {
                     if (err) {
                         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed", "PLOT NAME EXISTED"));
@@ -206,7 +214,9 @@ let createNewPlot = function (plotInfo, done, dbConnection, username) {
                     idWell: plotInfo.idWell,
                     name: plotInfo.name,
                     referenceCurve: plotInfo.referenceCurve,
-                    option: plotInfo.option
+                    option: plotInfo.option,
+                    createdBy: plotInfo.createdBy,
+                    updatedBy: plotInfo.updatedBy
                 };
                 let isOverride = plotInfo.override || false;
                 dbConnection.Plot.findOrCreate({
@@ -253,6 +263,8 @@ let createNewPlot = function (plotInfo, done, dbConnection, username) {
                 myPlot.referenceCurve = plotInfo.referenceCurve;
                 myPlot.idWell = plotInfo.idWell;
                 myPlot.name = plotInfo.name ? plotInfo.name : myPlot.name;
+                myPlot.createdBy = plotInfo.createdBy;
+                myPlot.updatedBy = plotInfo.updatedBy;
                 createPlotTemplate(myPlot, dbConnection, function (err, result) {
                     if (err) {
                         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed", "PLOT NAME EXISTED"));
@@ -265,7 +277,9 @@ let createNewPlot = function (plotInfo, done, dbConnection, username) {
                     idWell: plotInfo.idWell,
                     name: plotInfo.name,
                     referenceCurve: plotInfo.referenceCurve,
-                    option: plotInfo.option
+                    option: plotInfo.option,
+                    createdBy: plotInfo.createdBy,
+                    updatedBy: plotInfo.updatedBy
                 };
                 let isOverride = plotInfo.override || false;
                 dbConnection.Plot.findOrCreate({
@@ -302,9 +316,10 @@ let createNewPlot = function (plotInfo, done, dbConnection, username) {
             }
         }
     });
-}
+};
 
 let editPlot = function (plotInfo, done, dbConnection) {
+    delete plotInfo.createdBy;
     if (typeof(plotInfo.currentState) == "object") plotInfo.currentState = JSON.stringify(plotInfo.currentState);
     const Plot = dbConnection.Plot;
     Plot.findById(plotInfo.idPlot)
@@ -315,6 +330,7 @@ let editPlot = function (plotInfo, done, dbConnection) {
             plot.option = plotInfo.option || plot.option;
             plot.currentState = plotInfo.currentState || plot.currentState;
             plot.cropDisplay = plotInfo.cropDisplay;
+            plot.updatedBy = plotInfo.updatedBy;
             plot.save()
                 .then(function (a) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Plot success", plotInfo));
@@ -330,12 +346,13 @@ let editPlot = function (plotInfo, done, dbConnection) {
         .catch(function () {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Plot not found for edit"));
         })
-}
+};
 
 let deletePlot = function (plotInfo, done, dbConnection) {
     const Plot = dbConnection.Plot;
     Plot.findById(plotInfo.idPlot)
         .then(function (plot) {
+            plot.setDataValue('updatedBy', plotInfo.updatedBy);
             plot.destroy()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Plot is deleted", plot));
@@ -347,7 +364,7 @@ let deletePlot = function (plotInfo, done, dbConnection) {
         .catch(function () {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Plot not found for delete"));
         })
-}
+};
 
 let getPlotInfo = function (plot, done, dbConnection) {
     const Plot = dbConnection.Plot;
@@ -359,7 +376,7 @@ let getPlotInfo = function (plot, done, dbConnection) {
         .catch(function () {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Plot not found for get info"));
         })
-}
+};
 
 let duplicatePlot = function (payload, done, dbConnection, isSave) {
     let Plot = dbConnection.Plot;
@@ -380,6 +397,8 @@ let duplicatePlot = function (payload, done, dbConnection, isSave) {
                 // newPlot.name = newPlot.name + "_" + new Date().toLocaleString('en-US', {timeZone: "Asia/Ho_Chi_Minh"});
                 newPlot.duplicated = 1;
                 newPlot.name = newPlot.name + "_Copy_" + rs.duplicated;
+                newPlot.createdBy = payload.createdBy;
+                newPlot.updatedBy = payload.updatedBy;
                 rs.duplicated += 1;
                 rs.save();
             }
@@ -392,6 +411,8 @@ let duplicatePlot = function (payload, done, dbConnection, isSave) {
                             delete track.idTrack;
                             delete track.createdAt;
                             delete track.updatedAt;
+                            track.createdBy = payload.createdBy;
+                            track.updatedBy = payload.updatedBy;
                             track.idPlot = idPlot;
                             Track.create(track).then(tr => {
                                 let idTrack = tr.idTrack;
@@ -404,6 +425,8 @@ let duplicatePlot = function (payload, done, dbConnection, isSave) {
                                             delete line.idLine;
                                             delete line.createAt;
                                             delete line.updatedAt;
+                                            line.createdBy = payload.createdBy;
+                                            line.updatedBy = payload.updatedBy;
                                             line.idTrack = idTrack;
                                             dbConnection.Line.create(line).then((l) => {
                                                 lineArr.push({oldLine: oldLine, newLine: l.idLine});
@@ -422,6 +445,8 @@ let duplicatePlot = function (payload, done, dbConnection, isSave) {
                                             delete marker.idMarker;
                                             delete marker.createAt;
                                             delete marker.updatedAt;
+                                            marker.createdBy = payload.createdBy;
+                                            marker.updatedBy = payload.updatedBy;
                                             marker.idTrack = idTrack;
                                             dbConnection.Marker.create(marker).then(() => {
                                                 nextMarker();
@@ -439,6 +464,8 @@ let duplicatePlot = function (payload, done, dbConnection, isSave) {
                                             delete annotation.idAnnotation;
                                             delete annotation.createAt;
                                             delete annotation.updatedAt;
+                                            annotation.createdBy = payload.createdBy;
+                                            annotation.updatedBy = payload.updatedBy;
                                             annotation.idTrack = idTrack;
                                             dbConnection.Annotation.create(annotation).then(() => {
                                                 nextAno();
@@ -457,6 +484,8 @@ let duplicatePlot = function (payload, done, dbConnection, isSave) {
                                         delete shading.idShading;
                                         delete shading.createdAt;
                                         delete shading.updatedAt;
+                                        shading.createdBy = payload.createdBy;
+                                        shading.updatedBy = payload.updatedBy;
                                         shading.idTrack = idTrack;
                                         asyncSeries([
                                             function (cb) {
@@ -498,6 +527,8 @@ let duplicatePlot = function (payload, done, dbConnection, isSave) {
                             delete depth_axis.createdAt;
                             delete depth_axis.updatedAt;
                             depth_axis.idPlot = idPlot;
+                            depth_axis.createdBy = payload.createdBy;
+                            depth_axis.updatedBy = payload.updatedBy;
                             DepthAxis.create(depth_axis).then(d => {
                                 nextDepth();
                             }).catch(err => {
@@ -513,6 +544,8 @@ let duplicatePlot = function (payload, done, dbConnection, isSave) {
                             delete image_track.idImageTrack;
                             delete image_track.createdAt;
                             delete image_track.updatedAt;
+                            image_track.createdBy = payload.createdBy;
+                            image_track.updatedBy = payload.updatedBy;
                             image_track.idPlot = idPlot;
                             ImageTrack.create(image_track).then(d => {
                                 let idImageTrack = d.idImageTrack;
@@ -521,6 +554,8 @@ let duplicatePlot = function (payload, done, dbConnection, isSave) {
                                     delete i.idImageOfTrack;
                                     delete i.createdAt;
                                     delete i.updatedAt;
+                                    i.createdBy = payload.createdBy;
+                                    i.updatedBy = payload.updatedBy;
                                     i.idImageTrack = idImageTrack;
                                     dbConnection.ImageOfTrack.create(i).then(() => {
                                         n();
@@ -544,6 +579,8 @@ let duplicatePlot = function (payload, done, dbConnection, isSave) {
                             delete object_track.idObjectTrack;
                             delete object_track.createdAt;
                             delete object_track.updatedAt;
+                            object_track.createdBy = payload.createdBy;
+                            object_track.updatedBy = payload.updatedBy;
                             object_track.idPlot = idPlot;
                             ObjectTrack.create(object_track).then(d => {
                                 let idObjectTrack = d.idObjectTrack;
@@ -552,6 +589,8 @@ let duplicatePlot = function (payload, done, dbConnection, isSave) {
                                     delete o.idObjectOfTrack;
                                     delete o.createdAt;
                                     delete o.updatedAt;
+                                    o.createdBy = payload.createdBy;
+                                    o.updatedBy = payload.updatedBy;
                                     o.idObjectTrack = idObjectTrack;
                                     dbConnection.ObjectOfTrack.create(o).then(() => {
                                         nextO();
@@ -574,6 +613,8 @@ let duplicatePlot = function (payload, done, dbConnection, isSave) {
                             delete zone_track.idZoneTrack;
                             delete zone_track.createdAt;
                             delete zone_track.updatedAt;
+                            zone_track.createdBy = payload.createdBy;
+                            zone_track.updatedBy = payload.updatedBy;
                             zone_track.idPlot = idPlot;
                             dbConnection.ZoneTrack.create(zone_track).then(d => {
                                 next();
@@ -596,7 +637,7 @@ let duplicatePlot = function (payload, done, dbConnection, isSave) {
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
     });
-}
+};
 
 let exportData = function (payload, done, error, dbConnection) {
     let Plot = dbConnection.Plot;
@@ -628,7 +669,7 @@ let exportData = function (payload, done, error, dbConnection) {
                                     let curve = {
                                         datasetName: dataset.name,
                                         curveName: line.curve.name
-                                    }
+                                    };
                                     line.curve = curve;
                                     next();
                                 });
@@ -642,7 +683,7 @@ let exportData = function (payload, done, error, dbConnection) {
                                 delete shading.createdAt;
                                 delete shading.updatedAt;
                                 delete shading.idTrack;
-				//console.log(shading);
+                                //console.log(shading);
                                 asyncSeries([
                                     function (cb) {
                                         if (shading.idLeftLine && shading.leftLine) {
@@ -668,7 +709,7 @@ let exportData = function (payload, done, error, dbConnection) {
                                                 let curve = {
                                                     datasetName: dataset.name,
                                                     curveName: shading.curve.name
-                                                }
+                                                };
                                                 shading.controlCurve = curve;
                                                 cb();
                                             });
@@ -787,7 +828,7 @@ let exportData = function (payload, done, error, dbConnection) {
         console.log(err);
         error(404);
     })
-}
+};
 
 let importPlotTemplate = async function (req, done, dbConnection) {
     let filePath = path.join(__dirname + '/../..', req.file.path);
@@ -1082,7 +1123,7 @@ let importPlotTemplate = async function (req, done, dbConnection) {
         });
 
     });
-}
+};
 module.exports = {
     duplicatePlot: duplicatePlot,
     createNewPlot: createNewPlot,

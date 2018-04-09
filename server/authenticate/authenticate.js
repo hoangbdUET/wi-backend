@@ -16,11 +16,14 @@ module.exports = function () {
                     } else {
                         if (opening[decoded.username]) {
                             console.log(decoded.realUser + " --- Working with shared session from : ", opening[decoded.username].owner);
+                            // console.log("==", block.find(b => b.router === req.originalUrl));
                             decoded.username = opening[decoded.username].owner;
                             req.dbConnection = models('wi_' + decoded.username.toLowerCase());
                             req.dbConnection.sequelize.authenticate().then(() => {
                                 req.decoded = decoded;
                                 req.token = token;
+                                req.body.createdBy = decoded.realUser;
+                                req.body.updatedBy = decoded.realUser;
                                 next();
                             }).catch(err => {
                                 return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Error connecting to database", "Error connecting to database"));
@@ -34,6 +37,8 @@ module.exports = function () {
                             req.dbConnection.sequelize.authenticate().then(() => {
                                 req.decoded = decoded;
                                 req.token = token;
+                                req.body.createdBy = decoded.username;
+                                req.body.updatedBy = decoded.username;
                                 next();
                             }).catch(err => {
                                 return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Error connecting to database", "Error connecting to database"));
@@ -41,9 +46,6 @@ module.exports = function () {
                         }
                     }
                 });
-                /*req.dbConnection = models('wi_hoangbd');
-                // req.decoded = decoded;
-                next();//TODO*/
             } else {
                 return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No token provided"));
             }

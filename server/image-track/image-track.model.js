@@ -1,5 +1,5 @@
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
 
 function createImageTrack(info, done, dbConnection) {
     let Model = dbConnection.ImageTrack;
@@ -24,6 +24,7 @@ function infoImageTrack(info, done, dbConnection) {
 }
 
 function editImageTrack(info, done, dbConnection) {
+    delete info.createdBy;
     let Model = dbConnection.ImageTrack;
     Model.findById(info.idImageTrack).then(result => {
         if (!result) {
@@ -42,15 +43,15 @@ function editImageTrack(info, done, dbConnection) {
 
 function deleteImageTrack(info, done, dbConnection) {
     let Model = dbConnection.ImageTrack;
-    Model.destroy({where: {idImageTrack: info.idImageTrack}}).then(result => {
-        console.log(result);
-        if (result > 0) {
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Delete successful", info));
+    Model.findById({where: {idImageTrack: info.idImageTrack}}).then(track => {
+        if (track) {
+            track.setDataValue('updatedBy', info.updatedBy);
+            track.destroy().then(() => {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Delete successful", info));
+            });
         } else {
-            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Not found ImageTrack for delete"));
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No track found by id"));
         }
-    }).catch(err => {
-        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Some err", err.message));
     });
 }
 
