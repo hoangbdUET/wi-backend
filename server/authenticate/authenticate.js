@@ -22,6 +22,8 @@ module.exports = function () {
                             req.dbConnection.sequelize.authenticate().then(() => {
                                 req.decoded = decoded;
                                 req.token = token;
+                                req.createdBy = decoded.realUser;
+                                req.updatedBy = decoded.realUser;
                                 req.body.createdBy = decoded.realUser;
                                 req.body.updatedBy = decoded.realUser;
                                 next();
@@ -37,6 +39,8 @@ module.exports = function () {
                             req.dbConnection.sequelize.authenticate().then(() => {
                                 req.decoded = decoded;
                                 req.token = token;
+                                req.createdBy = decoded.username;
+                                req.updatedBy = decoded.username;
                                 req.body.createdBy = decoded.username;
                                 req.body.updatedBy = decoded.username;
                                 next();

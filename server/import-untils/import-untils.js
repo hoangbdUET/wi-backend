@@ -17,7 +17,7 @@ let asyncEach = require('async/each');
 //     });
 // }
 
-function createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, dbConnection) {
+function createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, dbConnection, createdBy, updatedBy) {
     return new Promise(function (resolve, reject) {
         dbConnection.Well.findOrCreate({
             where: {name: wellInfo.name, idProject: projectInfo.idProject}, defaults: {
@@ -25,8 +25,8 @@ function createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, dbConn
                 topDepth: wellInfo.topDepth,
                 bottomDepth: wellInfo.bottomDepth,
                 step: wellInfo.step,
-                createdBy: projectInfo.createdBy,
-                updatedBy: projectInfo.updatedBy
+                createdBy: createdBy,
+                updatedBy: updatedBy
             }
         }).then(rs => {
             let well = rs[0];
@@ -35,8 +35,8 @@ function createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, dbConn
                     name: datasetInfo.name,
                     datasetKey: datasetInfo.datasetKey,
                     datasetLabel: datasetInfo.datasetLabel,
-                    createdBy: datasetInfo.createdBy,
-                    updatedBy: datasetInfo.updatedBy
+                    createdBy: createdBy,
+                    updatedBy: updatedBy
                 }
             }).then(d => {
                 let dataset = d[0];
@@ -46,8 +46,8 @@ function createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, dbConn
                             name: curve.name,
                             unit: curve.unit,
                             initValue: curve.initValue,
-                            createdBy: curve.createdBy,
-                            updatedBy: curve.updatedBy
+                            createdBy: createdBy,
+                            updatedBy: updatedBy
                         }
                     }).then(() => {
                         next();
@@ -63,7 +63,7 @@ function createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, dbConn
     });
 }
 
-function createCurvesWithWellExist(wellInfo, datasetInfo, option, dbConnection) {
+function createCurvesWithWellExist(wellInfo, datasetInfo, option, dbConnection, createdBy, updatedBy) {
     let Dataset = dbConnection.Dataset;
     let Well = dbConnection.Well;
     let Curve = dbConnection.Curve;
@@ -88,8 +88,8 @@ function createCurvesWithWellExist(wellInfo, datasetInfo, option, dbConnection) 
                         well.topDepth = wellInfo.topDepth;
                         well.bottomDepth = wellInfo.bottomDepth;
                         well.step = wellInfo.step;
-                        well.createdBy = wellInfo.createdBy;
-                        well.updatedBy = wellInfo.updatedBy;
+                        well.createdBy = createdBy;
+                        well.updatedBy = updatedBy;
                         return well.save({transaction: t});
                     });
             }
@@ -103,7 +103,7 @@ function createCurvesWithWellExist(wellInfo, datasetInfo, option, dbConnection) 
     });
 }
 
-function createCurvesWithDatasetExist(wellInfo, datasetInfo, curvesInfo, option, dbConnection) {
+function createCurvesWithDatasetExist(wellInfo, datasetInfo, curvesInfo, option, dbConnection, createdBy, updatedBy) {
     curvesInfo.forEach(function (item) {
         item.idDataset = datasetInfo.idDataset;
     });
@@ -120,8 +120,8 @@ function createCurvesWithDatasetExist(wellInfo, datasetInfo, curvesInfo, option,
                             well.topDepth = wellInfo.topDepth;
                             well.bottomDepth = wellInfo.bottomDepth;
                             well.step = wellInfo.step;
-                            well.createdBy = wellInfo.createdBy;
-                            well.updatedBy = wellInfo.updatedBy;
+                            well.createdBy = createdBy;
+                            well.updatedBy = updatedBy;
                             return well.save({transaction: t});
                         });
                 }
@@ -136,7 +136,7 @@ function createCurvesWithDatasetExist(wellInfo, datasetInfo, curvesInfo, option,
 
 }
 
-function createCurvesWithWellExistLAS3(wellInfo, datasetInfo, option, callback, dbConnection) {
+function createCurvesWithWellExistLAS3(wellInfo, datasetInfo, option, callback, dbConnection, createdBy, updatedBy) {
     let Dataset = dbConnection.Dataset;
     let Curve = dbConnection.Curve;
     let Well = dbConnection.Well;
@@ -175,7 +175,7 @@ function createCurvesWithWellExistLAS3(wellInfo, datasetInfo, option, callback, 
     }
 }
 
-function createCurvesWithDatasetExistLAS3(wellInfo, datasetInfo, option, callback, dbConnection) {
+function createCurvesWithDatasetExistLAS3(wellInfo, datasetInfo, option, callback, dbConnection, createdBy, updatedBy) {
     let Dataset = dbConnection.Dataset;
     let Curve = dbConnection.Curve;
     let Well = dbConnection.Well;

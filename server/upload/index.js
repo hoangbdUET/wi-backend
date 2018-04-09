@@ -46,7 +46,7 @@ var storage = multer.diskStorage({
 
 var upload = multer({storage: storage});
 
-function extractLAS2Done(result, options, callback, dbConnection) {
+function extractLAS2Done(result, options, callback, dbConnection, createdBy, updatedBy) {
     let projectInfo = {
         idProject: options.idProject
     }
@@ -62,7 +62,7 @@ function extractLAS2Done(result, options, callback, dbConnection) {
     // console.log(isNumBer(options.idWell));
     if (!options.idWell || options.idWell == "") {
         console.log("CREATE CURVES WITH PROJECT EXIST");
-        importUntils.createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo[0], dbConnection).then(rs => {
+        importUntils.createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo[0], dbConnection, createdBy, updatedBy).then(rs => {
             callback(false, rs);
         }).catch(err => {
             callback(null, null);
@@ -85,7 +85,7 @@ function extractLAS2Done(result, options, callback, dbConnection) {
                             } else {
                                 callback(false, result);
                             }
-                        }, dbConnection);
+                        }, dbConnection, createdBy, updatedBy);
                     }
                 }, dbConnection);
             } else {
@@ -95,7 +95,7 @@ function extractLAS2Done(result, options, callback, dbConnection) {
                     } else {
                         callback(false, result);
                     }
-                }, dbConnection);
+                }, dbConnection, createdBy, updatedBy);
             }
         } else {
             console.log("CREATE CURVES WITH DATASET EXIST");
@@ -113,9 +113,9 @@ function extractLAS2Done(result, options, callback, dbConnection) {
                                     } else {
                                         callback(false, result);
                                     }
-                                }, dbConnection);
+                                }, dbConnection, createdBy, updatedBy);
                             }
-                        }, dbConnection);
+                        }, dbConnection, createdBy, updatedBy);
                     } else {
                         datasetInfo[0].idDataset = success;
                         uploadModel.findIdByName(options.idProject, options.idWell, null, function (err, success) {
@@ -127,10 +127,10 @@ function extractLAS2Done(result, options, callback, dbConnection) {
                                 } else {
                                     callback(false, result);
                                 }
-                            }, dbConnection);
-                        }, dbConnection);
+                            }, dbConnection, createdBy, updatedBy);
+                        }, dbConnection, createdBy, updatedBy);
                     }
-                }, dbConnection);
+                }, dbConnection, createdBy, updatedBy);
             } else {
                 datasetInfo[0].idDataset = options.idDataset;
                 importUntils.createCurvesWithDatasetExistLAS3(wellInfo, datasetInfo, {overwrite: false}, function (err, result) {
@@ -139,7 +139,7 @@ function extractLAS2Done(result, options, callback, dbConnection) {
                     } else {
                         callback(false, result);
                     }
-                }, dbConnection);
+                }, dbConnection, createdBy, updatedBy);
             }
         }
     }
@@ -300,7 +300,7 @@ router.post('/file', upload.single('file'), function (req, res) {
                                             if (err) return res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.ERROR_INVALID_PARAMS, messageNotice.error, err)));
                                             res.end(JSON.stringify(ResponseJSON(errorCodes.CODES.SUCCESS, messageNotice.success, well)));
 
-                                        }, req.dbConnection);
+                                        }, req.dbConnection, req.createdBy, req.updatedBy);
                                     }
                                 });
                             }
