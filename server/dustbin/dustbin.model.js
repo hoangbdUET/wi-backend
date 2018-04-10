@@ -157,108 +157,123 @@ function deleteObject(payload, callback, dbConnection) {
     let objectType = payload.type;
     switch (objectType) {
         case 'well' : {
-            Well.findById(payload.idObject, {paranoid: false}).then(rs => {
-                rs.destroy({force: true}).then(() => {
-                    callback(ResponseJSON(ErrorCodes.SUCCESS, "DONE"));
-                }).catch(err => {
-                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
-                });
+            Well.findById(payload.idObject).then(rs => {
+                if (rs) {
+                    rs.setDataValue('updatedBy', payload.updatedBy);
+                    rs.destroy({permanently: true}).then(() => {
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                    }).catch((err) => {
+                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    })
+                } else {
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Plot"));
+                }
             });
             break;
         }
         case 'dataset' : {
-            Dataset.findById(payload.idObject, {paranoid: false}).then(rs => {
-                rs.destroy({force: true}).then(() => {
-                    callback(ResponseJSON(ErrorCodes.SUCCESS, "DONE"));
-                }).catch(err => {
-                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
-                });
+            Dataset.findById(payload.idObject).then(rs => {
+                if (rs) {
+                    rs.setDataValue('updatedBy', payload.updatedBy);
+                    rs.destroy({permanently: true}).then(() => {
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                    }).catch((err) => {
+                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    })
+                } else {
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Plot"));
+                }
             });
             break;
         }
         case 'curve' : {
-            Curve.findById(payload.idObject, {paranoid: false}).then(curve => {
-                curve.destroy({force: true}).then(() => {
-                    callback(ResponseJSON(ErrorCodes.SUCCESS, "DONE"));
-                }).catch(err => {
-                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
-                });
+            Curve.findById(payload.idObject).then(rs => {
+                if (rs) {
+                    rs.setDataValue('updatedBy', payload.updatedBy);
+                    rs.destroy({permanently: true}).then(() => {
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                    }).catch((err) => {
+                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    })
+                } else {
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Plot"));
+                }
             });
             break;
         }
         case 'logplot' : {
-            Plot.destroy({
-                where: {idPlot: payload.idObject},
-                force: true
-            }).then(rs => {
-                if (rs != 0) {
-                    callback(ResponseJSON(ErrorCodes.SUCCESS, "DONE"));
+            Plot.findById(payload.idObject).then(rs => {
+                if (rs) {
+                    rs.setDataValue('updatedBy', payload.updatedBy);
+                    rs.destroy({permanently: true}).then(() => {
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                    }).catch((err) => {
+                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    })
                 } else {
-                    callback(ResponseJSON(ErrorCodes.SUCCESS, "CANT_DELETE"));
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Plot"));
                 }
-            }).catch(err => {
-                callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
             });
             break;
         }
         case 'crossplot' : {
-            CrossPlot.destroy({
-                where: {idCrossPlot: payload.idObject},
-                force: true
-            }).then(rs => {
-                if (rs != 0) {
-                    callback(ResponseJSON(ErrorCodes.SUCCESS, "DONE"));
+            CrossPlot.findById(payload.idObject).then(rs => {
+                if (rs) {
+                    rs.setDataValue('updatedBy', payload.updatedBy);
+                    rs.destroy({permanently: true}).then(() => {
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                    }).catch((err) => {
+                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    })
                 } else {
-                    callback(ResponseJSON(ErrorCodes.SUCCESS, "CANT_DELETE"));
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Plot"));
                 }
-            }).catch(err => {
-                callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
             });
             break;
         }
         case 'histogram' : {
-            Histogram.destroy({
-                where: {idHistogram: payload.idObject},
-                force: true
-            }).then(rs => {
-                if (rs != 0) {
-                    callback(ResponseJSON(ErrorCodes.SUCCESS, "DONE"));
+            Histogram.findById(payload.idObject).then(rs => {
+                if (rs) {
+                    rs.setDataValue('updatedBy', payload.updatedBy);
+                    rs.destroy({permanently: true}).then(() => {
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                    }).catch((err) => {
+                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    })
                 } else {
-                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CANT_DELETE"));
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Plot"));
                 }
-            }).catch(err => {
-                callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
             });
             break;
         }
         case 'zoneset' : {
-            ZoneSet.destroy({
-                where: {idZoneSet: payload.idObject},
-                force: true
-            }).then(rs => {
-                if (rs != 0) {
-                    callback(ResponseJSON(ErrorCodes.SUCCESS, "DONE"));
+            ZoneSet.findById(payload.idObject).then(rs => {
+                if (rs) {
+                    rs.setDataValue('updatedBy', payload.updatedBy);
+                    rs.destroy({permanently: true}).then(() => {
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                    }).catch((err) => {
+                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    })
                 } else {
-                    callback(ResponseJSON(ErrorCodes.SUCCESS, "CANT_DELETE"));
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Plot"));
                 }
-            }).catch(err => {
-                callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
-            })
+            });
             break;
         }
         case 'zone' : {
-            Zone.destroy({
-                where: {idZone: payload.idObject},
-                force: true
-            }).then(rs => {
-                if (rs != 0) {
-                    callback(ResponseJSON(ErrorCodes.SUCCESS, "DONE"));
+            Zone.findById(payload.idObject).then(rs => {
+                if (rs) {
+                    rs.setDataValue('updatedBy', payload.updatedBy);
+                    rs.destroy({permanently: true}).then(() => {
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                    }).catch((err) => {
+                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    })
                 } else {
-                    callback(ResponseJSON(ErrorCodes.SUCCESS, "CANT_DELETE"));
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Plot"));
                 }
-            }).catch(err => {
-                callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
-            })
+            });
             break;
         }
         default: {

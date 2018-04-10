@@ -367,41 +367,11 @@ async function deleteCurve(curveInfo, done, dbConnection, username) {
     curve.setDataValue('updatedBy', curveInfo.updatedBy);
     if (!curve) return done(ErrorCodes.ERROR_INVALID_PARAMS, "No curve found by id");
 
-    let curveParents = await curveFunction.getFullCurveParents(curve, dbConnection);
-    curveParents.username = username;
-    rename(curve, function (err, newCurve) {
-        if (!err) {
-            curveFunction.moveCurveData(curveParents, {
-                username: curveParents.username,
-                project: curveParents.project,
-                well: curveParents.well,
-                dataset: curveParents.dataset,
-                curve: newCurve.name
-            }, function () {
-                curve.destroy({hooks: false}).then(() => {
-                    dbConnection.Line.findAll({where: {idCurve: curve.idCurve}}).then(lines => {
-                        asyncLoop(lines, function (line, nextLine) {
-                            line.destroy().then(() => {
-                                nextLine();
-                            });
-                        }, function () {
-                            dbConnection.ReferenceCurve.findAll({where: {idCurve: curve.idCurve}}).then(refs => {
-                                asyncLoop(refs, function (ref, nextRef) {
-                                    ref.destroy().then(() => {
-                                        nextRef();
-                                    }).catch(() => {
-                                        nextRef();
-                                    });
-                                }, function () {
-                                    done(ResponseJSON(ErrorCodes.SUCCESS, "Curve is deleted", curve));
-                                });
-                            });
-                        })
-                    })
-                });
-            });
-        }
-    }, 'delete');
+    curve.destroy().then(() => {
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", curve));
+    }).catch(err => {
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+    });
 }
 
 

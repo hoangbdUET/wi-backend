@@ -358,7 +358,7 @@ let deletePlot = function (plotInfo, done, dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Plot is deleted", plot));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Plot " + err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.message, err.message));
                 })
         })
         .catch(function () {

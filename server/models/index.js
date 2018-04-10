@@ -352,7 +352,6 @@ function newDbInstance(dbName, callback) {
     let Well = object.Well;
     let WellHeader = object.WellHeader;
     let Curve = object.Curve;
-    let Project = object.Project;
     let Histogram = object.Histogram;
     let CrossPlot = object.CrossPlot;
     let Plot = object.Plot;
@@ -360,9 +359,10 @@ function newDbInstance(dbName, callback) {
     let Zone = object.Zone;
     let username = dbName.substring(dbName.indexOf("_") + 1);
     let async = require('async');
+    let rename = require('../utils/function').renameObjectForDustbin;
     let curveFunction = require('../utils/curve.function');
     require('../models-hooks/index')(object);
-    Curve.hook('afterCreate', function (curve, options) {
+    Curve.hook('afterCreate', function (curve) {
         if (!curve.idFamily) {
             ((curveName, unit) => {
                 FamilyCondition.findAll()
@@ -395,19 +395,50 @@ function newDbInstance(dbName, callback) {
         }
     });
     Curve.hook('beforeDestroy', function (curve, options) {
-        Dataset.findById(curve.idDataset, {paranoid: false}).then(dataset => {
-            Well.findById(dataset.idWell, {paranoid: false}).then(well => {
-                Project.findById(well.idProject).then(project => {
-                    hashDir.deleteFolder(configCommon.curveBasePath, username + project.name + well.name + dataset.name + curve.name);
-                });
-            });
-        }).catch(err => {
-            console.log("ERR WHILE DELETE CURVE : " + err);
+        return new Promise(async function (resolve) {
+            let parents = await curveFunction.getFullCurveParents(curve, object);
+            parents.username = username;
+            if (options.permanently) {
+                hashDir.deleteFolder(configCommon.curveBasePath, username + parents.project + parents.well + parents.dataset + parents.curve, parents.curve + '.txt');
+                resolve(curve, options);
+            } else {
+                rename(curve, function (err, newCurve) {
+                    if (!err) {
+                        curveFunction.moveCurveData(parents, {
+                            username: username,
+                            project: parents.project,
+                            well: parents.well,
+                            dataset: parents.dataset,
+                            curve: newCurve.name
+                        }, function () {
+                            object.Line.findAll({where: {idCurve: curve.idCurve}}).then(lines => {
+                                async.each(lines, function (line, nextLine) {
+                                    line.destroy({hooks: false}).then(() => {
+                                        nextLine();
+                                    });
+                                }, function () {
+                                    object.ReferenceCurve.findAll({where: {idCurve: curve.idCurve}}).then(refs => {
+                                        async.each(refs, function (ref, nextRef) {
+                                            ref.destroy({hooks: false}).then(() => {
+                                                nextRef();
+                                            }).catch(() => {
+                                                nextRef();
+                                            });
+                                        }, function () {
+                                            resolve(curve, options);
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    }
+                }, 'delete');
+            }
         });
     });
 
 
-    Well.hook('afterCreate', function (well, options) {
+    Well.hook('afterCreate', function (well) {
         console.log("Hook after create well");
         let headers = {
             STRT: well.topDepth,
@@ -449,12 +480,11 @@ function newDbInstance(dbName, callback) {
             }
         }
     });
-    let rename = require('../utils/function').renameObjectForDustbin;
 
     Well.hook('beforeDestroy', function (well, options) {
         console.log("Hooks delete well");
         return new Promise(function (resolve) {
-            if (well.deletedAt) {
+            if (well.permanently) {
                 resolve(well, options);
             } else {
                 let oldName = well.name;
@@ -492,7 +522,7 @@ function newDbInstance(dbName, callback) {
     Dataset.hook('beforeDestroy', function (dataset, options) {
         console.log("Hooks delete dataset");
         return new Promise(function (resolve, reject) {
-            if (dataset.deletedAt) {
+            if (dataset.permanently) {
                 resolve(dataset, options);
             } else {
                 let oldName = dataset.name;
@@ -511,13 +541,13 @@ function newDbInstance(dbName, callback) {
                             curveFunction.moveCurveData(srcCurve, curveParents, function () {
                                 object.Line.findAll({where: {idCurve: curve.idCurve}}).then(lines => {
                                     async.each(lines, function (line, nextLine) {
-                                        line.destroy().then(() => {
+                                        line.destroy({hooks: false}).then(() => {
                                             nextLine();
                                         });
                                     }, function () {
                                         object.ReferenceCurve.findAll({where: {idCurve: curve.idCurve}}).then(refs => {
                                             async.each(refs, function (ref, nextRef) {
-                                                ref.destroy().then(() => {
+                                                ref.destroy({hooks: false}).then(() => {
                                                     nextRef();
                                                 }).catch(() => {
                                                     nextRef();
@@ -558,12 +588,18 @@ function newDbInstance(dbName, callback) {
     });
 
     Plot.hook('beforeDestroy', function (plot, options) {
-        console.log("Hooks delete plot");
-        if (plot.deletedAt) {
+        return new Promise(function (resolve, reject) {
+            console.log("Hooks delete plot ", options);
+            if (options.permanently) {
+                resolve(plot, options);
+            } else {
+                rename(plot, function () {
+                    resolve(plot, options);
+                }, 'delete');
+            }
+        });
 
-        } else {
-            rename(plot, null, 'delete');
-        }
+
     });
 
     ZoneSet.hook('beforeDestroy', function (zoneset, options) {
