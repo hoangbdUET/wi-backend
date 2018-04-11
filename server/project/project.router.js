@@ -49,5 +49,10 @@ router.post('/project/share', function (req, res) {
         res.send(status);
     }, req.dbConnection, req.decoded.username)
 });
+router.post('/project/close', function (req, res) {
+    projectModel.closeProject(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection, req.decoded.realUser);
+});
 
 module.exports = router;

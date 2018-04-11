@@ -269,11 +269,19 @@ function genLocationOfNewProject() {
     return "";
 }
 
+function closeProject(payload, done, dbConnection, username) {
+    let openingProject = require('../authenticate/opening-project');
+    openingProject.removeRow({username: username}).then(() => {
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull"));
+    });
+}
+
 module.exports = {
     createNewProject: createNewProject,
     editProject: editProject,
     getProjectInfo: getProjectInfo,
     getProjectList: getProjectList,
     deleteProject: deleteProject,
-    getProjectFullInfo: getProjectFullInfo
+    getProjectFullInfo: getProjectFullInfo,
+    closeProject: closeProject
 };
