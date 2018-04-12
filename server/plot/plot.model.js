@@ -845,6 +845,8 @@ let importPlotTemplate = async function (req, done, dbConnection) {
         plot.name = req.body.plotName ? req.body.plotName : myPlot.name;
         plot.option = myPlot.option;
         plot.idWell = req.body.idWell;
+        plot.createdBy = req.createdBy;
+        plot.updatedBy = req.updatedBy;
         let well = await dbConnection.Well.findById(plot.idWell);
         searchReferenceCurve(req.body.idWell, dbConnection, function (err, idRefCurve) {
             plot.referenceCurve = idRefCurve ? idRefCurve : null;
@@ -854,12 +856,16 @@ let importPlotTemplate = async function (req, done, dbConnection) {
                     function (cb) {
                         asyncLoop(myPlot.tracks, function (track, next) {
                             track.idPlot = idPlot;
+                            track.createdBy = req.createdBy;
+                            track.updatedBy = req.updatedBy;
                             dbConnection.Track.create(track).then(tr => {
                                 let idTrack = tr.idTrack;
                                 asyncSeries([
                                     function (cb) {
                                         asyncLoop(track.lines, function (line, next) {
                                             line.idTrack = idTrack;
+                                            line.createdBy = req.createdBy;
+                                            line.updatedBy = req.updatedBy;
                                             dbConnection.Dataset.findOne({
                                                 where: {idWell: rs.idWell, name: line.curve.datasetName}
                                             }).then(dataset => {
@@ -872,6 +878,8 @@ let importPlotTemplate = async function (req, done, dbConnection) {
                                                     }).then(curve => {
                                                         if (curve) {
                                                             line.idCurve = curve.idCurve;
+                                                            line.createdBy = req.createdBy;
+                                                            line.updatedBy = req.updatedBy;
                                                             dbConnection.Line.create(line).then(l => {
                                                                 next();
                                                             }).catch(err => {
@@ -981,6 +989,8 @@ let importPlotTemplate = async function (req, done, dbConnection) {
                                                     }
                                                 }
                                             ], function () {
+                                                shading.createdby = req.createdBy;
+                                                shading.updatedBy = req.updatedBy;
                                                 dbConnection.Shading.create(shading).then(() => {
                                                     next();
                                                 }).catch(err => {
@@ -998,6 +1008,8 @@ let importPlotTemplate = async function (req, done, dbConnection) {
                                             if (marker.depth < well.topDepth || marker.depth > well.bottomDepth) {
                                                 next();
                                             } else {
+                                                marker.createdBy = req.createdBy;
+                                                marker.updatedBy = req.updatedBy;
                                                 dbConnection.Marker.create(marker).then(() => {
                                                     next();
                                                 }).catch(err => {
@@ -1012,6 +1024,8 @@ let importPlotTemplate = async function (req, done, dbConnection) {
                                     function (cb) {
                                         asyncLoop(track.annotations, function (annotation, next) {
                                             annotation.idTrack = idTrack;
+                                            annotation.createdBy = req.createdBy;
+                                            annotation.updatedBy = req.updatedBy;
                                             if (annotation.top <= parseFloat(well.topDepth)) annotation.top = well.topDepth;
                                             if (annotation.bottom >= parseFloat(well.bottomDepth)) annotation.bottom = well.bottomDepth;
                                             dbConnection.Annotation.create(annotation).then(() => {
@@ -1037,6 +1051,8 @@ let importPlotTemplate = async function (req, done, dbConnection) {
                     function (cb) {
                         asyncLoop(myPlot.depth_axes, function (depth_axis, next) {
                             depth_axis.idPlot = idPlot;
+                            depth_axis.createdBy = req.createdBy;
+                            depth_axis.updatedBy = req.updatedBy;
                             dbConnection.DepthAxis.create(depth_axis).then(depth => {
                                 next();
                             }).catch(err => {
@@ -1050,10 +1066,14 @@ let importPlotTemplate = async function (req, done, dbConnection) {
                     function (cb) {
                         asyncLoop(myPlot.image_tracks, function (image_track, next) {
                             image_track.idPlot = idPlot;
+                            image_track.createdBy = req.createdBy;
+                            image_track.updatedBy = req.updatedBy;
                             dbConnection.ImageTrack.create(image_track).then(img => {
                                 let idImageTrack = img.idImageTrack;
                                 asyncLoop(image_track.image_of_tracks, function (image_of_track, next) {
                                     image_of_track.idImageTrack = idImageTrack;
+                                    image_of_track.createdBy = req.createdBy;
+                                    image_of_track.updatedBy = req.updatedBy;
                                     dbConnection.ImageOfTrack.create(image_of_track).then(() => {
                                         next();
                                     }).catch(() => {
@@ -1073,6 +1093,8 @@ let importPlotTemplate = async function (req, done, dbConnection) {
                     function (cb) {
                         asyncLoop(myPlot.object_tracks, function (object_track, next) {
                             object_track.idPlot = idPlot;
+                            object_track.createdBy = req.createdBy;
+                            object_track.updatedBy = req.updatedBy;
                             dbConnection.ObjectTrack.create(object_track).then(obj => {
                                 next();
                             }).catch(err => {
@@ -1086,6 +1108,8 @@ let importPlotTemplate = async function (req, done, dbConnection) {
                     function (cb) {
                         asyncLoop(myPlot.zone_tracks, function (zone_track, next) {
                             zone_track.idPlot = idPlot;
+                            zone_track.createdBy = req.createdBy;
+                            zone_track.updatedBy = req.updatedBy;
                             dbConnection.ZoneTrack.create(zone_track).then(zo => {
                                 dbConnection.ZoneSet.findOne({
                                     where: {
@@ -1118,6 +1142,7 @@ let importPlotTemplate = async function (req, done, dbConnection) {
                 });
             }).catch(err => {
                 fs.unlinkSync(filePath);
+                console.log(err);
                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed!", err.message));
             });
         });
