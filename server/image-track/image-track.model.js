@@ -43,7 +43,7 @@ function editImageTrack(info, done, dbConnection) {
 
 function deleteImageTrack(info, done, dbConnection) {
     let Model = dbConnection.ImageTrack;
-    Model.findById({where: {idImageTrack: info.idImageTrack}}).then(track => {
+    Model.findOne({where: {idImageTrack: info.idImageTrack}}).then(track => {
         if (track) {
             track.setDataValue('updatedBy', info.updatedBy);
             track.destroy().then(() => {
