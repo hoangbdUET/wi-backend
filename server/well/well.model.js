@@ -250,12 +250,12 @@ function getWellInfo(well, done, dbConnection) {
                 }
             ], function (err, result) {
                 wellObj.datasets = result[0];
-                wellObj.zonesets = result[1];
+                wellObj.zone_sets = result[1];
                 wellObj.plots = result[2];
                 wellObj.histograms = result[3];
-                wellObj.crossplots = result[4];
+                wellObj.cross_plots = result[4];
                 wellObj.combined_boxes = result[5];
-                wellObj.wellheaders = result[6];
+                wellObj.well_headers = result[6];
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", wellObj));
             });
         })
