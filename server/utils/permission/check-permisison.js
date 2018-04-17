@@ -1,0 +1,19 @@
+let redisClient = require('../redis/index').redisClient;
+//perm = object.create || object.get || object.update || object.delete
+module.exports = function (username, perm, callback) {
+    redisClient.on('error', function () {
+        callback(true);
+    });
+    redisClient.hget(username, perm, function (err, result) {
+        console.log("Get Perm : ", username, perm, result);
+        if (result === null) {
+            callback(true);
+        } else if (result === 'true') {
+            callback(true);
+        } else if (result === 'false') {
+            callback(false);
+        } else {
+            callback(true);
+        }
+    });
+};

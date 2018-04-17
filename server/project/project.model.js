@@ -138,7 +138,7 @@ function deleteProject(projectInfo, done, dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Deleted", project));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.message, err.message));
                 })
 
         })
@@ -147,23 +147,34 @@ function deleteProject(projectInfo, done, dbConnection) {
         });
 }
 
+function updatePermission(req, done) {
+    let userPermission = require('../utils/permission/user-permission');
+    userPermission.loadUserPermission(req.token, req.body.project_name, req.body.username).then(() => {
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull " + req.body.username));
+    });
+}
+
 async function getProjectFullInfo(payload, done, req) {
+    let userPermission = require('../utils/permission/user-permission');
     if (payload.shared && payload.shared.toString() === 'true') {
+        await userPermission.loadUserPermission(req.token, payload.name, req.decoded.realUser);
         await openProject.addRow({username: req.decoded.realUser, project: payload.name, owner: payload.owner});
         req.dbConnection = models('wi_' + payload.owner.toLowerCase());
     } else {
+        await userPermission.loadUserPermission(req.token, payload.name, req.decoded.realUser, true);
         await openProject.removeRow({username: req.decoded.realUser});
         req.dbConnection = models(('wi_' + req.decoded.realUser));
     }
     let dbConnection = req.dbConnection;
     let project = await dbConnection.Project.findById(payload.idProject);
     if (!project) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Project not found"));
+
     let response = project.toJSON();
     let wells = await dbConnection.Well.findAll({where: {idProject: project.idProject}});
     let groups = await dbConnection.Groups.findAll({where: {idProject: project.idProject}});
     response.wells = [];
     response.groups = groups;
-    if (wells.length == 0) {
+    if (wells.length === 0) {
         return done(ResponseJSON(ErrorCodes.SUCCESS, "Get full info Project success", response));
     }
     asyncLoop(wells, function (well, nextWell) {
@@ -283,5 +294,6 @@ module.exports = {
     getProjectList: getProjectList,
     deleteProject: deleteProject,
     getProjectFullInfo: getProjectFullInfo,
-    closeProject: closeProject
+    closeProject: closeProject,
+    updatePermission: updatePermission
 };

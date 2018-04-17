@@ -5,6 +5,7 @@ let familyUpdate = require('./server/family/GlobalFamilyUpdater');
 let familyConditionUpdate = require('./server/family/GlobalFamilyConditionUpdater');
 let overlayLineUpdate = require('./server/overlay-line/overlay-line.update');
 let workflowSpecUpdate = require('./server/workflow-spec/workflow-spec.update');
+let taskSpecUpdated = require('./server/task/task-spec').createTaskSpec;
 const QUEUE_TIME = 500;
 
 Object.defineProperty(Array.prototype, "forEachDone", {
@@ -25,7 +26,9 @@ familyUpdate(function () {
     familyConditionUpdate(function () {
         overlayLineUpdate(function () {
             workflowSpecUpdate(function () {
-                main();
+                taskSpecUpdated(function () {
+                    main();
+                });
             });
         });
     });
@@ -44,7 +47,7 @@ function main() {
     const cors = require('cors');
     let fullConfig = require('config');
     let config = fullConfig.Application;
-
+    require('./server/utils/redis');
     let projectRouter = require('./server/project/project.router');
     let wellRouter = require('./server/well/well.router');
     let plotRouter = require('./server/plot/plot.router');
@@ -88,7 +91,7 @@ function main() {
     let axisColorRouter = require('./server/cross-plot/axis-color-template/index');
     let dustbinRouter = require('./server/dustbin/dustbin.router');
     let selectionToolRouter = require('./server/selection-tool/selection-tool.router');
-    // let testRouter = require('./test.js');
+    let testRouter = require('./test.js');
     let combinedBoxToolRouter = require('./server/combined-box-tool/combined-box-tool.router');
     let combinedBoxRouter = require('./server/combined-box/combined-box.router');
     let asyncQueue = require('async/queue');
@@ -108,8 +111,8 @@ function main() {
     });
     app.use('/', databaseRouter);
     authenticate = require('./server/authenticate/authenticate');
+    app.use('/', testRouter);
     app.use(authenticate());
-    // app.use('/', testRouter);
     app.use('/', inventoryRouter);
     app.use('/', uploadRouter);
     app.use('/', projectRouter);

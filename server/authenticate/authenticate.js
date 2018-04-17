@@ -16,7 +16,6 @@ module.exports = function () {
                     } else {
                         if (opening[decoded.username]) {
                             console.log(decoded.realUser + " --- Working with shared session from : ", opening[decoded.username].owner);
-                            // console.log("==", block.find(b => b.router === req.originalUrl));
                             decoded.username = opening[decoded.username].owner;
                             req.dbConnection = models('wi_' + decoded.username.toLowerCase());
                             req.dbConnection.sequelize.authenticate().then(() => {

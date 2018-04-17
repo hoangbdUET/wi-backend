@@ -57,7 +57,7 @@ function deleteZone(zoneInfo, done, dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Zone is deleted", zone));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Zone " + err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.message, err.message));
                 })
         })
         .catch(function () {

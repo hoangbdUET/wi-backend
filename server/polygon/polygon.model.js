@@ -52,7 +52,7 @@ function deletePolygon(polygonInfo, done, dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Polygon is deleted", polygon));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Polygon" + err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.message, err.message));
                 })
         })
         .catch(function (err) {

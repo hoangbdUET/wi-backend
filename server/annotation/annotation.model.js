@@ -55,7 +55,7 @@ function deleteAnnotation(annotationInfo, done, dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Annotation is deleted", annotation));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Annotation " + err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Annotation " + err.message, err.message));
                 })
         })
         .catch(function () {

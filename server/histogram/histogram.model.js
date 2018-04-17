@@ -266,7 +266,7 @@ function deleteHistogram(histogramInfo, done, dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Histogram is deleted", histogram));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Histogram " + err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Histogram " + err.message, err.message));
                 })
         })
         .catch(function () {

@@ -54,5 +54,10 @@ router.post('/project/close', function (req, res) {
         res.send(status);
     }, req.dbConnection, req.decoded.realUser);
 });
+router.post('/project/share/update-permission', function (req, res) {
+    projectModel.updatePermission(req, function (status) {
+        res.send(status);
+    }, req.dbConnection, req.decoded.realUser);
+});
 
 module.exports = router;

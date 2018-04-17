@@ -103,6 +103,7 @@ function newDbInstance(dbName, callback) {
         'Family',
         'FamilyCondition',
         'FamilySpec',
+        'Flow',
         'Groups',
         'Histogram',
         'Image',
@@ -121,6 +122,8 @@ function newDbInstance(dbName, callback) {
         'RegressionLine',
         'SelectionTool',
         'Shading',
+        'Task',
+        'TaskSpec',
         'Ternary',
         'Track',
         'UserDefineLine',
@@ -339,6 +342,18 @@ function newDbInstance(dbName, callback) {
         });
         m.WorkflowSpec.hasMany(m.Workflow, {
             foreignKey: {name: 'idWorkflowSpec', allowNull: true},
+            onDelete: 'CASCADE'
+        });
+        m.Project.hasMany(m.Flow, {
+            foreignKey: {name: 'idProject', allowNull: false, unique: 'name-idProject'},
+            onDelete: 'CASCADE'
+        });
+        m.Flow.hasMany(m.Task, {
+            foreignKey: {name: 'idFlow', allowNull: false, unique: 'name-idFlow'},
+            onDelete: 'CASCADE'
+        });
+        m.TaskSpec.hasMany(m.Task, {
+            foreignKey: {name: 'idTaskSpec', allowNull: true},
             onDelete: 'CASCADE'
         });
     })(object);

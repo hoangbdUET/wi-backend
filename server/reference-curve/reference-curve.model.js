@@ -60,7 +60,7 @@ function deleteReferenceCurve(info, callback, dbConnection) {
                     callback(ResponseJSON(ErrorCodes.SUCCESS, "Reference is deleted", referenceCurve));
                 })
                 .catch(function (err) {
-                    callback(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete reference error " + err.errors[0].message));
+                    callback(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete reference error " + err.message, err.message));
                 })
         })
         .catch(function () {

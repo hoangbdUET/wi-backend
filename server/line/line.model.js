@@ -313,7 +313,7 @@ function deleteLine(lineInfo, done, dbConnection) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Line is deleted", line));
                     })
                     .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Line" + err.errors[0].message));
+                        done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.message, err.message));
                     });
             }).catch(err => {
 

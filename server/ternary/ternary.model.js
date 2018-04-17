@@ -53,7 +53,7 @@ function deleteTernary(ternaryInfo, done, dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Ternary is deleted", ternary));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Ternary" + err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Ternary : " + err.message, err.message));
                 })
         })
         .catch(function (err) {

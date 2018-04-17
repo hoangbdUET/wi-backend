@@ -11,6 +11,7 @@ let models = require("../models");
 let updateFamilyModel = require('../family/global.family.models');
 let updateOverlayLineModel = require('../overlay-line/overlay-line.model');
 let workflowSpecModel = require('../workflow-spec/workflow-spec.model');
+let taskSpecModel = require('../task/task-spec');
 let jwt = require('jsonwebtoken');
 
 router.use(bodyParser.json());
@@ -42,7 +43,7 @@ router.post('/database/update', function (req, res) {
                 });
                 let dbName = 'wi_' + decoded.username.toLowerCase();
                 sequelize.query("CREATE DATABASE IF NOT EXISTS " + dbName).then(rs => {
-                    if (rs[0].warningStatus == 0) {
+                    if (rs[0].warningStatus === 0) {
                         models(dbName).sequelize.sync().then(() => {
                             updateFamilyModel.syncFamilyData({username: dbName.substring(3).toLowerCase()}, function (result) {
                                 console.log("Successfull update family for user : ", dbName);
@@ -56,7 +57,10 @@ router.post('/database/update', function (req, res) {
                                                 console.log(error);
                                             } else {
                                                 console.log("Workflow spec sync: DONE");
-                                                console.log("SUCCESSFULL CREATED NEW DATABASE ", dbName);
+                                                taskSpecModel.syncTaskSpec(dbName.substring(3).toLowerCase(), function (err, successfull) {
+                                                    console.log("Task spec sync: DONE");
+                                                    console.log("SUCCESSFULL CREATED NEW DATABASE ", dbName);
+                                                });
                                             }
                                         });
                                     }
@@ -110,7 +114,7 @@ router.delete('/database/update', function (req, res) {
                 });
                 let dbName = 'wi_' + decoded.username;
                 sequelize.query("DROP DATABASE IF EXISTS " + dbName).then(rs => {
-                    if (rs[0].warningStatus == 0) {
+                    if (rs[0].warningStatus === 0) {
                         console.log("DROP DATABASE ", dbName);
                         models(dbName, function () {
 

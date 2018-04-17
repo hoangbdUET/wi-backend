@@ -67,7 +67,7 @@ function deleteDepthAxis(depthAxisInfo, done, dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Depth-Axis is deleted", depthAxis));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Depth-Axis " + err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Depth-Axis " + err.message, err.message));
                 })
         })
         .catch(function () {

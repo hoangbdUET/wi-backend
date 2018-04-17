@@ -257,7 +257,7 @@ function deleteCrossPlot(crossPlotInfo, done, dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "CrossPlot is deleted", crossPlot));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete CrossPlot " + err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete CrossPlot " + err.message, err.message));
                 })
         })
         .catch(function () {

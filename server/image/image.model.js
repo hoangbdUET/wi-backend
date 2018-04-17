@@ -3,7 +3,7 @@
 let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
 
-function createNewImage(imageInfo, done,dbConnection) {
+function createNewImage(imageInfo, done, dbConnection) {
     let Image = dbConnection.Image;
     Image.sync()
         .then(function () {
@@ -20,13 +20,14 @@ function createNewImage(imageInfo, done,dbConnection) {
             done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
         });
 }
-function editImage(imageInfo,done,dbConnection) {
+
+function editImage(imageInfo, done, dbConnection) {
     let Image = dbConnection.Image;
     Image.findById(imageInfo.idImage)
         .then(function (image) {
             delete imageInfo.idImage;
             delete imageInfo.idTrack;
-            Object.assign(image,imageInfo)
+            Object.assign(image, imageInfo)
                 .save()
                 .then(function (result) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit image success", result));
@@ -40,7 +41,7 @@ function editImage(imageInfo,done,dbConnection) {
         })
 }
 
-function deleteImage(imageInfo,done,dbConnection) {
+function deleteImage(imageInfo, done, dbConnection) {
     let Image = dbConnection.Image;
     Image.findById(imageInfo.idImage)
         .then(function (image) {
@@ -49,14 +50,15 @@ function deleteImage(imageInfo,done,dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Image is deleted", image));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete image" + err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.message, err.message));
                 })
         })
         .catch(function (err) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Image not found for delete"));
         });
 }
-function getImageInfo(imageInfo,done,dbConnection) {
+
+function getImageInfo(imageInfo, done, dbConnection) {
     let Image = dbConnection.Image;
     Image.findById(imageInfo.idImage)
         .then(function (image) {

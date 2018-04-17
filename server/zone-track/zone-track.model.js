@@ -54,7 +54,7 @@ function deleteZoneTrack(zoneTrackInfo, done, dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "ZoneTrack is deleted", zoneTrack));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete ZoneTrack " + err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete ZoneTrack " + err.message, err.message));
                 })
         })
         .catch(function () {
