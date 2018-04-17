@@ -811,6 +811,21 @@ function checkCurveExisted(payload, callback, dbConnection) {
     })
 }
 
+function getCurveParents(payload, done, dbConnection) {
+    let response = {};
+    dbConnection.Curve.findById(payload.idCurve).then(async curve => {
+        if (curve) {
+            response.dataset = await dbConnection.Dataset.findById(curve.idDataset);
+            response.well = await dbConnection.Well.findById(response.dataset.idWell);
+            response.project = await dbConnection.Project.findById(response.well.idProject);
+            response.curve = curve;
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", response));
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No curve found by id"));
+        }
+    });
+}
+
 module.exports = {
     createNewCurve: createNewCurve,
     editCurve: editCurve,
@@ -825,6 +840,7 @@ module.exports = {
     processingCurve: processingCurve,
     getCurveDataFromInventory: getCurveDataFromInventory,
     duplicateCurve: duplicateCurve,
-    checkCurveExisted: checkCurveExisted
+    checkCurveExisted: checkCurveExisted,
+    getCurveParents: getCurveParents
 };
 

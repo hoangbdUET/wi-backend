@@ -139,4 +139,10 @@ router.post('/curve/is-existed', function (req, res) {
     }, req.dbConnection)
 });
 
+router.post('/curve/get-parents', function (req, res) {
+    curveModel.getCurveParents(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection);
+});
+
 module.exports = router;
