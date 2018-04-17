@@ -157,10 +157,10 @@ function deleteObject(payload, callback, dbConnection) {
     let objectType = payload.type;
     switch (objectType) {
         case 'well' : {
-            Well.findById(payload.idObject).then(rs => {
+            Well.findById(payload.idObject, {paranoid: false}).then(rs => {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
-                    rs.destroy({permanently: true}).then(() => {
+                    rs.destroy({permanently: true, force: true}).then(() => {
                         callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
@@ -172,10 +172,10 @@ function deleteObject(payload, callback, dbConnection) {
             break;
         }
         case 'dataset' : {
-            Dataset.findById(payload.idObject).then(rs => {
+            Dataset.findById(payload.idObject, {paranoid: false}).then(rs => {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
-                    rs.destroy({permanently: true}).then(() => {
+                    rs.destroy({permanently: true, force: true}).then(() => {
                         callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
@@ -187,10 +187,10 @@ function deleteObject(payload, callback, dbConnection) {
             break;
         }
         case 'curve' : {
-            Curve.findById(payload.idObject).then(rs => {
+            Curve.findById(payload.idObject, {paranoid: false}).then(rs => {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
-                    rs.destroy({permanently: true}).then(() => {
+                    rs.destroy({permanently: true, force: true}).then(() => {
                         callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
@@ -202,10 +202,10 @@ function deleteObject(payload, callback, dbConnection) {
             break;
         }
         case 'logplot' : {
-            Plot.findById(payload.idObject).then(rs => {
+            Plot.findById(payload.idObject, {paranoid: false}).then(rs => {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
-                    rs.destroy({permanently: true}).then(() => {
+                    rs.destroy({permanently: true, force: true}).then(() => {
                         callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
@@ -217,10 +217,10 @@ function deleteObject(payload, callback, dbConnection) {
             break;
         }
         case 'crossplot' : {
-            CrossPlot.findById(payload.idObject).then(rs => {
+            CrossPlot.findById(payload.idObject, {paranoid: false}).then(rs => {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
-                    rs.destroy({permanently: true}).then(() => {
+                    rs.destroy({permanently: true, force: true}).then(() => {
                         callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
@@ -232,10 +232,10 @@ function deleteObject(payload, callback, dbConnection) {
             break;
         }
         case 'histogram' : {
-            Histogram.findById(payload.idObject).then(rs => {
+            Histogram.findById(payload.idObject, {paranoid: false}).then(rs => {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
-                    rs.destroy({permanently: true}).then(() => {
+                    rs.destroy({permanently: true, force: true}).then(() => {
                         callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
@@ -247,10 +247,10 @@ function deleteObject(payload, callback, dbConnection) {
             break;
         }
         case 'zoneset' : {
-            ZoneSet.findById(payload.idObject).then(rs => {
+            ZoneSet.findById(payload.idObject, {paranoid: false}).then(rs => {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
-                    rs.destroy({permanently: true}).then(() => {
+                    rs.destroy({permanently: true, force: true}).then(() => {
                         callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
@@ -262,10 +262,10 @@ function deleteObject(payload, callback, dbConnection) {
             break;
         }
         case 'zone' : {
-            Zone.findById(payload.idObject).then(rs => {
+            Zone.findById(payload.idObject, {paranoid: false}).then(rs => {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
-                    rs.destroy({permanently: true}).then(() => {
+                    rs.destroy({permanently: true, force: true}).then(() => {
                         callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
