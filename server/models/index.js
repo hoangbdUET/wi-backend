@@ -133,6 +133,7 @@ function newDbInstance(dbName, callback) {
         'WorkflowSpec',
         'Zone',
         'ZoneSet',
+        'ZoneTemplate',
         'ZoneTrack'
     ];
     models.forEach(function (model) {

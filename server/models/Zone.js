@@ -16,7 +16,14 @@ module.exports = function (sequelize, DataTypes) {
         },
         fill: {
             type: DataTypes.TEXT,
-            allowNull: false
+            allowNull: false,
+            set(value) {
+                this.setDataValue('fill', typeof(value) === 'object' ? JSON.stringify(value) : value);
+            },
+            get() {
+                const value = this.getDataValue('fill');
+                return JSON.parse(value);
+            }
         },
         showName: {
             type: DataTypes.BOOLEAN,

@@ -49,11 +49,7 @@ function getWellList(payload, done, dbConnection) {
     let forward = true;
     try {
         let a = payload.forward.toString();
-        if (a == 'true') {
-            forward = true;
-        } else {
-            forward = false;
-        }
+        forward = a === 'true';
     } catch (e) {
         forward = true;
     }
@@ -92,12 +88,11 @@ function getWellList(payload, done, dbConnection) {
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
     });
-};
-
+}
 function editWell(wellInfo, done, dbConnection, username) {
     dbConnection.Well.findById(wellInfo.idWell).then(well => {
         if (well) {
-            if (well.name != wellInfo.name) {
+            if (well.name !== wellInfo.name) {
                 let oldWellName = well.name;
                 well.name = wellInfo.name;
                 well.topDepth = wellInfo.topDepth;
@@ -319,8 +314,7 @@ async function exportToProject(info, done, dbConnection, username) {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Well name existed!", well));
         console.log(err);
     });
-};
-
+}
 function getWellHeader(idWell, done, dbConnection) {
     dbConnection.WellHeader.findAll({where: {idWell: idWell}}).then(headers => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", headers));

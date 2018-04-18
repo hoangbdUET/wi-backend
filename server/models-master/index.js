@@ -24,12 +24,12 @@ sequelize.sync()
 let models = [
     'Family',
     'FamilyCondition',
-    'OverlayLine',
     'FamilySpec',
-    'WorkflowSpec',
     'OpenSharedProject',
-    'ProjectPermission',
-    'TaskSpec'
+    'OverlayLine',
+    'TaskSpec',
+    'WorkflowSpec',
+    'ZoneTemplate'
 ];
 models.forEach(function (model) {
     module.exports[model] = sequelize.import(__dirname + '/' + model);
@@ -38,9 +38,5 @@ models.forEach(function (model) {
 (function (m) {
     m.FamilyCondition.belongsTo(m.Family, {foreignKey: 'idFamily'});
     m.Family.hasMany(m.FamilySpec, {foreignKey: 'idFamily'});
-    m.OpenSharedProject.hasMany(m.ProjectPermission, {
-        foreignKey: {name: 'idOpenSharedProject', allowNull: false},
-        onDelete: 'CASCADE'
-    });
 })(module.exports);
 module.exports.sequelize = sequelize;

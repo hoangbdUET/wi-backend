@@ -12,6 +12,7 @@ let updateFamilyModel = require('../family/global.family.models');
 let updateOverlayLineModel = require('../overlay-line/overlay-line.model');
 let workflowSpecModel = require('../workflow-spec/workflow-spec.model');
 let taskSpecModel = require('../task/task-spec');
+let zoneTemplateModel = require('../zone-template/zone-template.model');
 let jwt = require('jsonwebtoken');
 
 router.use(bodyParser.json());
@@ -60,6 +61,9 @@ router.post('/database/update', function (req, res) {
                                                 taskSpecModel.syncTaskSpec(dbName.substring(3).toLowerCase(), function (err, successfull) {
                                                     console.log("Task spec sync: DONE");
                                                     console.log("SUCCESSFULL CREATED NEW DATABASE ", dbName);
+                                                });
+                                                zoneTemplateModel.synZoneTemplate(dbName.substring(3).toLowerCase(), function () {
+                                                    console.log("Zone template sync: DONE");
                                                 });
                                             }
                                         });

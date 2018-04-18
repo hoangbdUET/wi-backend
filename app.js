@@ -5,7 +5,8 @@ let familyUpdate = require('./server/family/GlobalFamilyUpdater');
 let familyConditionUpdate = require('./server/family/GlobalFamilyConditionUpdater');
 let overlayLineUpdate = require('./server/overlay-line/overlay-line.update');
 let workflowSpecUpdate = require('./server/workflow-spec/workflow-spec.update');
-let taskSpecUpdated = require('./server/task/task-spec').createTaskSpec;
+let taskSpecUpdate = require('./server/task/task-spec').createTaskSpec;
+let zoneTemplateUpdate = require('./server/zone-template/zone-template.model').createZoneTemplateFromXLSX;
 const QUEUE_TIME = 500;
 
 Object.defineProperty(Array.prototype, "forEachDone", {
@@ -26,15 +27,16 @@ familyUpdate(function () {
     familyConditionUpdate(function () {
         overlayLineUpdate(function () {
             workflowSpecUpdate(function () {
-                taskSpecUpdated(function () {
+                taskSpecUpdate(function () {
                     main();
+                });
+                zoneTemplateUpdate(function () {
+
                 });
             });
         });
     });
 });
-
-//main();
 
 function main() {
     let authenticate;
@@ -95,6 +97,7 @@ function main() {
     let combinedBoxToolRouter = require('./server/combined-box-tool/combined-box-tool.router');
     let combinedBoxRouter = require('./server/combined-box/combined-box.router');
     let asyncQueue = require('async/queue');
+    let zoneTemplateRouter = require('./server/zone-template/zone-template.router');
     let queue = {};
     let http = require('http').Server(app);
     app.use(cors());
@@ -121,6 +124,7 @@ function main() {
     app.use('/', dustbinRouter);
     app.use('/', workflowRouter);
     app.use('/', workflowSpecRouter);
+    app.use('/', zoneTemplateRouter);
     app.use('/pal', palRouter);
     app.use('/custom-fill', customFillRouter);
     app.use('/project', wellRouter);
