@@ -19,7 +19,6 @@ function createNewZoneSet(zoneSetInfo, done, dbConnection) {
                 let start = parseFloat((well.well_headers.find(s => s.header === 'STRT')).value);
                 let range = (stop - start) / zones.length;
                 eachSeries(zones, function (zone, nextZone) {
-                    console.log(start, stop, range);
                     dbConnection.Zone.create({
                         idZoneSet: zs.idZoneSet,
                         startDepth: start,

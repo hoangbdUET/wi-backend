@@ -48,7 +48,7 @@ function deleteImageOfTrack(info, done, dbConnection, username) {
     let Model = dbConnection.ImageOfTrack;
     Model.findById(info.idImageOfTrack).then(image => {
         if (image) {
-            Model.setDataValue('updatedBy', info.updatedBy);
+            image.setDataValue('updatedBy', info.updatedBy);
             Model.destroy({where: {idImageOfTrack: info.idImageOfTrack}}).then(result => {
                 if (result > 0) {
                     let imgPath = path.join(__dirname, '../..', config.imageBasePath, image.imageUrl.substring(image.imageUrl.indexOf('/' + username + '/')));
