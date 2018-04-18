@@ -70,7 +70,8 @@ function listZoneTemplate(payload, done, dbConnection) {
         });
     }).catch(err=>{
         console.log(err);
-        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+        // done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", response));
     });
 }
 
