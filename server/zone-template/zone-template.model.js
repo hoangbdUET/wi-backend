@@ -58,17 +58,23 @@ function synZoneTemplate(username, callback) {
 
 function listZoneTemplate(payload, done, dbConnection) {
     let response = [];
-    dbConnection.ZoneTemplate.findAll({group: ['template']}).then(zones => {
+    // dbConnection.ZoneTemplate.findAll({group: ['template']}).then(zones => {
+    dbConnection.ZoneTemplate.findAll().then(zones => {
         async.each(zones, function (zone, next) {
-            response.push({
-                idZoneTemplate: zone.idZoneTemplate,
-                template: zone.template
-            });
-            next();
+            let existed = response.find(r => r.template === zone.template);
+            if (!existed) {
+                response.push({
+                    idZoneTemplate: zone.idZoneTemplate,
+                    template: zone.template
+                });
+                next();
+            } else {
+                next();
+            }
         }, function () {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", response));
         });
-    }).catch(err=>{
+    }).catch(err => {
         console.log(err);
         // done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
         done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", response));
