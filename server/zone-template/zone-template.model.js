@@ -68,6 +68,9 @@ function listZoneTemplate(payload, done, dbConnection) {
         }, function () {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", response));
         });
+    }).catch(err=>{
+        console.log(err);
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
     });
 }
 
