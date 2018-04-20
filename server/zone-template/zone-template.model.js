@@ -129,8 +129,25 @@ function importZoneTemplate(payload, done, dbConnection) {
 
 }
 
-function exportZoneTemplate(payload, done, dbConnection) {
-
+function exportZoneTemplate(payload, callback, dbConnection) {
+    let dataToXLSX = [];
+    dataToXLSX.push(['id', 'zone_template', 'zone_name', 'zone_background', 'zone_foreground', 'zone_pattern']);
+    let count = 1;
+    async.each(payload.templates, function (template, next) {
+        dbConnection.ZoneTemplate.findAll({where: {template: template}}).then(zones => {
+            async.each(zones, function (zone, nextZone) {
+                dataToXLSX.push([count, zone.template, zone.name, zone.background, zone.foreground, zone.pattern]);
+                count++;
+                nextZone();
+            }, function () {
+                next();
+            });
+        });
+    }, function () {
+        wixlsx.exportDataToXLSX(dataToXLSX, 'zone_template', function (err, file) {
+            callback(err, file);
+        });
+    });
 }
 
 module.exports = {

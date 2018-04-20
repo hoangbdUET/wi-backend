@@ -31,7 +31,32 @@ function getValueAtCell(rowIndex, colIndex, sheet) {
     return cell.v;
 }
 
+function exportDataToXLSX(data, sheetName, callback) {
+    try {
+        let XLSX = require('xlsx');
+        let tempfile = require('tempfile')('.xlsx');
+        let ws = XLSX.utils.aoa_to_sheet(data);
+        let wb = {SheetNames: [], Sheets: {}};
+        wb.SheetNames.push(sheetName);
+        wb.Sheets[sheetName] = ws;
+        XLSX.writeFile(wb, tempfile);
+        callback(null, tempfile);
+    } catch (err) {
+        console.log(err);
+        callback(err, null);
+    }
+}
+
+// let data = [
+//     [1, 2, 3],
+//     ['hoang', 'bui', 'dang'],
+//     ['hoang', 'bui', 'dang']
+// ];
+// exportDataToXLSX(data, 'test', function (err, file) {
+//     if (!err) console.log(file)
+// });
 // console.log(getRows('D:\\Workspace\\wi-backend\\server\\task\\task-spec.xlsx', 'task-spec'));
 module.exports = {
-    getRows: getRows
+    getRows: getRows,
+    exportDataToXLSX: exportDataToXLSX
 };

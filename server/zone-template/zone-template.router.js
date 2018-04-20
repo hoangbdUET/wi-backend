@@ -20,8 +20,20 @@ router.post('/zone-template/import', function (req, res) {
 });
 
 router.post('/zone-template/export', function (req, res) {
-    zoneTempModel.exportZoneTemplate(req.body, function (status) {
-        res.send(status);
+    zoneTempModel.exportZoneTemplate(req.body, function (err, file) {
+        if (!err) {
+            res.sendFile(file, function (err) {
+                if (err) console.log(err);
+                let fs = require('fs');
+                fs.unlinkSync(file);
+            });
+        } else {
+            res.send({
+                code: 512,
+                reason: err,
+                content: err
+            });
+        }
     }, req.dbConnection);
 });
 
