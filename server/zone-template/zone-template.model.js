@@ -82,7 +82,7 @@ function listZoneTemplate(payload, done, dbConnection) {
 }
 
 function allZone(payload, done, dbConnection) {
-    dbConnection.ZoneTemplate.findAll().then(zs => {
+    dbConnection.ZoneTemplate.findAll({where: {template: payload.template}}).then(zs => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", zs));
     });
 }
