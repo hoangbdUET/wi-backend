@@ -140,15 +140,15 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                     .then(function (curve) {
                         curve.getLineProperty()
                             .then(function (family) {
-                                console.log("====idF ", family.idFamily);
+                                // console.log("====idF ", family.idFamily);
                                 dbConnection.Family.findById(family.idFamily, {
                                     include: {
                                         model: dbConnection.FamilySpec,
                                         as: 'family_spec',
-                                        where: {isDefault: true}
+                                        // where: {isDefault: true}
                                     }
                                 }).then(familyInfo => {
-                                    console.log("+++", familyInfo);
+                                    // console.log("+++", familyInfo);
                                     Line.build({
                                         idTrack: lineInfo.idTrack,
                                         idCurve: curve.idCurve,
