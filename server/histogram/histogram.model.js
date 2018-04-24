@@ -6,7 +6,8 @@ let asyncLoop = require('async/each');
 let findFamilyIdByName = function (familyName, dbConnection, callback) {
     dbConnection.Family.findOne({
         where: {name: familyName},
-        include: {model: dbConnection.FamilySpec, as: 'family_spec', where: {isDefault: true}}
+        // include: {model: dbConnection.FamilySpec, as: 'family_spec', where: {isDefault: true}}
+        include: {model: dbConnection.FamilySpec, as: 'family_spec'}
     }).then(family => {
         if (family) {
             let familyObj = family.toJSON();

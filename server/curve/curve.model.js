@@ -154,7 +154,7 @@ function getCurveInfo(curve, done, dbConnection, username) {
             include: {
                 model: dbConnection.FamilySpec,
                 as: 'family_spec',
-                where: {isDefault: true}
+                // where: {isDefault: true}
             }
         }
     })
@@ -826,6 +826,10 @@ function getCurveParents(payload, done, dbConnection) {
     });
 }
 
+function convertUnit(payload, done, dbConnection, username) {
+
+}
+
 module.exports = {
     createNewCurve: createNewCurve,
     editCurve: editCurve,
@@ -841,6 +845,7 @@ module.exports = {
     getCurveDataFromInventory: getCurveDataFromInventory,
     duplicateCurve: duplicateCurve,
     checkCurveExisted: checkCurveExisted,
-    getCurveParents: getCurveParents
+    getCurveParents: getCurveParents,
+    converUnit: convertUnit
 };
 
