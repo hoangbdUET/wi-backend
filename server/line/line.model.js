@@ -98,7 +98,7 @@ function createNewLineWithoutResponse(lineInfo, dbConnection, username, callback
             include: {
                 model: dbConnection.FamilySpec,
                 as: 'family_spec',
-                // where: {isDefault: true}
+               // where: {isDefault: true}
             }
         }
     }).then(curve => {
