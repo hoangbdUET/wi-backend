@@ -279,6 +279,31 @@ let wfs = [
                 }
             ]
         }
+    },
+    {
+        name: "Cross Recurrence Plot",
+        type: 1,
+        description: "[ML] Cross Recurrence Plot",
+        content: {
+
+            "name": 'CROSS_RECURRENCE_PLOT',
+            "model": {
+                "type": 'crp',
+                "inputs": [{class: 'curve input'}, {class: 'curve input'}, {class: 'curve output'}]
+            },
+            "steps": [
+                {
+                    "name": 'Train'
+                },
+                {
+                    "name": 'Verify'
+                },
+                {
+                    "name": 'Predict'
+                }
+            ]
+
+        }
     }
 ];
 module.exports = function (callback) {
