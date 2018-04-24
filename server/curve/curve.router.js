@@ -23,7 +23,6 @@ let storage = multer.diskStorage({
 let upload = multer({storage: storage});
 
 router.post('/curve/copy', (req, res) => {
-    console.log(req.body);
     curveModel.copyCurve(req.body, (status) => {
         res.send(status);
     }, req.dbConnection, req.decoded.username);

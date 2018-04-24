@@ -211,85 +211,90 @@ function getCurveInfo(curve, done, dbConnection, username) {
 
 ///curve advance acrions
 
-function copyCurve(param, done, dbConnection, username) {
-    let Curve = dbConnection.Curve;
-    let Dataset = dbConnection.Dataset;
-    let Well = dbConnection.Well;
-    let Project = dbConnection.Project;
-    Curve.findById(param.idCurve).then(curve => {
-        if (curve) {
-            Dataset.findById(curve.idDataset).then(srcDataset => {
-                Well.findById(srcDataset.idWell).then(srcWell => {
-                    Project.findById(srcWell.idProject).then(srcProject => {
-                        Dataset.findById(param.desDatasetId).then(desDataset => {
-                            if (desDataset) {
-                                Well.findById(desDataset.idWell).then(desWell => {
-                                    let srcHashPath = hashDir.getHashPath(config.curveBasePath, username + srcProject.name + srcWell.name + srcDataset.name + curve.name, curve.name + ".txt");
-                                    console.log("SRC : " + srcHashPath);
-                                    let cp = hashDir.copyFile(config.curveBasePath, srcHashPath, username + srcProject.name + desWell.name + desDataset.name + curve.name, curve.name + ".txt");
-                                    console.log("CP : " + cp);
-                                    if (cp) {
-                                        let newCurve = curve.toJSON();
-                                        newCurve.idDataset = desDataset.idDataset;
-                                        newCurve.createdBy = param.createdBy;
-                                        newCurve.updatedBy = param.updatedBy;
-                                        delete newCurve.idCurve;
-                                        //console.log("New Curve : " + JSON.stringify(newCurve));
-                                        Curve.findAll({
-                                            where: {
-                                                idDataset: desDataset.idDataset,
-                                                name: newCurve.name
-                                            }
-                                        }).then(c => {
-                                            if (c.length > 0) {
-                                                Curve.destroy({
-                                                    where: {
-                                                        idCurve: c[0].idCurve
-                                                    }
-                                                }).then(rs => {
-                                                    Curve.create(newCurve).then(cu => {
-                                                        done(ResponseJSON(ErrorCodes.SUCCESS, "Copy and Override Curve success", {idCurve: cu.idCurve}))
-                                                    }).catch(err => {
-                                                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Copy err", err))
-                                                    });
-                                                }).catch((err) => {
-                                                    console.log("ERRRRRR");
-                                                })
-                                            } else {
-                                                Curve.create(newCurve).then(cu => {
-                                                    done(ResponseJSON(ErrorCodes.SUCCESS, "Copy Curve success", {idCurve: cu.idCurve}))
-                                                }).catch(err => {
-                                                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Copy err", err))
-                                                });
-                                            }
-                                        }).catch(err => {
+async function copyCurve(param, done, dbConnection, username) {
+    let curveUtils = require('../utils/curve.function');
+    let curve = await dbConnection.Curve.findById(param.idCurve);
+    let desDataset = await dbConnection.Dataset.findById(param.desDatasetId);
+    if (!curve || !desDataset) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve or Des dataset was not found by id"));
 
-                                        })
-
-                                    } else {
-                                        done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Copy error"));
-                                    }
-                                });
-                            } else {
-                                done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Destination dataset not found"));
-                            }
+    curveUtils.getFullCurveParents(param, dbConnection).then(curveParents => {
+        curveParents.username = username;
+        let desCurve = {...curveParents};
+        desCurve.dataset = desDataset.name;
+        curveUtils.copyCurveData(curveParents, desCurve, function (err, successPath) {
+            if (err) {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+            } else {
+                console.log("Successfull copy curve path : ", successPath);
+                dbConnection.Curve.findOne({
+                    where: {
+                        name: curve.name,
+                        idDataset: desDataset.idDataset
+                    }
+                }).then(existedCurve => {
+                    if (existedCurve) {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", existedCurve));
+                    } else {
+                        let newCurve = curve.toJSON();
+                        delete newCurve.idCurve;
+                        newCurve.idDataset = desDataset.idDataset;
+                        newCurve.createdBy = param.createdBy;
+                        newCurve.updatedBy = param.updatedBy;
+                        dbConnection.Curve.create(newCurve).then((c) => {
+                            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", c));
+                        }).catch(err => {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                         });
-                    });
-                });
-
-            }).catch(err => {
-                console.log(err.stack);
-            });
-        } else {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found"));
-        }
-    }).catch(err => {
-        console.log(err.stack);
+                    }
+                })
+            }
+        });
     });
-
 }
 
-function moveCurve(param, rs, dbConnection, username) {
+async function moveCurve(param, done, dbConnection, username) {
+    let curveUtils = require('../utils/curve.function');
+    let curve = await dbConnection.Curve.findById(param.idCurve);
+    let _curve = curve.toJSON();
+    let desDataset = await dbConnection.Dataset.findById(param.desDatasetId);
+    if (!curve || !desDataset) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve or Des dataset was not found by id"));
+
+    let curveParents = await curveUtils.getFullCurveParents(param, dbConnection);
+    curveParents.username = username;
+    let newCurve = {...curveParents};
+    newCurve.dataset = desDataset.name;
+    curveUtils.moveCurveData(curveParents, newCurve, function (err, successPath) {
+        if (err) {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+        } else {
+            curve.destroy({permanently: true, force: true}).then(() => {
+                dbConnection.Curve.findOne({
+                    where: {
+                        name: _curve.name,
+                        idDataset: desDataset.idDataset
+                    }
+                }).then(existed => {
+                    if (!existed) {
+                        dbConnection.Curve.create({
+                            name: _curve.name,
+                            idDataset: desDataset.idDataset,
+                            createdBy: _curve.createdBy,
+                            updatedBy: _curve.updatedBy,
+                            unit: _curve.unit,
+                            initValue: _curve.unit
+                        }).then(() => {
+                            done(ResponseJSON(ErrorCodes.SUCCESS, "successfull"));
+                        });
+                    } else {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "successfull"));
+                    }
+                })
+            });
+        }
+    });
+}
+
+function _moveCurve(param, rs, dbConnection, username) {
     let Curve = dbConnection.Curve;
     let Dataset = dbConnection.Dataset;
     let Well = dbConnection.Well;
