@@ -533,7 +533,7 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
                                     let arrY = [];
                                     lineReader.on('line', function (line) {
                                         let arrXY = line.split(/\s+/g).slice(1, 2);
-                                        if (arrXY[0] !== 'null') {
+                                        if (arrXY[0] !== 'null' && arrXY[0] !== 'NaN' ) {
                                             arrY.push(arrXY[0]);
                                         }
                                     });
@@ -544,7 +544,7 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
                                         let max = parseFloat(arrY[0]);
                                         let sum = 0;
                                         arrY.forEach(function (element, i) {
-                                            if (element !== 'null') {
+                                            if (element !== 'null' && element !== 'NaN') {
                                                 element = parseFloat(element);
                                                 sum += element;
                                                 if (element < min) min = element;
