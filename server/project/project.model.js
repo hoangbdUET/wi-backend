@@ -157,10 +157,12 @@ function updatePermission(req, done) {
 async function getProjectFullInfo(payload, done, req) {
     let userPermission = require('../utils/permission/user-permission');
     if (payload.shared && payload.shared.toString() === 'true') {
+        console.log("LOAD SHARED PROJECT");
         await userPermission.loadUserPermission(req.token, payload.name, req.decoded.realUser);
         await openProject.addRow({username: req.decoded.realUser, project: payload.name, owner: payload.owner});
         req.dbConnection = models('wi_' + payload.owner.toLowerCase());
     } else {
+        console.log("LOAD USER PROJECT");
         await userPermission.loadUserPermission(req.token, payload.name, req.decoded.realUser, true);
         await openProject.removeRow({username: req.decoded.realUser});
         req.dbConnection = models(('wi_' + req.decoded.realUser));
@@ -170,6 +172,8 @@ async function getProjectFullInfo(payload, done, req) {
     if (!project) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Project not found"));
 
     let response = project.toJSON();
+    response.owner = payload.owner ? payload.owner : null;
+    response.shared = payload.shared ? payload.shared : null;
     let wells = await dbConnection.Well.findAll({where: {idProject: project.idProject}});
     let groups = await dbConnection.Groups.findAll({where: {idProject: project.idProject}});
     response.wells = [];
