@@ -98,7 +98,7 @@ function createNewLineWithoutResponse(lineInfo, dbConnection, username, callback
             include: {
                 model: dbConnection.FamilySpec,
                 as: 'family_spec',
-               // where: {isDefault: true}
+                // where: {isDefault: true}
             }
         }
     }).then(curve => {
@@ -149,32 +149,40 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                                     }
                                 }).then(familyInfo => {
                                     // console.log("+++", familyInfo);
-                                    Line.build({
-                                        idTrack: lineInfo.idTrack,
-                                        idCurve: curve.idCurve,
-                                        alias: curve.name,
-                                        unit: curve.unit,
-                                        minValue: familyInfo.family_spec[0].minScale,
-                                        maxValue: familyInfo.family_spec[0].maxScale,
-                                        displayMode: familyInfo.family_spec[0].displayMode,
-                                        blockPosition: familyInfo.family_spec[0].blockPosition,
-                                        displayType: familyInfo.family_spec[0].displayType,
-                                        lineStyle: familyInfo.family_spec[0].lineStyle,
-                                        lineWidth: familyInfo.family_spec[0].lineWidth,
-                                        lineColor: familyInfo.family_spec[0].lineColor,
-                                        symbolFillStyle: familyInfo.family_spec[0].lineColor,
-                                        symbolStrokeStyle: familyInfo.family_spec[0].lineColor,
-                                        orderNum: lineInfo.orderNum,
-                                        createdBy: lineInfo.createdBy,
-                                        updatedBy: lineInfo.updatedBy
-                                    }).save()
-                                        .then(function (line) {
-                                            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", line));
-                                        })
-                                        .catch(function (err) {
-                                            console.log(err);
-                                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
-                                        });
+                                    curveModel.calculateScale(curve.idCurve, username, dbConnection, function (err, result) {
+                                        let minScale = familyInfo.family_spec[0].minScale;
+                                        let maxScale = familyInfo.family_spec[0].maxScale;
+                                        if (!minScale || !maxScale) {
+                                            minScale = result.minScale;
+                                            maxScale = result.maxScale;
+                                        }
+                                        Line.build({
+                                            idTrack: lineInfo.idTrack,
+                                            idCurve: curve.idCurve,
+                                            alias: curve.name,
+                                            unit: curve.unit,
+                                            minValue: minScale,
+                                            maxValue: maxScale,
+                                            displayMode: familyInfo.family_spec[0].displayMode,
+                                            blockPosition: familyInfo.family_spec[0].blockPosition,
+                                            displayType: familyInfo.family_spec[0].displayType,
+                                            lineStyle: familyInfo.family_spec[0].lineStyle,
+                                            lineWidth: familyInfo.family_spec[0].lineWidth,
+                                            lineColor: familyInfo.family_spec[0].lineColor,
+                                            symbolFillStyle: familyInfo.family_spec[0].lineColor,
+                                            symbolStrokeStyle: familyInfo.family_spec[0].lineColor,
+                                            orderNum: lineInfo.orderNum,
+                                            createdBy: lineInfo.createdBy,
+                                            updatedBy: lineInfo.updatedBy
+                                        }).save()
+                                            .then(function (line) {
+                                                done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", line));
+                                            })
+                                            .catch(function (err) {
+                                                console.log(err);
+                                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
+                                            });
+                                    });
                                 }).catch(err => {
                                     console.log(err);
                                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name + " idTrack not exist", err));
