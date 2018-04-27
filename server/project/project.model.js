@@ -157,12 +157,12 @@ function updatePermission(req, done) {
 async function getProjectFullInfo(payload, done, req) {
     let userPermission = require('../utils/permission/user-permission');
     if (payload.shared && payload.shared.toString() === 'true') {
-        console.log("LOAD SHARED PROJECT");
+        // console.log("LOAD SHARED PROJECT");
         await userPermission.loadUserPermission(req.token, payload.name, req.decoded.realUser);
         await openProject.addRow({username: req.decoded.realUser, project: payload.name, owner: payload.owner});
         req.dbConnection = models('wi_' + payload.owner.toLowerCase());
     } else {
-        console.log("LOAD USER PROJECT");
+        // console.log("LOAD USER PROJECT");
         await userPermission.loadUserPermission(req.token, payload.name, req.decoded.realUser, true);
         await openProject.removeRow({username: req.decoded.realUser});
         req.dbConnection = models(('wi_' + req.decoded.realUser));
