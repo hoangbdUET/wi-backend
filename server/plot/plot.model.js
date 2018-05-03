@@ -974,8 +974,12 @@ let importPlotTemplate = async function (req, done, dbConnection) {
                                                                             name: shading.controlCurve.curveName
                                                                         }
                                                                     }).then(curve => {
-                                                                        shading.idControlCurve = curve.idCurve;
-                                                                        c();
+                                                                        if (curve) {
+                                                                            shading.idControlCurve = curve.idCurve;
+                                                                            c();
+                                                                        } else {
+                                                                            c();
+                                                                        }
                                                                     });
                                                                 } else {
                                                                     c();
@@ -989,12 +993,13 @@ let importPlotTemplate = async function (req, done, dbConnection) {
                                                     }
                                                 }
                                             ], function () {
-                                                shading.createdby = req.createdBy;
+                                                shading.createdBy = req.createdBy;
                                                 shading.updatedBy = req.updatedBy;
+                                                console.log("CREATE SHADING ...", shading);
                                                 dbConnection.Shading.create(shading).then(() => {
                                                     next();
                                                 }).catch(err => {
-                                                    console.log(err);
+                                                    console.log("====", err);
                                                     next();
                                                 });
                                             });
