@@ -411,7 +411,8 @@ function getData(param, successFunc, errorFunc, dbConnection, username) {
                     errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Dataset for curve not found"));
                 });
             } else {
-                errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found"));
+                // errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found"));
+                errorFunc(ResponseJSON(ErrorCodes.SUCCESS, "Curve not found"));
             }
         })
         .catch((err) => {
