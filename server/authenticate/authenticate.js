@@ -10,10 +10,10 @@ module.exports = function () {
             let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
             if (token) {
                 jwt.verify(token, 'secretKey', function (err, decoded) {
-                    decoded.realUser = decoded.username;
                     if (err) {
                         return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Authentication failed", "Authentication failed"));
                     } else {
+                        decoded.realUser = decoded.username;
                         if (opening[decoded.username]) {
                             console.log(decoded.realUser + " --- Working with shared session from : ", opening[decoded.username].owner);
                             decoded.username = opening[decoded.username].owner;
