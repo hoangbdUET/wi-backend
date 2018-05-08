@@ -281,7 +281,8 @@ async function moveCurve(param, done, dbConnection, username) {
                             createdBy: _curve.createdBy,
                             updatedBy: _curve.updatedBy,
                             unit: _curve.unit,
-                            initValue: _curve.unit
+                            initValue: _curve.unit,
+                            idFamily: _curve.idFamily
                         }).then(() => {
                             done(ResponseJSON(ErrorCodes.SUCCESS, "successfull"));
                         });
@@ -832,9 +833,6 @@ function getCurveParents(payload, done, dbConnection) {
     });
 }
 
-function convertUnit(payload, done, dbConnection, username) {
-
-}
 
 module.exports = {
     createNewCurve: createNewCurve,
@@ -852,6 +850,5 @@ module.exports = {
     duplicateCurve: duplicateCurve,
     checkCurveExisted: checkCurveExisted,
     getCurveParents: getCurveParents,
-    converUnit: convertUnit
 };
 
