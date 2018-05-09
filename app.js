@@ -1,8 +1,6 @@
 /**
  * Created by minhtan on 20/06/2017.
  */
-let familyUpdate = require('./server/family/GlobalFamilyUpdater');
-let familyConditionUpdate = require('./server/family/GlobalFamilyConditionUpdater');
 let overlayLineUpdate = require('./server/overlay-line/overlay-line.update');
 let workflowSpecUpdate = require('./server/workflow-spec/workflow-spec.update');
 let taskSpecUpdate = require('./server/task/task-spec').createTaskSpec;
@@ -22,21 +20,24 @@ Object.defineProperty(Array.prototype, "forEachDone", {
         });
     }
 });
-
-familyUpdate(function () {
-    familyConditionUpdate(function () {
+setTimeout(function () {
+    main();
+    let familySystemSync = require('./server/family/FamilySystemSync');
+    familySystemSync(function () {
         overlayLineUpdate(function () {
-            workflowSpecUpdate(function () {
-                taskSpecUpdate(function () {
-                    main();
-                });
-                zoneTemplateUpdate(function () {
 
-                });
-            });
+        });
+        workflowSpecUpdate(function () {
+
+        });
+        taskSpecUpdate(function () {
+
+        });
+        zoneTemplateUpdate(function () {
+
         });
     });
-});
+}, 1000);
 
 function main() {
     let authenticate;
@@ -79,6 +80,7 @@ function main() {
     let annotationRouter = require('./server/annotation/annotation.router');
     let regressionLineRouter = require('./server/regression-line/regression-line.route');
     let familyRouter = require('./server/family/family.router');
+    let familyUnitRouter = require('./server/family-unit/family-unit.router');
     let globalFamilyRouter = require('./server/family/global.family.router');
     let referenceCurveRouter = require('./server/reference-curve/reference-curve.router');
     let ternaryRouter = require('./server/ternary/ternary.router');
@@ -120,6 +122,7 @@ function main() {
     app.use('/', uploadRouter);
     app.use('/', projectRouter);
     app.use('/', familyRouter);
+    app.use('/', familyUnitRouter);
     app.use('/', imageUpload);
     app.use('/', dustbinRouter);
     app.use('/', workflowRouter);

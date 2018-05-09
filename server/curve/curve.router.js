@@ -8,6 +8,7 @@ let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
 let path = require('path');
 let curveModel = require('./curve.model');
+let convertUnit = require('./convert-unit');
 
 router.use(bodyParser.json());
 
@@ -145,9 +146,10 @@ router.post('/curve/get-parents', function (req, res) {
 });
 
 router.post('/curve/convert-unit', function (req, res) {
-    curveModel.converUnit(req.body, function (status) {
+    convertUnit(req.body, function (status) {
         res.send(status);
-    }, req.dbConnection, req.username)
+    }, req.dbConnection, req.decoded.username)
 });
+
 
 module.exports = router;

@@ -130,6 +130,76 @@ function createNewLineWithoutResponse(lineInfo, dbConnection, username, callback
 }
 
 function createNewLine(lineInfo, done, dbConnection, username) {
+    let convertUnit = require('../family-unit/family-unit.model');
+    if (!lineInfo.idCurve) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Need idCurve"));
+    dbConnection.Curve.findById(lineInfo.idCurve).then(curve => {
+        curveModel.calculateScale(curve.idCurve, username, dbConnection, function (err, result) {
+            let curveMinScale = result.minScale;
+            let curveMaxScale = result.maxScale;
+            curve.getLineProperty({
+                include: {
+                    model: dbConnection.FamilySpec,
+                    as: 'family_spec',
+                    // where: {isDefault: true}
+                }
+            }).then(family => {
+                if (family) {
+                    convertUnit.getListUnitByIdFamily(family.idFamily, dbConnection).then(units => {
+                        let unitConvertData = {};
+                        let _line = {};
+                        unitConvertData.srcUnit = units.find(u => u.name === curve.unit);
+                        unitConvertData.desUnit = units.find(u => u.name === family.family_spec[0].unit);
+                        _line.minValue = family.family_spec[0].minScale || curveMinScale;
+                        _line.maxValue = family.family_spec[0].maxScale || curveMaxScale;
+                        if (unitConvertData.srcUnit && unitConvertData.desUnit) {
+                            let ratio = unitConvertData.srcUnit.rate / unitConvertData.desUnit.rate;
+                            _line.minValue = _line.minValue * ratio;
+                            _line.maxValue = _line.maxValue * ratio;
+                        }
+                        _line.idTrack = lineInfo.idTrack;
+                        _line.idCurve = curve.idCurve;
+                        _line.alias = curve.name;
+                        _line.unit = curve.unit;
+                        _line.displayMode = family.family_spec[0].displayMode;
+                        _line.blockPosition = family.family_spec[0].blockPosition;
+                        _line.displayType = family.family_spec[0].displayType;
+                        _line.lineStyle = family.family_spec[0].lineStyle;
+                        _line.lineWidth = family.family_spec[0].lineWidth;
+                        _line.lineColor = family.family_spec[0].lineColor;
+                        _line.symbolFillStyle = family.family_spec[0].lineColor;
+                        _line.symbolStrokeStyle = family.family_spec[0].lineColor;
+                        _line.orderNum = lineInfo.orderNum;
+                        _line.createdBy = lineInfo.createdBy;
+                        _line.updatedBy = lineInfo.updatedBy;
+                        dbConnection.Line.create(_line).then(l => {
+                            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", l));
+                        }).catch(err => {
+                            console.log(err);
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                        })
+                    });
+                } else {
+                    dbConnection.Line.create({
+                        idTrack: lineInfo.idTrack,
+                        idCurve: curve.idCurve,
+                        alias: curve.name,
+                        minValue: curveMinScale,
+                        maxValue: curveMaxScale,
+                        orderNum: lineInfo.orderNum,
+                        createdBy: lineInfo.createdBy,
+                        updatedBy: lineInfo.updatedBy
+                    }).then(l => {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", l.toJSON()));
+                    }).catch(function (err) {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name + err.message));
+                    });
+                }
+            });
+        });
+    });
+}
+
+function _createNewLine(lineInfo, done, dbConnection, username) {
     let Line = dbConnection.Line;
     let Curve = dbConnection.Curve;
     let Dataset = dbConnection.Dataset;
@@ -155,6 +225,8 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                                         if (!minScale || !maxScale) {
                                             minScale = result.minScale;
                                             maxScale = result.maxScale;
+                                        } else {
+
                                         }
                                         Line.build({
                                             idTrack: lineInfo.idTrack,

@@ -103,6 +103,7 @@ function newDbInstance(dbName, callback) {
         'Family',
         'FamilyCondition',
         'FamilySpec',
+        'FamilyUnit',
         'Flow',
         'Groups',
         'Histogram',
@@ -126,6 +127,7 @@ function newDbInstance(dbName, callback) {
         'TaskSpec',
         'Ternary',
         'Track',
+        'UnitGroup',
         'UserDefineLine',
         'Well',
         'WellHeader',
@@ -237,6 +239,8 @@ function newDbInstance(dbName, callback) {
 
         m.FamilyCondition.belongsTo(m.Family, {foreignKey: 'idFamily'});
         m.Family.hasMany(m.FamilySpec, {as: 'family_spec', foreignKey: 'idFamily'});
+        m.FamilySpec.belongsTo(m.UnitGroup, {foreignKey: 'idUnitGroup'});
+        m.UnitGroup.hasMany(m.FamilyUnit, {foreignKey: 'idUnitGroup'});
         m.Curve.belongsTo(m.Family, {as: 'LineProperty', foreignKey: 'idFamily'});
 
         m.Shading.belongsTo(m.Line, {foreignKey: 'idLeftLine', as: 'leftLine', onDelete: 'CASCADE'});

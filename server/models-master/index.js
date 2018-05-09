@@ -25,9 +25,11 @@ let models = [
     'Family',
     'FamilyCondition',
     'FamilySpec',
+    'FamilyUnit',
     'OpenSharedProject',
     'OverlayLine',
     'TaskSpec',
+    'UnitGroup',
     'WorkflowSpec',
     'ZoneTemplate'
 ];
@@ -38,5 +40,7 @@ models.forEach(function (model) {
 (function (m) {
     m.FamilyCondition.belongsTo(m.Family, {foreignKey: 'idFamily'});
     m.Family.hasMany(m.FamilySpec, {foreignKey: 'idFamily'});
+    m.FamilySpec.belongsTo(m.UnitGroup, {foreignKey: 'idUnitGroup'});
+    m.UnitGroup.hasMany(m.FamilyUnit, {foreignKey: 'idUnitGroup'});
 })(module.exports);
 module.exports.sequelize = sequelize;
