@@ -1,5 +1,6 @@
 let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
+let async = require('async');
 
 function getListUnitByIdFamily(idFamily, dbConnection) {
     return new Promise(function (resolve) {
@@ -7,15 +8,13 @@ function getListUnitByIdFamily(idFamily, dbConnection) {
             include: {
                 model: dbConnection.FamilySpec,
                 as: 'family_spec',
-                include: {
-                    model: dbConnection.UnitGroup,
-                    include: {model: dbConnection.FamilyUnit}
-                }
                 // where: {isDefault: true}
             }
         }).then(family => {
-            if (family.family_spec[0].unit_group) {
-                resolve(family.family_spec[0].unit_group.family_units);
+            if (family.family_spec[0].idUnitGroup) {
+                dbConnection.FamilyUnit.findAll({where: {idUnitGroup: family.family_spec[0].idUnitGroup}}).then(units => {
+                    resolve(units);
+                })
             } else {
                 resolve([]);
             }
