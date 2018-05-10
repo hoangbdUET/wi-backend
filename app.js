@@ -100,6 +100,7 @@ function main() {
     let combinedBoxRouter = require('./server/combined-box/combined-box.router');
     let asyncQueue = require('async/queue');
     let zoneTemplateRouter = require('./server/zone-template/zone-template.router');
+    let patternRouter = require('./server/pattern/pattern.router');
     let queue = {};
     let http = require('http').Server(app);
     app.use(cors());
@@ -109,7 +110,7 @@ function main() {
      */
 
     app.use(express.static(path.join(__dirname, fullConfig.imageBasePath)));
-    //app.use('/img', express.static(__dirname + '/wi-images'));
+    app.use('/pattern', express.static(path.join(__dirname, '/server/pattern/files')));
     app.use('/', globalFamilyRouter);
     app.get('/', function (req, res) {
         res.send("WELCOME TO WI-SYSTEM");
@@ -118,6 +119,7 @@ function main() {
     authenticate = require('./server/authenticate/authenticate');
     app.use('/', testRouter);
     app.use(authenticate());
+    app.use('/', patternRouter);
     app.use('/', inventoryRouter);
     app.use('/', uploadRouter);
     app.use('/', projectRouter);
