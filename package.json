@@ -16,7 +16,6 @@
     "cors": "^2.8.3",
     "express": "^4.15.3",
     "formidable": "^1.1.1",
-    "fraction.js": "^4.0.8",
     "fs": "0.0.1-security",
     "fs-extra": "^4.0.3",
     "fs-finder": "^1.8.1",

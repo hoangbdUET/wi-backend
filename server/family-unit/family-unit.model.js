@@ -37,9 +37,15 @@ function getListUnitByIdCurve(idCurve, dbConnection) {
 }
 
 let getListUnit = function (data, callback, dbConnection) {
-    getListUnitByIdFamily(data.idFamily, dbConnection).then(list => {
-        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", list));
-    });
+    if (data.idCurve) {
+        getListUnitByIdCurve(data.idCurve, dbConnection).then(list => {
+            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", list));
+        });
+    } else {
+        getListUnitByIdFamily(data.idFamily, dbConnection).then(list => {
+            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", list));
+        });
+    }
 };
 
 module.exports = {
