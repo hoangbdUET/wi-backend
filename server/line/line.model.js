@@ -149,15 +149,12 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                         let _line = {};
                         unitConvertData.srcUnit = units.find(u => u.name === curve.unit);
                         unitConvertData.desUnit = units.find(u => u.name === family.family_spec[0].unit);
-                        _line.minValue = family.family_spec[0].minScale || curveMinScale;
-                        _line.maxValue = family.family_spec[0].maxScale || curveMaxScale;
-
-                        // if (unitConvertData.srcUnit && unitConvertData.desUnit) {
-                        //     let ratio = unitConvertData.srcUnit.rate / unitConvertData.desUnit.rate;
-                        //     _line.minValue = _line.minValue * ratio;
-                        //     _line.maxValue = _line.maxValue * ratio;
-                        // }
-                        if (!_line.minValue || !_line.maxValue) {
+                        _line.minValue = family.family_spec[0].minScale;
+                        _line.maxValue = family.family_spec[0].maxScale;
+                        console.log(family.family_spec[0].minScale);
+                        console.log(family.family_spec[0].maxScale);
+                        if (_line.minValue === null || _line.maxValue === null || !family.family_spec[0]) {
+                            console.log("CHANGE VALUE");
                             _line.minValue = curveMinScale;
                             _line.maxValue = curveMaxScale;
                         }
