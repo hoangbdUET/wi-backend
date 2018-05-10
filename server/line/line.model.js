@@ -151,11 +151,16 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                         unitConvertData.desUnit = units.find(u => u.name === family.family_spec[0].unit);
                         _line.minValue = family.family_spec[0].minScale || curveMinScale;
                         _line.maxValue = family.family_spec[0].maxScale || curveMaxScale;
+
                         // if (unitConvertData.srcUnit && unitConvertData.desUnit) {
                         //     let ratio = unitConvertData.srcUnit.rate / unitConvertData.desUnit.rate;
                         //     _line.minValue = _line.minValue * ratio;
                         //     _line.maxValue = _line.maxValue * ratio;
                         // }
+                        if (!line.minValue || !line.maxValue) {
+                            _line.minValue = curveMinScale;
+                            _line.maxValue = curveMaxScale;
+                        }
                         _line.idTrack = lineInfo.idTrack;
                         _line.idCurve = curve.idCurve;
                         _line.alias = curve.name;
