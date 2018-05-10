@@ -157,7 +157,7 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                         //     _line.minValue = _line.minValue * ratio;
                         //     _line.maxValue = _line.maxValue * ratio;
                         // }
-                        if (!line.minValue || !line.maxValue) {
+                        if (!_line.minValue || !_line.maxValue) {
                             _line.minValue = curveMinScale;
                             _line.maxValue = curveMaxScale;
                         }
