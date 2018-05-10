@@ -159,6 +159,7 @@ async function getProjectFullInfo(payload, done, req) {
     if (payload.shared && payload.shared.toString() === 'true') {
         // console.log("LOAD SHARED PROJECT");
         await userPermission.loadUserPermission(req.token, payload.name, req.decoded.realUser);
+        await openProject.removeRow({username: req.decoded.realUser});
         await openProject.addRow({username: req.decoded.realUser, project: payload.name, owner: payload.owner});
         req.dbConnection = models('wi_' + payload.owner.toLowerCase());
     } else {
