@@ -220,11 +220,34 @@ let wfs = [
     {
         name: "ML Toolkit",
         type: 1,
-        description: "[ML] Curve Prediction",
+        description: "[ML] Regression",
         content: {
             'name': 'CURVE_PREDICTION',
             'model': {
                 'type': 'curve',
+                'inputs': [{class: 'curve input'}, {class: 'curve input'}, {class: 'curve output'}]
+            },
+            'steps': [
+                {
+                    'name': 'Train'
+                },
+                {
+                    'name': 'Verify'
+                },
+                {
+                    'name': 'Predict'
+                }
+            ]
+        }
+    },
+    {
+        name: "ML Toolkit Classin",
+        type: 1,
+        description: "[ML] Classification",
+        content: {
+            'name': 'CURVE_PREDICTION_CLASSIFIICATION',
+            'model': {
+                'type': 'classification',
                 'inputs': [{class: 'curve input'}, {class: 'curve input'}, {class: 'curve output'}]
             },
             'steps': [
