@@ -218,7 +218,7 @@ let wfs = [
         }
     },
     {
-        name: "ML Toolkit",
+        name: "Regression",
         type: 1,
         description: "[ML] Regression",
         content: {
@@ -241,7 +241,7 @@ let wfs = [
         }
     },
     {
-        name: "ML Toolkit Classin",
+        name: "Classification",
         type: 1,
         description: "[ML] Classification",
         content: {
