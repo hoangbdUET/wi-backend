@@ -15,7 +15,6 @@ function getDustbin(payload, callback, dbConnection) {
     let Crossplots = [];
     let Zonesets = [];
     let Zones = [];
-    let Plots = [];
     dbConnection.Well.findAll({
         where: {
             idProject: payload.idProject
@@ -51,20 +50,6 @@ function getDustbin(payload, callback, dbConnection) {
                                     nextDataset();
                                 });
                             });
-                        }, function () {
-                            cb();
-                        });
-                    });
-                },
-                function (cb) {
-                    dbConnection.Plot.findAll({where: {idWell: well.idWell}, paranoid: false}).then(plots => {
-                        asyncEach(plots, function (plot, nextPlot) {
-                            if (plot.deletedAt) {
-                                let _plot = plot.toJSON();
-                                _plot.name = _plot.name.substring(1);
-                                Plots.push(_plot);
-                            }
-                            nextPlot();
                         }, function () {
                             cb();
                         });
@@ -130,16 +115,28 @@ function getDustbin(payload, callback, dbConnection) {
                 nextWell();
             });
         }, function () {
-            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", {
-                crossplots: Crossplots,
-                wells: Wells,
-                datasets: Datasets,
-                curves: Curves,
-                zonesets: Zonesets,
-                zones: Zones,
-                histograms: Histograms,
-                plots: Plots
-            }))
+            let Plots = [];
+            dbConnection.Plot.findAll({where: {idProject: payload.idProject}, paranoid: false}).then(plots => {
+                asyncEach(plots, function (plot, nextPlot) {
+                    if (plot.deletedAt) {
+                        let _plot = plot.toJSON();
+                        _plot.name = _plot.name.substring(1);
+                        Plots.push(_plot);
+                    }
+                    nextPlot();
+                }, function () {
+                    callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", {
+                        crossplots: Crossplots,
+                        wells: Wells,
+                        datasets: Datasets,
+                        curves: Curves,
+                        zonesets: Zonesets,
+                        zones: Zones,
+                        histograms: Histograms,
+                        plots: Plots
+                    }));
+                });
+            });
         });
     });
 }

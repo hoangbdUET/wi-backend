@@ -180,7 +180,6 @@ async function getProjectFullInfo(payload, done, req) {
     let plots = await dbConnection.Plot.findAll({where: {idProject: project.idProject}});
     response.wells = [];
     response.groups = groups;
-    if (wells.length === 0) {
     response.plots = plots;
     if (wells.length == 0) {
         return done(ResponseJSON(ErrorCodes.SUCCESS, "Get full info Project success", response));
@@ -243,11 +242,6 @@ async function getProjectFullInfo(payload, done, req) {
                     cb(null, zonesets);
                 });
             },
-            // function (cb) {
-            //     dbConnection.Plot.findAll({where: {idWell: well.idWell}}).then(plots => {
-            //         cb(null, plots);
-            //     });
-            // },
             function (cb) {
                 dbConnection.Histogram.findAll({where: {idWell: well.idWell}}).then(histograms => {
                     cb(null, histograms);
@@ -271,7 +265,6 @@ async function getProjectFullInfo(payload, done, req) {
         ], function (err, result) {
             wellObj.datasets = result[0];
             wellObj.zonesets = result[1];
-            //wellObj.plots = result[2];
             wellObj.histograms = result[2];
             wellObj.crossplots = result[3];
             wellObj.combined_boxes = result[4];
