@@ -47,9 +47,15 @@ let getListUnit = function (data, callback, dbConnection) {
         });
     }
 };
+let getAllUnit = function (data, callback, dbConnection) {
+    dbConnection.FamilyUnit.findAll().then(units => {
+        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", units));
+    });
+};
 
 module.exports = {
     getListUnit: getListUnit,
     getListUnitByIdCurve: getListUnitByIdCurve,
-    getListUnitByIdFamily: getListUnitByIdFamily
+    getListUnitByIdFamily: getListUnitByIdFamily,
+    getAllUnit: getAllUnit
 };
