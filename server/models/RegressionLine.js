@@ -43,6 +43,14 @@ module.exports = function (sequelize, DataTypes) {
         fitY:{
             type:DataTypes.DOUBLE,
             allowNull:true,
+        },
+        createdBy: {
+            type: DataTypes.STRING(50),
+            allowNull: false,
+        },
+        updatedBy: {
+            type: DataTypes.STRING(50),
+            allowNull: false
         }
 
 

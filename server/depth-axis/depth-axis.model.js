@@ -1,14 +1,12 @@
-var models = require('../models');
-var DepthAxis = models.DepthAxis;
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
+let models = require('../models');
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
 
 function createNewDepthAxis(depthAxisInfo, done, dbConnection) {
-    //console.log(depthAxisInfo);
-    var DepthAxis = dbConnection.DepthAxis;
+    let DepthAxis = dbConnection.DepthAxis;
     DepthAxis.sync()
         .then(function () {
-                var depthAxis = DepthAxis.build({
+                let depthAxis = DepthAxis.build({
                     idPlot: depthAxisInfo.idPlot,
                     orderNum: depthAxisInfo.orderNum,
                     showTitle: depthAxisInfo.showTitle,
@@ -19,7 +17,9 @@ function createNewDepthAxis(depthAxisInfo, done, dbConnection) {
                     unitType: depthAxisInfo.unitType,
                     decimals: depthAxisInfo.decimals,
                     geometryWidth: depthAxisInfo.geometryWidth,
-                    width: depthAxisInfo.width || 0.5
+                    width: depthAxisInfo.width || 0.5,
+                    createdBy: depthAxisInfo.createdBy,
+                    updatedBy: depthAxisInfo.updatedBy
                 });
                 depthAxis.save()
                     .then(function (depthAxis) {
@@ -37,7 +37,8 @@ function createNewDepthAxis(depthAxisInfo, done, dbConnection) {
 }
 
 function editDepthAxis(depthAxisInfo, done, dbConnection) {
-    var DepthAxis = dbConnection.DepthAxis;
+    delete depthAxisInfo.createdBy;
+    let DepthAxis = dbConnection.DepthAxis;
     DepthAxis.findById(depthAxisInfo.idDepthAxis)
         .then(function (depthAxis) {
             delete depthAxisInfo.idPlot;
@@ -57,15 +58,16 @@ function editDepthAxis(depthAxisInfo, done, dbConnection) {
 }
 
 function deleteDepthAxis(depthAxisInfo, done, dbConnection) {
-    var DepthAxis = dbConnection.DepthAxis;
+    let DepthAxis = dbConnection.DepthAxis;
     DepthAxis.findById(depthAxisInfo.idDepthAxis)
         .then(function (depthAxis) {
+            depthAxis.setDataValue('updatedBy', depthAxisInfo.updatedBy);
             depthAxis.destroy()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Depth-Axis is deleted", depthAxis));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Depth-Axis " + err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Depth-Axis " + err.message, err.message));
                 })
         })
         .catch(function () {
@@ -75,7 +77,7 @@ function deleteDepthAxis(depthAxisInfo, done, dbConnection) {
 }
 
 function getDepthAxisInfo(depthAxis, done, dbConnection) {
-    var DepthAxis = dbConnection.DepthAxis;
+    let DepthAxis = dbConnection.DepthAxis;
     DepthAxis.findById(depthAxis.idDepthAxis, {include: [{all: true}]})
         .then(function (depthAxis) {
             if (!depthAxis) throw "not exits";

@@ -121,7 +121,7 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING(30),
             defaultValue: "intervalDepth",
             allowNull: true
-        }
+        },
         // referenceTopDepth: {
         //     type: DataTypes.DOUBLE,
         //     allowNull: false,
@@ -151,6 +151,14 @@ module.exports = function (sequelize, DataTypes) {
         //     type: DataTypes.BOOLEAN,
         //     allowNull: false,
         //     defaultValue: false
-        // }
+        // },
+        createdBy: {
+            type: DataTypes.STRING(50),
+            allowNull: false,
+        },
+        updatedBy: {
+            type: DataTypes.STRING(50),
+            allowNull: false
+        }
     });
 };

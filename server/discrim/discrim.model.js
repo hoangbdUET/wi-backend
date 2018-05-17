@@ -48,7 +48,7 @@ function deleteDiscrim(discrimInfo, done,dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Discrim is deleted", discrim));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Discrim" + err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.message, err.message));
                 })
         })
         .catch(function (err) {

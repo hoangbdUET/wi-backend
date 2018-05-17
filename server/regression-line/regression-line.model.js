@@ -1,10 +1,8 @@
-// var models = require('../models');
-// var RegressionLine=models.RegressionLine;
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
 
 function createNewRegressionLine(regressionLineInfo, done, dbConnection) {
-    var RegressionLine = dbConnection.RegressionLine;
+    let RegressionLine = dbConnection.RegressionLine;
     RegressionLine.sync()
         .then(function () {
             delete regressionLineInfo.idRegressionLine;
@@ -12,7 +10,6 @@ function createNewRegressionLine(regressionLineInfo, done, dbConnection) {
             RegressionLine.build(regressionLineInfo)
                 .save()
                 .then(function (regressionLine) {
-                    // done(ResponseJSON(ErrorCodes.SUCCESS,"Create new regressionLine success",regressionLine))
                     if (regressionLineInfo.polygons.length > 0) {
                         regressionLine.setPolygons(regressionLineInfo.polygons)
                             .then(function (rs) {
@@ -39,7 +36,8 @@ function createNewRegressionLine(regressionLineInfo, done, dbConnection) {
 }
 
 function editRegressionLine(regressionLineInfo, done, dbConnection) {
-    var RegressionLine = dbConnection.RegressionLine;
+    delete regressionLineInfo.createdBy;
+    let RegressionLine = dbConnection.RegressionLine;
     RegressionLine.findById(regressionLineInfo.idRegressionLine)
         .then(function (regressionLine) {
             delete regressionLineInfo.idRegressionLine;
@@ -61,15 +59,16 @@ function editRegressionLine(regressionLineInfo, done, dbConnection) {
 }
 
 function deleteRegressionLine(regressionLineInfo, done, dbConnection) {
-    var RegressionLine = dbConnection.RegressionLine;
+    let RegressionLine = dbConnection.RegressionLine;
     RegressionLine.findById(regressionLineInfo.idRegressionLine)
         .then(function (regressionLine) {
+            regressionLine.setDataValue('updatedBy', regressionLineInfo.updatedBy);
             regressionLine.destroy()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "RegressionLine is deleted", regressionLine));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete RegressionLine" + err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete RegressionLine" + err.message, err.message));
                 })
         })
         .catch(function (err) {
@@ -78,7 +77,7 @@ function deleteRegressionLine(regressionLineInfo, done, dbConnection) {
 }
 
 function getRegressionLineInfo(regressionLineInfo, done, dbConnection) {
-    var RegressionLine = dbConnection.RegressionLine;
+    let RegressionLine = dbConnection.RegressionLine;
     RegressionLine.findById(regressionLineInfo.idRegressionLine, {
         include: [
             {

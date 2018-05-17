@@ -15,7 +15,9 @@ function createNewDataset(datasetInfo, done, dbConnection) {
                     idWell: datasetInfo.idWell,
                     name: datasetInfo.name,
                     datasetKey: datasetInfo.datasetKey,
-                    datasetLabel: datasetInfo.datasetLabel
+                    datasetLabel: datasetInfo.datasetLabel,
+                    createdBy: datasetInfo.createdBy,
+                    updatedBy: datasetInfo.updatedBy
                 });
                 dataset.save()
                     .then(function (dataset) {
@@ -37,6 +39,7 @@ function createNewDataset(datasetInfo, done, dbConnection) {
 }
 
 function editDataset(datasetInfo, done, dbConnection, username) {
+    delete datasetInfo.createdBy;
     dbConnection.Dataset.findById(datasetInfo.idDataset).then(dataset => {
         if (dataset) {
             if (dataset.name != datasetInfo.name) {
@@ -97,37 +100,10 @@ function deleteDataset(datasetInfo, done, dbConnection) {
         .then(function (dataset) {
             dataset.destroy()
                 .then(function () {
-                    asyncEach(dataset.curves, function (curve, nextCurve) {
-                        curve.destroy({hooks: false}).then(() => {
-                            dbConnection.Line.findAll({where: {idCurve: curve.idCurve}}).then(lines => {
-                                asyncEach(lines, function (line, nextLine) {
-                                    line.destroy().then(() => {
-                                        nextLine();
-                                    });
-                                }, function () {
-                                    dbConnection.ReferenceCurve.findAll({where: {idCurve: curve.idCurve}}).then(refs => {
-                                        asyncEach(refs, function (ref, nextRef) {
-                                            ref.destroy().then(() => {
-                                                nextRef();
-                                            }).catch(() => {
-                                                nextRef();
-                                            })
-                                        }, function () {
-                                            nextCurve();
-                                        })
-                                    });
-                                });
-                            });
-                        }).catch(err => {
-                            console.log(err);
-                            nextCurve();
-                        });
-                    }, function () {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Dataset is deleted", dataset));
-                    });
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Dataset is deleted", dataset));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.message, err.message));
                 });
         })
         .catch(function () {
@@ -155,6 +131,8 @@ function duplicateDataset(data, done, dbConnection, username) {
         let newDataset = dataset.toJSON();
         delete newDataset.idDataset;
         newDataset.name = dataset.name + '_Copy_' + dataset.duplicated;
+        newDataset.createdBy = data.createdBy;
+        newDataset.updatedBy = data.updatedBy;
         dataset.duplicated++;
         await dataset.save();
         dbConnection.Dataset.create(newDataset).then(_dataset => {

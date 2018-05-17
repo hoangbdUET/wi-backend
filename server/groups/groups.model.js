@@ -55,7 +55,7 @@ function deleteGroup(groupInfo, done, dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Group is deleted", group));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete group" + err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.message, err.message));
                 })
         })
         .catch(function (err) {

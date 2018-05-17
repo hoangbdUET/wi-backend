@@ -1,13 +1,12 @@
-let wiImport = require('wi-import');
-let hashDir = wiImport.hashDir;
-let username = "abc";
-let projectName = "projetc";
-let wellName = "well";
-let datasetName = "datastet";
-let curveName = "curve";
-let config = {
-    curveBasePath: 'C:/data'
-};
-let path = hashDir.createPath(config.curveBasePath, username + projectName + wellName + datasetName + curveName, curveName + '.txt');
-
-console.log(path);
+let redisClient = require('./server/utils/redis').redisClient;
+let express = require('express');
+let router = express.Router();
+router.get('/test', function (req, res) {
+    redisClient.set('url', req.originalUrl, function (err, success) {
+        console.log(err, success);
+    });
+    redisClient.get('url', function (err, reply) {
+        res.send(reply);
+    });
+});
+module.exports = router;

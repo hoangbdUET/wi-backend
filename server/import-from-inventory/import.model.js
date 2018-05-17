@@ -19,7 +19,7 @@ class Options {
         this.body = payload;
         this.json = true;
     }
-};
+}
 
 function getWellFromInventory(well, token) {
     return new Promise(function (resolve, reject) {
@@ -36,9 +36,9 @@ function getWellFromInventory(well, token) {
             }
         });
     });
-};
+}
 
-async function importWell(well, token, callback, dbConnection, username) {
+async function importWell(well, token, callback, dbConnection, username, createdBy, updatedBy) {
     let Op = require('sequelize').Op;
     let wiProject = (await dbConnection.Project.findOrCreate({
         where: {
@@ -59,14 +59,18 @@ async function importWell(well, token, callback, dbConnection, username) {
             idProject: wiProject.idProject,
             topDepth: topDepth,
             bottomDepth: bottomDepth,
-            step: step
+            step: step,
+            createdBy: createdBy,
+            updatedBy: updatedBy
         }).then(wiWell => {
             asyncEach(_well.datasets, async function (dataset) {
                 let wiDataset = await dbConnection.Dataset.create({
                     name: dataset.name,
                     datasetKey: dataset.name,
                     datasetLabel: dataset.name,
-                    idWell: wiWell.idWell
+                    idWell: wiWell.idWell,
+                    createdBy: createdBy,
+                    updatedBy: updatedBy
                 });
                 let queue = asyncQueue(function (curve, cb) {
                     let options = {
@@ -84,7 +88,9 @@ async function importWell(well, token, callback, dbConnection, username) {
                         name: curve.name,
                         unit: curve.curve_revisions[0].unit,
                         initValue: "batch",
-                        idDataset: wiDataset.idDataset
+                        idDataset: wiDataset.idDataset,
+                        createdBy: createdBy,
+                        updatedBy: updatedBy
                     }).then(c => {
                         let _curve = c;
                         let curvePath = hashDir.createPath(config.curveBasePath, username + wiProject.name + wiWell.name + wiDataset.name + _curve.name, _curve.name + '.txt');
@@ -167,7 +173,7 @@ function importCurves(curves, token, callback, dbConnection, username) {
     });
 }
 
-function importDataset(datasets, token, callback, dbConnection, username) {
+function importDataset(datasets, token, callback, dbConnection, username, createdBy, updatedBy) {
     let response = [];
     asyncEach(datasets, function (dataset, next) {
         let newDataset = {};
@@ -175,13 +181,17 @@ function importDataset(datasets, token, callback, dbConnection, username) {
         newDataset.datasetKey = dataset.name;
         newDataset.datasetLabel = dataset.name;
         newDataset.idWell = dataset.idDesWell;
+        newDataset.createdBy = createdBy;
+        newDataset.updatedBy = updatedBy;
         dbConnection.Dataset.findOrCreate({
             where: {name: newDataset.name, idWell: newDataset.idWell},
             defaults: {
                 name: newDataset.name,
                 idWell: newDataset.idWell,
                 datasetKey: newDataset.datasetKey,
-                datasetLabel: newDataset.datasetLabel
+                datasetLabel: newDataset.datasetLabel,
+                createdBy: createdBy,
+                updatedBy: updatedBy
             }
         }).then(rs => {
             let _dataset = rs[0];
@@ -196,7 +206,7 @@ function importDataset(datasets, token, callback, dbConnection, username) {
                             response.push(result);
                             nextCurve();
                         }
-                    }, dbConnection, username);
+                    }, dbConnection, username, createdBy, updatedBy);
                 }, 100);
             }, function () {
                 next();

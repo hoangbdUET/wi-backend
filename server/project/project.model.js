@@ -2,18 +2,16 @@ let ErrorCodes = require('../../error-codes').CODES;
 const ResponseJSON = require('../response');
 let asyncLoop = require('async/each');
 let asyncSeries = require('async/parallel');
+let request = require('request');
+let config = require('config');
+let models = require('../models');
+let openProject = require('../authenticate/opening-project');
 
 function createNewProject(projectInfo, done, dbConnection) {
     let Project = dbConnection.Project;
     Project.sync()
         .then(function () {
-            return Project.create({
-                name: projectInfo.name,
-                location: genLocationOfNewProject(),
-                company: projectInfo.company,
-                department: projectInfo.department,
-                description: projectInfo.description
-            });
+            return Project.create(projectInfo);
         })
         .then(function (project) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Create new project success", project));
@@ -28,6 +26,7 @@ function createNewProject(projectInfo, done, dbConnection) {
 };
 
 function editProject(projectInfo, done, dbConnection) {
+    delete projectInfo.createdBy;
     let Project = dbConnection.Project;
     Project.findById(projectInfo.idProject)
         .then(function (project) {
@@ -35,6 +34,7 @@ function editProject(projectInfo, done, dbConnection) {
             project.company = projectInfo.company;
             project.department = projectInfo.department;
             project.description = projectInfo.description;
+            project.updatedBy = projectInfo.updatedBy;
             project.save()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Project success", projectInfo));
@@ -64,12 +64,66 @@ function getProjectInfo(project, done, dbConnection) {
         });
 }
 
-function getProjectList(owner, done, dbConnection) {
+function getSharedProject(token, username) {
+    return new Promise(function (resolve, reject) {
+        let options = {
+            method: 'POST',
+            url: 'http://' + config.Service.authenticate + '/shared-project/list',
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            },
+            body: {username: username},
+            json: true
+        };
+        request(options, function (error, response, body) {
+            if (error) {
+                console.log(error);
+                resolve([]);
+            } else {
+                resolve(body.content);
+            }
+        });
+    });
+}
+
+async function getProjectList(owner, done, dbConnection, username, realUser, token) {
+    dbConnection = models('wi_' + realUser);
+    let response = [];
+    let projectList = await getSharedProject(token, realUser);
     let Project = dbConnection.Project;
-    Project.all()
-        .then(function (projects) {
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Get List Project success", projects));
-        }).catch(err => {
+    Project.all().then(function (projects) {
+        asyncLoop(projects, function (project, next) {
+            project = project.toJSON();
+            project.displayName = project.name;
+            response.push(project);
+            next();
+        }, function () {
+            if (projectList.length > 0) {
+                asyncLoop(projectList, function (prj, next) {
+                    let shareDbConnection = models('wi_' + prj.owner);
+                    shareDbConnection.Project.findOne({where: {name: prj.name}}).then(p => {
+                        if (!p) {
+                            next();
+                        } else {
+                            p = p.toJSON();
+                            p.displayName = p.name + '   || ' + prj.owner + ' || ' + prj.group;
+                            p.shared = true;
+                            p.owner = prj.owner;
+                            response.push(p);
+                            next();
+                        }
+                    });
+                }, function () {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Get List Project success", response));
+                });
+            } else {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Get List Project success", response));
+            }
+        });
+
+    }).catch(err => {
         console.log(err);
         done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "NO_DATABASE"));
     });
@@ -84,7 +138,7 @@ function deleteProject(projectInfo, done, dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Deleted", project));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.message, err.message));
                 })
 
         })
@@ -93,14 +147,40 @@ function deleteProject(projectInfo, done, dbConnection) {
         });
 }
 
-async function getProjectFullInfo(payload, done, dbConnection) {
+function updatePermission(req, done) {
+    let userPermission = require('../utils/permission/user-permission');
+    userPermission.loadUserPermission(req.token, req.body.project_name, req.body.username).then(() => {
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull " + req.body.username));
+    });
+}
+
+async function getProjectFullInfo(payload, done, req) {
+    let userPermission = require('../utils/permission/user-permission');
+    if (payload.shared && payload.shared.toString() === 'true') {
+        // console.log("LOAD SHARED PROJECT");
+        await userPermission.loadUserPermission(req.token, payload.name, req.decoded.realUser);
+        await openProject.removeRow({username: req.decoded.realUser});
+        await openProject.addRow({username: req.decoded.realUser, project: payload.name, owner: payload.owner});
+        req.dbConnection = models('wi_' + payload.owner.toLowerCase());
+    } else {
+        // console.log("LOAD USER PROJECT");
+        await userPermission.loadUserPermission(req.token, payload.name, req.decoded.realUser, true);
+        await openProject.removeRow({username: req.decoded.realUser});
+        req.dbConnection = models(('wi_' + req.decoded.realUser));
+    }
+    let dbConnection = req.dbConnection;
     let project = await dbConnection.Project.findById(payload.idProject);
+    if (!project) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Project not found"));
+
     let response = project.toJSON();
+    response.owner = payload.owner ? payload.owner : null;
+    response.shared = payload.shared ? payload.shared : null;
     let wells = await dbConnection.Well.findAll({where: {idProject: project.idProject}});
     let groups = await dbConnection.Groups.findAll({where: {idProject: project.idProject}});
     let plots = await dbConnection.Plot.findAll({where: {idProject: project.idProject}});
     response.wells = [];
     response.groups = groups;
+    if (wells.length === 0) {
     response.plots = plots;
     if (wells.length == 0) {
         return done(ResponseJSON(ErrorCodes.SUCCESS, "Get full info Project success", response));
@@ -121,9 +201,9 @@ async function getProjectFullInfo(payload, done, dbConnection) {
                                 include: {
                                     model: dbConnection.FamilySpec,
                                     as: "family_spec",
-                                    where: {
-                                        isDefault: true
-                                    }
+                                    // where: {
+                                    //     isDefault: true
+                                    // }
                                 }
                             }
                         }).then(curves => {
@@ -191,7 +271,7 @@ async function getProjectFullInfo(payload, done, dbConnection) {
         ], function (err, result) {
             wellObj.datasets = result[0];
             wellObj.zonesets = result[1];
-            // wellObj.plots = result[2];
+            //wellObj.plots = result[2];
             wellObj.histograms = result[2];
             wellObj.crossplots = result[3];
             wellObj.combined_boxes = result[4];
@@ -204,57 +284,15 @@ async function getProjectFullInfo(payload, done, dbConnection) {
     });
 }
 
-function _getProjectFullInfo(project, done, dbConnection) {
-    let idProject = project.idProject;
-    let response = new Object();
-    dbConnection.Project.findById(idProject, {
-        include: [{
-            model: dbConnection.Well,
-            include: [{
-                model: dbConnection.Dataset,
-                include: [{
-                    model: dbConnection.Curve,
-                    include: [{
-                        model: dbConnection.Family,
-                        as: "LineProperty"
-                    }]
-                }]
-            }, {
-                model: dbConnection.Plot
-            }, {
-                model: dbConnection.CrossPlot
-            }, {
-                model: dbConnection.Histogram
-            }, {
-                model: dbConnection.CombinedBox
-            }]
-        }, {
-            model: dbConnection.Groups
-        }]
-    }).then(project => {
-        if (project) {
-            response = project.toJSON();
-            asyncLoop(response.wells, function (well, next) {
-                dbConnection.ZoneSet.findAll({
-                    where: {idWell: well.idWell},
-                    include: {model: dbConnection.Zone}
-                }).then(zs => {
-                    zs = JSON.parse(JSON.stringify(zs));
-                    response.wells[response.wells.indexOf(well)].zonesets = zs;
-                    next();
-                });
-            }, function () {
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Get full info Project success", response));
-            });
-        } else {
-            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No project"));
-        }
-    });
-}
-
-
 function genLocationOfNewProject() {
     return "";
+}
+
+function closeProject(payload, done, dbConnection, username) {
+    let openingProject = require('../authenticate/opening-project');
+    openingProject.removeRow({username: username}).then(() => {
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull"));
+    });
 }
 
 module.exports = {
@@ -263,5 +301,7 @@ module.exports = {
     getProjectInfo: getProjectInfo,
     getProjectList: getProjectList,
     deleteProject: deleteProject,
-    getProjectFullInfo: getProjectFullInfo
+    getProjectFullInfo: getProjectFullInfo,
+    closeProject: closeProject,
+    updatePermission: updatePermission
 };

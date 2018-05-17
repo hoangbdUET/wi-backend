@@ -1,5 +1,5 @@
-var Sequelize = require('sequelize');
-var config = require('config').Database;
+let Sequelize = require('sequelize');
+let config = require('config').Database;
 
 
 const sequelize = new Sequelize(config.dbName, config.user, config.password, {
@@ -21,12 +21,17 @@ sequelize.sync()
     .catch(function (err) {
         console.log(err);
     });
-var models = [
+let models = [
     'Family',
     'FamilyCondition',
-    'OverlayLine',
     'FamilySpec',
-    'WorkflowSpec'
+    'FamilyUnit',
+    'OpenSharedProject',
+    'OverlayLine',
+    'TaskSpec',
+    'UnitGroup',
+    'WorkflowSpec',
+    'ZoneTemplate'
 ];
 models.forEach(function (model) {
     module.exports[model] = sequelize.import(__dirname + '/' + model);
@@ -35,5 +40,7 @@ models.forEach(function (model) {
 (function (m) {
     m.FamilyCondition.belongsTo(m.Family, {foreignKey: 'idFamily'});
     m.Family.hasMany(m.FamilySpec, {foreignKey: 'idFamily'});
+    m.FamilySpec.belongsTo(m.UnitGroup, {foreignKey: 'idUnitGroup'});
+    m.UnitGroup.hasMany(m.FamilyUnit, {foreignKey: 'idUnitGroup'});
 })(module.exports);
 module.exports.sequelize = sequelize;

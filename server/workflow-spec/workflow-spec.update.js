@@ -4,6 +4,7 @@ let async = require('async');
 let wfs = [
     {
         name: "Clastic",
+        type: 0,
         description: "",
         content: {
             "name": "Clastic",
@@ -217,8 +218,9 @@ let wfs = [
         }
     },
     {
-        name: "[ML] Curve Prediction",
-        description: "[ML] Curve Prediction",
+        name: "Regression",
+        type: 1,
+        description: "[ML] Regression",
         content: {
             'name': 'CURVE_PREDICTION',
             'model': {
@@ -239,7 +241,31 @@ let wfs = [
         }
     },
     {
-        name: "[ML] Perm Dual Model",
+        name: "Classification",
+        type: 1,
+        description: "[ML] Classification",
+        content: {
+            'name': 'CURVE_PREDICTION_CLASSIFIICATION',
+            'model': {
+                'type': 'classification',
+                'inputs': [{class: 'curve input'}, {class: 'curve input'}, {class: 'curve output'}]
+            },
+            'steps': [
+                {
+                    'name': 'Train'
+                },
+                {
+                    'name': 'Verify'
+                },
+                {
+                    'name': 'Predict'
+                }
+            ]
+        }
+    },
+    {
+        name: "Permeability AI",
+        type: 1,
         description: "[ML] Perm Dual Model",
         content: {
             'name': 'PERM_DUAL_MODEL',
@@ -258,7 +284,8 @@ let wfs = [
         }
     },
     {
-        name: "[ML] Facies Single Model",
+        name: "Facies AI",
+        type: 1,
         description: "[ML] Facies Single Model",
         content: {
             'name': 'FACIES_SINGLE_MODEL',
@@ -274,6 +301,31 @@ let wfs = [
                     'name': 'Predict'
                 }
             ]
+        }
+    },
+    {
+        name: "Cross Recurrence Plot",
+        type: 1,
+        description: "[ML] Cross Recurrence Plot",
+        content: {
+
+            "name": 'CROSS_RECURRENCE_PLOT',
+            "model": {
+                "type": 'crp',
+                "inputs": [{class: 'curve input'}, {class: 'curve input'}, {class: 'curve output'}]
+            },
+            "steps": [
+                {
+                    "name": 'Train'
+                },
+                {
+                    "name": 'Verify'
+                },
+                {
+                    "name": 'Predict'
+                }
+            ]
+
         }
     }
 ];

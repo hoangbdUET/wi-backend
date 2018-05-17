@@ -16,6 +16,14 @@ module.exports = function (sequelize, DataTypes) {
                 const value = this.getDataValue('data');
                 return JSON.parse(value);
             }
+        },
+        createdBy: {
+            type: DataTypes.STRING(50),
+            allowNull: false,
+        },
+        updatedBy: {
+            type: DataTypes.STRING(50),
+            allowNull: false
         }
     });
 };

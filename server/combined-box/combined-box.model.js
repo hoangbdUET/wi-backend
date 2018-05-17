@@ -79,6 +79,7 @@ function deleteCombinedBox(payload, done, dbConnection) {
 
 
 function editCombinedBox(payload, done, dbConnection) {
+    delete payload.createdBy;
     let Model = dbConnection.CombinedBox;
     let idPlots = payload.idLogPlots || [];
     let idCrossplots = payload.idCrossPlots || [];
@@ -116,4 +117,4 @@ module.exports = {
     infoCombinedBox: infoCombinedBox,
     deleteCombinedBox: deleteCombinedBox,
     editCombinedBox: editCombinedBox
-}
+};

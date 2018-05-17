@@ -1,33 +1,63 @@
 let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
 let asyncEach = require('async/each');
+let eachSeries = require('async/eachSeries');
 
 function createNewZoneSet(zoneSetInfo, done, dbConnection) {
     let ZoneSet = dbConnection.ZoneSet;
-    ZoneSet.sync()
-        .then(
-            function () {
-                delete zoneSetInfo.idZoneSet;
-                let zoneSet = ZoneSet.build(zoneSetInfo);
-                zoneSet.save()
-                    .then(function (zoneSet) {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new ZoneSet success", zoneSet));
+    ZoneSet.create(zoneSetInfo).then(zs => {
+        if (zoneSetInfo.template) {
+            let Op = require('sequelize').Op;
+            dbConnection.ZoneTemplate.findAll({where: {template: zoneSetInfo.template}}).then(async (zones) => {
+                let well = await dbConnection.Well.findById(zoneSetInfo.idWell, {
+                    include: {
+                        model: dbConnection.WellHeader,
+                        where: {header: {[Op.or]: [{[Op.like]: 'STRT'}, {[Op.like]: 'STOP'}, {[Op.like]: 'STEP'}]}}
+                    }
+                });
+                let stop = parseFloat((well.well_headers.find(s => s.header === 'STOP')).value);
+                let start = parseFloat((well.well_headers.find(s => s.header === 'STRT')).value);
+                let range = (stop - start) / zones.length;
+                eachSeries(zones, function (zone, nextZone) {
+                    dbConnection.Zone.create({
+                        idZoneSet: zs.idZoneSet,
+                        startDepth: start,
+                        endDepth: start + range,
+                        fill: {
+                            pattern: {
+                                background: zone.background,
+                                foreground: zone.foreground,
+                                name: zone.pattern
+                            }
+                        },
+                        name: zone.name,
+                        createdBy: zoneSetInfo.createdBy,
+                        updatedBy: zoneSetInfo.updatedBy
+                    }).then(z => {
+                        start = start + range;
+                        nextZone();
+                    }).catch(err => {
+                        console.log(err);
+                        nextZone();
                     })
-                    .catch(function (err) {
-                        if (err.name === "SequelizeUniqueConstraintError") {
-                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Zoneset name existed!"));
-                        } else {
-                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
-                        }
-                    })
-            },
-            function () {
-                done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
-            }
-        )
+                }, function () {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create new ZoneSet success", zs));
+                });
+            });
+        } else {
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new ZoneSet success", zs));
+        }
+    }).catch(err => {
+        if (err.name === "SequelizeUniqueConstraintError") {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Zoneset name existed!"));
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+        }
+    });
 }
 
 function editZoneSet(zoneSetInfo, done, dbConnection) {
+    delete zoneSetInfo.createdBy;
     let ZoneSet = dbConnection.ZoneSet;
     ZoneSet.findById(zoneSetInfo.idZoneSet)
         .then(function (zoneSet) {
@@ -53,12 +83,13 @@ function deleteZoneSet(zoneSetInfo, done, dbConnection) {
     let ZoneSet = dbConnection.ZoneSet;
     ZoneSet.findById(zoneSetInfo.idZoneSet)
         .then(function (zoneSet) {
+            zoneSet.setDataValue('updatedBy', zoneSetInfo.updatedBy);
             zoneSet.destroy()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "ZoneSet is deleted", zoneSet));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete ZoneSet " + err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete ZoneSet " + err.message, err.message));
                 })
         })
         .catch(function () {
@@ -95,6 +126,8 @@ async function duplicateZoneSet(data, done, dbConnection) {
     delete newZoneset.idZoneSet;
     newZoneset.name = zoneset.name + '_Copy_' + zoneset.duplicated;
     zoneset.duplicated++;
+    newZoneset.createdBy = data.createdBy;
+    newZoneset.updatedBy = data.updatedBy;
     await zoneset.save();
     let _zoneset = await dbConnection.ZoneSet.create(newZoneset);
     asyncEach(newZoneset.zones, function (zone, next) {

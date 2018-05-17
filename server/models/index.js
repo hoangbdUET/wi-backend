@@ -103,6 +103,8 @@ function newDbInstance(dbName, callback) {
         'Family',
         'FamilyCondition',
         'FamilySpec',
+        'FamilyUnit',
+        'Flow',
         'Groups',
         'Histogram',
         'Image',
@@ -117,13 +119,15 @@ function newDbInstance(dbName, callback) {
         'PointSet',
         'Polygon',
         'Project',
-        'Property',
         'ReferenceCurve',
         'RegressionLine',
         'SelectionTool',
         'Shading',
+        'Task',
+        'TaskSpec',
         'Ternary',
         'Track',
+        'UnitGroup',
         'UserDefineLine',
         'Well',
         'WellHeader',
@@ -131,6 +135,7 @@ function newDbInstance(dbName, callback) {
         'WorkflowSpec',
         'Zone',
         'ZoneSet',
+        'ZoneTemplate',
         'ZoneTrack'
     ];
     models.forEach(function (model) {
@@ -238,6 +243,8 @@ function newDbInstance(dbName, callback) {
 
         m.FamilyCondition.belongsTo(m.Family, {foreignKey: 'idFamily'});
         m.Family.hasMany(m.FamilySpec, {as: 'family_spec', foreignKey: 'idFamily'});
+        m.FamilySpec.belongsTo(m.UnitGroup, {foreignKey: 'idUnitGroup'});
+        m.UnitGroup.hasMany(m.FamilyUnit, {foreignKey: 'idUnitGroup'});
         m.Curve.belongsTo(m.Family, {as: 'LineProperty', foreignKey: 'idFamily'});
 
         m.Shading.belongsTo(m.Line, {foreignKey: 'idLeftLine', as: 'leftLine', onDelete: 'CASCADE'});
@@ -346,6 +353,18 @@ function newDbInstance(dbName, callback) {
             foreignKey: {name: 'idWorkflowSpec', allowNull: true},
             onDelete: 'CASCADE'
         });
+        m.Project.hasMany(m.Flow, {
+            foreignKey: {name: 'idProject', allowNull: false, unique: 'name-idProject'},
+            onDelete: 'CASCADE'
+        });
+        m.Flow.hasMany(m.Task, {
+            foreignKey: {name: 'idFlow', allowNull: false, unique: 'name-idFlow'},
+            onDelete: 'CASCADE'
+        });
+        m.TaskSpec.hasMany(m.Task, {
+            foreignKey: {name: 'idTaskSpec', allowNull: true},
+            onDelete: 'CASCADE'
+        });
     })(object);
 
     object.sequelize = sequelize;
@@ -357,14 +376,17 @@ function newDbInstance(dbName, callback) {
     let Well = object.Well;
     let WellHeader = object.WellHeader;
     let Curve = object.Curve;
-    let Project = object.Project;
     let Histogram = object.Histogram;
     let CrossPlot = object.CrossPlot;
     let Plot = object.Plot;
     let ZoneSet = object.ZoneSet;
     let Zone = object.Zone;
     let username = dbName.substring(dbName.indexOf("_") + 1);
-    Curve.hook('afterCreate', function (curve, options) {
+    let async = require('async');
+    let rename = require('../utils/function').renameObjectForDustbin;
+    let curveFunction = require('../utils/curve.function');
+    require('../models-hooks/index')(object);
+    Curve.hook('afterCreate', function (curve) {
         if (!curve.idFamily) {
             ((curveName, unit) => {
                 FamilyCondition.findAll()
@@ -397,45 +419,65 @@ function newDbInstance(dbName, callback) {
         }
     });
     Curve.hook('beforeDestroy', function (curve, options) {
-        Dataset.findById(curve.idDataset, {paranoid: false}).then(dataset => {
-            Well.findById(dataset.idWell, {paranoid: false}).then(well => {
-                Project.findById(well.idProject).then(project => {
-                    if (curve.deletedAt) {
-                        hashDir.deleteFolder(configCommon.curveBasePath, username + project.name + well.name + dataset.name + curve.name.substring(14));
-                    } else {
-                        hashDir.deleteFolder(configCommon.curveBasePath, username + project.name + well.name + dataset.name + curve.name);
+        return new Promise(async function (resolve) {
+            let parents = await curveFunction.getFullCurveParents(curve, object);
+            parents.username = username;
+            if (options.permanently) {
+                hashDir.deleteFolder(configCommon.curveBasePath, username + parents.project + parents.well + parents.dataset + parents.curve, parents.curve + '.txt');
+                resolve(curve, options);
+            } else {
+                rename(curve, function (err, newCurve) {
+                    if (!err) {
+                        curveFunction.moveCurveData(parents, {
+                            username: username,
+                            project: parents.project,
+                            well: parents.well,
+                            dataset: parents.dataset,
+                            curve: newCurve.name
+                        }, function () {
+                            object.Line.findAll({where: {idCurve: curve.idCurve}}).then(lines => {
+                                async.each(lines, function (line, nextLine) {
+                                    line.destroy({hooks: false}).then(() => {
+                                        nextLine();
+                                    });
+                                }, function () {
+                                    object.ReferenceCurve.findAll({where: {idCurve: curve.idCurve}}).then(refs => {
+                                        async.each(refs, function (ref, nextRef) {
+                                            ref.destroy({hooks: false}).then(() => {
+                                                nextRef();
+                                            }).catch(() => {
+                                                nextRef();
+                                            });
+                                        }, function () {
+                                            resolve(curve, options);
+                                        });
+                                    });
+                                });
+                            });
+                        });
                     }
-                });
-            });
-        }).catch(err => {
-            console.log("ERR WHILE DELETE CURVE : " + err);
+                }, 'delete');
+            }
         });
     });
 
-    Well.hook('beforeDestroy', function (well, options) {
-        console.log("Hooks delete well");
-        if (well.deletedAt) {
 
-        } else {
-            let time = Date.now();
-            well.name = '$' + time + well.name;
-            well.save().catch(err => {
-                console.log(err);
-            });
-            //console.log(well.name);
-        }
-    });
-
-    Well.hook('afterCreate', function (well, options) {
+    Well.hook('afterCreate', function (well) {
         console.log("Hook after create well");
         let headers = {
             STRT: well.topDepth,
             STOP: well.bottomDepth,
             STEP: well.step,
-            TOP: well.topDepth
+            TOP: well.topDepth,
         };
         for (let header in headers) {
-            WellHeader.create({idWell: well.idWell, header: header, value: headers[header]});
+            WellHeader.create({
+                idWell: well.idWell,
+                header: header,
+                createdBy: well.createdBy,
+                updatedBy: well.updatedBy,
+                value: headers[header]
+            });
         }
     });
 
@@ -445,28 +487,110 @@ function newDbInstance(dbName, callback) {
             STRT: well.topDepth,
             STOP: well.bottomDepth,
             STEP: well.step,
-            TOP: well.topDepth
+            TOP: well.topDepth,
         };
         for (let header in headers) {
             let h = await WellHeader.findOne({where: {idWell: well.idWell, header: header}});
             if (h) {
                 await h.update({value: headers[header]});
             } else {
-                await WellHeader.create({header: header, value: headers[header], idWell: well.idWell})
+                await WellHeader.create({
+                    header: header,
+                    value: headers[header],
+                    idWell: well.idWell,
+                    createdBy: well.createdBy,
+                    updatedBy: well.updatedBy
+                })
             }
         }
     });
+
+    Well.hook('beforeDestroy', function (well, options) {
+        console.log("Hooks delete well");
+        return new Promise(function (resolve) {
+            if (well.permanently) {
+                resolve(well, options);
+            } else {
+                let oldName = well.name;
+                rename(well, function (err, success) {
+                    Dataset.findAll({where: {idWell: well.idWell}}).then(datasets => {
+                        async.each(datasets, function (dataset, nextDataset) {
+                            Curve.findAll({where: {idDataset: dataset.idDataset}}).then(curves => {
+                                async.each(curves, function (curve, nextCurve) {
+                                    curveFunction.getFullCurveParents(curve, object).then(curveParents => {
+                                        curveParents.username = username;
+                                        let srcCurve = {
+                                            username: curveParents.username,
+                                            project: curveParents.project,
+                                            well: oldName,
+                                            dataset: curveParents.dataset,
+                                            curve: curveParents.curve
+                                        };
+                                        curveFunction.moveCurveData(srcCurve, curveParents, function () {
+                                            nextCurve();
+                                        });
+                                    })
+                                }, function () {
+                                    nextDataset();
+                                });
+                            })
+                        }, function () {
+                            resolve(well, options);
+                        })
+                    })
+                }, 'delete');
+            }
+        });
+    });
+
     Dataset.hook('beforeDestroy', function (dataset, options) {
         console.log("Hooks delete dataset");
-        if (dataset.deletedAt) {
+        return new Promise(function (resolve, reject) {
+            if (dataset.permanently) {
+                resolve(dataset, options);
+            } else {
+                let oldName = dataset.name;
+                rename(dataset, async function (err, success) {
+                    let curves = await Curve.findAll({where: {idDataset: dataset.idDataset}});
+                    async.each(curves, function (curve, nextCurve) {
+                        curveFunction.getFullCurveParents(curve, object).then(curveParents => {
+                            curveParents.username = username;
+                            let srcCurve = {
+                                username: curveParents.username,
+                                project: curveParents.project,
+                                well: curveParents.well,
+                                dataset: oldName,
+                                curve: curveParents.curve
+                            };
+                            curveFunction.moveCurveData(srcCurve, curveParents, function () {
+                                object.Line.findAll({where: {idCurve: curve.idCurve}}).then(lines => {
+                                    async.each(lines, function (line, nextLine) {
+                                        line.destroy({hooks: false}).then(() => {
+                                            nextLine();
+                                        });
+                                    }, function () {
+                                        object.ReferenceCurve.findAll({where: {idCurve: curve.idCurve}}).then(refs => {
+                                            async.each(refs, function (ref, nextRef) {
+                                                ref.destroy({hooks: false}).then(() => {
+                                                    nextRef();
+                                                }).catch(() => {
+                                                    nextRef();
+                                                })
+                                            }, function () {
+                                                nextCurve();
+                                            })
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    }, function () {
+                        resolve(dataset, options);
+                    });
+                }, 'delete');
+            }
+        })
 
-        } else {
-            let time = Date.now();
-            dataset.name = '$' + time + dataset.name;
-            dataset.save().catch(err => {
-                console.log(err);
-            });
-        }
     });
 
     Histogram.hook('beforeDestroy', function (histogram, options) {
@@ -474,11 +598,7 @@ function newDbInstance(dbName, callback) {
         if (histogram.deletedAt) {
 
         } else {
-            let time = Date.now();
-            histogram.name = '$' + time + histogram.name;
-            histogram.save().catch(err => {
-                console.log(err);
-            });
+            rename(histogram, null, 'delete');
         }
     });
 
@@ -487,25 +607,23 @@ function newDbInstance(dbName, callback) {
         if (crossplot.deletedAt) {
 
         } else {
-            let time = Date.now();
-            crossplot.name = '$' + time + crossplot.name;
-            crossplot.save().catch(err => {
-                console.log(err);
-            });
+            rename(crossplot, null, 'delete');
         }
     });
 
     Plot.hook('beforeDestroy', function (plot, options) {
-        console.log("Hooks delete plot");
-        if (plot.deletedAt) {
+        return new Promise(function (resolve, reject) {
+            console.log("Hooks delete plot ", options);
+            if (options.permanently) {
+                resolve(plot, options);
+            } else {
+                rename(plot, function () {
+                    resolve(plot, options);
+                }, 'delete');
+            }
+        });
 
-        } else {
-            let time = Date.now();
-            plot.name = '$' + time + plot.name;
-            plot.save().catch(err => {
-                console.log(err);
-            });
-        }
+
     });
 
     ZoneSet.hook('beforeDestroy', function (zoneset, options) {
@@ -513,11 +631,7 @@ function newDbInstance(dbName, callback) {
         if (zoneset.deletedAt) {
 
         } else {
-            let time = Date.now();
-            zoneset.name = '$' + time + zoneset.name;
-            zoneset.save().catch(err => {
-                console.log(err);
-            });
+            rename(zoneset, null, 'delete');
         }
     });
 
@@ -526,13 +640,9 @@ function newDbInstance(dbName, callback) {
         if (zone.deletedAt) {
 
         } else {
-            let time = Date.now();
-            zone.name = '$' + time + zone.name;
-            zone.save().catch(err => {
-                console.log(err);
-            });
+            rename(zone, null, 'delete');
         }
     });
     //End register hook
     return object;
-};
+}

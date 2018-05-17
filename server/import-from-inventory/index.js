@@ -6,16 +6,13 @@ let ErrorCodes = require('../../error-codes').CODES;
 let model = require('./import.model');
 
 router.use(bodyParser.json());
-router.get('/inventory/', function (req, res) {
-    res.send(ResponseJSON(ErrorCodes.SUCCESS, "Hello", "Hello"));
-});
 
 router.post('/inventory/import/curve', function (req, res) {
     let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
     let curves = req.body;
     model.importCurves(curves, token, function (response) {
         res.send(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", response));
-    }, req.dbConnection, req.decoded.username);
+    }, req.dbConnection, req.decoded.username, req.createdBy, req.updatedBy);
 });
 
 router.post('/inventory/import/dataset', function (req, res) {
@@ -23,7 +20,7 @@ router.post('/inventory/import/dataset', function (req, res) {
     let datasets = req.body;
     model.importDataset(datasets, token, function (response) {
         res.send(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
-    }, req.dbConnection, req.decoded.username);
+    }, req.dbConnection, req.decoded.username, req.createdBy, req.updatedBy);
 });
 
 module.exports = router;

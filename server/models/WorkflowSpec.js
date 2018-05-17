@@ -24,6 +24,11 @@ module.exports = function (sequelize, DataTypes) {
         description: {
             type: DataTypes.TEXT,
             allowNull: true
+        },
+        type: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: 0
         }
     });
 };

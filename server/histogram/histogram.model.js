@@ -6,7 +6,8 @@ let asyncLoop = require('async/each');
 let findFamilyIdByName = function (familyName, dbConnection, callback) {
     dbConnection.Family.findOne({
         where: {name: familyName},
-        include: {model: dbConnection.FamilySpec, as: 'family_spec', where: {isDefault: true}}
+        // include: {model: dbConnection.FamilySpec, as: 'family_spec', where: {isDefault: true}}
+        include: {model: dbConnection.FamilySpec, as: 'family_spec'}
     }).then(family => {
         if (family) {
             let familyObj = family.toJSON();
@@ -28,7 +29,7 @@ let findFamilyIdByName = function (familyName, dbConnection, callback) {
         console.log(err);
         callback(null);
     })
-}
+};
 
 function createNewHistogram(histogramInfo, done, dbConnection) {
     let Histogram = dbConnection.Histogram;
@@ -58,7 +59,9 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
                 intervalDepthTop: histogramInfo.referenceTopDepth,
                 intervalDepthBottom: histogramInfo.referenceBottomDepth,
                 loga: loga,
-                colorBy: histogramInfo.colorBy
+                colorBy: histogramInfo.colorBy,
+                createdBy: histogramInfo.createdBy,
+                updatedBy: histogramInfo.updatedBy
             }).then(histogram => {
                 // let idHistogram = histogram.idHistogram;
                 asyncLoop(myData.families, function (family, next) {
@@ -231,6 +234,7 @@ function getHistogram(histogramId, done, dbConnection) {
 }
 
 function editHistogram(histogramInfo, done, dbConnection) {
+    delete histogramInfo.createdBy;
     let Histogram = dbConnection.Histogram;
     Histogram.findById(histogramInfo.idHistogram)
         .then(function (histogram) {
@@ -257,12 +261,13 @@ function deleteHistogram(histogramInfo, done, dbConnection) {
     let Histogram = dbConnection.Histogram;
     Histogram.findById(histogramInfo.idHistogram)
         .then(function (histogram) {
+            histogram.setDataValue('updatedAt', histogramInfo.updatedBy);
             histogram.destroy()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Histogram is deleted", histogram));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Histogram " + err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Histogram " + err.message, err.message));
                 })
         })
         .catch(function () {
@@ -282,6 +287,8 @@ function duplicateHistogram(payload, done, dbConnection) {
             // newHistogram.name = newHistogram.name + '_' + new Date().toLocaleString('en-US', {timeZone: "Asia/Ho_Chi_Minh"});
             newHistogram.duplicated = 1;
             newHistogram.name = newHistogram.name + "_Copy_" + hisogram.duplicated;
+            newHistogram.createdBy = payload.createdBy;
+            newHistogram.updatedBy = payload.updatedBy;
             hisogram.duplicated++;
             hisogram.save();
             Histogram.create(newHistogram).then(rs => {

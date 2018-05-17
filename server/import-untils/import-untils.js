@@ -17,14 +17,16 @@ let asyncEach = require('async/each');
 //     });
 // }
 
-function createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, dbConnection) {
+function createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, dbConnection, createdBy, updatedBy) {
     return new Promise(function (resolve, reject) {
         dbConnection.Well.findOrCreate({
             where: {name: wellInfo.name, idProject: projectInfo.idProject}, defaults: {
                 name: wellInfo.name,
                 topDepth: wellInfo.topDepth,
                 bottomDepth: wellInfo.bottomDepth,
-                step: wellInfo.step
+                step: wellInfo.step,
+                createdBy: createdBy,
+                updatedBy: updatedBy
             }
         }).then(rs => {
             let well = rs[0];
@@ -32,7 +34,9 @@ function createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, dbConn
                 where: {name: datasetInfo.name, idWell: well.idWell}, defaults: {
                     name: datasetInfo.name,
                     datasetKey: datasetInfo.datasetKey,
-                    datasetLabel: datasetInfo.datasetLabel
+                    datasetLabel: datasetInfo.datasetLabel,
+                    createdBy: createdBy,
+                    updatedBy: updatedBy
                 }
             }).then(d => {
                 let dataset = d[0];
@@ -41,7 +45,9 @@ function createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, dbConn
                         where: {name: curve.name, idDataset: dataset.idDataset}, defaults: {
                             name: curve.name,
                             unit: curve.unit,
-                            initValue: curve.initValue
+                            initValue: curve.initValue,
+                            createdBy: createdBy,
+                            updatedBy: updatedBy
                         }
                     }).then(() => {
                         next();
@@ -57,7 +63,7 @@ function createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, dbConn
     });
 }
 
-function createCurvesWithWellExist(wellInfo, datasetInfo, option, dbConnection) {
+function createCurvesWithWellExist(wellInfo, datasetInfo, option, dbConnection, createdBy, updatedBy) {
     let Dataset = dbConnection.Dataset;
     let Well = dbConnection.Well;
     let Curve = dbConnection.Curve;
@@ -82,6 +88,8 @@ function createCurvesWithWellExist(wellInfo, datasetInfo, option, dbConnection) 
                         well.topDepth = wellInfo.topDepth;
                         well.bottomDepth = wellInfo.bottomDepth;
                         well.step = wellInfo.step;
+                        well.createdBy = createdBy;
+                        well.updatedBy = updatedBy;
                         return well.save({transaction: t});
                     });
             }
@@ -95,7 +103,7 @@ function createCurvesWithWellExist(wellInfo, datasetInfo, option, dbConnection) 
     });
 }
 
-function createCurvesWithDatasetExist(wellInfo, datasetInfo, curvesInfo, option, dbConnection) {
+function createCurvesWithDatasetExist(wellInfo, datasetInfo, curvesInfo, option, dbConnection, createdBy, updatedBy) {
     curvesInfo.forEach(function (item) {
         item.idDataset = datasetInfo.idDataset;
     });
@@ -112,6 +120,8 @@ function createCurvesWithDatasetExist(wellInfo, datasetInfo, curvesInfo, option,
                             well.topDepth = wellInfo.topDepth;
                             well.bottomDepth = wellInfo.bottomDepth;
                             well.step = wellInfo.step;
+                            well.createdBy = createdBy;
+                            well.updatedBy = updatedBy;
                             return well.save({transaction: t});
                         });
                 }
@@ -126,7 +136,7 @@ function createCurvesWithDatasetExist(wellInfo, datasetInfo, curvesInfo, option,
 
 }
 
-function createCurvesWithWellExistLAS3(wellInfo, datasetInfo, option, callback, dbConnection) {
+function createCurvesWithWellExistLAS3(wellInfo, datasetInfo, option, callback, dbConnection, createdBy, updatedBy) {
     let Dataset = dbConnection.Dataset;
     let Curve = dbConnection.Curve;
     let Well = dbConnection.Well;
@@ -165,7 +175,7 @@ function createCurvesWithWellExistLAS3(wellInfo, datasetInfo, option, callback, 
     }
 }
 
-function createCurvesWithDatasetExistLAS3(wellInfo, datasetInfo, option, callback, dbConnection) {
+function createCurvesWithDatasetExistLAS3(wellInfo, datasetInfo, option, callback, dbConnection, createdBy, updatedBy) {
     let Dataset = dbConnection.Dataset;
     let Curve = dbConnection.Curve;
     let Well = dbConnection.Well;

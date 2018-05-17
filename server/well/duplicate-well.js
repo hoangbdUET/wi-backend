@@ -9,7 +9,7 @@ let fsExtra = require('fs-extra');
 let asyncWaterfall = require('async/waterfall');
 
 
-module.exports = function (idWell, done, dbConnection, username) {
+module.exports = function (idWell, done, dbConnection, username, createdBy, updatedBy) {
     dbConnection.Well.findById(idWell, {
         include: [
             {
@@ -41,6 +41,8 @@ module.exports = function (idWell, done, dbConnection, username) {
             delete newWell.idWell;
             newWell.duplicated = 1;
             newWell.name = newWell.name + "_Copy_" + well.duplicated;
+            newWell.createdBy = createdBy;
+            newWell.updatedBy = updatedBy;
             well.duplicated++;
             await well.save();
             let _well = await dbConnection.Well.create(newWell);
@@ -53,7 +55,9 @@ module.exports = function (idWell, done, dbConnection, username) {
                             name: dataset.name,
                             datasetKey: dataset.datasetKey,
                             datasetLabel: dataset.datasetLabel,
-                            idWell: _well.idWell
+                            idWell: _well.idWell,
+                            createdBy: createdBy,
+                            updatedBy: updatedBy
                         }).then(_dataset => {
                             dbConnection.Curve.findAll({where: {idDataset: dataset.idDataset}}).then(curves => {
                                 asyncEach(curves, function (curve, nextCurve) {
@@ -62,7 +66,9 @@ module.exports = function (idWell, done, dbConnection, username) {
                                         name: curve.name,
                                         unit: curve.unit,
                                         idDataset: _dataset.idDataset,
-                                        initValue: "well-duplicated"
+                                        initValue: "well-duplicated",
+                                        createdBy: createdBy,
+                                        updatedBy: updatedBy
                                     }).then(_curve => {
                                         curvesReference[curve.idCurve] = _curve.idCurve;
                                         let newCurvePath = hashDir.createPath(config.curveBasePath, username + _project.name + _well.name + _dataset.name + _curve.name, _curve.name + '.txt');
@@ -95,6 +101,8 @@ module.exports = function (idWell, done, dbConnection, username) {
                         delete zs.idZoneSet;
                         delete zs.createdAt;
                         delete zs.updatedAt;
+                        zs.createdBy = createdBy;
+                        zs.updatedBy = updatedBy;
                         zs.idWell = _well.idWell;
                         dbConnection.ZoneSet.create(zs).then(rs => {
                             if (rs) {
@@ -104,6 +112,8 @@ module.exports = function (idWell, done, dbConnection, username) {
                                         delete z.idZone;
                                         delete z.createdAt;
                                         delete z.updatedAt;
+                                        z.createdBy = createdBy;
+                                        z.updatedBy = updatedBy;
                                         z.idZoneSet = rs.idZoneSet;
                                         dbConnection.Zone.create(z).then(rs => {
                                             zonesetsReference[zoneset.idZoneSet] = rs.idZoneSet;
@@ -135,6 +145,8 @@ module.exports = function (idWell, done, dbConnection, username) {
                         delete newHistogram.idHistogram;
                         delete newHistogram.createdAt;
                         delete newHistogram.updatedAt;
+                        newHistogram.createdBy = createdBy;
+                        newHistogram.updatedBy = updatedBy;
                         newHistogram.idWell = _well.idWell;
                         newHistogram.idCurve = newHistogram.idCurve ? curvesReference[newHistogram.idCurve] : null;
                         newHistogram.idZoneSet = newHistogram.idZoneSet ? zonesetsReference[newHistogram.idZoneSet] : null;
@@ -146,6 +158,8 @@ module.exports = function (idWell, done, dbConnection, username) {
                                     delete newReferenceCurve.idReferenceCurve;
                                     delete newReferenceCurve.createdAt;
                                     delete newReferenceCurve.updatedAt;
+                                    newReferenceCurve.createdBy = createdBy;
+                                    newReferenceCurve.updatedBy = updatedBy;
                                     newReferenceCurve.idHistogram = h.idHistogram;
                                     newReferenceCurve.idCurve = newReferenceCurve.idCurve ? curvesReference[newReferenceCurve.idCurve] : null;
                                     dbConnection.ReferenceCurve.create(newReferenceCurve).then(() => {
@@ -173,6 +187,8 @@ module.exports = function (idWell, done, dbConnection, username) {
                         delete newCrossPlot.idCrossPlot;
                         delete newCrossPlot.createdAt;
                         delete newCrossPlot.updatedAt;
+                        newCrossPlot.createdBy = createdBy;
+                        newCrossPlot.updatedBy = updatedBy;
                         newCrossPlot.idWell = _well.idWell;
                         dbConnection.CrossPlot.create(newCrossPlot).then(c => {
                             crossplotsReference[crossplot.idCrossPlot] = c.idCrossPlot;
@@ -184,6 +200,8 @@ module.exports = function (idWell, done, dbConnection, username) {
                                             delete newPointSet.idPointSet;
                                             delete newPointSet.createdAt;
                                             delete newPointSet.updatedAt;
+                                            newPointSet.createdBy = createdBy;
+                                            newPointSet.updatedBy = updatedBy;
                                             newPointSet.idCrossPlot = c.idCrossPlot;
                                             newPointSet.idCurveX = newPointSet.idCurveX ? curvesReference[newPointSet.idCurveX] : null;
                                             newPointSet.idCurveY = newPointSet.idCurveY ? curvesReference[newPointSet.idCurveY] : null;
@@ -208,6 +226,8 @@ module.exports = function (idWell, done, dbConnection, username) {
                                             delete newReferenceCurve.idReferenceCurve;
                                             delete newReferenceCurve.createdAt;
                                             delete newReferenceCurve.updatedAt;
+                                            newReferenceCurve.createdBy = createdBy;
+                                            newReferenceCurve.updatedBy = updatedBy;
                                             newReferenceCurve.idCrossPlot = c.idCrossPlot;
                                             newReferenceCurve.idCurve = newReferenceCurve.idCurve ? curvesReference[newReferenceCurve.idCurve] : null;
                                             dbConnection.ReferenceCurve.create(newReferenceCurve).then(() => {
@@ -226,6 +246,8 @@ module.exports = function (idWell, done, dbConnection, username) {
                                             delete newLine.idRegressionLine;
                                             delete newLine.createdAt;
                                             delete newLine.updatedAt;
+                                            newLine.createdBy = createdBy;
+                                            newLine.updatedBy = updatedBy;
                                             newLine.idCrossPlot = c.idCrossPlot;
                                             dbConnection.RegressionLine.create(newLine).then(l => {
                                                 nextLine();
@@ -245,6 +267,8 @@ module.exports = function (idWell, done, dbConnection, username) {
                                             delete newPolygon.idPolygon;
                                             delete newPolygon.createdAt;
                                             delete newPolygon.updatedAt;
+                                            newPolygon.createdBy = createdBy;
+                                            newPolygon.updatedBy = updatedBy;
                                             newPolygon.idCrossPlot = c.idCrossPlot;
                                             dbConnection.Polygon.create(newPolygon).then(p => {
                                                 nextPolygon();
@@ -264,6 +288,8 @@ module.exports = function (idWell, done, dbConnection, username) {
                                             delete newTerary.idTernary;
                                             delete newTerary.createdAt;
                                             delete newTerary.updatedAt;
+                                            newTerary.createdBy = createdBy;
+                                            newTerary.updatedBy = updatedBy;
                                             newTerary.idCrossPlot = c.idCrossPlot;
                                             dbConnection.Ternary.create(newTerary).then(t => {
                                                 nextTernary();
@@ -283,6 +309,8 @@ module.exports = function (idWell, done, dbConnection, username) {
                                             delete newLine.idUserDefineLine;
                                             delete newLine.createdAt;
                                             delete newLine.updatedAt;
+                                            newLine.createdBy = createdBy;
+                                            newLine.updatedBy = updatedBy;
                                             dbConnection.UserDefineLine.create(newLine).then(l => {
                                                 nextLine();
                                             }).catch(err => {
@@ -312,6 +340,8 @@ module.exports = function (idWell, done, dbConnection, username) {
                         delete newPlot.idPlot;
                         delete newPlot.createdAt;
                         delete newPlot.updatedAt;
+                        newPlot.createdBy = createdBy;
+                        newPlot.updatedBy = updatedBy;
                         newPlot.idWell = _well.idWell;
                         newPlot.referenceCurve = newPlot.referenceCurve ? curvesReference[newPlot.referenceCurve] : null;
                         dbConnection.Plot.create(newPlot).then(p => {
@@ -326,6 +356,8 @@ module.exports = function (idWell, done, dbConnection, username) {
                                             delete newTrack.idTrack;
                                             delete newTrack.createdAt;
                                             delete newTrack.updatedAt;
+                                            newTrack.createdBy = createdBy;
+                                            newTrack.updatedBy = updatedBy;
                                             newTrack.idPlot = p.idPlot;
                                             dbConnection.Track.create(newTrack).then(t => {
                                                 asyncWaterfall([
@@ -336,6 +368,8 @@ module.exports = function (idWell, done, dbConnection, username) {
                                                             delete newLine.idLine;
                                                             delete newLine.createdAt;
                                                             delete newLine.updatedAt;
+                                                            newLine.createdBy = createdBy;
+                                                            newLine.updatedBy = updatedBy;
                                                             newLine.idTrack = t.idTrack;
                                                             newLine.idCurve = curvesReference[newLine.idCurve];
                                                             dbConnection.Line.create(newLine).then(l => {
@@ -354,6 +388,8 @@ module.exports = function (idWell, done, dbConnection, username) {
                                                             delete newShading.idShading;
                                                             delete newShading.createdAt;
                                                             delete newShading.updatedAt;
+                                                            newShading.createdBy = createdBy;
+                                                            newShading.updatedBy = updatedBy;
                                                             newShading.idTrack = t.idTrack;
                                                             newShading.idLeftLine = linesReference[newShading.idLeftLine];
                                                             newShading.idRightLine = linesReference[newShading.idRightLine];
@@ -373,6 +409,8 @@ module.exports = function (idWell, done, dbConnection, username) {
                                                             delete newMarker.idMarker;
                                                             delete newMarker.createdAt;
                                                             delete newMarker.updatedAt;
+                                                            newMarker.createdBy = createdBy;
+                                                            newMarker.updatedBy = updatedBy;
                                                             newMarker.idTrack = t.idTrack;
                                                             dbConnection.Marker.create(newMarker).then(m => {
                                                                 nextMarker();
@@ -389,6 +427,8 @@ module.exports = function (idWell, done, dbConnection, username) {
                                                             delete newAno.idAnnotation;
                                                             delete newAno.createdAt;
                                                             delete newAno.updatedAt;
+                                                            newAno.createdBy = createdBy;
+                                                            newAno.updatedBy = updatedBy;
                                                             newAno.idTrack = t.idTrack;
                                                             dbConnection.Annotation.create(newAno).then(a => {
                                                                 nextAno();
@@ -419,6 +459,8 @@ module.exports = function (idWell, done, dbConnection, username) {
                                             delete newDepthTrack.idDepthAxis;
                                             delete newDepthTrack.createdAt;
                                             delete newDepthTrack.updatedAt;
+                                            newDepthTrack.createdBy = createdBy;
+                                            newDepthTrack.updatedBy = updatedBy;
                                             newDepthTrack.idPlot = p.idPlot;
                                             dbConnection.DepthAxis.create(newDepthTrack).then(t => {
                                                 nextDepth();
@@ -440,6 +482,8 @@ module.exports = function (idWell, done, dbConnection, username) {
                                             delete newZoneTrack.idZoneTrack;
                                             delete newZoneTrack.createdAt;
                                             delete newZoneTrack.updatedAt;
+                                            newZoneTrack.createdBy = createdBy;
+                                            newZoneTrack.updatedBy = updatedBy;
                                             newZoneTrack.idPlot = p.idPlot;
                                             newZoneTrack.idZoneSet = zonesetsReference[newZoneTrack.idZoneSet];
                                             dbConnection.ZoneTrack.create(newZoneTrack).then(z => {
@@ -463,6 +507,8 @@ module.exports = function (idWell, done, dbConnection, username) {
                                             delete newImageTrack.idImageTrack;
                                             delete newImageTrack.createdAt;
                                             delete newImageTrack.updatedAt;
+                                            newImageTrack.createdBy = createdBy;
+                                            newImageTrack.updatedBy = updatedBy;
                                             newImageTrack.idPlot = p.idPlot;
                                             dbConnection.ImageTrack.create(newImageTrack).then(i => {
                                                 asyncEach(track.image_of_tracks, function (image, nextImage) {
@@ -499,6 +545,8 @@ module.exports = function (idWell, done, dbConnection, username) {
                                             delete newObjectTrack.idObjectTrack;
                                             delete newObjectTrack.createdAt;
                                             delete newObjectTrack.updatedAt;
+                                            newObjectTrack.createdBy = createdBy;
+                                            newObjectTrack.updatedBy = updatedBy;
                                             newObjectTrack.idPlot = p.idPlot;
                                             dbConnection.ObjectTrack.create(newObjectTrack).then(i => {
                                                 asyncEach(track.object_of_tracks, function (obj, nextObj) {
@@ -552,6 +600,8 @@ module.exports = function (idWell, done, dbConnection, username) {
                         delete newHeader.idWellHeader;
                         delete newHeader.createdAt;
                         delete newHeader.updatedAt;
+                        newHeader.createdBy = createdBy;
+                        newHeader.updatedBy = updatedBy;
                         newHeader.idWell = _well.idWell;
                         dbConnection.WellHeader.create(newHeader).then(() => {
                             nextHeader();

@@ -1,13 +1,11 @@
 "use strict";
-// var models = require('../models');
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
 
-// var lineModel = models.UserDefineLine;
 
 function createNewUserDefineLine(line, done, dbConnection) {
     line.lineStyle = JSON.stringify(line.lineStyle);
-    var lineModel = dbConnection.UserDefineLine;
+    let lineModel = dbConnection.UserDefineLine;
     lineModel.create(line).then(line => {
         lineModel.findById(line.idUserDefineLine).then(rs => {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Create new user define line successfull", rs));
@@ -18,7 +16,7 @@ function createNewUserDefineLine(line, done, dbConnection) {
 }
 
 function infoUserDefineLine(line, done, dbConnection) {
-    var lineModel = dbConnection.UserDefineLine;
+    let lineModel = dbConnection.UserDefineLine;
     lineModel.findById(line.idUserDefineLine).then(rs => {
         if (!rs) {
             rs.lineStyle = JSON.parse(rs.lineStyle);
@@ -32,8 +30,9 @@ function infoUserDefineLine(line, done, dbConnection) {
 }
 
 function deleteUserDefineLine(line, done, dbConnection) {
-    var lineModel = dbConnection.UserDefineLine;
+    let lineModel = dbConnection.UserDefineLine;
     lineModel.findById(line.idUserDefineLine).then(l => {
+        l.setDataValue('updatedBy', line.updatedBy);
         if (!l) {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No line found", line));
         } else {
@@ -49,7 +48,8 @@ function deleteUserDefineLine(line, done, dbConnection) {
 }
 
 function editUserDefineLine(line, done, dbConnection) {
-    var lineModel = dbConnection.UserDefineLine;
+    delete line.createdBy;
+    let lineModel = dbConnection.UserDefineLine;
     line.lineStyle = JSON.stringify(line.lineStyle);
     lineModel.findById(line.idUserDefineLine).then(oldLine => {
         if (oldLine) {

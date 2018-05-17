@@ -15,7 +15,7 @@ router.registerHooks = function (io) {
 router.post('/project/list', function (req, res) {
     projectModel.getProjectList(req.body, function (status) {
         res.send(status);
-    }, req.dbConnection);
+    }, req.dbConnection, req.decoded.username, req.decoded.realUser, req.token);
 });
 router.post('/project/info', function (req, res) {
     projectModel.getProjectInfo(req.body, function (status) {
@@ -25,7 +25,7 @@ router.post('/project/info', function (req, res) {
 router.post('/project/fullinfo', function (req, res) {
     projectModel.getProjectFullInfo(req.body, function (status) {
         res.send(status);
-    }, req.dbConnection)
+    }, req)
 });
 router.post('/project/new', function (req, res) {
     // res.send("Show Create New Project Form");
@@ -48,6 +48,16 @@ router.post('/project/share', function (req, res) {
     shareProject(req.body, function (status) {
         res.send(status);
     }, req.dbConnection, req.decoded.username)
+});
+router.post('/project/close', function (req, res) {
+    projectModel.closeProject(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection, req.decoded.realUser);
+});
+router.post('/project/share/update-permission', function (req, res) {
+    projectModel.updatePermission(req, function (status) {
+        res.send(status);
+    }, req.dbConnection, req.decoded.realUser);
 });
 
 module.exports = router;

@@ -49,7 +49,7 @@ function deleteFamily(familyInfo, done, dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Family is deleted", family));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Family " + err.errors[0].message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.message, err.message));
                 })
         })
         .catch(function (err) {

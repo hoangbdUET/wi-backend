@@ -28,6 +28,14 @@ module.exports = function (sequelize, DataTypes) {
             type:DataTypes.FLOAT,
             allowNull:false,
             defaultValue:50
+        },
+        createdBy: {
+            type: DataTypes.STRING(50),
+            allowNull: false,
+        },
+        updatedBy: {
+            type: DataTypes.STRING(50),
+            allowNull: false
         }
 
     })

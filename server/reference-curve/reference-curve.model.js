@@ -1,6 +1,6 @@
 "use strict";
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
 
 function createNewReferenceCurve(info, callback, dbConnection) {
     let ReferenceCurve = dbConnection.ReferenceCurve;
@@ -9,7 +9,7 @@ function createNewReferenceCurve(info, callback, dbConnection) {
     }).catch(err => {
         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new reference error!", err.stack));
     });
-};
+}
 
 function infoReferenceCurve(info, callback, dbConnection) {
     let ReferenceCurve = dbConnection.ReferenceCurve;
@@ -31,9 +31,10 @@ function infoReferenceCurve(info, callback, dbConnection) {
     }).catch(err => {
         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Get info reference error!", err.message));
     });
-};
+}
 
 function editReferenceCurve(info, callback, dbConnection) {
+    delete info.createdBy;
     let ReferenceCurve = dbConnection.ReferenceCurve;
     ReferenceCurve.findById(info.idReferenceCurve).then(referenceCurve => {
         Object.assign(referenceCurve, info)
@@ -47,24 +48,25 @@ function editReferenceCurve(info, callback, dbConnection) {
     }).catch(err => {
         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Get info reference error!", err.message));
     });
-};
+}
 
 function deleteReferenceCurve(info, callback, dbConnection) {
     let ReferenceCurve = dbConnection.ReferenceCurve;
     ReferenceCurve.findById(info.idReferenceCurve)
         .then(function (referenceCurve) {
+            referenceCurve.setDataValue('updatedBy', info.updatedBy);
             referenceCurve.destroy()
                 .then(function () {
                     callback(ResponseJSON(ErrorCodes.SUCCESS, "Reference is deleted", referenceCurve));
                 })
                 .catch(function (err) {
-                    callback(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete reference error " + err.errors[0].message));
+                    callback(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete reference error " + err.message, err.message));
                 })
         })
         .catch(function () {
             callback(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Reference curve not found for delete"))
         })
-};
+}
 
 function listReferenceCurve(info, callback, dbConnection) {
     let ReferenceCurve = dbConnection.ReferenceCurve;
@@ -73,7 +75,7 @@ function listReferenceCurve(info, callback, dbConnection) {
     }).catch(err => {
         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "err", err));
     });
-};
+}
 
 module.exports = {
     createNewReferenceCurve: createNewReferenceCurve,

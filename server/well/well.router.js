@@ -60,14 +60,14 @@ router.post('/well/bulk-update-well-header', function (req, res) {
 router.post('/well/duplicate', function (req, res) {
     duplicateWell(req.body.idWell, function (status) {
         res.send(status);
-    }, req.dbConnection, req.decoded.username);
+    }, req.dbConnection, req.decoded.username, req.createdBy, req.updatedBy);
 });
 
 router.post('/well/import-from-inventory', function (req, res) {
     let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
     wellModel.importWell(req.body, function (status) {
         res.send(status);
-    }, req.dbConnection, req.decoded.username, token);
+    }, req.dbConnection, req.decoded.username, token, req.createdBy, req.updatedBy);
 });
 
 router.post('/well/well-top-update', function (req, res) {

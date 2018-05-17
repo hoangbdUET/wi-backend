@@ -8,6 +8,7 @@ let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
 let path = require('path');
 let curveModel = require('./curve.model');
+let convertUnit = require('./convert-unit');
 
 router.use(bodyParser.json());
 
@@ -23,7 +24,6 @@ let storage = multer.diskStorage({
 let upload = multer({storage: storage});
 
 router.post('/curve/copy', (req, res) => {
-    console.log(req.body);
     curveModel.copyCurve(req.body, (status) => {
         res.send(status);
     }, req.dbConnection, req.decoded.username);
@@ -106,11 +106,13 @@ router.post('/curve/scale', function (req, res) {
 });
 
 router.post('/curve/processing', upload.single('file'), function (req, res) {
+    // console.log("====", req.createdBy);
+    // console.log("====", req.updatedBy);
     writeToTmpFile(req.body.data, function (tmpPath) {
         req.tmpPath = tmpPath;
         curveModel.processingCurve(req, function (result) {
             res.send(result);
-        }, req.dbConnection);
+        }, req.dbConnection, req.createdBy, req.updatedBy);
     });
 });
 
@@ -136,5 +138,18 @@ router.post('/curve/is-existed', function (req, res) {
         res.send(status);
     }, req.dbConnection)
 });
+
+router.post('/curve/get-parents', function (req, res) {
+    curveModel.getCurveParents(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection);
+});
+
+router.post('/curve/convert-unit', function (req, res) {
+    convertUnit(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection, req.decoded.username)
+});
+
 
 module.exports = router;
