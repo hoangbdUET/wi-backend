@@ -303,7 +303,8 @@ function editLine(lineInfo, done, dbConnection) {
     let Line = dbConnection.Line;
     Line.findById(lineInfo.idLine, {include: {all: true}}).then(line => {
         if (line) {
-            if (line.idTrack != lineInfo.idTrack) {
+            if (line.idTrack != lineInfo.idTrack && lineInfo.idTrack) {
+                console.log("Vao day");
                 dbConnection.Shading.findAll({
                     where: {idTrack: line.idTrack},
                     include: {all: true}
@@ -363,6 +364,7 @@ function editLine(lineInfo, done, dbConnection) {
                     });
                 });
             } else {
+                console.log("Update line");
                 Object.assign(line, lineInfo).save().then(rs => {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
                 }).catch(err => {
