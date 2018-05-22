@@ -1124,7 +1124,7 @@ let importPlotTemplate = async function (req, done, dbConnection) {
                                 dbConnection.ZoneSet.findOne({
                                     where: {
                                         idWell: plot.idWell,
-                                        name: zone_track.zoneset
+                                        name: zone_track.zone_set.name
                                     }
                                 }).then(zs => {
                                     if (zs) {
