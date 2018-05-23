@@ -46,6 +46,9 @@ function deleteObjectTrack(info, done, dbConnection) {
     Model.findById(info.idObjectTrack).then(track => {
         if (track) {
             track.setDataValue('updatedBy', info.updatedBy);
+            track.destroy().then(() => {
+                done(ResponseJSON(ErrorCodes.SUCCESS, " Done", track));
+            });
         } else {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Not found"));
         }
