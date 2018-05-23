@@ -131,9 +131,12 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
         let idPlot = plot.idPlot;
         asyncLoop(myPlot.depth_axes, function (depth_axis, next) {
             depth_axis.idPlot = idPlot;
+            depth_axis.createdBy = myPlot.createdBy;
+            depth_axis.updatedBy = myPlot.updatedBy;
             dbConnection.DepthAxis.create(depth_axis).then(() => {
                 next();
             }).catch(err => {
+                console.log(err);
                 next(err);
             });
         }, function (err) {
@@ -168,6 +171,8 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
                         nextTrack();
                     });
                 }).catch(err => {
+                    console.log(err);
+                    next(err);
                     // next(err);
                 });
             }, function (err) {
@@ -1119,7 +1124,7 @@ let importPlotTemplate = async function (req, done, dbConnection) {
                                 dbConnection.ZoneSet.findOne({
                                     where: {
                                         idWell: plot.idWell,
-                                        name: zone_track.zoneset
+                                        name: zone_track.zone_set.name
                                     }
                                 }).then(zs => {
                                     if (zs) {
