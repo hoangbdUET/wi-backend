@@ -139,7 +139,9 @@ let createTrack = function (myTrack, dbConnection, callback) {
         showEndLabels: myTrack.showEndLabels,
         labelFormat: myTrack.labelFormat,
         idPlot: myTrack.idPlot,
-        zoomFactor: myTrack.zoomFactor
+        zoomFactor: myTrack.zoomFactor,
+        createdBy: myTrack.createdBy,
+        updatedBy: myTrack.updatedBy
     }).then(track => {
         callback(track.idTrack);
     }).catch(err => {
@@ -204,7 +206,9 @@ let createLine = function (lineInfo, dbConnection, callback) {
         unit: lineInfo.unit,
         idCurve: lineInfo.idCurve,
         idTrack: lineInfo.idTrack,
-        orderNum: lineInfo.orderNum
+        orderNum: lineInfo.orderNum,
+        createdBy: lineInfo.createdBy,
+        updatedBy: lineInfo.updatedBy
     }).then(line => {
         callback(line.idLine);
     }).catch(err => {
@@ -240,7 +244,9 @@ let createShading = function (shadingInfo, dbConnection, callback) {
         idTrack: shadingInfo.idTrack,
         idLeftLine: shadingInfo.idLeftLine,
         idRightLine: shadingInfo.idRightLine,
-        idControlCurve: shadingInfo.idControlCurve
+        idControlCurve: shadingInfo.idControlCurve,
+        createdBy: shadingInfo.createdBy,
+        updatedBy: shadingInfo.updatedBy
     }).then(shading => {
         callback(shading.idShading);
     }).catch(err => {
@@ -251,6 +257,7 @@ let createShading = function (shadingInfo, dbConnection, callback) {
 
 //thieu marker
 let importTrackTemplate = async function (req, done, dbConnection) {
+    console.log(req.createdBy, req.updatedBy, req.body.createdBy, req.body.updatedBy)
     let filePath = path.join(__dirname + '/../..', req.file.path);
     let list = req.file.filename.split('.');
     let fileType = list[list.length - 1];
@@ -267,6 +274,8 @@ let importTrackTemplate = async function (req, done, dbConnection) {
         } else {
             let myTrack = JSON.parse(data);
             myTrack.idPlot = req.body.idPlot;
+            myTrack.createdBy = req.createdBy;
+            myTrack.updatedBy = req.updatedBy;
             //fix tam controlcurve
             let idControlCurve = null;
             createTrack(myTrack, dbConnection, function (idTrack) {
@@ -283,6 +292,8 @@ let importTrackTemplate = async function (req, done, dbConnection) {
                                 console.log("FOUND CURVE : ", idCurve);
                                 line.idCurve = idCurve;
                                 line.idTrack = idTrack;
+                                line.createdBy = req.createdBy;
+                                line.updatedBy = req.updatedBy;
                                 idControlCurve = idCurve;
                                 createLine(line, dbConnection, function (idLine) {
                                     if (line) {
@@ -302,6 +313,8 @@ let importTrackTemplate = async function (req, done, dbConnection) {
                             if (!shading) shading = {};
                             shading.idControlCurve = idControlCurve;
                             shading.idTrack = idTrack;
+                            shading.createdBy = req.createdBy;
+                            shading.updatedBy = req.updatedBy;
                             findLine({
                                 idTrack: idTrack,
                                 alias: shading.leftLine ? shading.leftLine.alias : null
@@ -324,6 +337,8 @@ let importTrackTemplate = async function (req, done, dbConnection) {
                                 if (!marker) marker = {};
                                 delete marker.idMarker;
                                 marker.idTrack = idTrack;
+                                marker.createdBy = req.createdBy;
+                                marker.updatedBy = req.updatedBy;
                                 dbConnection.Marker.create(marker).then(() => {
                                     next();
                                 }).catch(() => {
@@ -335,6 +350,8 @@ let importTrackTemplate = async function (req, done, dbConnection) {
                                     if (!image) image = {};
                                     delete image.idImage;
                                     image.idTrack = idTrack;
+                                    image.createdBy = req.createdBy;
+                                    image.updatedBy = req.updatedBy;
                                     dbConnection.Image.create(image).then(() => {
                                         next();
                                     }).catch(() => {
