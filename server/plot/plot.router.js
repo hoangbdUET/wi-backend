@@ -40,6 +40,7 @@ router.delete('/plot/delete', function (req, res) {
     }, req.dbConnection)
 });
 router.post('/plot/duplicate', function (req, res) {
+    req.setTimeout(180000);
     plotModel.duplicatePlot(req.body, function (status) {
         res.send(status);
     }, req.dbConnection);
