@@ -219,11 +219,6 @@ function getWellInfo(well, done, dbConnection) {
                     });
                 },
                 function (cb) {
-                    dbConnection.Plot.findAll({where: {idWell: well.idWell}}).then(plots => {
-                        cb(null, plots);
-                    });
-                },
-                function (cb) {
                     dbConnection.Histogram.findAll({where: {idWell: well.idWell}}).then(histograms => {
                         cb(null, histograms);
                     });
@@ -246,11 +241,10 @@ function getWellInfo(well, done, dbConnection) {
             ], function (err, result) {
                 wellObj.datasets = result[0];
                 wellObj.zone_sets = result[1];
-                wellObj.plots = result[2];
-                wellObj.histograms = result[3];
-                wellObj.cross_plots = result[4];
-                wellObj.combined_boxes = result[5];
-                wellObj.well_headers = result[6];
+                wellObj.histograms = result[2];
+                wellObj.cross_plots = result[3];
+                wellObj.combined_boxes = result[4];
+                wellObj.well_headers = result[5];
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", wellObj));
             });
         })
