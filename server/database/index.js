@@ -44,7 +44,7 @@ router.post('/database/update', function (req, res) {
                     storage: config.storage
                 });
                 let dbName = 'wi_' + decoded.username.toLowerCase();
-                sequelize.query("CREATE DATABASE IF NOT EXISTS " + dbName).then(rs => {
+                sequelize.query("CREATE DATABASE IF NOT EXISTS `" + dbName + "`").then(rs => {
                     if (rs[0].warningStatus === 0) {
                         models(dbName).sequelize.sync().then(() => {
                             let userDbConnection = models(dbName, function (err) {
@@ -53,36 +53,36 @@ router.post('/database/update', function (req, res) {
                                 }
                             });
                             syncJob(userDbConnection, function () {
-                                res.send(ResponseJSON(ErrorCodes.SUCCESS, "Create database successful", {database: dbName}));
+                                updateFamilyModel.syncFamilyData({username: dbName.substring(3).toLowerCase()}, function (result) {
+                                    console.log("Successfull update family for user : ", dbName);
+                                    updateOverlayLineModel.syncOverlayLine(dbName.substring(3).toLowerCase(), function (err, success) {
+                                        if (err) {
+                                            console.log(err);
+                                        } else {
+                                            console.log("Overlay line sync : ", success);
+                                            workflowSpecModel.syncWorkflowSpec(dbName.substring(3).toLowerCase(), function (error, successfull) {
+                                                if (error) {
+                                                    console.log(error);
+                                                } else {
+                                                    console.log("Workflow spec sync: DONE");
+                                                    taskSpecModel.syncTaskSpec(dbName.substring(3).toLowerCase(), function (err, successfull) {
+                                                        console.log("Task spec sync: DONE");
+                                                        console.log("SUCCESSFULL CREATED NEW DATABASE ", dbName);
+                                                    });
+                                                    zoneTemplateModel.synZoneTemplate(dbName.substring(3).toLowerCase(), function () {
+                                                        console.log("Zone template sync: DONE");
+                                                    });
+                                                }
+                                            });
+                                        }
+                                    });
+                                    res.send(ResponseJSON(ErrorCodes.SUCCESS, "Create database successful", {database: dbName}));
+                                });
+                            }).catch(function (err) {
+                                console.log(err);
+                                res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error while sync database", err.message));
                             });
-                            //     updateFamilyModel.syncFamilyData({username: dbName.substring(3).toLowerCase()}, function (result) {
-                            //         console.log("Successfull update family for user : ", dbName);
-                            //         updateOverlayLineModel.syncOverlayLine(dbName.substring(3).toLowerCase(), function (err, success) {
-                            //             if (err) {
-                            //                 console.log(err);
-                            //             } else {
-                            //                 console.log("Overlay line sync : ", success);
-                            //                 workflowSpecModel.syncWorkflowSpec(dbName.substring(3).toLowerCase(), function (error, successfull) {
-                            //                     if (error) {
-                            //                         console.log(error);
-                            //                     } else {
-                            //                         console.log("Workflow spec sync: DONE");
-                            //                         taskSpecModel.syncTaskSpec(dbName.substring(3).toLowerCase(), function (err, successfull) {
-                            //                             console.log("Task spec sync: DONE");
-                            //                             console.log("SUCCESSFULL CREATED NEW DATABASE ", dbName);
-                            //                         });
-                            //                         zoneTemplateModel.synZoneTemplate(dbName.substring(3).toLowerCase(), function () {
-                            //                             console.log("Zone template sync: DONE");
-                            //                         });
-                            //                     }
-                            //                 });
-                            //             }
-                            //         });
-                            //         res.send(ResponseJSON(ErrorCodes.SUCCESS, "Create database successful", {database: dbName}));
-                            //     });
-                            // }).catch(function (err) {
-                            //     console.log(err);
-                            //     res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error while sync database", err.message));
+
                         });
                     } else {
                         console.log("DATABASE EXISTS ", dbName);
@@ -126,7 +126,7 @@ router.delete('/database/update', function (req, res) {
                     storage: config.storage
                 });
                 let dbName = 'wi_' + decoded.username;
-                sequelize.query("DROP DATABASE IF EXISTS " + dbName).then(rs => {
+                sequelize.query("DROP DATABASE IF EXISTS `" + dbName + "`").then(rs => {
                     if (rs[0].warningStatus === 0) {
                         console.log("DROP DATABASE ", dbName);
                         models(dbName, function () {
