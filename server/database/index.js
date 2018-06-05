@@ -53,36 +53,8 @@ router.post('/database/update', function (req, res) {
                                 }
                             });
                             syncJob(userDbConnection, function () {
-                                updateFamilyModel.syncFamilyData({username: dbName.substring(3).toLowerCase()}, function (result) {
-                                    console.log("Successfull update family for user : ", dbName);
-                                    updateOverlayLineModel.syncOverlayLine(dbName.substring(3).toLowerCase(), function (err, success) {
-                                        if (err) {
-                                            console.log(err);
-                                        } else {
-                                            console.log("Overlay line sync : ", success);
-                                            workflowSpecModel.syncWorkflowSpec(dbName.substring(3).toLowerCase(), function (error, successfull) {
-                                                if (error) {
-                                                    console.log(error);
-                                                } else {
-                                                    console.log("Workflow spec sync: DONE");
-                                                    taskSpecModel.syncTaskSpec(dbName.substring(3).toLowerCase(), function (err, successfull) {
-                                                        console.log("Task spec sync: DONE");
-                                                        console.log("SUCCESSFULL CREATED NEW DATABASE ", dbName);
-                                                    });
-                                                    zoneTemplateModel.synZoneTemplate(dbName.substring(3).toLowerCase(), function () {
-                                                        console.log("Zone template sync: DONE");
-                                                    });
-                                                }
-                                            });
-                                        }
-                                    });
-                                    res.send(ResponseJSON(ErrorCodes.SUCCESS, "Create database successful", {database: dbName}));
-                                });
-                            }).catch(function (err) {
-                                console.log(err);
-                                res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error while sync database", err.message));
+                                res.send(ResponseJSON(ErrorCodes.SUCCESS, "Create database successful", {database: dbName}));
                             });
-
                         });
                     } else {
                         console.log("DATABASE EXISTS ", dbName);
