@@ -527,7 +527,25 @@ function newDbInstance(dbName, callback) {
                                             curve: curveParents.curve
                                         };
                                         curveFunction.moveCurveData(srcCurve, curveParents, function () {
-                                            nextCurve();
+                                            object.Line.findAll({where: {idCurve: curve.idCurve}}).then(lines => {
+                                                async.each(lines, function (line, nextLine) {
+                                                    line.destroy({hooks: false}).then(() => {
+                                                        nextLine();
+                                                    });
+                                                }, function () {
+                                                    object.ReferenceCurve.findAll({where: {idCurve: curve.idCurve}}).then(refs => {
+                                                        async.each(refs, function (ref, nextRef) {
+                                                            ref.destroy({hooks: false}).then(() => {
+                                                                nextRef();
+                                                            }).catch(() => {
+                                                                nextRef();
+                                                            })
+                                                        }, function () {
+                                                            nextCurve();
+                                                        })
+                                                    });
+                                                });
+                                            });
                                         });
                                     })
                                 }, function () {
