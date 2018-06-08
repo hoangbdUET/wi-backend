@@ -30,7 +30,25 @@ let findFamilyIdByName = function (familyName, dbConnection, callback) {
     })
 }
 
-async function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
+
+function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
+    if (crossPlotInfo.axisColors && typeof(crossPlotInfo.axisColors === "object")) {
+        JSON.stringify(crossPlotInfo.axisColors);
+    }
+    dbConnection.CrossPlot.create({
+        idProject: crossPlotInfo.idProject,
+        name: crossPlotInfo.name,
+        axisColors: crossPlotInfo.axisColors,
+        createdBy: crossPlotInfo.createdBy,
+        updatedBy: crossPlotInfo.updatedBy
+    }).then(function (crossPlot) {
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new CrossPlot success", crossPlot.toJSON()));
+    }).catch(function (err) {
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Cross Plot existed!"));
+    });
+}
+
+async function _createNewCrossPlot(crossPlotInfo, done, dbConnection) {
     // console.log(crossPlotInfo);
     if (crossPlotInfo.axisColors && typeof(crossPlotInfo.axisColors === "object")) {
         JSON.stringify(crossPlotInfo.axisColors);

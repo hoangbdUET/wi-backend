@@ -10,7 +10,7 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING(50),
             allowNull: false,
             defaultValue: "BlankCrossPlot",
-            unique: "name-idWell"
+            unique: "name-idProject"
         },
         title: {
             type: DataTypes.STRING,
@@ -26,12 +26,12 @@ module.exports = function (sequelize, DataTypes) {
         },
         referenceTopDepth: {
             type: DataTypes.DOUBLE,
-            allowNull: false,
+            allowNull: true,
             defaultValue: 0
         },
         referenceBottomDepth: {
             type: DataTypes.DOUBLE,
-            allowNull: false,
+            allowNull: true,
             defaultValue: 0
         },
         referenceScale: {

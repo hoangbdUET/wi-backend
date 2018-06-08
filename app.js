@@ -138,7 +138,7 @@ function main() {
     app.use('/project/well', datasetRouter);
     app.use('/project/well', zoneSetRouter);
     app.use('/project/well', histogramRouter);
-    app.use('/project/well', crossPlotRouter);
+    app.use('/project', crossPlotRouter);
     app.use('/project/well', referenceCurveRouter);
     app.use('/project/well', combinedBoxRouter);
     //middleware for all curve router to block spam request
@@ -169,13 +169,13 @@ function main() {
     app.use('/project/plot/track', annotationRouter);
     app.use('/project/well/dataset', curveRouter);//change
     app.use('/project/well/zone-set', zoneRouter);
-    app.use('/project/well/cross-plot', polygonRouter);
-    app.use('/project/well/cross-plot', pointSetRouter);
-    app.use('/project/well/cross-plot', userDefineLineRouter);
-    app.use('/project/well/cross-plot', ternaryRouter);
-    app.use('/project/well/cross-plot', regressionLineRouter);
-    app.use('/project/well/cross-plot', overlayLineRouter);
-    app.use('/project/well/cross-plot', axisColorRouter);
+    app.use('/project/cross-plot', polygonRouter);
+    app.use('/project/cross-plot', pointSetRouter);
+    app.use('/project/cross-plot', userDefineLineRouter);
+    app.use('/project/cross-plot', ternaryRouter);
+    app.use('/project/cross-plot', regressionLineRouter);
+    app.use('/project/cross-plot', overlayLineRouter);
+    app.use('/project/cross-plot', axisColorRouter);
     app.use('/project/plot/object-track', objectOfTrackRouter);
     app.use('/project/plot/image-track', imageOfTrackRouter);
 
