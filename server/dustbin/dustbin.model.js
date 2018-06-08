@@ -70,7 +70,7 @@ function getDustbin(payload, callback, dbConnection) {
                     });
                 },
                 function (cb) {
-                    dbConnection.CrossPlot.findAll({where: {idWell: well.idWell}, paranoid: false}).then(crossplots => {
+                    dbConnection.CrossPlot.findAll({where: {idProject: payload.idProject}, paranoid: false}).then(crossplots => {
                         asyncEach(crossplots, function (crossplot, nextCrossplot) {
                             if (crossplot.deletedAt) {
                                 let _crossplot = crossplot.toJSON();
