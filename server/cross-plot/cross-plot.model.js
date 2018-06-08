@@ -276,54 +276,58 @@ function getCrossPlotInfo(crossPlot, done, dbConnection) {
             crossPlot.regressionLines = crossPlot.regression_lines;
             delete crossPlot.regression_lines;
             delete crossPlot.point_sets;
-            asyncSeries([
-                function (cb) {
-                    dbConnection.Curve.findById(crossPlot.pointsets[0].idCurveX).then(curve => {
-                        if (curve) {
-                            cb(null, curve.idCurve);
-                        } else {
-                            cb(null, null);
-                        }
-                    });
-                },
-                function (cb) {
-                    dbConnection.Curve.findById(crossPlot.pointsets[0].idCurveY).then(curve => {
-                        if (curve) {
-                            cb(null, curve.idCurve);
-                        } else {
-                            cb(null, null);
-                        }
-                    });
-                },
-                function (cb) {
-                    dbConnection.Curve.findById(crossPlot.pointsets[0].idCurveZ).then(curve => {
-                        if (curve) {
-                            cb(null, curve.idCurve);
-                        } else {
-                            cb(null, null);
-                        }
-                    });
-                },
-                function (cb) {
-                    asyncLoop(crossPlot.reference_curves, function (ref, next) {
-                        dbConnection.Curve.findById(ref.idCurve).then(curve => {
+            if (crossPlot.pointsets.length !== 0) {
+                asyncSeries([
+                    function (cb) {
+                        dbConnection.Curve.findById(crossPlot.pointsets[0].idCurveX).then(curve => {
                             if (curve) {
-                                next();
+                                cb(null, curve.idCurve);
                             } else {
-                                ref.idCurve = null;
-                                next();
+                                cb(null, null);
                             }
                         });
-                    }, function () {
-                        cb(null, null);
-                    })
-                }
-            ], function (err, result) {
-                crossPlot.pointsets[0].idCurveX = result[0];
-                crossPlot.pointsets[0].idCurveY = result[1];
-                crossPlot.pointsets[0].idCurveZ = result[2];
+                    },
+                    function (cb) {
+                        dbConnection.Curve.findById(crossPlot.pointsets[0].idCurveY).then(curve => {
+                            if (curve) {
+                                cb(null, curve.idCurve);
+                            } else {
+                                cb(null, null);
+                            }
+                        });
+                    },
+                    function (cb) {
+                        dbConnection.Curve.findById(crossPlot.pointsets[0].idCurveZ).then(curve => {
+                            if (curve) {
+                                cb(null, curve.idCurve);
+                            } else {
+                                cb(null, null);
+                            }
+                        });
+                    },
+                    function (cb) {
+                        asyncLoop(crossPlot.reference_curves, function (ref, next) {
+                            dbConnection.Curve.findById(ref.idCurve).then(curve => {
+                                if (curve) {
+                                    next();
+                                } else {
+                                    ref.idCurve = null;
+                                    next();
+                                }
+                            });
+                        }, function () {
+                            cb(null, null);
+                        })
+                    }
+                ], function (err, result) {
+                    crossPlot.pointsets[0].idCurveX = result[0];
+                    crossPlot.pointsets[0].idCurveY = result[1];
+                    crossPlot.pointsets[0].idCurveZ = result[2];
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Get info CrossPlot success", crossPlot));
+                });
+            } else {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Get info CrossPlot success", crossPlot));
-            });
+            }
         })
         .catch(function (e) {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "CrossPlot not found for get info"));
