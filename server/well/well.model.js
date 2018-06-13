@@ -219,11 +219,6 @@ function getWellInfo(well, done, dbConnection) {
                     });
                 },
                 function (cb) {
-                    dbConnection.Histogram.findAll({where: {idWell: well.idWell}}).then(histograms => {
-                        cb(null, histograms);
-                    });
-                },
-                function (cb) {
                     dbConnection.CombinedBox.findAll({where: {idWell: well.idWell}}).then(combined_boxes => {
                         cb(null, combined_boxes);
                     });
