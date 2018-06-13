@@ -56,7 +56,7 @@ function getDustbin(payload, callback, dbConnection) {
                     });
                 },
                 function (cb) {
-                    dbConnection.Histogram.findAll({where: {idWell: well.idWell}, paranoid: false}).then(histograms => {
+                    dbConnection.Histogram.findAll({where: {idProject: payload.idProject}, paranoid: false}).then(histograms => {
                         asyncEach(histograms, function (histogram, nextHistogram) {
                             if (histogram.deletedAt) {
                                 let _histogram = histogram.toJSON();
