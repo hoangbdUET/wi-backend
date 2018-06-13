@@ -47,7 +47,9 @@ function editRegressionLine(regressionLineInfo, done, dbConnection) {
             Object.assign(regressionLine, regressionLineInfo)
                 .save()
                 .then(function (result) {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Edit regressionLine success", result));
+                    RegressionLine.findById(result.idRegressinLine, {include: {all: true}}).then(rl => {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Edit regressionLine success", rl));
+                    });
                 })
                 .catch(function (err) {
                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit regressionLine" + err));
