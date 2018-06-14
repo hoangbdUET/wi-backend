@@ -56,7 +56,7 @@ router.post('/clear', (req, res) => {
     let data = new Array();
     let dataFile = path.join(__dirname, 'data', req.decoded.username, 'data.json');
     fs.writeFileSync(dataFile, JSON.stringify(data));
-    res.send(ResponseJSON(errorCodes.CODES.SUCCESS, "Clear data successfull"));
+    res.send(ResponseJSON(errorCodes.CODES.SUCCESS, "Clear data Successful"));
 });
 
 module.exports = router;

@@ -17,7 +17,7 @@ let getListPattern = function (payload, done) {
     //     let nameB = b.name.toUpperCase();
     //     return nameA === nameB ? 0 : nameA > nameB ? 1 : -1;
     // });
-    done(ResponseJSON(errorCodes.SUCCESS, "Successfull", response));
+    done(ResponseJSON(errorCodes.SUCCESS, "Successful", response));
 };
 
 module.exports = {

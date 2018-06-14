@@ -456,7 +456,7 @@ module.exports = function (req, done, dbConnection) {
                     });
                 }
             ], function () {
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", newPlot));
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", newPlot));
             })
         }).catch(err => {
             if (err.name === "SequelizeUniqueConstraintError") {

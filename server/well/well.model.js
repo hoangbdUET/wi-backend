@@ -84,7 +84,7 @@ function getWellList(payload, done, dbConnection) {
             options.order = [['idWell', 'DESC']]
     }
     dbConnection.Well.findAll(options).then(wells => {
-        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", wells));
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", wells));
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
     });
@@ -245,7 +245,7 @@ function getWellInfo(well, done, dbConnection) {
                 wellObj.cross_plots = result[3];
                 wellObj.combined_boxes = result[4];
                 wellObj.well_headers = result[5];
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", wellObj));
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", wellObj));
             });
         })
         .catch(function () {
@@ -311,7 +311,7 @@ async function exportToProject(info, done, dbConnection, username) {
 }
 function getWellHeader(idWell, done, dbConnection) {
     dbConnection.WellHeader.findAll({where: {idWell: idWell}}).then(headers => {
-        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", headers));
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", headers));
     });
 }
 
@@ -320,7 +320,7 @@ function updateWellHeader(payload, done, dbConnection) {
         dbConnection.WellHeader.findById(payload.idWellHeader).then((header) => {
             header.value = payload.value;
             header.save().then(() => {
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", header));
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", header));
             }).catch(err => {
                 console.log(err);
                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
@@ -334,13 +334,13 @@ function updateWellHeader(payload, done, dbConnection) {
             }, defaults: {header: payload.header, value: payload.value, idWell: payload.idWell}
         }).then(rs => {
             if (rs[1]) {
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull created new header", rs[0]));
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful created new header", rs[0]));
                 //created
             } else {
                 //found
                 rs[0].value = payload.value;
                 rs[0].save().then(() => {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull update header", rs[0]));
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Successful update header", rs[0]));
                 }).catch(err => {
                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error " + err.message, err));
                 });
@@ -379,7 +379,7 @@ function bulkUpdateWellHeader(headers, idWell, done, dbConnection) {
             next();
         })
     }, function () {
-        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", response));
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
     });
 }
 
@@ -391,7 +391,7 @@ function importWell(payload, done, dbConnection, username, token) {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
         } else {
             console.log(res);
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", res));
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", res));
         }
     }, dbConnection, username);
 }

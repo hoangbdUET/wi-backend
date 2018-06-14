@@ -39,17 +39,17 @@ function getListUnitByIdCurve(idCurve, dbConnection) {
 let getListUnit = function (data, callback, dbConnection) {
     if (data.idCurve) {
         getListUnitByIdCurve(data.idCurve, dbConnection).then(list => {
-            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", list));
+            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", list));
         });
     } else {
         getListUnitByIdFamily(data.idFamily, dbConnection).then(list => {
-            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", list));
+            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", list));
         });
     }
 };
 let getAllUnit = function (data, callback, dbConnection) {
     dbConnection.FamilyUnit.findAll().then(units => {
-        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", units));
+        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", units));
     });
 };
 

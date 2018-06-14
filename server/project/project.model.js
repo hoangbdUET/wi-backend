@@ -150,7 +150,7 @@ function deleteProject(projectInfo, done, dbConnection) {
 function updatePermission(req, done) {
     let userPermission = require('../utils/permission/user-permission');
     userPermission.loadUserPermission(req.token, req.body.project_name, req.body.username).then(() => {
-        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull " + req.body.username));
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful " + req.body.username));
     });
 }
 
@@ -284,7 +284,7 @@ function genLocationOfNewProject() {
 function closeProject(payload, done, dbConnection, username) {
     let openingProject = require('../authenticate/opening-project');
     openingProject.removeRow({username: username}).then(() => {
-        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull"));
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful"));
     });
 }
 

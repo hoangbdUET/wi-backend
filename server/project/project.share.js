@@ -49,7 +49,7 @@ module.exports = function (project, done, dbConnection, username) {
             wiETL.configDestinationDb(desDb, function () {
                 try {
                     wiETL.executeJob(['family', 'family_spec', 'family_condition', 'project', 'well', 'dataset', 'curve', 'plot', 'cross_plot', 'histogram', 'combined_box', 'annotation', 'depth_axis', 'groups', 'image_track', 'zone_track', 'track', 'object_track', 'image_of_track', 'object_of_track', 'reference_curve', 'marker', 'zone_set', 'zone_track', 'workflow_spec', 'workflow', 'well_header', 'point_set', 'polygon', 'regression_line', 'ternary', 'line', 'shading', 'polygon_regressionline', 'overlay_line', 'combined_box_crossplot', 'combined_box_histogram', 'combined_box_plot', 'combined_box_tool', 'selection_tool', 'user_define_line', 'image'], function () {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull"));
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful"));
                     });
                 } catch (e) {
                     console.log(e);

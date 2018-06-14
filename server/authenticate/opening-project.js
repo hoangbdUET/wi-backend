@@ -12,7 +12,7 @@ function sync() {
                 };
                 next();
             }, function () {
-                // console.log("Sync opening table successfull");
+                // console.log("Sync opening table Successful");
                 resolve(opening);
             });
         });

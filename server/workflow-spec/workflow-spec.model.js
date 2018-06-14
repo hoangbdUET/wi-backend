@@ -8,7 +8,7 @@ let userModel = require('../models');
 
 let createWorkflowSpec = function (data, callback, dbConnection) {
     dbConnection.WorkflowSpec.create(data).then(w => {
-        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", w));
+        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", w));
     }).catch(err => {
         if (err.name === "SequelizeUniqueConstraintError") {
             callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "WorkflowSpec name existed!"));
@@ -22,7 +22,7 @@ let editWorkflowSpec = function (data, callback, dbConnection) {
     dbConnection.WorkflowSpec.findById(data.idWorkflowSpec).then(w => {
         if (w) {
             Object.assign(w, data).save().then(rs => {
-                callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
             }).catch(err => {
                 if (err.name === "SequelizeUniqueConstraintError") {
                     callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "WorkflowSpec name existed!"));
@@ -42,7 +42,7 @@ let editWorkflowSpec = function (data, callback, dbConnection) {
 let infoWorkflowSpec = function (data, callback, dbConnection) {
     dbConnection.WorkflowSpec.findById(data.idWorkflowSpec, {include: {all: true}}).then(w => {
         if (w) {
-            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", w));
+            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", w));
         } else {
             callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No workflow spec found by id"));
         }
@@ -56,7 +56,7 @@ let deleteWorkflowSpec = function (data, callback, dbConnection) {
     dbConnection.WorkflowSpec.findById(data.idWorkflowSpec).then(w => {
         if (w) {
             w.destroy().then(() => {
-                callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", w));
+                callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", w));
             });
         } else {
             callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No workflow spec found by id"));
@@ -68,7 +68,7 @@ let deleteWorkflowSpec = function (data, callback, dbConnection) {
 
 let listWorkflowSpec = function (data, callback, dbConnection) {
     dbConnection.WorkflowSpec.findAll().then(w => {
-        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", w));
+        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", w));
     }).catch(err => {
         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
     });

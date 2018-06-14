@@ -174,7 +174,7 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                         _line.createdBy = lineInfo.createdBy;
                         _line.updatedBy = lineInfo.updatedBy;
                         dbConnection.Line.create(_line).then(l => {
-                            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", l));
+                            done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", l));
                         }).catch(err => {
                             console.log(err);
                             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));

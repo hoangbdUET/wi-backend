@@ -225,7 +225,7 @@ async function copyCurve(param, done, dbConnection, username) {
             if (err) {
                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
             } else {
-                console.log("Successfull copy curve path : ", successPath);
+                console.log("Successful copy curve path : ", successPath);
                 dbConnection.Curve.findOne({
                     where: {
                         name: curve.name,
@@ -233,7 +233,7 @@ async function copyCurve(param, done, dbConnection, username) {
                     }
                 }).then(existedCurve => {
                     if (existedCurve) {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", existedCurve));
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", existedCurve));
                     } else {
                         let newCurve = curve.toJSON();
                         delete newCurve.idCurve;
@@ -241,7 +241,7 @@ async function copyCurve(param, done, dbConnection, username) {
                         newCurve.createdBy = param.createdBy;
                         newCurve.updatedBy = param.updatedBy;
                         dbConnection.Curve.create(newCurve).then((c) => {
-                            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", c));
+                            done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", c));
                         }).catch(err => {
                             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                         });
@@ -284,10 +284,10 @@ async function moveCurve(param, done, dbConnection, username) {
                             initValue: _curve.unit,
                             idFamily: _curve.idFamily
                         }).then(() => {
-                            done(ResponseJSON(ErrorCodes.SUCCESS, "successfull"));
+                            done(ResponseJSON(ErrorCodes.SUCCESS, "Successful"));
                         });
                     } else {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "successfull"));
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful"));
                     }
                 })
             });
@@ -374,7 +374,7 @@ async function deleteCurve(curveInfo, done, dbConnection, username) {
     if (!curve) return done(ErrorCodes.ERROR_INVALID_PARAMS, "No curve found by id");
 
     curve.destroy().then(() => {
-        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", curve));
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", curve));
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
     });
@@ -683,7 +683,7 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy) {
                                                                 next();
                                                             }
                                                         }, function () {
-                                                            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", response));
+                                                            done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
                                                         });
                                                     });
                                                 });
@@ -826,7 +826,7 @@ function getCurveParents(payload, done, dbConnection) {
             response.well = await dbConnection.Well.findById(response.dataset.idWell);
             response.project = await dbConnection.Project.findById(response.well.idProject);
             response.curve = curve;
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", response));
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
         } else {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No curve found by id"));
         }

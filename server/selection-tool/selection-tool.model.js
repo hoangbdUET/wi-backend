@@ -18,7 +18,7 @@ function createSelectionTool(payload, done, dbConnection, username) {
             console.log("Copy points file success! ", binPath);
             fs.unlinkSync(payload.BIN);
             rs.data = JSON.parse(fs.readFileSync(binPath).toString());
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
         });
     }).catch(err => {
         console.log(err);
@@ -43,7 +43,7 @@ function editSelectionTool(payload, done, dbConnection, username) {
                     delete payload.BIN;
                     Object.assign(row, payload).save().then(() => {
                         row.data = JSON.parse(fs.readFileSync(binPath).toString());
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", row));
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", row));
                     }).catch(err => {
                         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
                     });
@@ -51,7 +51,7 @@ function editSelectionTool(payload, done, dbConnection, username) {
             } else {
                 Object.assign(row, payload).save().then(() => {
                     fs.unlinkSync(payload.BIN);
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", row));
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", row));
                 }).catch(err => {
                     fs.unlinkSync(payload.BIN);
                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
@@ -74,7 +74,7 @@ function infoSelectionTool(payload, done, dbConnection, username) {
             rs = rs.toJSON();
             let binPath = hashDir.createPath(config.curveBasePath, username + rs.idSelectionTool, rs.idSelectionTool + '.txt');
             rs.data = JSON.parse(fs.readFileSync(binPath).toString());
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
         } else {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No selection point found by id"));
         }
@@ -106,7 +106,7 @@ function deleteSelectionTool(payload, done, dbConnection, username) {
 function createSelectionToolForPlot(payload, done, dbConnection) {
     let Model = dbConnection.SelectionTool;
     Model.create(payload).then(rs => {
-        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
     }).catch(err => {
         console.log(err);
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));

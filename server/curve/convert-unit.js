@@ -35,7 +35,7 @@ module.exports = function (data, callback, dbConnection, username) {
                     dbConnection.Curve.findById(data.idCurve).then(curve => {
                         curve.unit = data.desUnit.name;
                         curve.save().then(() => {
-                            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", curveParents));
+                            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", curveParents));
                         });
                     });
                     // dbConnection.Curve.findById(data.idCurve).then(curve => {
@@ -104,7 +104,7 @@ module.exports = function (data, callback, dbConnection, username) {
                     //                 });
                     //             }
                     //         ], function () {
-                    //             callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", hashPath));
+                    //             callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", hashPath));
                     //         })
                     //     }).catch(err => {
                     //         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));

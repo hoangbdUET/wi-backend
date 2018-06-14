@@ -43,7 +43,7 @@ router.post('/axis-color/all', (req, res) => {
 router.post('/axis-color/clear', (req, res) => {
     let data = new Array();
     fs.writeFileSync(dataFile, JSON.stringify(data));
-    res.send(ResponseJSON(errorCodes.CODES.SUCCESS, "Clear data successfull"));
+    res.send(ResponseJSON(errorCodes.CODES.SUCCESS, "Clear data Successful"));
 });
 
 module.exports = router;
