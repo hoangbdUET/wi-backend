@@ -139,7 +139,7 @@ function main() {
     app.use('/project', plotRouter);
     app.use('/project/well', datasetRouter);
     app.use('/project/well', zoneSetRouter);
-    app.use('/project/well', histogramRouter);
+    app.use('/project', histogramRouter);
     app.use('/project', crossPlotRouter);
     app.use('/project/well', referenceCurveRouter);
     app.use('/project/well', combinedBoxRouter);
