@@ -72,24 +72,24 @@ function listZoneTemplate(payload, done, dbConnection) {
                 next();
             }
         }, function () {
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", response));
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
         });
     }).catch(err => {
         console.log(err);
         // done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
-        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", response));
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
     });
 }
 
 function allZone(payload, done, dbConnection) {
     dbConnection.ZoneTemplate.findAll({where: {template: payload.template}}).then(zs => {
-        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", zs));
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", zs));
     });
 }
 
 function newZoneTemplate(payload, done, dbConnection) {
     dbConnection.ZoneTemplate.create(payload).then(z => {
-        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", z));
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", z));
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
     });
@@ -99,7 +99,7 @@ function editZoneTemplate(payload, done, dbConnection) {
     dbConnection.ZoneTemplate.findById(payload.idZoneTemplate).then(z => {
         if (z) {
             Object.assign(z, payload).save().then((g) => {
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", g));
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", g));
             }).catch(err => {
                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
             })
@@ -115,7 +115,7 @@ function deleteZoneTemplate(payload, done, dbConnection) {
     dbConnection.ZoneTemplate.findById(payload.idZoneTemplate).then(z => {
         if (z) {
             z.destroy().then(() => {
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", z));
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", z));
             });
         } else {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No template found by id"));

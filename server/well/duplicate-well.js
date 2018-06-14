@@ -615,7 +615,7 @@ module.exports = function (idWell, done, dbConnection, username, createdBy, upda
                     });
                 }
             ], function () {
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", well));
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", well));
             });
         } else {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Well Found"));

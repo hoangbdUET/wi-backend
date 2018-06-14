@@ -11,7 +11,7 @@ router.post('/inventory/import/curve', function (req, res) {
     let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
     let curves = req.body;
     model.importCurves(curves, token, function (response) {
-        res.send(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", response));
+        res.send(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
     }, req.dbConnection, req.decoded.username, req.createdBy, req.updatedBy);
 });
 

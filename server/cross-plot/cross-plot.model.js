@@ -460,7 +460,7 @@ function duplicateCrossplot(payload, done, dbConnection) {
                         }
                     ],
                     function (err, result) {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", result));
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", result));
                     });
             }).catch(err => {
                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err));

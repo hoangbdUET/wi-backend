@@ -101,6 +101,8 @@ function main() {
     let asyncQueue = require('async/queue');
     let zoneTemplateRouter = require('./server/zone-template/zone-template.router');
     let patternRouter = require('./server/pattern/pattern.router');
+    let flowRouter = require('./server/flow/flow.router');
+    let taskRouter = require('./server/task/task.router');
     let queue = {};
     let http = require('http').Server(app);
     app.use(cors());
@@ -141,6 +143,8 @@ function main() {
     app.use('/project', crossPlotRouter);
     app.use('/project/well', referenceCurveRouter);
     app.use('/project/well', combinedBoxRouter);
+    app.use('/project', flowRouter);
+    app.use('/project/flow', taskRouter);
     //middleware for all curve router to block spam request
     app.use('/project/well/dataset/curve', function (req, res, next) {
         if (!queue[req.decoded.username]) {

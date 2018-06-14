@@ -125,7 +125,7 @@ function getDustbin(payload, callback, dbConnection) {
                     }
                     nextPlot();
                 }, function () {
-                    callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", {
+                    callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", {
                         crossplots: Crossplots,
                         wells: Wells,
                         datasets: Datasets,
@@ -158,7 +158,7 @@ function deleteObject(payload, callback, dbConnection) {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
                     rs.destroy({permanently: true, force: true}).then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     })
@@ -173,7 +173,7 @@ function deleteObject(payload, callback, dbConnection) {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
                     rs.destroy({permanently: true, force: true}).then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     })
@@ -188,7 +188,7 @@ function deleteObject(payload, callback, dbConnection) {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
                     rs.destroy({permanently: true, force: true}).then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     })
@@ -203,7 +203,7 @@ function deleteObject(payload, callback, dbConnection) {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
                     rs.destroy({permanently: true, force: true}).then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     })
@@ -218,7 +218,7 @@ function deleteObject(payload, callback, dbConnection) {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
                     rs.destroy({permanently: true, force: true}).then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     })
@@ -233,7 +233,7 @@ function deleteObject(payload, callback, dbConnection) {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
                     rs.destroy({permanently: true, force: true}).then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     })
@@ -248,7 +248,7 @@ function deleteObject(payload, callback, dbConnection) {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
                     rs.destroy({permanently: true, force: true}).then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     })
@@ -263,7 +263,7 @@ function deleteObject(payload, callback, dbConnection) {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
                     rs.destroy({permanently: true, force: true}).then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     })

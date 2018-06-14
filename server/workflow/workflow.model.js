@@ -9,7 +9,7 @@ let createWorkflow = function (data, callback, dbConnection) {
         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "idWorkflowSpec can not be null", "idWorkflowSpec can not be null"));
     } else {
         dbConnection.Workflow.create(data).then(w => {
-            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", w));
+            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", w));
         }).catch(err => {
             if (err.name === "SequelizeUniqueConstraintError") {
                 callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Workflow name existed!"));
@@ -25,7 +25,7 @@ let editWorkflow = function (data, callback, dbConnection) {
     dbConnection.Workflow.findById(data.idWorkflow).then(w => {
         if (w) {
             Object.assign(w, data).save().then(rs => {
-                callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
             }).catch(err => {
 
                 if (err.name === "SequelizeUniqueConstraintError") {
@@ -50,9 +50,9 @@ let infoWorkflow = function (data, callback, dbConnection) {
             w.workflowspec = {};
             if (w.idWorkflowSpec) {
                 w.workflowspec = await dbConnection.WorkflowSpec.findById(w.idWorkflowSpec);
-                callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", w));
+                callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", w));
             } else {
-                callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", w));
+                callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", w));
             }
         } else {
             callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No workflow found by id"));
@@ -68,7 +68,7 @@ let deleteWorkflow = function (data, callback, dbConnection) {
         if (w) {
             w.setDataValue('updatedBy', data.updatedBy);
             w.destroy().then(() => {
-                callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", w));
+                callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", w));
             });
         } else {
             callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No workflow found by id"));
@@ -94,7 +94,7 @@ let listWorkflow = function (data, callback, dbConnection) {
                 next();
             });
         }, function () {
-            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", res));
+            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", res));
         });
 
 

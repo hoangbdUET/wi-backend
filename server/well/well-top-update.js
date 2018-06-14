@@ -57,7 +57,7 @@ async function executeJob(data, cb, dbConnection) {
                                 });
                             }
                         }
-                        response.push({well: well.name, result: "Successfull"});
+                        response.push({well: well.name, result: "Successful"});
                         next();
                     });
                 }
