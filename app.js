@@ -102,7 +102,7 @@ function main() {
     let zoneTemplateRouter = require('./server/zone-template/zone-template.router');
     let patternRouter = require('./server/pattern/pattern.router');
     let flowRouter = require('./server/flow/flow.router');
-    let taskRouter = require('/server/task/task.router');
+    let taskRouter = require('./server/task/task.router');
     let queue = {};
     let http = require('http').Server(app);
     app.use(cors());
