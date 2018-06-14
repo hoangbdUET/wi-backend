@@ -54,7 +54,7 @@ let infoTask = function (data, callback, dbConnection) {
                 callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", w));
             }
         } else {
-            callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No workflow found by id"));
+            callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No task found by id"));
         }
     }).catch(err => {
         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
@@ -77,33 +77,9 @@ let deleteTask = function (data, callback, dbConnection) {
     });
 };
 
-let listTask = function (data, callback, dbConnection) {
-    let res = [];
-    dbConnection.Task.findAll({where: {idProject: data.idProject}}).then(w => {
-        async.each(w, function (wf, next) {
-            wf = wf.toJSON();
-            dbConnection.TaskSpec.findById(wf.idTaskSpec).then(ws => {
-                wf.taskSpec = {
-                    name: ws.name,
-                    idTaskSpec: ws.idTaskSpec,
-                    type: ws.type
-                };
-                delete wf.idTaskSpec;
-                res.push(wf);
-                next();
-            });
-        }, function () {
-            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", res));
-        });
-    }).catch(err => {
-        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
-    });
-};
-
 module.exports = {
     createTask: createTask,
     editTask: editTask,
     infoTask: infoTask,
-    deleteTask: deleteTask,
-    listTask: listTask
+    deleteTask: deleteTask
 };
