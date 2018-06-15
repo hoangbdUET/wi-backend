@@ -5,11 +5,6 @@ module.exports = function (sequelize, DataTypes) {
             autoIncrement: true,
             primaryKey: true
         },
-        name: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            unique: 'name-idProject'
-        },
         content: {
             type: DataTypes.TEXT,
             // type: DataTypes.TEXT('long'),
