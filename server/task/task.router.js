@@ -6,27 +6,27 @@ let router = express.Router();
 let bodyParser = require('body-parser');
 router.use(bodyParser.json({limit: '5mb'}));
 
-router.post('/flow/task/list', function (req, res) {
+router.post('/task/list', function (req, res) {
     taskModel.listTask(req.body, function (done) {
         res.send(done);
     }, req.dbConnection);
 });
 
-router.post('/flow/task/new', function (req, res) {
+router.post('/task/new', function (req, res) {
     req.body.content = req.body.content || "{}";
     taskModel.createTask(req.body, function (done) {
         res.send(done);
     }, req.dbConnection);
 });
 
-router.post('/flow/task/edit', function (req, res) {
+router.post('/task/edit', function (req, res) {
     req.body.content = req.body.content || "{}";
     taskModel.editTask(req.body, function (done) {
         res.send(done);
     }, req.dbConnection);
 });
 
-router.post('/flow/task/info', function (req, res) {
+router.post('/task/info', function (req, res) {
     taskModel.infoTask(req.body, function (done) {
         res.send(done);
     }, req.dbConnection);
