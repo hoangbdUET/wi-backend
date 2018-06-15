@@ -32,6 +32,22 @@ let findFamilyIdByName = function (familyName, dbConnection, callback) {
 };
 
 function createNewHistogram(histogramInfo, done, dbConnection) {
+    let curves = histogramInfo.idCurves ? histogramInfo.idCurves : [];
+    if (histogramInfo.histogramTemplate) {
+        console.log("NEW HISTOGRAM TEMPLATE ", histogramInfo.histogramTemplate);
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Not implemented", "Not implemented"));
+    } else {
+        dbConnection.Histogram.create(histogramInfo).then(async histogram => {
+            await histogram.setCurves(curves);
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", histogramInfo));
+        }).catch(err => {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
+        });
+    }
+}
+
+
+function createNewHistogram_(histogramInfo, done, dbConnection) {
     let Histogram = dbConnection.Histogram;
     let Well = dbConnection.Well;
     Well.findById(parseInt(histogramInfo.idWell)).then(well => {

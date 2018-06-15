@@ -278,7 +278,15 @@ function newDbInstance(dbName, callback) {
         m.PointSet.belongsTo(m.OverlayLine, {foreignKey: {name: 'idOverlayLine', allowNull: true}});
 
 
-        m.Histogram.belongsTo(m.Curve, {foreignKey: 'idCurve'});
+        // m.Histogram.belongsTo(m.Curve, {foreignKey: 'idCurve'});
+        m.Histogram.belongsToMany(m.Curve, {
+            through: 'histogram_curve',
+            foreignKey: 'idHistogram'
+        });
+        m.Curve.belongsToMany(m.Histogram, {
+            through: 'histogram_curve',
+            foreignKey: 'idCurve'
+        });
         m.Histogram.belongsTo(m.ZoneSet, {foreignKey: {name: 'idZoneSet', allowNull: true}});
         m.Histogram.hasMany(m.ReferenceCurve, {
             foreignKey: {name: 'idHistogram', allowNull: true},

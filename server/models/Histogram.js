@@ -11,7 +11,7 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING(50),
             allowNull: false,
             defaultValue: 'BlankHistogram',
-            unique: 'name-idWell'
+            unique: 'name-idProject'
         },
         histogramTitle: {
             type: DataTypes.STRING(50),
