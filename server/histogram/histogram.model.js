@@ -39,7 +39,9 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
     } else {
         dbConnection.Histogram.create(histogramInfo).then(async histogram => {
             await histogram.setCurves(curves);
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", histogram));
+            dbConnection.Histogram.findById(histogram.idHistogram, {include: {all: true}}).then(h => {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", h));
+            });
         }).catch(err => {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
         });
