@@ -21,7 +21,7 @@ router.post('/flow/list', function (req, res) {
     }, req.dbConnection);
 });
 
-router.post('/flow/update', function (req, res) {
+router.post('/flow/edit', function (req, res) {
     flowModel.editFlow(req.body, function (status) {
         res.send(status);
     }, req.dbConnection);
