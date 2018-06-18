@@ -35,7 +35,7 @@ router.post('/task/info', function (req, res) {
 router.delete('/task/delete', function (req, res) {
     taskModel.deleteTask(req.body, function (status) {
         res.send(status);
-    });
+    }, req.dbConnection);
 });
 
 module.exports = router;
