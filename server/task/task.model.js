@@ -43,12 +43,12 @@ let editTask = function (data, callback, dbConnection) {
 
 
 let infoTask = function (data, callback, dbConnection) {
-    dbConnection.Workflow.findById(data.idTask).then(async w => {
+    dbConnection.Task.findById(data.idTask).then(async w => {
         if (w) {
             w = w.toJSON();
             w.taskspec = {};
             if (w.idTaskSpec) {
-                w.taskspec = await dbConnection.WorkflowSpec.findById(w.idTaskSpec);
+                w.taskspec = await dbConnection.TaskSpec.findById(w.idTaskSpec);
                 callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", w));
             } else {
                 callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", w));
