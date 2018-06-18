@@ -91,12 +91,26 @@ function deleteTaskSpec(payload, done, dbConnection) {
     });
 }
 
+function editTaskSpec(payload, done, dbConnection) {
+    dbConnection.TaskSpec.findById(payload.idTaskSpec).then(r => {
+        if (r) {
+            Object.assign(r, payload).save().then(() => {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
+            }).catch(err => {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
+            })
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No taskspec found by id"));
+        }
+    });
+}
+
 module.exports = {
     createTaskSpec: createTaskSpec,
     syncTaskSpec: syncTaskSpec,
     addTaskSpec: addTaskSpec,
     infoTaskSpec: infoTaskSpec,
     listTaskSpec: listTaskSpec,
-    deleteTaskSpec: deleteTaskSpec
-
+    deleteTaskSpec: deleteTaskSpec,
+    editTaskSpec: editTaskSpec
 };

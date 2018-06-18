@@ -103,6 +103,7 @@ function main() {
     let patternRouter = require('./server/pattern/pattern.router');
     let flowRouter = require('./server/flow/flow.router');
     let taskRouter = require('./server/task/task.router');
+    let taskSpecRouter = require('./server/task/task-spec.router');
     let queue = {};
     let http = require('http').Server(app);
     app.use(cors());
@@ -132,6 +133,7 @@ function main() {
     app.use('/', workflowRouter);
     app.use('/', workflowSpecRouter);
     app.use('/', zoneTemplateRouter);
+    app.use('/', taskSpecRouter);
     app.use('/pal', palRouter);
     app.use('/custom-fill', customFillRouter);
     app.use('/project', wellRouter);
