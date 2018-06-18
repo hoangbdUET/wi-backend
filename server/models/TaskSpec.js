@@ -8,7 +8,7 @@ module.exports = function (sequelize, DataTypes) {
         name: {
             type: DataTypes.STRING,
             allowNull: false,
-            unique: true,
+            unique: 'name-group',
         },
         content: {
             type: DataTypes.TEXT,
@@ -29,6 +29,11 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: 0
+        },
+        group: {
+            type: DataTypes.STRING(100),
+            allowNull: true,
+            unique: 'name-group'
         }
     });
 };
