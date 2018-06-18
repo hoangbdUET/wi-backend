@@ -252,6 +252,7 @@ function getHistogram(histogramId, done, dbConnection) {
 }
 
 function editHistogram(histogramInfo, done, dbConnection) {
+    let curves = histogramInfo.curves ? histogramInfo.curves : [];
     delete histogramInfo.createdBy;
     let Histogram = dbConnection.Histogram;
     Histogram.findById(histogramInfo.idHistogram)
@@ -259,7 +260,8 @@ function editHistogram(histogramInfo, done, dbConnection) {
             histogramInfo.discriminator = JSON.stringify(histogramInfo.discriminator);
             Object.assign(histogram, histogramInfo)
                 .save()
-                .then(function (result) {
+                .then(async function (result) {
+                    await result.setCurves(curves);
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit histogram success", result));
                 })
                 .catch(function (err) {
