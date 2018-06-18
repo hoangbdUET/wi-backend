@@ -65,12 +65,11 @@ let infoTask = function (data, callback, dbConnection) {
 let deleteTask = function (data, callback, dbConnection) {
     dbConnection.Task.findById(data.idTask).then(w => {
         if (w) {
-            w.setDataValue('updatedBy', data.updatedBy);
             w.destroy().then(() => {
                 callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", w));
             });
         } else {
-            callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No workflow found by id"));
+            callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No task found by id"));
         }
     }).catch(err => {
         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
