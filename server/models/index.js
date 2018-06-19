@@ -208,7 +208,6 @@ function newDbInstance(dbName, callback) {
             foreignKey: {name: "idWell", allowNull: false},
             onDelete: 'CASCADE'
         });
-
         m.Dataset.hasMany(m.Curve, {
             foreignKey: {
                 name: "idDataset",
@@ -234,6 +233,8 @@ function newDbInstance(dbName, callback) {
         m.Plot.hasMany(m.ZoneTrack, {foreignKey: {name: "idPlot", allowNull: false}, onDelete: 'CASCADE'});
         m.ZoneTrack.belongsTo(m.ZoneSet, {foreignKey: {name: "idZoneSet", allowNull: true}});//TODO allowNull??
         m.ZoneSet.hasMany(m.Zone, {foreignKey: {name: "idZoneSet", allowNull: false}, onDelete: 'CASCADE'});
+        m.Zone.belongsTo(m.ZoneTemplate, {foreignKey: {name: "idZoneTemplate", allowNull: true}, onDelete: 'CASCADE'});
+        m.ZoneTemplate.hasMany(m.Zone, {foreignKey: {name: "idZoneTemplate", allowNull: true}, onDelete: 'CASCADE'});
         m.Plot.belongsTo(m.Curve, {foreignKey: 'referenceCurve'});
 
         m.Track.hasMany(m.Line, {foreignKey: {name: "idTrack", allowNull: false}, onDelete: 'CASCADE'});

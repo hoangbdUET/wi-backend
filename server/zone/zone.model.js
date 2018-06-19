@@ -3,7 +3,7 @@ let ErrorCodes = require('../../error-codes').CODES;
 
 function createNewZone(zoneInfo, done, dbConnection) {
     let Zone = dbConnection.Zone;
-    zoneInfo.fill = JSON.stringify(zoneInfo.fill);
+    // zoneInfo.fill = JSON.stringify(zoneInfo.fill);
     Zone.sync()
         .then(
             function () {

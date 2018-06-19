@@ -23,16 +23,10 @@ function createNewZoneSet(zoneSetInfo, done, dbConnection) {
                         idZoneSet: zs.idZoneSet,
                         startDepth: start,
                         endDepth: start + range,
-                        fill: {
-                            pattern: {
-                                background: zone.background,
-                                foreground: zone.foreground,
-                                name: zone.pattern
-                            }
-                        },
                         name: zone.name,
                         createdBy: zoneSetInfo.createdBy,
-                        updatedBy: zoneSetInfo.updatedBy
+                        updatedBy: zoneSetInfo.updatedBy,
+                        idZoneTemplate: zone.idZoneTemplate
                     }).then(z => {
                         start = start + range;
                         nextZone();
@@ -99,7 +93,14 @@ function deleteZoneSet(zoneSetInfo, done, dbConnection) {
 
 function getZoneSetInfo(zoneSet, done, dbConnection) {
     let ZoneSet = dbConnection.ZoneSet;
-    ZoneSet.findById(zoneSet.idZoneSet, {include: [{all: true}]})
+    ZoneSet.findById(zoneSet.idZoneSet, {
+        include: {
+            model: dbConnection.Zone,
+            include: {
+                model: dbConnection.ZoneTemplate
+            }
+        }
+    })
         .then(function (zoneSet) {
             if (!zoneSet) throw "not exits";
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get info ZoneSet success", zoneSet));
