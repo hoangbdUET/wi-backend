@@ -241,7 +241,7 @@ async function getProjectFullInfo(payload, done, req) {
             function (cb) {
                 dbConnection.ZoneSet.findAll({
                     where: {idWell: well.idWell},
-                    include: {model: dbConnection.Zone}
+                    include: {model: dbConnection.Zone, include: {model: dbConnection.ZoneTemplate}}
                 }).then(zonesets => {
                     cb(null, zonesets);
                 });
