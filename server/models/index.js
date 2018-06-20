@@ -369,7 +369,7 @@ function newDbInstance(dbName, callback) {
             onDelete: 'CASCADE'
         });
         m.Flow.hasMany(m.Task, {
-            foreignKey: {name: 'idFlow', allowNull: false},
+            foreignKey: {name: 'idFlow', allowNull: false, unique: 'name-idFlow'},
             onDelete: 'CASCADE'
         });
         m.TaskSpec.hasMany(m.Task, {
@@ -384,6 +384,12 @@ function newDbInstance(dbName, callback) {
         });
         m.MarkerSet.hasMany(m.Marker, {
             foreignKey: {name: "idMarkerSet", allowNull: false, unique: "name-idMarkerSet"}
+        });
+        m.MarkerTemplate.hasMany(m.Marker, {
+            foreignKey: {name: "idMarkerTemplate", allowNull: true, unique: "name-idMarkerTemplate"}
+        });
+        m.Marker.belongsTo(m.MarkerTemplate, {
+            foreignKey: {name: "idMarkerTemplate", allowNull: true, unique: "name-idMarkerTemplate"}
         });
         m.Track.belongsTo(m.MarkerSet, {foreignKey: {name: "idMarkerSet", allowNull: true}});
     })(object);

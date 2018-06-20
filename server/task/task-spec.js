@@ -41,9 +41,10 @@ let createTaskSpec = function (callback) {
         masterTaskSpec.create({
             idTaskSpec: row[0],
             name: row[1],
-            content: row[2],
-            description: row[3],
-            type: row[4]
+            group: row[2],
+            content: row[3],
+            description: row[4],
+            type: row[5]
         }).then(() => {
             nextRow();
         }).catch(err => {
