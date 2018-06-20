@@ -107,6 +107,7 @@ function newDbInstance(dbName, callback) {
         'Flow',
         'Groups',
         'Histogram',
+        'HistogramCurveSet',
         'Image',
         'ImageOfTrack',
         'ImageTrack',
@@ -283,11 +284,11 @@ function newDbInstance(dbName, callback) {
 
         // m.Histogram.belongsTo(m.Curve, {foreignKey: 'idCurve'});
         m.Histogram.belongsToMany(m.Curve, {
-            through: 'histogram_curve',
+            through: 'histogram_curve_set',
             foreignKey: 'idHistogram'
         });
         m.Curve.belongsToMany(m.Histogram, {
-            through: 'histogram_curve',
+            through: 'histogram_curve_set',
             foreignKey: 'idCurve'
         });
         m.Histogram.belongsTo(m.ZoneSet, {foreignKey: {name: 'idZoneSet', allowNull: true}});

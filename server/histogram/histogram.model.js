@@ -322,10 +322,25 @@ function duplicateHistogram(payload, done, dbConnection) {
     });
 }
 
+function editHistogramCurveSet(payload, done, dbConnection) {
+    dbConnection.HistogramCurveSet.findById(payload.idHistogramCurveSet).then(hcs => {
+        if (hcs) {
+            Object.assign(hcs, payload).save().then(h => {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Done", h));
+            }).catch(err => {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
+            });
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No histogram found"));
+        }
+    });
+}
+
 module.exports = {
     createNewHistogram: createNewHistogram,
     getHistogram: getHistogram,
     editHistogram: editHistogram,
     deleteHistogram: deleteHistogram,
-    duplicateHistogram: duplicateHistogram
+    duplicateHistogram: duplicateHistogram,
+    editHistogramCurveSet: editHistogramCurveSet
 };
