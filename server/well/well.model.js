@@ -89,6 +89,7 @@ function getWellList(payload, done, dbConnection) {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
     });
 }
+
 function editWell(wellInfo, done, dbConnection, username) {
     dbConnection.Well.findById(wellInfo.idWell).then(well => {
         if (well) {
@@ -213,7 +214,7 @@ function getWellInfo(well, done, dbConnection) {
                 function (cb) {
                     dbConnection.ZoneSet.findAll({
                         where: {idWell: well.idWell},
-                        include: {model: dbConnection.Zone}
+                        include: {model: dbConnection.Zone, include: {model: dbConnection.ZoneTemplate}}
                     }).then(zonesets => {
                         cb(null, zonesets);
                     });
@@ -297,6 +298,7 @@ async function exportToProject(info, done, dbConnection, username) {
         console.log(err);
     });
 }
+
 function getWellHeader(idWell, done, dbConnection) {
     dbConnection.WellHeader.findAll({where: {idWell: idWell}}).then(headers => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", headers));
