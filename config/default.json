@@ -17,5 +17,7 @@
     "authenticate": "login.sflow.me"
   },
   "curveBasePath": "../data",
-  "imageBasePath": "wi-images"
+  "imageBasePath": "wi-images",
+  "exportPath": "./server/exports",
+  "exportUrl": "/export/file"
 }

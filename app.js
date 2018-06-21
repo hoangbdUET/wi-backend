@@ -104,6 +104,7 @@ function main() {
     let flowRouter = require('./server/flow/flow.router');
     let taskRouter = require('./server/task/task.router');
     let taskSpecRouter = require('./server/task/task-spec.router');
+    let exportRouter = require('./server/export/export');
     let queue = {};
     let http = require('http').Server(app);
     app.use(cors());
@@ -115,6 +116,7 @@ function main() {
     app.use(express.static(path.join(__dirname, fullConfig.imageBasePath)));
     app.use('/pattern', express.static(path.join(__dirname, '/server/pattern/files')));
     app.use('/', globalFamilyRouter);
+    app.use(fullConfig.exportUrl, express.static(path.join(__dirname, 'server/exports')));  
     app.get('/', function (req, res) {
         res.send("WELCOME TO WI-SYSTEM");
     });
@@ -184,6 +186,7 @@ function main() {
     app.use('/project/cross-plot', axisColorRouter);
     app.use('/project/plot/object-track', objectOfTrackRouter);
     app.use('/project/plot/image-track', imageOfTrackRouter);
+    app.use('/export', exportRouter);
 
     accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});
     app.use(morgan('combined', {stream: accessLogStream}));
