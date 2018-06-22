@@ -30,6 +30,11 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: true
         },
+        showOnTrack: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true
+        },
         // name: {
         //     type: DataTypes.STRING(100),
         //     allowNull: false//TODO: has defaultValue????
@@ -42,7 +47,5 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING(50),
             allowNull: false
         }
-    }, {
-        paranoid: true
     });
 };

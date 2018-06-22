@@ -11,25 +11,10 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: false
         },
-        loga: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: false
-        },
-        showGrid: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: false
-        },
         showCumulative: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: true
-        },
-        flipHorizontal: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: false
         },
         lineStyle: {
             type: DataTypes.STRING(30),
@@ -48,14 +33,6 @@ module.exports = function (sequelize, DataTypes) {
             validate: {
                 isIn: [['Bar', 'Curve']]
             }
-        },
-        plotType: {
-            type: DataTypes.ENUM('Frequency', 'Percent'),
-            defaultValue: 'Frequency',
-            validate: {
-                isIn: [['Frequency', 'Percent']]
-            },
-            allowNull: false
         },
         color: {
             type: DataTypes.STRING(20),

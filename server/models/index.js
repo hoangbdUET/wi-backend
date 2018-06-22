@@ -361,6 +361,8 @@ function newDbInstance(dbName, callback) {
         m.Plot.hasOne(m.Workflow, {
             foreignKey: {name: 'idPlot', allowNull: true}
         });
+        m.Plot.belongsTo(m.ZoneSet, {foreignKey: {name: 'idZoneSet', allowNull: true}});
+        m.ZoneSet.hasMany(m.Plot, {foreignKey: {name: 'idZoneSet', allowNull: true}});
         m.WorkflowSpec.hasMany(m.Workflow, {
             foreignKey: {name: 'idWorkflowSpec', allowNull: true},
             onDelete: 'CASCADE'
@@ -678,15 +680,6 @@ function newDbInstance(dbName, callback) {
 
         } else {
             rename(zoneset, null, 'delete');
-        }
-    });
-
-    Zone.hook('beforeDestroy', function (zone, options) {
-        console.log("Hooks delete zone");
-        if (zone.deletedAt) {
-
-        } else {
-            rename(zone, null, 'delete');
         }
     });
     //End register hook

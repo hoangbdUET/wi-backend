@@ -43,6 +43,29 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: 50
         },
+        loga: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
+        showGrid: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
+        flipHorizontal: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
+        plotType: {
+            type: DataTypes.ENUM('Frequency', 'Percent'),
+            defaultValue: 'Frequency',
+            validate: {
+                isIn: [['Frequency', 'Percent']]
+            },
+            allowNull: false
+        },
         leftScale: {
             type: DataTypes.DOUBLE,
             allowNull: false,
