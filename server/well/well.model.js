@@ -143,7 +143,7 @@ function editWell(wellInfo, done, dbConnection, username) {
                         });
                     })
                     .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Well name existed!", err.name));
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.name));
                     });
             } else {
                 well.topDepth = wellInfo.topDepth;
