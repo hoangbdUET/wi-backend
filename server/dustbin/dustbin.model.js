@@ -95,16 +95,17 @@ function getDustbin(payload, callback, dbConnection) {
                                 where: {idZoneSet: zoneset.idZoneSet},
                                 paranoid: false
                             }).then(zones => {
-                                asyncEach(zones, function (zone, nextZone) {
-                                    if (zone.deletedAt) {
-                                        let _zone = zone.toJSON();
-                                        _zone.name = _zone.name.substring(1);
-                                        Zones.push(_zone);
-                                    }
-                                    nextZone();
-                                }, function () {
-                                    nextZoneset();
-                                });
+                                // asyncEach(zones, function (zone, nextZone) {
+                                //     if (zone.deletedAt) {
+                                //         let _zone = zone.toJSON();
+                                //         _zone.name = _zone.name.substring(1);
+                                //         Zones.push(_zone);
+                                //     }
+                                //     nextZone();
+                                // }, function () {
+                                //     nextZoneset();
+                                // });
+                                nextZoneset();
                             })
                         }, function () {
                             cb();
