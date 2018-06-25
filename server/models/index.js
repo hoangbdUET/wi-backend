@@ -118,6 +118,7 @@ function newDbInstance(dbName, callback) {
         'ObjectOfTrack',
         'ObjectTrack',
         'OverlayLine',
+        'ParameterSet',
         'Plot',
         'PointSet',
         'Polygon',
@@ -355,6 +356,10 @@ function newDbInstance(dbName, callback) {
         //     onDelete: 'CASCADE'
         // });
         m.Project.hasMany(m.Workflow, {
+            foreignKey: {name: 'idProject', allowNull: false, unique: 'name-idProject'},
+            onDelete: 'CASCADE'
+        });
+        m.Project.hasMany(m.ParameterSet, {
             foreignKey: {name: 'idProject', allowNull: false, unique: 'name-idProject'},
             onDelete: 'CASCADE'
         });
