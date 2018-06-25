@@ -104,6 +104,7 @@ function main() {
     let flowRouter = require('./server/flow/flow.router');
     let taskRouter = require('./server/task/task.router');
     let taskSpecRouter = require('./server/task/task-spec.router');
+    let parameterSetRouter = require('./server/parameter-set/parameter-set.router');
     let queue = {};
     let http = require('http').Server(app);
     app.use(cors());
@@ -122,6 +123,7 @@ function main() {
     authenticate = require('./server/authenticate/authenticate');
     app.use('/', testRouter);
     app.use(authenticate());
+    app.use('/', parameterSetRouter);
     app.use('/', patternRouter);
     app.use('/', inventoryRouter);
     app.use('/', uploadRouter);
