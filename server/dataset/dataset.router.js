@@ -10,6 +10,11 @@ router.post('/dataset/info', function (req, res) {
         res.send(status);
     }, req.dbConnection);
 });
+router.post('/dataset/info-by-name', function (req, res) {
+    datasetModel.getDatasetInfoByName(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection);
+})
 router.post('/dataset/new', function (req, res) {
     datasetModel.createNewDataset(req.body, function (status) {
         res.send(status);

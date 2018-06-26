@@ -163,5 +163,15 @@ router.post('/curve/convert-unit', function (req, res) {
     }, req.dbConnection, req.decoded.username)
 });
 
+router.post('/curve/info-by-name', function(req, res) {
+    curveModel.getCurveByName(req.body.name, req.body.idDataset, function(err, curve) {
+        if (err) {
+            res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
+        } else {
+            res.send(ResponseJSON(ErrorCodes.SUCCESS, "SUCCESSFULLY", curve));
+        }
+    }, req.dbConnection);
+});
+
 
 module.exports = router;

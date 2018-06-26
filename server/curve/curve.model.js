@@ -867,6 +867,19 @@ function getCurveParents(payload, done, dbConnection) {
     });
 }
 
+function getCurveByName(name, idDataset, callback, dbConnection) {
+    dbConnection.Curve.findOne({
+        where: {
+            name: name,
+            idDataset: idDataset
+        }
+    }).then(function(curve){
+        callback(null, curve);
+    }).catch(function(err) {
+        callback(err);
+    })
+}
+
 
 module.exports = {
     createNewCurve: createNewCurve,
@@ -885,5 +898,6 @@ module.exports = {
     duplicateCurve: duplicateCurve,
     checkCurveExisted: checkCurveExisted,
     getCurveParents: getCurveParents,
+    getCurveByName: getCurveByName
 };
 
