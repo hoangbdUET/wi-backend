@@ -43,21 +43,6 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: 50
         },
-        leftScale: {
-            type: DataTypes.DOUBLE,
-            allowNull: false,
-            defaultValue: 0
-        },
-        rightScale: {
-            type: DataTypes.DOUBLE,
-            allowNull: false,
-            defaultValue: 0
-        },
-        showGaussian: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: false
-        },
         loga: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
@@ -68,33 +53,10 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: false
         },
-        showCumulative: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: true
-        },
         flipHorizontal: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: false
-        },
-        lineStyle: {
-            type: DataTypes.STRING(30),
-            allowNull: true,
-            defaultValue: 'Custom'
-        },
-        lineColor: {
-            type: DataTypes.STRING(20),
-            allowNull: false,
-            defaultValue: 'Blue'
-        },
-        plot: {
-            type: DataTypes.ENUM('Bar', 'Curve'),
-            allowNull: 'false',
-            defaultValue: 'Bar',
-            validate: {
-                isIn: [['Bar', 'Curve']]
-            }
         },
         plotType: {
             type: DataTypes.ENUM('Frequency', 'Percent'),
@@ -104,14 +66,15 @@ module.exports = function (sequelize, DataTypes) {
             },
             allowNull: false
         },
-        color: {
-            type: DataTypes.STRING(20),
+        leftScale: {
+            type: DataTypes.DOUBLE,
             allowNull: false,
-            defaultValue: 'Blue'
+            defaultValue: 0
         },
-        discriminator: {
-            type: DataTypes.TEXT,
-            allowNull: true
+        rightScale: {
+            type: DataTypes.DOUBLE,
+            allowNull: false,
+            defaultValue: 0
         },
         referenceTopDepth: {
             type: DataTypes.DOUBLE,

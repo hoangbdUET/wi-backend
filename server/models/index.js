@@ -107,6 +107,7 @@ function newDbInstance(dbName, callback) {
         'Flow',
         'Groups',
         'Histogram',
+        'HistogramCurveSet',
         'Image',
         'ImageOfTrack',
         'ImageTrack',
@@ -117,6 +118,7 @@ function newDbInstance(dbName, callback) {
         'ObjectOfTrack',
         'ObjectTrack',
         'OverlayLine',
+        'ParameterSet',
         'Plot',
         'PointSet',
         'Polygon',
@@ -283,11 +285,11 @@ function newDbInstance(dbName, callback) {
 
         // m.Histogram.belongsTo(m.Curve, {foreignKey: 'idCurve'});
         m.Histogram.belongsToMany(m.Curve, {
-            through: 'histogram_curve',
+            through: 'histogram_curve_set',
             foreignKey: 'idHistogram'
         });
         m.Curve.belongsToMany(m.Histogram, {
-            through: 'histogram_curve',
+            through: 'histogram_curve_set',
             foreignKey: 'idCurve'
         });
         m.Histogram.belongsTo(m.ZoneSet, {foreignKey: {name: 'idZoneSet', allowNull: true}});
@@ -357,9 +359,15 @@ function newDbInstance(dbName, callback) {
             foreignKey: {name: 'idProject', allowNull: false, unique: 'name-idProject'},
             onDelete: 'CASCADE'
         });
+        m.Project.hasMany(m.ParameterSet, {
+            foreignKey: {name: 'idProject', allowNull: false, unique: 'name-idProject'},
+            onDelete: 'CASCADE'
+        });
         m.Plot.hasOne(m.Workflow, {
             foreignKey: {name: 'idPlot', allowNull: true}
         });
+        m.Plot.belongsTo(m.ZoneSet, {foreignKey: {name: 'idZoneSet', allowNull: true}});
+        m.ZoneSet.hasMany(m.Plot, {foreignKey: {name: 'idZoneSet', allowNull: true}});
         m.WorkflowSpec.hasMany(m.Workflow, {
             foreignKey: {name: 'idWorkflowSpec', allowNull: true},
             onDelete: 'CASCADE'
@@ -677,15 +685,6 @@ function newDbInstance(dbName, callback) {
 
         } else {
             rename(zoneset, null, 'delete');
-        }
-    });
-
-    Zone.hook('beforeDestroy', function (zone, options) {
-        console.log("Hooks delete zone");
-        if (zone.deletedAt) {
-
-        } else {
-            rename(zone, null, 'delete');
         }
     });
     //End register hook

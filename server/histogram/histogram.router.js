@@ -34,6 +34,11 @@ router.post('/histogram/duplicate', function (req, res) {
     histogramModel.duplicateHistogram(req.body, function (status) {
         res.send(status);
     }, req.dbConnection);
-})
+});
+router.post('/histogram/histogram-curve-set/edit', function (req, res) {
+    histogramModel.editHistogramCurveSet(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection);
+});
 
 module.exports = router;

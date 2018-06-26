@@ -667,9 +667,6 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy) {
                         Curve.findById(idDesCurve).then(curve => {
                             if (curve) {
                                 let response = new Object();
-                                response.lines = new Array();
-                                response.histograms = new Array();
-                                response.pointsets = new Array();
                                 let newPath = hashDir.createPath(config.curveBasePath, req.decoded.username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
                                 fs.copy(filePath, newPath, function (err) {
                                     if (err) {
@@ -677,55 +674,56 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy) {
                                     }
                                     console.log("Copy file success!");
                                     fs.unlink(filePath);
-                                    Line.findAll({where: {idCurve: curve.idCurve}}).then(lines => {
-                                        asyncLoop(lines, function (line, next) {
-                                            if (line) {
-                                                let lineInfo = line.toJSON();
-                                                lineInfo.idCurve = curve.idCurve;
-                                                lineInfo.unit = curve.unit;
-                                                Object.assign(line, lineInfo).save().then(rs => {
-                                                    response.lines.push(line);
-                                                    next();
-                                                }).catch(err => {
-                                                    console.log(err);
-                                                    next();
-                                                });
-                                            } else {
-                                                next();
-                                            }
-                                        }, function () {
-                                            Histogram.findAll({where: {idCurve: parseInt(curve.idCurve)}}).then(histograms => {
-                                                asyncLoop(histograms, function (histogram, next) {
-                                                    if (histogram) {
-                                                        response.histograms.push(histogram.toJSON());
-                                                        next();
-                                                    } else {
-                                                        next();
-                                                    }
-                                                }, function () {
-                                                    let Sequelize = require('sequelize');
-                                                    PointSet.findAll({
-                                                        where: Sequelize.or(
-                                                            {idCurveX: curve.idCurve},
-                                                            {idCurveY: curve.idCurve},
-                                                            {idCurveZ: curve.idCurve}
-                                                        )
-                                                    }).then(crossplots => {
-                                                        asyncLoop(crossplots, function (crossplot, next) {
-                                                            if (crossplot) {
-                                                                response.pointsets.push(crossplot.toJSON());
-                                                                next();
-                                                            } else {
-                                                                next();
-                                                            }
-                                                        }, function () {
-                                                            done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
-                                                        });
-                                                    });
-                                                });
-                                            })
-                                        });
-                                    });
+                                    done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
+                                    // Line.findAll({where: {idCurve: curve.idCurve}}).then(lines => {
+                                    //     asyncLoop(lines, function (line, next) {
+                                    //         if (line) {
+                                    //             let lineInfo = line.toJSON();
+                                    //             lineInfo.idCurve = curve.idCurve;
+                                    //             lineInfo.unit = curve.unit;
+                                    //             Object.assign(line, lineInfo).save().then(rs => {
+                                    //                 response.lines.push(line);
+                                    //                 next();
+                                    //             }).catch(err => {
+                                    //                 console.log(err);
+                                    //                 next();
+                                    //             });
+                                    //         } else {
+                                    //             next();
+                                    //         }
+                                    //     }, function () {
+                                    //         Histogram.findAll({where: {idCurve: parseInt(curve.idCurve)}}).then(histograms => {
+                                    //             asyncLoop(histograms, function (histogram, next) {
+                                    //                 if (histogram) {
+                                    //                     response.histograms.push(histogram.toJSON());
+                                    //                     next();
+                                    //                 } else {
+                                    //                     next();
+                                    //                 }
+                                    //             }, function () {
+                                    //                 let Sequelize = require('sequelize');
+                                    //                 PointSet.findAll({
+                                    //                     where: Sequelize.or(
+                                    //                         {idCurveX: curve.idCurve},
+                                    //                         {idCurveY: curve.idCurve},
+                                    //                         {idCurveZ: curve.idCurve}
+                                    //                     )
+                                    //                 }).then(crossplots => {
+                                    //                     asyncLoop(crossplots, function (crossplot, next) {
+                                    //                         if (crossplot) {
+                                    //                             response.pointsets.push(crossplot.toJSON());
+                                    //                             next();
+                                    //                         } else {
+                                    //                             next();
+                                    //                         }
+                                    //                     }, function () {
+                                    //                         done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
+                                    //                     });
+                                    //                 });
+                                    //             });
+                                    //         })
+                                    //     });
+                                    // });
                                 });
                             } else {
                                 fs.unlink(filePath);

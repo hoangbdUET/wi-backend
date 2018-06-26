@@ -56,7 +56,10 @@ function getDustbin(payload, callback, dbConnection) {
                     });
                 },
                 function (cb) {
-                    dbConnection.Histogram.findAll({where: {idProject: payload.idProject}, paranoid: false}).then(histograms => {
+                    dbConnection.Histogram.findAll({
+                        where: {idProject: payload.idProject},
+                        paranoid: false
+                    }).then(histograms => {
                         asyncEach(histograms, function (histogram, nextHistogram) {
                             if (histogram.deletedAt) {
                                 let _histogram = histogram.toJSON();
@@ -70,7 +73,10 @@ function getDustbin(payload, callback, dbConnection) {
                     });
                 },
                 function (cb) {
-                    dbConnection.CrossPlot.findAll({where: {idProject: payload.idProject}, paranoid: false}).then(crossplots => {
+                    dbConnection.CrossPlot.findAll({
+                        where: {idProject: payload.idProject},
+                        paranoid: false
+                    }).then(crossplots => {
                         asyncEach(crossplots, function (crossplot, nextCrossplot) {
                             if (crossplot.deletedAt) {
                                 let _crossplot = crossplot.toJSON();
@@ -91,21 +97,7 @@ function getDustbin(payload, callback, dbConnection) {
                                 _zoneset.name = _zoneset.name.substring(1);
                                 Zonesets.push(_zoneset);
                             }
-                            dbConnection.Zone.findAll({
-                                where: {idZoneSet: zoneset.idZoneSet},
-                                paranoid: false
-                            }).then(zones => {
-                                asyncEach(zones, function (zone, nextZone) {
-                                    if (zone.deletedAt) {
-                                        let _zone = zone.toJSON();
-                                        _zone.name = _zone.name.substring(1);
-                                        Zones.push(_zone);
-                                    }
-                                    nextZone();
-                                }, function () {
-                                    nextZoneset();
-                                });
-                            })
+                            nextZoneset();
                         }, function () {
                             cb();
                         });
@@ -258,21 +250,6 @@ function deleteObject(payload, callback, dbConnection) {
             });
             break;
         }
-        case 'zone' : {
-            Zone.findById(payload.idObject, {paranoid: false}).then(rs => {
-                if (rs) {
-                    rs.setDataValue('updatedBy', payload.updatedBy);
-                    rs.destroy({permanently: true, force: true}).then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
-                    }).catch((err) => {
-                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
-                    })
-                } else {
-                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Plot"));
-                }
-            });
-            break;
-        }
         default: {
             callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "WRONG_TYPE"));
             break;
@@ -290,7 +267,6 @@ function restoreObject(payload, callback, dbConnection, username) {
     let Histogram = dbConnection.Histogram;
     let ZoneSet = dbConnection.ZoneSet;
     let objectType = payload.type;
-    let Zone = dbConnection.Zone;
     switch (objectType) {
         case 'well': {
             Well.findById(payload.idObject, {
@@ -482,23 +458,6 @@ function restoreObject(payload, callback, dbConnection, username) {
             });
             break;
         }
-        case 'zone' : {
-            Zone.findById(payload.idObject, {
-                paranoid: false
-            }).then(rs => {
-                rs.name = rs.name.substring(1);
-                rename(rs, function (err, success) {
-                    if (!err) {
-                        rs.restore().then(() => {
-                            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", success));
-                        });
-                    } else {
-                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
-                    }
-                }, 'restore');
-            });
-            break;
-        }
         default: {
             callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "WRONG_TYPE"));
             break;
@@ -510,4 +469,4 @@ module.exports = {
     getDustbin: getDustbin,
     deleteObject: deleteObject,
     restoreObject: restoreObject
-}
+};

@@ -38,7 +38,6 @@ let syncTaskSpec = function (username, callback) {
 let createTaskSpec = function (callback) {
     let rows = wixlsx.getRows(path.join(__dirname, 'task-spec.xlsx'), 'task-spec').splice(1);
     async.each(rows, function (row, nextRow) {
-        console.log(row);
         masterTaskSpec.create({
             idTaskSpec: row[0],
             name: row[1],
