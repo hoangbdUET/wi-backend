@@ -15,6 +15,11 @@ router.post('/well/info', function (req, res) {
     }, req.dbConnection);
 });
 
+router.post('/well/info-by-name', function (req, res) {
+    wellModel.getWellInfoByName(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection);
+})
 router.post('/well/new', function (req, res) {
     wellModel.createNewWell(req.body, function (status) {
         res.send(status);

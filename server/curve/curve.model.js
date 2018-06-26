@@ -381,6 +381,42 @@ async function deleteCurve(curveInfo, done, dbConnection, username) {
 }
 
 
+function getDataFile(param, successFunc, errorFunc, dbConnection, username) {
+    let Curve = dbConnection.Curve;
+    let Dataset = dbConnection.Dataset;
+    let Well = dbConnection.Well;
+    let Project = dbConnection.Project;
+    Curve.findById(param.idCurve)
+        .then(curve => {
+            if (curve) {
+                Dataset.findById(curve.idDataset).then((dataset) => {
+                    if (!dataset) {
+                        console.log("No dataset");
+                    } else {
+                        Well.findById(dataset.idWell).then(well => {
+                            if (well) {
+                                Project.findById(well.idProject).then(project => {
+                                    console.log("Hash : ", config.curveBasePath, username + project.name + well.name + dataset.name + curve.name + '.txt');
+                                    let path = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt')
+                                    successFunc(fs.createReadStream(path));
+                                })
+                            }
+                        });
+                    }
+                }).catch(err => {
+                    errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Dataset for curve not found"));
+                });
+            } else {
+                // errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found"));
+                errorFunc(ResponseJSON(ErrorCodes.SUCCESS, "Curve not found"));
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found"));
+        });
+}
+
 function getData(param, successFunc, errorFunc, dbConnection, username) {
     let Curve = dbConnection.Curve;
     let Dataset = dbConnection.Dataset;
@@ -840,6 +876,7 @@ module.exports = {
     deleteCurve: deleteCurve,
     getCurveInfo: getCurveInfo,
     getData: getData,
+    getDataFile: getDataFile,
     exportData: exportData,
     copyCurve: copyCurve,
     moveCurve: moveCurve,

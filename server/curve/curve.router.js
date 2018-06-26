@@ -86,6 +86,18 @@ router.post('/curve/getData', function (req, res) {
     }, req.dbConnection, req.decoded.username);
 });
 
+router.post('/curve/getDataFile', function (req, res) {
+    curveModel.getDataFile(req.body, function (resultFile) {
+        if(resultFile) {
+            // res.send(returnFile);
+            res.setHeader('content-type', 'text/javascript');
+            resultFile.pipe(res);
+        }
+    }, function (status) {
+        res.send(status);
+    }, req.dbConnection, req.decoded.username)
+})
+
 function writeToTmpFile(data, callback) {
     let name = Date.now();
     let tmpPath = path.join(__dirname, name + '.txt');
