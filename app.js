@@ -125,7 +125,7 @@ function main() {
     authenticate = require('./server/authenticate/authenticate');
     app.use('/', testRouter);
     app.use(authenticate());
-    app.use('/', parameterSetRouter);
+    app.use('/project', parameterSetRouter);
     app.use('/', patternRouter);
     app.use('/', inventoryRouter);
     app.use('/', uploadRouter);
