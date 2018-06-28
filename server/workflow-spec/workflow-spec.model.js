@@ -5,6 +5,7 @@ let ErrorCodes = require('../../error-codes').CODES;
 let masterWorkflowSpec = require('../models-master').WorkflowSpec;
 let asyncLoop = require('async/each');
 let userModel = require('../models');
+let config = require('config');
 
 let createWorkflowSpec = function (data, callback, dbConnection) {
     dbConnection.WorkflowSpec.create(data).then(w => {
@@ -75,7 +76,7 @@ let listWorkflowSpec = function (data, callback, dbConnection) {
 };
 
 let syncWorkflowSpec = function (username, callback) {
-    let userDbConnection = userModel("wi_" + username, function (err) {
+    let userDbConnection = userModel(config.Database.prefix + username, function (err) {
         if (err) {
             return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "ERROR", err));
         }

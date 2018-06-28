@@ -7,7 +7,8 @@
     "password": "qwertyui",
     "logging": false,
     "storage": "/tmp/wi_backend.sqlite",
-    "dbName": "wi_backend"
+    "dbName": "wi_backend",
+    "prefix": "wi_"
   },
   "Application": {
     "port": 3000

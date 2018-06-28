@@ -15,19 +15,17 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             unique: 'name-template'
         },
-        background: {
-            type: DataTypes.STRING(30),
-            allowNull: false
+        clolor: {
+            type: DataTypes.STRING(100),
+            allowNull: true
         },
-        foreground: {
-            type: DataTypes.STRING(30),
-            allowNull: false,
-            defaultValue: 'white'
+        lineStyle: {
+            type: DataTypes.STRING(50),
+            allowNull: true
         },
-        pattern: {
-            type: DataTypes.STRING(30),
-            allowNull: false,
-            defaultValue: 'none'
+        description: {
+            type: DataTypes.STRING(100),
+            allowNull: true
         }
     });
 };

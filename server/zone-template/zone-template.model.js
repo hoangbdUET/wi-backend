@@ -2,6 +2,7 @@ let Model = require('../models-master/index').ZoneTemplate;
 let async = require('async');
 let wixlsx = require('../utils/xlsx');
 let path = require('path');
+let config = require('config');
 let userModel = require('../models/index');
 let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
@@ -28,7 +29,7 @@ function createZoneTemplateFromXLSX(callback) {
 }
 
 function synZoneTemplate(username, callback) {
-    let userDbConnection = userModel("wi_" + username, function (err) {
+    let userDbConnection = userModel(config.Database.prefix + username, function (err) {
         if (err) {
             return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "ERROR", err));
         }
