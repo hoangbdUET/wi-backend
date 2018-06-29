@@ -20,6 +20,12 @@ router.post('/marker-template/list', function (req, res) {
     }, req.dbConnection);
 });
 
+router.post('/marker-template/list-template', function (req, res) {
+    model.allMarkerTemplate({list_template: true}, function (status) {
+        res.send(status);
+    }, req.dbConnection);
+});
+
 router.post('/marker-template/edit', function (req, res) {
     model.editMarkerTemplate(req.body, function (status) {
         res.send(status);

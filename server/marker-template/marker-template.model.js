@@ -44,11 +44,32 @@ function infoMarkerTemplate(payload, done, dbConnection) {
 
 
 function allMarkerTemplate(payload, done, dbConnection) {
-    dbConnection.MarkerTemplate.findAll().then(r => {
-        done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
-    }).catch(err => {
-        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
-    });
+    if (payload.list_template) {
+        dbConnection.MarkerTemplate.findAll().then(mts => {
+            let response = [];
+            async.each(mts, function (mt, next) {
+                let existed = response.find(r => r.template === mt.template);
+                if (!existed) {
+                    response.push({
+                        template: mt.template
+                    });
+                    next();
+                } else {
+                    next();
+                }
+            }, function () {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Done", response));
+            });
+        }).catch(err => {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
+        });
+    } else {
+        dbConnection.MarkerTemplate.findAll().then(r => {
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
+        }).catch(err => {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
+        });
+    }
 }
 
 module.exports = {

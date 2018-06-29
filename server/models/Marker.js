@@ -11,6 +11,11 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.DOUBLE,
             allowNull: false
         },
+        showOnTrack: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true
+        },
         createdBy: {
             type: DataTypes.STRING(50),
             allowNull: false,
