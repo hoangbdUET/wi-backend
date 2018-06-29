@@ -394,7 +394,7 @@ function newDbInstance(dbName, callback) {
             foreignKey: {name: "idMarkerSet", allowNull: false, unique: "name-idMarkerSet"}
         });
         m.MarkerTemplate.hasMany(m.Marker, {
-            foreignKey: {name: "idMarkerTemplate", allowNull: true, unique: "name-idMarkerTemplate"}
+            foreignKey: {name: "idMarkerTemplate", allowNull: true}
         });
         m.Marker.belongsTo(m.MarkerTemplate, {
             foreignKey: {name: "idMarkerTemplate", allowNull: true, unique: "name-idMarkerTemplate"}

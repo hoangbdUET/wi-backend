@@ -26,6 +26,7 @@ let models = [
     'FamilyCondition',
     'FamilySpec',
     'FamilyUnit',
+    'MarkerTemplate',
     'OpenSharedProject',
     'OverlayLine',
     'TaskSpec',
