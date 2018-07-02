@@ -52,7 +52,7 @@ function deleteTrack(trackInfo, done, dbConnection) {
 function getTrackInfo(track, done, dbConnection) {
     let Track = dbConnection.Track;
     Track.findById(track.idTrack, {
-        include: [{all: true, include: {all: true}}]
+        include: [{all: true, include: {all: true, include: {all: true}}}]
     })
         .then(function (track) {
             if (!track) throw "not exits";
