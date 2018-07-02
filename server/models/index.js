@@ -399,7 +399,8 @@ function newDbInstance(dbName, callback) {
             foreignKey: {name: "idMarkerTemplate", allowNull: true}
         });
         m.Marker.belongsTo(m.MarkerTemplate, {
-            foreignKey: {name: "idMarkerTemplate", allowNull: true}
+            foreignKey: {name: "idMarkerTemplate", allowNull: true},
+            onDelete: 'CASCADE'
         });
     })(object);
 
