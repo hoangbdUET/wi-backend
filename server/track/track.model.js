@@ -52,14 +52,26 @@ function deleteTrack(trackInfo, done, dbConnection) {
 function getTrackInfo(track, done, dbConnection) {
     let Track = dbConnection.Track;
     Track.findById(track.idTrack, {
-        include: [{all: true, include: {all: true, include: {all: true}}}]
+        include: [
+            {model: dbConnection.Line},
+            {model: dbConnection.Shading},
+            {model: dbConnection.Annotation},
+            {
+                model: dbConnection.MarkerSet,
+                include: {model: dbConnection.Marker, include: {model: dbConnection.MarkerTemplate}}
+            },
+            {
+                model: dbConnection.ZoneSet,
+                include: {model: dbConnection.Zone, include: {model: dbConnection.ZoneTemplate}}
+            }
+        ]
     })
         .then(function (track) {
             if (!track) throw "not exits";
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Track success", track));
         })
         .catch(function (err) {
-	    console.log(err);
+            console.log(err);
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Track not found for get info", err));
         })
 }
