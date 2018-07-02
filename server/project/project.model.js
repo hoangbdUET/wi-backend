@@ -255,12 +255,21 @@ async function getProjectFullInfo(payload, done, req) {
                 dbConnection.WellHeader.findAll({where: {idWell: well.idWell}}).then(headers => {
                     cb(null, headers);
                 });
+            },
+            function (cb) {
+                dbConnection.MarkerSet.findAll({
+                    where: {idWell: well.idWell},
+                    include: {model: dbConnection.Marker, include: {model: dbConnection.MarkerTemplate}}
+                }).then(markersets => {
+                    cb(null, markersets);
+                });
             }
         ], function (err, result) {
             wellObj.datasets = result[0];
             wellObj.zonesets = result[1];
             wellObj.combined_boxes = result[2];
             wellObj.wellheaders = result[3];
+            wellObj.markersets = result[4];
             response.wells.push(wellObj);
             nextWell();
         });
