@@ -239,10 +239,10 @@ function getWellInfo(well, done, dbConnection) {
                 }
             ], function (err, result) {
                 wellObj.datasets = result[0];
-                wellObj.zonesets = result[1];
-                wellObj.combinedboxes = result[2];
-                wellObj.wellheaders = result[3];
-                wellObj.markersets = result[4];
+                wellObj.zone_sets = result[1];
+                wellObj.combined_boxes = result[2];
+                wellObj.well_headers = result[3];
+                wellObj.marker_sets = result[4];
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", wellObj));
             });
         })
