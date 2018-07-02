@@ -51,7 +51,12 @@ function deleteTrack(trackInfo, done, dbConnection) {
 
 function getTrackInfo(track, done, dbConnection) {
     let Track = dbConnection.Track;
-    Track.findById(track.idTrack, {include: [{all: true, include: {all: true}}]})
+    Track.findById(track.idTrack, {
+        include: [{
+            all: true,
+            include: [{model: dbConnection.Marker}, {model: dbConnection.Zone}]
+        }]
+    })
         .then(function (track) {
             if (!track) throw "not exits";
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Track success", track));
