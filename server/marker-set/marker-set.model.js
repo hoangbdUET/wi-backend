@@ -79,7 +79,7 @@ function list(payload, done, dbConnection) {
 }
 
 function info(payload, done, dbConnection) {
-    dbConnection.MarkerSet.findById(payload.idMarkerSet).then(r => {
+    dbConnection.MarkerSet.findById(payload.idMarkerSet, {include: {model: dbConnection.Marker}}).then(r => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
