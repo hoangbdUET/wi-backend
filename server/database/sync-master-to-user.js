@@ -146,6 +146,23 @@ let syncZoneTemplate = function (userDbConnection, callback) {
     });
 };
 
+let syncMarkerTemplate = function (userDbConnection, callback) {
+    userDbConnection.MarkerTemplate.destroy({where: {}}).then(() => {
+        modelMaster.MarkerTemplate.findAll().then(rss => {
+            async.each(rss, function (rs, next) {
+                userDbConnection.MarkerTemplate.create(rs.toJSON()).then(() => {
+                    next();
+                }).catch(err => {
+                    console.log(err);
+                    next();
+                })
+            }, function () {
+                callback();
+            });
+        });
+    });
+};
+
 module.exports = function (userDbConnection, callback) {
     syncFamily(userDbConnection, function () {
         console.log("Done family");
@@ -171,6 +188,9 @@ module.exports = function (userDbConnection, callback) {
             });
             syncZoneTemplate(userDbConnection, function () {
                 console.log("Done zone template");
+            });
+            syncMarkerTemplate(userDbConnection, function () {
+                console.log("Done marker template");
             });
             callback();
         });

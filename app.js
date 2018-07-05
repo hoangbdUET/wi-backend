@@ -5,6 +5,7 @@ let overlayLineUpdate = require('./server/overlay-line/overlay-line.update');
 let workflowSpecUpdate = require('./server/workflow-spec/workflow-spec.update');
 let taskSpecUpdate = require('./server/task/task-spec').createTaskSpec;
 let zoneTemplateUpdate = require('./server/zone-template/zone-template.model').createZoneTemplateFromXLSX;
+let markerTemplateUpdate = require('./server/marker-template/marker-template.function').importMarkerTemplate;
 const QUEUE_TIME = 500;
 
 Object.defineProperty(Array.prototype, "forEachDone", {
@@ -36,6 +37,9 @@ setTimeout(function () {
         zoneTemplateUpdate(function () {
 
         });
+        markerTemplateUpdate(function () {
+
+        })
     });
 }, 1000);
 
@@ -104,8 +108,10 @@ function main() {
     let flowRouter = require('./server/flow/flow.router');
     let taskRouter = require('./server/task/task.router');
     let taskSpecRouter = require('./server/task/task-spec.router');
-    let exportRouter = require('./server/export/export');
+    // let exportRouter = require('./server/export/export');
     let parameterSetRouter = require('./server/parameter-set/parameter-set.router');
+    let markerSetRouter = require('./server/marker-set/marker-set.router');
+    let markerTemplateRouter = require('./server/marker-template/marker-template.router');
     let queue = {};
     let http = require('http').Server(app);
     app.use(cors());
@@ -117,7 +123,7 @@ function main() {
     app.use(express.static(path.join(__dirname, fullConfig.imageBasePath)));
     app.use('/pattern', express.static(path.join(__dirname, '/server/pattern/files')));
     app.use('/', globalFamilyRouter);
-    app.use(fullConfig.exportUrl, express.static(path.join(__dirname, 'server/exports')));  
+    app.use(fullConfig.exportUrl, express.static(path.join(__dirname, 'server/exports')));
     app.get('/', function (req, res) {
         res.send("WELCOME TO WI-SYSTEM");
     });
@@ -125,7 +131,7 @@ function main() {
     authenticate = require('./server/authenticate/authenticate');
     app.use('/', testRouter);
     app.use(authenticate());
-    app.use('/', parameterSetRouter);
+    app.use('/project', parameterSetRouter);
     app.use('/', patternRouter);
     app.use('/', inventoryRouter);
     app.use('/', uploadRouter);
@@ -149,6 +155,8 @@ function main() {
     app.use('/project', crossPlotRouter);
     app.use('/project/well', referenceCurveRouter);
     app.use('/project/well', combinedBoxRouter);
+    app.use('/project/well', markerSetRouter);
+    app.use('/', markerTemplateRouter);
     app.use('/project', flowRouter);
     app.use('/project/flow', taskRouter);
     //middleware for all curve router to block spam request
@@ -172,7 +180,7 @@ function main() {
     app.use('/project/plot', trackRouter);
     app.use('/project/plot', zoneTrackRouter);
     app.use('/project/plot', objectTrackRouter);
-    app.use('/project/plot/track', markerRouter);
+    app.use('/project/well/marker-set', markerRouter);
     app.use('/project/plot/track', shadingRouter);
     app.use('/project/plot/track', lineRouter);
     app.use('/project/plot/track', imageRouter);
@@ -188,7 +196,7 @@ function main() {
     app.use('/project/cross-plot', axisColorRouter);
     app.use('/project/plot/object-track', objectOfTrackRouter);
     app.use('/project/plot/image-track', imageOfTrackRouter);
-    app.use('/export', exportRouter);
+    // app.use('/export', exportRouter);
 
     accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});
     app.use(morgan('combined', {stream: accessLogStream}));

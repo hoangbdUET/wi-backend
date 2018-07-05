@@ -109,8 +109,8 @@ function editCurve(curveInfo, done, dbConnection, username) {
                             Line.findAll({where: {idCurve: rs.idCurve}}).then(lines => {
                                 if (lines.length > 0) {
                                     asyncLoop(lines, function (line, next) {
-                                        line.minValue = family.minScale;
-                                        line.maxValue = family.maxScale;
+                                        line.minValue = family ? family.minScale : line.minValue;
+                                        line.maxValue = family ? family.maxScale : line.maxValue;
                                         line.unit = rs.unit;
                                         Object.assign(line, line).save();
                                         next();
@@ -571,7 +571,7 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
                                     let arrY = [];
                                     lineReader.on('line', function (line) {
                                         let arrXY = line.split(/\s+/g).slice(1, 2);
-                                        if (arrXY[0] !== 'null' && arrXY[0] !== 'NaN' ) {
+                                        if (arrXY[0] !== 'null' && arrXY[0] !== 'NaN') {
                                             arrY.push(arrXY[0]);
                                         }
                                     });
@@ -873,9 +873,9 @@ function getCurveByName(name, idDataset, callback, dbConnection) {
             name: name,
             idDataset: idDataset
         }
-    }).then(function(curve){
+    }).then(function (curve) {
         callback(null, curve);
-    }).catch(function(err) {
+    }).catch(function (err) {
         callback(err);
     })
 }

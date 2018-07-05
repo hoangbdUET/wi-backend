@@ -5,9 +5,10 @@ let path = require('path');
 let userModel = require('../models');
 let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
+let config = require('config');
 
 let syncTaskSpec = function (username, callback) {
-    let userDbConnection = userModel("wi_" + username, function (err) {
+    let userDbConnection = userModel(config.Database.prefix + username, function (err) {
         if (err) {
             return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "ERROR", err));
         }

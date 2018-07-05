@@ -1,4 +1,5 @@
 let jwt = require('jsonwebtoken');
+let config = require('config');
 let models = require('../models');
 let ErrorCodes = require('../../error-codes').CODES;
 let ResponseJSON = require('../response');
@@ -22,7 +23,7 @@ module.exports = function () {
                             if (opening[decoded.username]) {
                                 console.log(decoded.realUser + " --- Working with shared session from : ", opening[decoded.username].owner);
                                 decoded.username = opening[decoded.username].owner;
-                                req.dbConnection = models('wi_' + decoded.username.toLowerCase());
+                                req.dbConnection = models(config.Database.prefix + decoded.username.toLowerCase());
                                 req.dbConnection.sequelize.authenticate().then(() => {
                                     req.decoded = decoded;
                                     req.token = token;
@@ -36,7 +37,7 @@ module.exports = function () {
                                 });
                             } else {
                                 console.log(decoded.username + " --- Working with master session");
-                                req.dbConnection = models('wi_' + decoded.username.toLowerCase(), (err) => {
+                                req.dbConnection = models(config.Database.prefix + decoded.username.toLowerCase(), (err) => {
                                     console.log(err);
                                     if (err) return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Some err", "Some err"));
                                 });

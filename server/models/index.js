@@ -366,8 +366,10 @@ function newDbInstance(dbName, callback) {
         m.Plot.hasOne(m.Workflow, {
             foreignKey: {name: 'idPlot', allowNull: true}
         });
-        m.Plot.belongsTo(m.ZoneSet, {foreignKey: {name: 'idZoneSet', allowNull: true}});
-        m.ZoneSet.hasMany(m.Plot, {foreignKey: {name: 'idZoneSet', allowNull: true}});
+        m.Track.belongsTo(m.ZoneSet, {foreignKey: {name: 'idZoneSet', allowNull: true}});
+        m.ZoneSet.hasMany(m.Track, {foreignKey: {name: 'idZoneSet', allowNull: true}});
+        m.Track.belongsTo(m.MarkerSet, {foreignKey: {name: 'idMarkerSet', allowNull: true}});
+        m.MarkerSet.hasMany(m.Track, {foreignKey: {name: 'idMarkerSet', allowNull: true}});
         m.WorkflowSpec.hasMany(m.Workflow, {
             foreignKey: {name: 'idWorkflowSpec', allowNull: true},
             onDelete: 'CASCADE'
@@ -391,15 +393,15 @@ function newDbInstance(dbName, callback) {
             foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"}
         });
         m.MarkerSet.hasMany(m.Marker, {
-            foreignKey: {name: "idMarkerSet", allowNull: false, unique: "name-idMarkerSet"}
+            foreignKey: {name: "idMarkerSet", allowNull: false}
         });
         m.MarkerTemplate.hasMany(m.Marker, {
-            foreignKey: {name: "idMarkerTemplate", allowNull: true, unique: "name-idMarkerTemplate"}
+            foreignKey: {name: "idMarkerTemplate", allowNull: true}
         });
         m.Marker.belongsTo(m.MarkerTemplate, {
-            foreignKey: {name: "idMarkerTemplate", allowNull: true, unique: "name-idMarkerTemplate"}
+            foreignKey: {name: "idMarkerTemplate", allowNull: true},
+            onDelete: 'CASCADE'
         });
-        m.Track.belongsTo(m.MarkerSet, {foreignKey: {name: "idMarkerSet", allowNull: true}});
     })(object);
 
     object.sequelize = sequelize;
