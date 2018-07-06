@@ -108,7 +108,7 @@ function main() {
     let flowRouter = require('./server/flow/flow.router');
     let taskRouter = require('./server/task/task.router');
     let taskSpecRouter = require('./server/task/task-spec.router');
-    // let exportRouter = require('./server/export/export');
+    let exportRouter = require('./server/export/export');
     let parameterSetRouter = require('./server/parameter-set/parameter-set.router');
     let markerSetRouter = require('./server/marker-set/marker-set.router');
     let markerTemplateRouter = require('./server/marker-template/marker-template.router');
