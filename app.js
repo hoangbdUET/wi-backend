@@ -196,7 +196,7 @@ function main() {
     app.use('/project/cross-plot', axisColorRouter);
     app.use('/project/plot/object-track', objectOfTrackRouter);
     app.use('/project/plot/image-track', imageOfTrackRouter);
-    // app.use('/export', exportRouter);
+    app.use('/export', exportRouter);
 
     accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});
     app.use(morgan('combined', {stream: accessLogStream}));
