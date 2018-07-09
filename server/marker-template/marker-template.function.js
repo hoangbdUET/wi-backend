@@ -13,7 +13,8 @@ function importMarkerTemplate(callback) {
             name: row[2],
             color: row[3],
             lineStyle: row[4],
-            description: row[5]
+            lineWidth: row[5],
+            description: row[6]
         }).then(() => {
             next();
         }).catch((err) => {

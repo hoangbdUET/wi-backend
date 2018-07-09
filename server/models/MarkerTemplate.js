@@ -23,6 +23,11 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING(50),
             allowNull: true
         },
+        lineWidth: {
+            type: DataTypes.DOUBLE,
+            allowNull: false,
+            defaultValue: 1
+        },
         description: {
             type: DataTypes.STRING(100),
             allowNull: true
