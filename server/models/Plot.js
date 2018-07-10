@@ -29,6 +29,10 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: true,
             defaultValue: false
         },
+        printSetting: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
         createdBy: {
             type: DataTypes.STRING(50),
             allowNull: false,

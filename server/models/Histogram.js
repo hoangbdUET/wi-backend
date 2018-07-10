@@ -116,6 +116,10 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: 'zone'
         },
+        printSetting: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
         createdBy: {
             type: DataTypes.STRING(50),
             allowNull: false,
