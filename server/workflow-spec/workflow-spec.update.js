@@ -308,7 +308,6 @@ let wfs = [
         type: 1,
         description: "[ML] Cross Recurrence Plot",
         content: {
-
             "name": 'CROSS_RECURRENCE_PLOT',
             "model": {
                 "type": 'crp',
@@ -326,6 +325,19 @@ let wfs = [
                 }
             ]
 
+        }
+    },
+    {
+        name: "Slvq",
+        type: 1,
+        description: "[ML] Slvq",
+        content: {
+            "name": "SLVQ",
+            "model": {
+                "type": "slvq",
+                "inputs": [{"class": "curve input"}, {"class": "curve input"}, {"class": "curve output"}]
+            },
+            "steps": [{"name": "Train"}, {"name": "Verify"}, {"name": "Predict"}]
         }
     }
 ];
