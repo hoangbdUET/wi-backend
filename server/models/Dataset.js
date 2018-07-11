@@ -18,6 +18,26 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING(250),
             allowNull: true
         },
+        step: {
+            type: DataTypes.STRING(50),
+            allowNull: false,
+            defaultValue: "0"
+        },
+        top: {
+            type: DataTypes.STRING(50),
+            allowNull: false,
+            defaultValue: "0"
+        },
+        bottom: {
+            type: DataTypes.STRING(50),
+            allowNull: false,
+            defaultValue: "0"
+        },
+        unit: {
+            type: DataTypes.STRING(15),
+            allowNull: false,
+            defaultValue: "M"
+        },
         duplicated: {
             type: DataTypes.INTEGER,
             allowNull: false,

@@ -178,6 +178,10 @@ function importDataset(datasets, token, callback, dbConnection, username, create
     asyncEach(datasets, function (dataset, next) {
         let newDataset = {};
         newDataset.name = dataset.name;
+        newDataset.step = dataset.step;
+        newDataset.top = dataset.top;
+        newDataset.bottom = dataset.bottom;
+        newDataset.unit = dataset.unit;
         newDataset.datasetKey = dataset.name;
         newDataset.datasetLabel = dataset.name;
         newDataset.idWell = dataset.idDesWell;
@@ -185,14 +189,7 @@ function importDataset(datasets, token, callback, dbConnection, username, create
         newDataset.updatedBy = updatedBy;
         dbConnection.Dataset.findOrCreate({
             where: {name: newDataset.name, idWell: newDataset.idWell},
-            defaults: {
-                name: newDataset.name,
-                idWell: newDataset.idWell,
-                datasetKey: newDataset.datasetKey,
-                datasetLabel: newDataset.datasetLabel,
-                createdBy: createdBy,
-                updatedBy: updatedBy
-            }
+            defaults: newDataset
         }).then(rs => {
             let _dataset = rs[0];
             asyncEach(dataset.curves, function (curve, nextCurve) {
