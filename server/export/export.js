@@ -28,19 +28,11 @@ router.post('/las2', function (req, res) {
         }).then(project => {
             if (project && project.createdBy === req.decoded.username) {
                 exporter.exportLas2FromProject(project, idObj.datasets, config.exportPath, config.curveBasePath, req.decoded.username, function (err, result) {
+                    console.log('exportLas2 callback called');
                     if (err) {
                         callback(err, null);
                     } else {
-                        async.each(result, function(rs, next) {  
-                            rs.path = path.join(config.exportUrl, req.decoded.username, rs.fileName);
-                            next();
-                        }, function(err) {
-                            if(err){
-                                callback(err);
-                            } else {
-                                callback(null, result);
-                            }
-                        })
+                        callback(null, result);
                     }
                 })
             } else {
@@ -53,16 +45,17 @@ router.post('/las2', function (req, res) {
             res.send(ResponseJSON(512, err));
         } else {
             let responseArr = [];
-            async.each(results, function(rs, next) {
-                async.each(rs, function(r, _next) {
+            async.each(results, function (rs, next) {
+                async.each(rs, function (r, _next) {
+                    r.path = path.join(config.exportUrl, req.decoded.username, r.fileName);                    
                     responseArr.push(r);
                     _next();
-                }, function(err){
+                }, function (err) {
                     next();
                 })
-            }, function(err){
-                if(err) {
-                    res.send(ResponseJSON(512, err));                    
+            }, function (err) {
+                if (err) {
+                    res.send(ResponseJSON(512, err));
                 } else {
                     res.send(ResponseJSON(200, 'SUCCESSFULLY', responseArr));
                 }
@@ -94,7 +87,7 @@ router.post('/las3', function (req, res) {
                 exporter.exportLas3FromProject(project, idObj.datasets, config.exportPath, config.curveBasePath, req.decoded.username, function (err, result) {
                     if (err) {
                         callback(err, null);
-                    } else if(result) {
+                    } else if (result) {
                         result.path = path.join(config.exportUrl, req.decoded.username, result.fileName);
                         callback(null, result);
                     } else {
@@ -115,4 +108,59 @@ router.post('/las3', function (req, res) {
 
 })
 
+router.post('/csv', function (req, res) {
+    let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
+    async.map(req.body.idObjs, function (idObj, callback) {
+        req.dbConnection.Project.findById(idObj.idProject, {
+            include: [{
+                model: req.dbConnection.Well,
+                include: [{
+                    model: req.dbConnection.WellHeader
+                }, {
+                    model: req.dbConnection.Dataset,
+                    include: {
+                        model: req.dbConnection.Curve
+                    }
+                }],
+                where: {
+                    idWell: idObj.idWell
+                }
+            }],
+        }).then(project => {
+            if (project && project.createdBy === req.decoded.username) {
+                exporter.exportCsvFromProject(project, idObj.datasets, config.exportPath, config.curveBasePath, req.decoded.username, function (err, result) {
+                    if (err) {
+                        callback(err, null);
+                    } else {
+                        callback(null, result);
+                    }
+                })
+            } else {
+                callback(null, null);
+            }
+        })
+    }, function (err, results) {
+        console.log('callback called');
+        if (err) {
+            res.send(ResponseJSON(512, err));
+        } else {
+            let responseArr = [];
+            async.each(results, function (rs, next) {
+                async.each(rs, function (r, _next) {
+                    r.path = path.join(config.exportUrl, req.decoded.username, r.fileName);                    
+                    responseArr.push(r);
+                    _next();
+                }, function (err) {
+                    next();
+                })
+            }, function (err) {
+                if (err) {
+                    res.send(ResponseJSON(512, err));
+                } else {
+                    res.send(ResponseJSON(200, 'SUCCESSFULLY', responseArr));
+                }
+            })
+        }
+    });
+})
 module.exports = router;
