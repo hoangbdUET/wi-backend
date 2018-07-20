@@ -2,9 +2,9 @@ let express = require('express');
 let router = express.Router();
 let async = require('async');
 let path = require('path');
+let fs = require('fs');
 let config = require('config');
 let ResponseJSON = require('../response');
-// let exporter = require('./wi-export-test');
 let exporter = require('wi-export-test');
 
 router.post('/las2', function (req, res) {
@@ -47,7 +47,6 @@ router.post('/las2', function (req, res) {
             let responseArr = [];
             async.each(results, function (rs, next) {
                 async.each(rs, function (r, _next) {
-                    r.path = path.join(config.exportUrl, req.decoded.username, r.fileName);                    
                     responseArr.push(r);
                     _next();
                 }, function (err) {
@@ -88,7 +87,6 @@ router.post('/las3', function (req, res) {
                     if (err) {
                         callback(err, null);
                     } else if (result) {
-                        result.path = path.join(config.exportUrl, req.decoded.username, result.fileName);
                         callback(null, result);
                     } else {
                         callback(null, null)
@@ -147,7 +145,6 @@ router.post('/csv', function (req, res) {
             let responseArr = [];
             async.each(results, function (rs, next) {
                 async.each(rs, function (r, _next) {
-                    r.path = path.join(config.exportUrl, req.decoded.username, r.fileName);                    
                     responseArr.push(r);
                     _next();
                 }, function (err) {
@@ -160,6 +157,17 @@ router.post('/csv', function (req, res) {
                     res.send(ResponseJSON(200, 'SUCCESSFULLY', responseArr));
                 }
             })
+        }
+    });
+})
+
+router.post('/files', function (req, res) {
+    let filePath = path.join(config.exportPath, req.decoded.username, req.body.fileName);
+    fs.exists(filePath, function (exists) {
+        if (exists) {
+            res.sendFile(path.join(__dirname, '../../', filePath));
+        } else {
+            res.send(ResponseJSON(404, "ERROR File does not exist"));
         }
     });
 })

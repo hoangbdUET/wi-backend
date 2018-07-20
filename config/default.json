@@ -19,6 +19,5 @@
   },
   "curveBasePath": "../data",
   "imageBasePath": "wi-images",
-  "exportPath": "./server/exports",
-  "exportUrl": "/export/file"
+  "exportPath": "./server/export/exported-files"
 }
