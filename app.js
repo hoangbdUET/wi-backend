@@ -152,12 +152,12 @@ function main() {
             // Emit an object that contains the original request and the elapsed time in MS
             let duration = Date.now() - start;
             // profiles.emit('route', {req, elapsedMS: duration});
-            console.log(req.decoded.username, req.method, req.originalUrl, `${duration}ms`);
+            console.log(req.decoded.username, req.ip, req.method, req.originalUrl, `${duration}ms`);
             influx.writePoints([
                 {
                     measurement: 'response_times',
                     tags: {username: req.decoded.username},
-                    fields: {duration, path: req.originalUrl},
+                    fields: {duration, path: req.originalUrl, ipaddr: req.ip},
                 }
             ]).catch(err => {
                 next();

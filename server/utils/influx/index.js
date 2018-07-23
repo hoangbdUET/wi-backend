@@ -12,7 +12,8 @@ const influx = new Influx.InfluxDB({
             tags: ['username'],
             fields: {
                 duration: Influx.FieldType.INTEGER,
-                path: Influx.FieldType.STRING
+                path: Influx.FieldType.STRING,
+                ipaddr: Influx.FieldType.STRING
             }
         }
     ]
