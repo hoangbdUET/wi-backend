@@ -52,6 +52,7 @@ function main() {
     let path = require('path');
     let fs = require('fs');
     let os = require('os');
+    let requestIP = require('request-ip');
     const cors = require('cors');
     let fullConfig = require('config');
     let config = fullConfig.Application;
@@ -152,7 +153,7 @@ function main() {
             // Emit an object that contains the original request and the elapsed time in MS
             let duration = Date.now() - start;
             // profiles.emit('route', {req, elapsedMS: duration});
-            console.log(req.decoded.username, req.ip, req.method, req.originalUrl, `${duration}ms`);
+            console.log(req.decoded.username, requestIP.getClientIp(req), req.method, req.originalUrl, `${duration}ms`);
             influx.writePoints([
                 {
                     measurement: 'response_times',
