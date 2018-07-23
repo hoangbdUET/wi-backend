@@ -7,13 +7,11 @@ module.exports = function (sequelize, DataTypes) {
         },
         template: {
             type: DataTypes.STRING(200),
-            allowNull: false,
-            unique: 'name-template'
+            allowNull: false
         },
         name: {
             type: DataTypes.STRING(100),
-            allowNull: false,
-            unique: 'name-template'
+            allowNull: false
         },
         color: {
             type: DataTypes.STRING(100),
