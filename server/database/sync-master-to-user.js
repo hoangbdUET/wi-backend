@@ -89,9 +89,10 @@ let syncOverlayLine = function (userDbConnection, callback) {
                     next();
                 }).catch(err => {
                     console.log(err);
-                    next();
+                    next(err);
                 })
-            }, function () {
+            }, function (err) {
+                if (err) return callback(err);
                 callback();
             });
         });
@@ -105,9 +106,10 @@ let syncTaskSpec = function (userDbConnection, callback) {
                     next();
                 }).catch(err => {
                     console.log(err);
-                    next();
+                    next(err);
                 })
-            }, function () {
+            }, function (err) {
+                if (err) return callback(err);
                 callback();
             });
         });
@@ -121,9 +123,10 @@ let syncWorkflowSpec = function (userDbConnection, callback) {
                     next();
                 }).catch(err => {
                     console.log(err);
-                    next();
+                    next(err);
                 })
-            }, function () {
+            }, function (err) {
+                if (err) return callback(err);
                 callback();
             });
         });
@@ -137,9 +140,10 @@ let syncZoneTemplate = function (userDbConnection, callback) {
                     next();
                 }).catch(err => {
                     console.log(err);
-                    next();
+                    next(err);
                 })
-            }, function () {
+            }, function (err) {
+                if (err) return callback(err);
                 callback();
             });
         });
@@ -154,45 +158,108 @@ let syncMarkerTemplate = function (userDbConnection, callback) {
                     next();
                 }).catch(err => {
                     console.log(err);
-                    next();
+                    next(err);
                 })
-            }, function () {
+            }, function (err) {
+                if (err) return callback(err);
                 callback();
             });
         });
     });
 };
 
-module.exports = function (userDbConnection, callback) {
-    syncFamily(userDbConnection, function () {
-        console.log("Done family");
-        syncUnitGroup(userDbConnection, function () {
-            console.log("Done family unit group");
-            syncFamilySpec(userDbConnection, function () {
-                console.log("Done family spec");
+module.exports = function (userDbConnection, callback, resetObject) {
+    if (resetObject) {
+        switch (resetObject) {
+            case 'zone_template': {
+                syncZoneTemplate(userDbConnection, callback);
+                break;
+            }
+            case 'marker_template': {
+                syncMarkerTemplate(userDbConnection, callback);
+                break;
+            }
+            case 'overlay_line': {
+                syncOverlayLine(userDbConnection, callback);
+                break;
+            }
+            case 'workflow_spec': {
+                syncWorkflowSpec(userDbConnection, callback);
+                break;
+            }
+            case 'task_spec': {
+                syncTaskSpec(userDbConnection, callback);
+                break;
+            }
+            // case 'family': {
+            //     syncFamily(userDbConnection, function () {
+            //         syncUnitGroup(userDbConnection, function () {
+            //             syncFamilySpec(userDbConnection, function () {
+            //                 syncFamilyCondition(userDbConnection, function () {
+            //                     syncFamilyUnit(userDbConnection, callback);
+            //                 })
+            //             })
+            //         })
+            //     });
+            //     break;
+            // }
+            case 'all': {
+                async.series([
+                    function (cb) {
+                        syncZoneTemplate(userDbConnection, cb);
+                    },
+                    function (cb) {
+                        syncMarkerTemplate(userDbConnection, cb)
+                    },
+                    function (cb) {
+                        syncTaskSpec(userDbConnection, cb);
+                    },
+                    function (cb) {
+                        syncWorkflowSpec(userDbConnection, cb);
+                    },
+                    function (cb) {
+                        syncOverlayLine(userDbConnection, cb);
+                    }
+                ], function (results) {
+                    console.log(results);
+                    callback();
+                });
+                break;
+            }
+            default :
+                callback("Wrong type of reset object");
+        }
+    } else {
+        syncFamily(userDbConnection, function () {
+            console.log("Done family");
+            syncUnitGroup(userDbConnection, function () {
+                console.log("Done family unit group");
+                syncFamilySpec(userDbConnection, function () {
+                    console.log("Done family spec");
+                });
+                syncFamilyCondition(userDbConnection, function () {
+                    console.log("Done family condition");
+                });
+                syncOverlayLine(userDbConnection, function () {
+                    console.log("Done overlay line");
+                });
+                syncFamilyUnit(userDbConnection, function () {
+                    console.log("Done family unit");
+                });
+                syncTaskSpec(userDbConnection, function () {
+                    console.log("Done task spec");
+                });
+                syncWorkflowSpec(userDbConnection, function () {
+                    console.log("Done workflow spec");
+                });
+                syncZoneTemplate(userDbConnection, function () {
+                    console.log("Done zone template");
+                });
+                syncMarkerTemplate(userDbConnection, function () {
+                    console.log("Done marker template");
+                });
+                callback();
             });
-            syncFamilyCondition(userDbConnection, function () {
-                console.log("Done family condition");
-            });
-            syncOverlayLine(userDbConnection, function () {
-                console.log("Done overlay line");
-            });
-            syncFamilyUnit(userDbConnection, function () {
-                console.log("Done family unit");
-            });
-            syncTaskSpec(userDbConnection, function () {
-                console.log("Done task spec");
-            });
-            syncWorkflowSpec(userDbConnection, function () {
-                console.log("Done workflow spec");
-            });
-            syncZoneTemplate(userDbConnection, function () {
-                console.log("Done zone template");
-            });
-            syncMarkerTemplate(userDbConnection, function () {
-                console.log("Done marker template");
-            });
-            callback();
         });
-    });
+    }
 };

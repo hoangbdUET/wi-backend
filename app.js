@@ -51,9 +51,11 @@ function main() {
     let morgan = require('morgan');
     let path = require('path');
     let fs = require('fs');
+    let os = require('os');
     const cors = require('cors');
     let fullConfig = require('config');
     let config = fullConfig.Application;
+    let influx = require('./server/utils/influx/index');
     require('./server/utils/redis');
     let projectRouter = require('./server/project/project.router');
     let wellRouter = require('./server/well/well.router');
@@ -112,6 +114,7 @@ function main() {
     let parameterSetRouter = require('./server/parameter-set/parameter-set.router');
     let markerSetRouter = require('./server/marker-set/marker-set.router');
     let markerTemplateRouter = require('./server/marker-template/marker-template.router');
+    let resetDefaulParameters = require('./server/reset-parameter/reset-pamameter.router');
     let queue = {};
     let http = require('http').Server(app);
     app.use(cors());
@@ -119,6 +122,18 @@ function main() {
     /**
      Attach all routers to app
      */
+
+    // const {EventEmitter} = require('events');
+
+    // Aggregate all profiler results into an event emitter to make
+    // handling the results generic
+    // const profiles = new EventEmitter();
+    //
+    // profiles.on('route', ({req, elapsedMS}) => {
+    //     console.log(req.decoded.username, req.method, req.url, `${elapsedMS}ms`);
+    // });
+
+    // Make sure you register this **before** other middleware
 
     app.use(express.static(path.join(__dirname, fullConfig.imageBasePath)));
     app.use('/pattern', express.static(path.join(__dirname, '/server/pattern/files')));
@@ -128,8 +143,29 @@ function main() {
     });
     app.use('/', databaseRouter);
     authenticate = require('./server/authenticate/authenticate');
-    app.use('/', testRouter);
+    // app.use('/', testRouter);
     app.use(authenticate());
+    app.use(function (req, res, next) {
+        const start = Date.now();
+        // The 'finish' event will emit once the response is done sending
+        res.once('finish', () => {
+            // Emit an object that contains the original request and the elapsed time in MS
+            let duration = Date.now() - start;
+            // profiles.emit('route', {req, elapsedMS: duration});
+            console.log(req.decoded.username, req.method, req.url, `${duration}ms`);
+            influx.writePoints([
+                {
+                    measurement: 'response_times',
+                    tags: {username: req.decoded.username},
+                    fields: {duration, path: req.path},
+                }
+            ]).catch(err => {
+                next();
+                console.error(`Error saving data to InfluxDB! ${err.stack}`)
+            })
+        });
+        next();
+    });
     app.use('/project', parameterSetRouter);
     app.use('/', patternRouter);
     app.use('/', inventoryRouter);
@@ -143,6 +179,7 @@ function main() {
     app.use('/', workflowSpecRouter);
     app.use('/', zoneTemplateRouter);
     app.use('/', taskSpecRouter);
+    app.use('/reset-parameter', resetDefaulParameters);
     app.use('/pal', palRouter);
     app.use('/custom-fill', customFillRouter);
     app.use('/project', wellRouter);

@@ -13,6 +13,13 @@
   "Application": {
     "port": 3000
   },
+  "influx": {
+    "host": "localhost",
+    "port": 8086,
+    "username": "root",
+    "password": "root",
+    "database": "wi_backend"
+  },
   "Service": {
     "inventory": "13.250.197.210",
     "authenticate": "login.sflow.me"
