@@ -11,8 +11,7 @@ module.exports = function (sequelize, DataTypes) {
         },
         name: {
             type: DataTypes.STRING(100),
-            allowNull: false,
-            unique: 'name-template'
+            allowNull: false
         },
         background: {
             type: DataTypes.STRING(30),
