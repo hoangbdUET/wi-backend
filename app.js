@@ -157,7 +157,7 @@ function main() {
                 {
                     measurement: 'response_times',
                     tags: {username: req.decoded.username},
-                    fields: {duration, path: req.originalUrl, ipaddr: req.ip},
+                    fields: {duration, path: req.originalUrl, ipaddr: req.ip, pid: process.pid},
                 }
             ]).catch(err => {
                 next();
