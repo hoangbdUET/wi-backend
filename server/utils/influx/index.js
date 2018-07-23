@@ -14,7 +14,7 @@ const influx = new Influx.InfluxDB({
                 duration: Influx.FieldType.INTEGER,
                 path: Influx.FieldType.STRING,
                 ipaddr: Influx.FieldType.STRING,
-                pid: Influx.FieldType.pid
+                pid: Influx.FieldType.STRING
             }
         }
     ]
