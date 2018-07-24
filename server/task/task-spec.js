@@ -45,7 +45,7 @@ let createTaskSpec = function (callback) {
             group: row[2],
             content: row[3],
             description: row[4],
-            type: row[5]
+            type: row[5] === '' ? 0 : row[5]
         }).then(() => {
             nextRow();
         }).catch(err => {
