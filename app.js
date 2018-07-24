@@ -22,6 +22,8 @@ Object.defineProperty(Array.prototype, "forEachDone", {
     }
 });
 setTimeout(function () {
+    const fs = require('fs');
+    fs.appendFileSync('./pids.pid', process.pid + '\n');
     main();
     let familySystemSync = require('./server/family/FamilySystemSync');
     familySystemSync(function () {
