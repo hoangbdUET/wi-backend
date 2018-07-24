@@ -158,8 +158,8 @@ function main() {
             influx.writePoints([
                 {
                     measurement: 'response_times',
-                    tags: {username: req.decoded.username},
-                    fields: {duration, path: req.originalUrl, ipaddr: req.ip, pid: process.pid},
+                    tags: {username: req.decoded.username, path: req.originalUrl,},
+                    fields: {duration, ipaddr: req.ip, pid: process.pid},
                 }
             ]).catch(err => {
                 next();

@@ -9,10 +9,9 @@ const influx = new Influx.InfluxDB({
     schema: [
         {
             measurement: 'response_times',
-            tags: ['username'],
+            tags: ['username', 'path'],
             fields: {
                 duration: Influx.FieldType.INTEGER,
-                path: Influx.FieldType.STRING,
                 ipaddr: Influx.FieldType.STRING,
                 pid: Influx.FieldType.STRING
             }
