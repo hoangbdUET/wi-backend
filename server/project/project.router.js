@@ -44,11 +44,11 @@ router.delete('/project/delete', function (req, res) {
         res.send(status);
     }, req.dbConnection)
 });
-router.post('/project/share', function (req, res) {
-    shareProject(req.body, function (status) {
-        res.send(status);
-    }, req.dbConnection, req.decoded.username)
-});
+// router.post('/project/share', function (req, res) {
+//     shareProject(req.body, function (status) {
+//         res.send(status);
+//     }, req.dbConnection, req.decoded.username)
+// });
 router.post('/project/close', function (req, res) {
     projectModel.closeProject(req.body, function (status) {
         res.send(status);
