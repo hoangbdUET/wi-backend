@@ -402,6 +402,12 @@ function newDbInstance(dbName, callback) {
             foreignKey: {name: "idMarkerTemplate", allowNull: true},
             onDelete: 'CASCADE'
         });
+        m.DepthAxis.belongsTo(m.Curve, {
+            foreignKey: {name: "idCurve", allowNull: true},
+        });
+        m.Curve.hasMany(m.DepthAxis, {
+            foreignKey: {name: "idCurve", allowNull: true}
+        });
     })(object);
 
     object.sequelize = sequelize;
