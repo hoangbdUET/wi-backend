@@ -87,7 +87,7 @@ let syncFamilyUnit = function (callback) {
         modelMaster.FamilyUnit.create({
             idUnit: unit[0],
             name: unit[1],
-            rate: unit[2],
+            rate: unit[4],
             idUnitGroup: unit[3]
         }).then(() => {
             nextG();

@@ -11,7 +11,7 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false
         },
         rate: {
-            type: DataTypes.FLOAT,
+            type: DataTypes.STRING(100),
             allowNull: false
         }
     });

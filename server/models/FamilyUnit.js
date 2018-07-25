@@ -1,3 +1,13 @@
+function convertEquation(input) {
+    if (input[0] === 1) {
+        return "K" + input[1];
+    } else if (input[0] === 2) {
+        return "PA" + input[1];
+    } else {
+        return input[1];
+    }
+}
+
 module.exports = function (sequelize, DataTypes) {
     return sequelize.define('family_unit', {
         idUnit: {
@@ -11,8 +21,16 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false
         },
         rate: {
-            type: DataTypes.FLOAT,
-            allowNull: false
+            type: DataTypes.STRING(100),
+            allowNull: false,
+            get() {
+                const value = this.getDataValue('rate');
+                try {
+                    return convertEquation(JSON.parse(value));
+                } catch (e) {
+                    console.log("ERR", value);
+                }
+            }
         }
     });
 };
