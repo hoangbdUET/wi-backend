@@ -9,7 +9,8 @@ let createNewParameterSet = function (data, done, dbConnection) {
     })
 };
 let listParameterSet = function (data, done, dbConnection) {
-    dbConnection.ParameterSet.findAll({where: {idProject: data.idProject}}).then(ps => {
+	let conditions = data.idTaskSpec ? {idProject: data.idProject, idTaskSpec: data.idTaskSpec} : {idProject: data.idProject};
+    dbConnection.ParameterSet.findAll({where: conditions}).then(ps => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", ps));
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.SUCCESS, err.message, []));
