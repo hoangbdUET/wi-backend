@@ -386,6 +386,14 @@ function newDbInstance(dbName, callback) {
             foreignKey: {name: 'idTaskSpec', allowNull: true},
             onDelete: 'CASCADE'
         });
+        m.TaskSpec.hasMany(m.ParameterSet, {
+            foreignKey: {name: 'idTaskSpec', allowNull: true},
+            onDelete: 'CASCADE'
+        });
+        m.ParameterSet.belongsTo(m.TaskSpec, {
+            foreignKey: {name: 'idTaskSpec', allowNull: true},
+            onDelete: 'CASCADE'
+        });
 
 
         //marker set
