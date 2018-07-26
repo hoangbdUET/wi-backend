@@ -46,7 +46,7 @@ router.post('/project/edit', function (req, res) {
         res.send(status);
     }, req.dbConnection)
 });
-router.delete('/project/delete', function (req, res) {
+router.post('/project/delete', function (req, res) {
     projectModel.deleteProject(req.body, function (status) {
         res.send(status);
     }, req.dbConnection)

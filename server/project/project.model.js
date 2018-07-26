@@ -147,21 +147,14 @@ async function getProjectList(owner, done, dbConnection, username, realUser, tok
 }
 
 function deleteProject(projectInfo, done, dbConnection) {
-    let Project = dbConnection.Project;
-    Project.findById(projectInfo.idProject)
-        .then(function (project) {
-            project.destroy()
-                .then(function () {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Deleted", project));
-                })
-                .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.message, err.message));
-                })
-
-        })
-        .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Project not found for delete"));
-        });
+    const sequelize = require('sequelize');
+    let dbName = config.Database.prefix + projectInfo.createdBy;
+    let query = "DELETE FROM " + dbName + ".project WHERE idProject = " + projectInfo.idProject;
+    dbConnection.query(query, {type: sequelize.QueryTypes.UPDATE}).then(rs => {
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
+    }).catch(err => {
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
+    });
 }
 
 function updatePermission(req, done) {
