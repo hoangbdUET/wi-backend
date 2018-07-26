@@ -106,7 +106,7 @@ router.post('/las3', function (req, res) {
 
 })
 
-router.post('/csv', function (req, res) {
+router.post('/csv/rv', function (req, res) {
     let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
     async.map(req.body.idObjs, function (idObj, callback) {
         req.dbConnection.Project.findById(idObj.idProject, {
@@ -126,7 +126,7 @@ router.post('/csv', function (req, res) {
             }],
         }).then(project => {
             if (project && project.createdBy === req.decoded.username) {
-                exporter.exportCsvFromProject(project, idObj.datasets, config.exportPath, config.curveBasePath, req.decoded.username, function (err, result) {
+                exporter.exportCsvRVFromProject(project, idObj.datasets, config.exportPath, config.curveBasePath, req.decoded.username, function (err, result) {
                     if (err) {
                         callback(err, null);
                     } else {
@@ -159,6 +159,48 @@ router.post('/csv', function (req, res) {
             })
         }
     });
+})
+router.post('/csv/wdrv', function (req, res) {
+    let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
+    async.map(req.body.idObjs, function (idObj, callback) {
+        req.dbConnection.Project.findById(idObj.idProject, {
+            include: [{
+                model: req.dbConnection.Well,
+                include: [{
+                    model: req.dbConnection.WellHeader
+                }, {
+                    model: req.dbConnection.Dataset,
+                    include: {
+                        model: req.dbConnection.Curve
+                    }
+                }],
+                where: {
+                    idWell: idObj.idWell
+                }
+            }],
+        }).then(project => {
+            if (project && project.createdBy === req.decoded.username) {
+                exporter.exportCsvWDRVFromProject(project, idObj.datasets, config.exportPath, config.curveBasePath, req.decoded.username, function (err, result) {
+                    if (err) {
+                        callback(err, null);
+                    } else if (result) {
+                        callback(null, result);
+                    } else {
+                        callback(null, null)
+                    }
+                })
+            } else {
+                callback(null, null);
+            }
+        })
+    }, function (err, result) {
+        if (err) {
+            res.send(ResponseJSON(404, err));
+        } else {
+            res.send(ResponseJSON(200, 'SUCCESSFULLY', result));
+        }
+    });
+
 })
 
 router.post('/files', function (req, res) {
