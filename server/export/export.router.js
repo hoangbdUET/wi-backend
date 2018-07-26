@@ -5,8 +5,7 @@ let path = require('path');
 let fs = require('fs');
 let config = require('config');
 let ResponseJSON = require('../response');
-// let exporter = require('wi-export-test');
-let exporter = require('./wi-export-test');
+let exporter = require('wi-export-test');
 
 router.post('/las2', function (req, res) {
     let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
