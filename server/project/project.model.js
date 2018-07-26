@@ -150,7 +150,7 @@ function deleteProject(projectInfo, done, dbConnection) {
     const sequelize = require('sequelize');
     let dbName = config.Database.prefix + projectInfo.createdBy;
     let query = "DELETE FROM " + dbName + ".project WHERE idProject = " + projectInfo.idProject;
-    dbConnection.query(query, {type: sequelize.QueryTypes.UPDATE}).then(rs => {
+    dbConnection.sequelize.query(query, {type: sequelize.QueryTypes.UPDATE}).then(rs => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
