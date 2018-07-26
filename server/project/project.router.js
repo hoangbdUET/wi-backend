@@ -17,6 +17,13 @@ router.post('/project/list', function (req, res) {
         res.send(status);
     }, req.dbConnection, req.decoded.username, req.decoded.realUser, req.token);
 });
+
+router.post('/project/list-of-all-user', function (req, res) {
+    projectModel.listProjectOffAllUser({}, function (status) {
+        res.send(status);
+    }, req.dbConnection)
+});
+
 router.post('/project/info', function (req, res) {
     projectModel.getProjectInfo(req.body, function (status) {
         res.send(status);

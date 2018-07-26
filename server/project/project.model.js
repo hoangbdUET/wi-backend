@@ -88,7 +88,19 @@ function getSharedProject(token, username) {
     });
 }
 
+async function getDatabases() {
+    const modelMaster = require('../models-master');
+    const sequelize = require('sequelize');
+    let result = [];
+    let dbs = await modelMaster.sequelize.query("SHOW DATABASES LIKE '" + config.Database.prefix + "%'", {type: sequelize.QueryTypes.SELECT});
+    dbs.forEach(db => {
+        result.push(db[Object.keys(db)]);
+    });
+    return result;
+}
+
 async function getProjectList(owner, done, dbConnection, username, realUser, token) {
+    let databasesList = await getDatabases();
     dbConnection = models(config.Database.prefix + realUser);
     let response = [];
     let projectList = await getSharedProject(token, realUser);
@@ -102,19 +114,24 @@ async function getProjectList(owner, done, dbConnection, username, realUser, tok
         }, function () {
             if (projectList.length > 0) {
                 asyncLoop(projectList, function (prj, next) {
-                    let shareDbConnection = models(config.Database.prefix + prj.owner);
-                    shareDbConnection.Project.findOne({where: {name: prj.name}}).then(p => {
-                        if (!p) {
-                            next();
-                        } else {
-                            p = p.toJSON();
-                            p.displayName = p.name + '   || ' + prj.owner + ' || ' + prj.group;
-                            p.shared = true;
-                            p.owner = prj.owner;
-                            response.push(p);
-                            next();
-                        }
-                    });
+                    let dbName = config.Database.prefix + prj.owner;
+                    if (databasesList.indexOf(dbName) !== -1) {
+                        let shareDbConnection = models(dbName);
+                        shareDbConnection.Project.findOne({where: {name: prj.name}}).then(p => {
+                            if (!p) {
+                                next();
+                            } else {
+                                p = p.toJSON();
+                                p.displayName = p.name + '   || ' + prj.owner + ' || ' + prj.group;
+                                p.shared = true;
+                                p.owner = prj.owner;
+                                response.push(p);
+                                next();
+                            }
+                        });
+                    } else {
+                        next();
+                    }
                 }, function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Get List Project success", response));
                 });
@@ -289,6 +306,24 @@ function closeProject(payload, done, dbConnection, username) {
     });
 }
 
+function listProjectOffAllUser(payload, done, dbConnection) {
+    const sequelize = require('sequelize');
+    getDatabases().then(databaseList => {
+        let response = [];
+        asyncLoop(databaseList, (db, next) => {
+            let query = "SELECT * FROM " + db + ".project";
+            dbConnection.sequelize.query(query, {type: sequelize.QueryTypes.SELECT}).then(projects => {
+                projects.forEach(project => {
+                    response.push(project);
+                });
+                next();
+            });
+        }, function () {
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Done", response));
+        });
+    });
+}
+
 module.exports = {
     createNewProject: createNewProject,
     editProject: editProject,
@@ -297,5 +332,6 @@ module.exports = {
     deleteProject: deleteProject,
     getProjectFullInfo: getProjectFullInfo,
     closeProject: closeProject,
-    updatePermission: updatePermission
+    updatePermission: updatePermission,
+    listProjectOffAllUser: listProjectOffAllUser
 };
