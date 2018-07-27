@@ -6,7 +6,7 @@ let config = require('config');
 let fs = require('fs-extra');
 
 function createSelectionTool(payload, done, dbConnection, username) {
-    payload.BIN = payload.data;
+    payload.data = "{}";
     dbConnection.SelectionTool.create(payload).then(rs => {
         let binPath = hashDir.createPath(config.curveBasePath, username + rs.idSelectionTool, rs.idSelectionTool + '.txt');
         rs = rs.toJSON();
@@ -28,7 +28,7 @@ function createSelectionTool(payload, done, dbConnection, username) {
 }
 
 function editSelectionTool(payload, done, dbConnection, username) {
-    payload.BIN = payload.data;
+    payload.data = "{}";
     let Model = dbConnection.SelectionTool;
     Model.findById(payload.idSelectionTool).then(row => {
         if (row) {
