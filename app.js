@@ -192,7 +192,7 @@ function main() {
     app.use('/project', histogramRouter);
     app.use('/project', crossPlotRouter);
     app.use('/project/well', referenceCurveRouter);
-    app.use('/project/well', combinedBoxRouter);
+    app.use('/project', combinedBoxRouter);
     app.use('/project/well', markerSetRouter);
     app.use('/', markerTemplateRouter);
     app.use('/project', flowRouter);
@@ -211,8 +211,8 @@ function main() {
             // console.log("Push to queue");
         });
     });
-    app.use('/project/well/combined-box', selectionToolRouter);
-    app.use('/project/well/combined-box', combinedBoxToolRouter);
+    app.use('/project/combined-box', selectionToolRouter);
+    app.use('/project/combined-box', combinedBoxToolRouter);
     app.use('/project/plot', imageTrackRouter);
     app.use('/project/plot', depthAxisRouter);
     app.use('/project/plot', trackRouter);

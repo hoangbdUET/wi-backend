@@ -202,8 +202,12 @@ function newDbInstance(dbName, callback) {
             foreignKey: {name: "idProject", allowNull: false, unique: "name-idProject"},
             onDelete: 'CASCADE'
         });
-        m.Well.hasMany(m.CombinedBox, {
-            foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
+        m.Project.hasMany(m.CombinedBox, {
+            foreignKey: {name: "idProject", allowNull: false, unique: "name-idProject"},
+            onDelete: 'CASCADE'
+        });
+        m.CombinedBox.belongsTo(m.Project, {
+            foreignKey: {name: "idProject", allowNull: false, unique: "name-idProject"},
             onDelete: 'CASCADE'
         });
         m.Well.hasMany(m.WellHeader, {
