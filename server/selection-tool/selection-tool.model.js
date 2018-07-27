@@ -8,7 +8,8 @@ let fs = require('fs-extra');
 function createSelectionTool(payload, done, dbConnection, username) {
     payload.data = "{}";
     dbConnection.SelectionTool.create(payload).then(rs => {
-        let binPath = hashDir.createPath(config.curveBasePath, username + rs.idSelectionTool, rs.idSelectionTool + '.txt');
+		let binPath = hashDir.createPath(config.curveBasePath, username + rs.idSelectionTool, rs.idSelectionTool + '.txt');
+		console.log(binPath);
         rs = rs.toJSON();
         fs.copy(payload.BIN, binPath, function (err) {
             if (err) {
@@ -73,7 +74,8 @@ function infoSelectionTool(payload, done, dbConnection, username) {
     Model.findById(payload.idSelectionTool).then(rs => {
         if (rs) {
             rs = rs.toJSON();
-            let binPath = hashDir.createPath(config.curveBasePath, username + rs.idSelectionTool, rs.idSelectionTool + '.txt');
+			let binPath = hashDir.createPath(config.curveBasePath, username + rs.idSelectionTool, rs.idSelectionTool + '.txt');
+			console.log("Get selection tool data path ", binPath);
             rs.data = JSON.parse(fs.readFileSync(binPath).toString());
             done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
         } else {

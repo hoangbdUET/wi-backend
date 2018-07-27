@@ -138,8 +138,8 @@ function main() {
     // Make sure you register this **before** other middleware
     app.use(express.static(path.join(__dirname, fullConfig.imageBasePath)));
     app.use('/pattern', express.static(path.join(__dirname, '/server/pattern/files')));
-    const compression = require('compression')
-    app.use(compression({filter: shouldCompress}))
+	//const compression = require('compression')
+	//app.use(compression({filter: shouldCompress}))
 
     // function shouldCompress(req, res) {
     //     if (req.headers['x-no-compression']) {
