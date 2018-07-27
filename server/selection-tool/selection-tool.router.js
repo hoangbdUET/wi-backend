@@ -7,7 +7,7 @@ let path = require('path');
 router.use(bodyParser.json());
 
 function writeToTmpFile(data, callback, type) {
-    console.log(data);
+    // console.log(data);
     let time = Date.now();
     let tmpPath = path.join(__dirname, type + '_' + time + '.txt');
     fs.writeFileSync(tmpPath, JSON.stringify(data));
