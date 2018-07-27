@@ -51,6 +51,12 @@ router.post('/project/delete', function (req, res) {
         res.send(status);
     }, req.dbConnection)
 });
+
+router.delete('/project/delete', function (req, res) {
+    projectModel.deleteProjectOwner(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection)
+});
 // router.post('/project/share', function (req, res) {
 //     shareProject(req.body, function (status) {
 //         res.send(status);

@@ -149,8 +149,8 @@ async function getProjectList(owner, done, dbConnection, username, realUser, tok
 function deleteProject(projectInfo, done, dbConnection) {
     const sequelize = require('sequelize');
     let dbName = config.Database.prefix + projectInfo.owner;
-	let query = "DELETE FROM " + dbName + ".project WHERE idProject = " + projectInfo.idProject;
-	console.log(query);
+    let query = "DELETE FROM " + dbName + ".project WHERE idProject = " + projectInfo.idProject;
+    console.log(query);
     dbConnection.sequelize.query(query, {type: sequelize.QueryTypes.UPDATE}).then(rs => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
     }).catch(err => {
@@ -303,10 +303,10 @@ function listProjectOffAllUser(payload, done, dbConnection) {
         asyncLoop(databaseList, (db, next) => {
             let query = "SELECT * FROM " + db + ".project";
             dbConnection.sequelize.query(query, {type: sequelize.QueryTypes.SELECT}).then(projects => {
-				projects.forEach(project => {
-					if(!response.find(p => p.name === project.name && p.createdBy === project.createdBy)){
-                    	response.push(project);
-					}
+                projects.forEach(project => {
+                    if (!response.find(p => p.name === project.name && p.createdBy === project.createdBy)) {
+                        response.push(project);
+                    }
                 });
                 next();
             });
@@ -314,6 +314,20 @@ function listProjectOffAllUser(payload, done, dbConnection) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Done", response));
         });
     });
+}
+
+function deleteProjectOwner(payload, done, dbConnection) {
+    dbConnection.Project.findById(payload.idProject).then(p => {
+        if (p) {
+            p.destroy().then(() => {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Done", p));
+            }).catch(err => {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Error while delete project", err));
+            });
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No project found by id"));
+        }
+    })
 }
 
 module.exports = {
@@ -325,5 +339,6 @@ module.exports = {
     getProjectFullInfo: getProjectFullInfo,
     closeProject: closeProject,
     updatePermission: updatePermission,
-    listProjectOffAllUser: listProjectOffAllUser
+    listProjectOffAllUser: listProjectOffAllUser,
+    deleteProjectOwner: deleteProjectOwner
 };
