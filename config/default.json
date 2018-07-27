@@ -22,7 +22,7 @@
   },
   "Service": {
     "inventory": "13.250.197.210",
-    "authenticate": "login.sflow.me"
+    "authenticate": "admin.dev.i2g.cloud"
   },
   "curveBasePath": "../data",
   "imageBasePath": "wi-images",
