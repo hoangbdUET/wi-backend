@@ -256,11 +256,11 @@ async function getProjectFullInfo(payload, done, req) {
                     cb(null, zonesets);
                 });
             },
-            function (cb) {
-                dbConnection.CombinedBox.findAll({where: {idWell: well.idWell}}).then(combined_boxes => {
-                    cb(null, combined_boxes);
-                });
-            },
+            // function (cb) {
+            //     dbConnection.CombinedBox.findAll({where: {idWell: well.idWell}}).then(combined_boxes => {
+            //         cb(null, combined_boxes);
+            //     });
+            // },
             function (cb) {
                 dbConnection.WellHeader.findAll({where: {idWell: well.idWell}}).then(headers => {
                     cb(null, headers);
