@@ -12,7 +12,7 @@ module.exports = function (sequelize, DataTypes) {
         },
         content: {
             // type: DataTypes.TEXT,
-            type: DataTypes.TEXT('long'),
+            type: DataTypes.TEXT('medium'),
             allowNull: true,
             set(value) {
                 this.setDataValue('content', typeof(value) === 'object' ? JSON.stringify(value) : value);
