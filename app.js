@@ -136,16 +136,26 @@ function main() {
     // });
 
     // Make sure you register this **before** other middleware
-
     app.use(express.static(path.join(__dirname, fullConfig.imageBasePath)));
     app.use('/pattern', express.static(path.join(__dirname, '/server/pattern/files')));
+    const compression = require('compression')
+    app.use(compression({filter: shouldCompress}))
+
+    function shouldCompress(req, res) {
+        if (req.headers['x-no-compression']) {
+            // don't compress responses with this request header
+            return false
+        }
+        // fallback to standard filter function
+        return compression.filter(req, res)
+    }
+
     app.use('/', globalFamilyRouter);
     app.get('/', function (req, res) {
         res.send("WELCOME TO WI-SYSTEM");
     });
     app.use('/', databaseRouter);
     authenticate = require('./server/authenticate/authenticate');
-    // app.use('/', testRouter);
     app.use(authenticate());
     app.use(function (req, res, next) {
         const start = Date.now();
