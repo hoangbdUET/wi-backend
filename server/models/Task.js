@@ -11,8 +11,8 @@ module.exports = function (sequelize, DataTypes) {
             unique: 'name-idFlow'
         },
         content: {
-            type: DataTypes.TEXT,
-            // type: DataTypes.TEXT('long'),
+            // type: DataTypes.TEXT,
+            type: DataTypes.TEXT('long'),
             allowNull: true,
             set(value) {
                 this.setDataValue('content', typeof(value) === 'object' ? JSON.stringify(value) : value);

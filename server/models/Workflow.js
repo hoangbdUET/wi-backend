@@ -11,7 +11,7 @@ module.exports = function (sequelize, DataTypes) {
             unique: 'name-idProject'
         },
         content: {
-            type: DataTypes.TEXT,
+            type: DataTypes.TEXT('long'),
             allowNull: true,
             set(value) {
                 this.setDataValue('content', typeof(value) === 'object' ? JSON.stringify(value) : value);
