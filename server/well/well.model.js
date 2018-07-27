@@ -220,11 +220,6 @@ function getWellInfo(well, done, dbConnection) {
                     });
                 },
                 function (cb) {
-                    dbConnection.CombinedBox.findAll({where: {idWell: well.idWell}}).then(combined_boxes => {
-                        cb(null, combined_boxes);
-                    });
-                },
-                function (cb) {
                     dbConnection.WellHeader.findAll({where: {idWell: well.idWell}}).then(headers => {
                         cb(null, headers);
                     });
@@ -240,71 +235,11 @@ function getWellInfo(well, done, dbConnection) {
             ], function (err, result) {
                 wellObj.datasets = result[0];
                 wellObj.zone_sets = result[1];
-                wellObj.combined_boxes = result[2];
-                wellObj.well_headers = result[3];
-                wellObj.marker_sets = result[4];
+                wellObj.well_headers = result[2];
+                wellObj.marker_sets = result[3];
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", wellObj));
             });
         })
-        .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Well not found for get info"));
-        });
-}
-
-function getWellInfoByName(well, done, dbConnection) {
-    let Well = dbConnection.Well;
-    Well.find({
-        where: {
-            name: well.name,
-            idProject: well.idProject
-        },
-        include: [{all: true}]
-    }).then(function (well) {
-        let wellObj = well.toJSON();
-        asyncSeries([
-            function (cb) {
-                dbConnection.Dataset.findAll({where: {idWell: well.idWell}}).then(datasets => {
-                    let datasetArr = [];
-                    asyncEach(datasets, function (dataset, nextDataset) {
-                        let datasetObj = dataset.toJSON();
-                        dbConnection.Curve.findAll({
-                            where: {idDataset: dataset.idDataset},
-                        }).then(curves => {
-                            datasetObj.curves = curves;
-                            datasetArr.push(datasetObj);
-                            nextDataset();
-                        });
-                    }, function () {
-                        cb(null, datasetArr);
-                    });
-                });
-            },
-            function (cb) {
-                dbConnection.ZoneSet.findAll({
-                    where: {idWell: well.idWell},
-                    include: {model: dbConnection.Zone}
-                }).then(zonesets => {
-                    cb(null, zonesets);
-                });
-            },
-            function (cb) {
-                dbConnection.CombinedBox.findAll({where: {idWell: well.idWell}}).then(combined_boxes => {
-                    cb(null, combined_boxes);
-                });
-            },
-            function (cb) {
-                dbConnection.WellHeader.findAll({where: {idWell: well.idWell}}).then(headers => {
-                    cb(null, headers);
-                });
-            }
-        ], function (err, result) {
-            wellObj.datasets = result[0];
-            wellObj.zone_sets = result[1];
-            wellObj.combined_boxes = result[2];
-            wellObj.well_headers = result[3];
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", wellObj));
-        });
-    })
         .catch(function () {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Well not found for get info"));
         });
@@ -400,11 +335,6 @@ function getWellInfoByName(well, done, dbConnection) {
                 });
             },
             function (cb) {
-                dbConnection.CombinedBox.findAll({where: {idWell: well.idWell}}).then(combined_boxes => {
-                    cb(null, combined_boxes);
-                });
-            },
-            function (cb) {
                 dbConnection.WellHeader.findAll({where: {idWell: well.idWell}}).then(headers => {
                     cb(null, headers);
                 });
@@ -412,8 +342,7 @@ function getWellInfoByName(well, done, dbConnection) {
         ], function (err, result) {
             wellObj.datasets = result[0];
             wellObj.zone_sets = result[1];
-            wellObj.combined_boxes = result[2];
-            wellObj.well_headers = result[3];
+            wellObj.well_headers = result[2];
             done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", wellObj));
         });
     })
