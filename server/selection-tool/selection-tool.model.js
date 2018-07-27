@@ -28,6 +28,7 @@ function createSelectionTool(payload, done, dbConnection, username) {
 }
 
 function editSelectionTool(payload, done, dbConnection, username) {
+    payload.data = '{}';
     let Model = dbConnection.SelectionTool;
     Model.findById(payload.idSelectionTool).then(row => {
         if (row) {
