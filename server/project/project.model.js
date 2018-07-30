@@ -297,19 +297,24 @@ function closeProject(payload, done, dbConnection, username) {
 }
 
 function listProjectOffAllUser(payload, done, dbConnection) {
+    let dbs = payload.users ? payload.users = payload.users.map(u => config.Database.prefix + u) : [];
     const sequelize = require('sequelize');
     getDatabases().then(databaseList => {
         let response = [];
         asyncLoop(databaseList, (db, next) => {
-            let query = "SELECT * FROM " + db + ".project";
-            dbConnection.sequelize.query(query, {type: sequelize.QueryTypes.SELECT}).then(projects => {
-                projects.forEach(project => {
-                    if (!response.find(p => p.name === project.name && p.createdBy === project.createdBy)) {
-                        response.push(project);
-                    }
+            if (dbs.indexOf(db) !== -1) {
+                let query = "SELECT * FROM " + db + ".project";
+                dbConnection.sequelize.query(query, {type: sequelize.QueryTypes.SELECT}).then(projects => {
+                    projects.forEach(project => {
+                        if (!response.find(p => p.name === project.name && p.createdBy === project.createdBy)) {
+                            response.push(project);
+                        }
+                    });
+                    next();
                 });
+            } else {
                 next();
-            });
+            }
         }, function () {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Done", response));
         });
