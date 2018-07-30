@@ -6,34 +6,38 @@ function createNew(payload, done, dbConnection) {
     if (payload.template) {
         dbConnection.MarkerSet.create(payload).then(markerSet => {
             let Op = require('sequelize').Op;
-            dbConnection.MarkerTemplate.findAll({where: {template: payload.template}}).then(async templates => {
-                let well = await dbConnection.Well.findById(markerSet.idWell, {
-                    include: {
-                        model: dbConnection.WellHeader,
-                        where: {header: {[Op.or]: [{[Op.like]: 'STRT'}, {[Op.like]: 'STOP'}, {[Op.like]: 'STEP'}]}}
-                    }
-                });
-                let stop = parseFloat((well.well_headers.find(s => s.header === 'STOP')).value);
-                let start = parseFloat((well.well_headers.find(s => s.header === 'STRT')).value);
-                let range = (stop - start) / templates.length;
-                async.eachSeries(templates, function (tp, next) {
-                    dbConnection.Marker.create({
-                        depth: start,
-                        idMarkerTemplate: tp.idMarkerTemplate,
-                        idMarkerSet: markerSet.idMarkerSet,
-                        updatedBy: payload.updatedBy,
-                        createdBy: payload.createdBy
-                    }).then(() => {
-                        start = start + range;
-                        next();
-                    }).catch(err => {
-                        console.log(err);
-                        next();
+            if (payload.template) {
+                dbConnection.MarkerTemplate.findAll({where: {template: payload.template}}).then(async templates => {
+                    let well = await dbConnection.Well.findById(markerSet.idWell, {
+                        include: {
+                            model: dbConnection.WellHeader,
+                            where: {header: {[Op.or]: [{[Op.like]: 'STRT'}, {[Op.like]: 'STOP'}, {[Op.like]: 'STEP'}]}}
+                        }
                     });
-                }, function () {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Done", markerSet));
-                })
-            });
+                    let stop = parseFloat((well.well_headers.find(s => s.header === 'STOP')).value);
+                    let start = parseFloat((well.well_headers.find(s => s.header === 'STRT')).value);
+                    let range = (stop - start) / templates.length;
+                    async.eachSeries(templates, function (tp, next) {
+                        dbConnection.Marker.create({
+                            depth: start,
+                            idMarkerTemplate: tp.idMarkerTemplate,
+                            idMarkerSet: markerSet.idMarkerSet,
+                            updatedBy: payload.updatedBy,
+                            createdBy: payload.createdBy
+                        }).then(() => {
+                            start = start + range;
+                            next();
+                        }).catch(err => {
+                            console.log(err);
+                            next();
+                        });
+                    }, function () {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Done", markerSet));
+                    })
+                });
+            } else {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Done", markerSet));
+            }
         }).catch(err => {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
         })
