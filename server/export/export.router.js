@@ -106,7 +106,7 @@ router.post('/las3', function (req, res) {
 
 })
 
-router.post('/csv/rv', function (req, res) {
+router.post('/CSV/rv', function (req, res) {
     let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
     async.map(req.body.idObjs, function (idObj, callback) {
         req.dbConnection.Project.findById(idObj.idProject, {
@@ -160,7 +160,7 @@ router.post('/csv/rv', function (req, res) {
         }
     });
 })
-router.post('/csv/wdrv', function (req, res) {
+router.post('/CSV/wdrv', function (req, res) {
     let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
     async.map(req.body.idObjs, function (idObj, callback) {
         req.dbConnection.Project.findById(idObj.idProject, {
