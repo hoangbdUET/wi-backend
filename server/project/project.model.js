@@ -88,7 +88,19 @@ function getSharedProject(token, username) {
     });
 }
 
+async function getDatabases() {
+    const modelMaster = require('../models-master');
+    const sequelize = require('sequelize');
+    let result = [];
+    let dbs = await modelMaster.sequelize.query("SHOW DATABASES LIKE '" + config.Database.prefix + "%'", {type: sequelize.QueryTypes.SELECT});
+    dbs.forEach(db => {
+        result.push(db[Object.keys(db)]);
+    });
+    return result;
+}
+
 async function getProjectList(owner, done, dbConnection, username, realUser, token) {
+    let databasesList = await getDatabases();
     dbConnection = models(config.Database.prefix + realUser);
     let response = [];
     let projectList = await getSharedProject(token, realUser);
@@ -102,19 +114,24 @@ async function getProjectList(owner, done, dbConnection, username, realUser, tok
         }, function () {
             if (projectList.length > 0) {
                 asyncLoop(projectList, function (prj, next) {
-                    let shareDbConnection = models(config.Database.prefix + prj.owner);
-                    shareDbConnection.Project.findOne({where: {name: prj.name}}).then(p => {
-                        if (!p) {
-                            next();
-                        } else {
-                            p = p.toJSON();
-                            p.displayName = p.name + '   || ' + prj.owner + ' || ' + prj.group;
-                            p.shared = true;
-                            p.owner = prj.owner;
-                            response.push(p);
-                            next();
-                        }
-                    });
+                    let dbName = config.Database.prefix + prj.owner;
+                    if (databasesList.indexOf(dbName) !== -1) {
+                        let shareDbConnection = models(dbName);
+                        shareDbConnection.Project.findOne({where: {name: prj.name}}).then(p => {
+                            if (!p) {
+                                next();
+                            } else {
+                                p = p.toJSON();
+                                p.displayName = p.name + '   || ' + prj.owner + ' || ' + prj.group;
+                                p.shared = true;
+                                p.owner = prj.owner;
+                                response.push(p);
+                                next();
+                            }
+                        });
+                    } else {
+                        next();
+                    }
                 }, function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Get List Project success", response));
                 });
@@ -130,21 +147,15 @@ async function getProjectList(owner, done, dbConnection, username, realUser, tok
 }
 
 function deleteProject(projectInfo, done, dbConnection) {
-    let Project = dbConnection.Project;
-    Project.findById(projectInfo.idProject)
-        .then(function (project) {
-            project.destroy()
-                .then(function () {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Deleted", project));
-                })
-                .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.message, err.message));
-                })
-
-        })
-        .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Project not found for delete"));
-        });
+    const sequelize = require('sequelize');
+    let dbName = config.Database.prefix + projectInfo.owner;
+    let query = "DELETE FROM " + dbName + ".project WHERE idProject = " + projectInfo.idProject;
+    console.log(query);
+    dbConnection.sequelize.query(query, {type: sequelize.QueryTypes.UPDATE}).then(rs => {
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
+    }).catch(err => {
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
+    });
 }
 
 function updatePermission(req, done) {
@@ -180,11 +191,13 @@ async function getProjectFullInfo(payload, done, req) {
     let plots = await dbConnection.Plot.findAll({where: {idProject: project.idProject}});
     let crossplots = await dbConnection.CrossPlot.findAll({where: {idProject: project.idProject}});
     let histograms = await dbConnection.Histogram.findAll({where: {idProject: project.idProject}});
+    let combined_boxes = await dbConnection.CombinedBox.findAll({where: {idProject: project.idProject}});
     response.wells = [];
     response.groups = groups;
     response.plots = plots;
     response.crossplots = crossplots;
     response.histograms = histograms;
+    response.combined_boxes = combined_boxes;
     if (wells.length == 0) {
         return done(ResponseJSON(ErrorCodes.SUCCESS, "Get full info Project success", response));
     }
@@ -247,11 +260,6 @@ async function getProjectFullInfo(payload, done, req) {
                 });
             },
             function (cb) {
-                dbConnection.CombinedBox.findAll({where: {idWell: well.idWell}}).then(combined_boxes => {
-                    cb(null, combined_boxes);
-                });
-            },
-            function (cb) {
                 dbConnection.WellHeader.findAll({where: {idWell: well.idWell}}).then(headers => {
                     cb(null, headers);
                 });
@@ -267,9 +275,8 @@ async function getProjectFullInfo(payload, done, req) {
         ], function (err, result) {
             wellObj.datasets = result[0];
             wellObj.zonesets = result[1];
-            wellObj.combined_boxes = result[2];
-            wellObj.wellheaders = result[3];
-            wellObj.markersets = result[4];
+            wellObj.wellheaders = result[2];
+            wellObj.markersets = result[3];
             response.wells.push(wellObj);
             nextWell();
         });
@@ -289,6 +296,45 @@ function closeProject(payload, done, dbConnection, username) {
     });
 }
 
+function listProjectOffAllUser(payload, done, dbConnection) {
+    let dbs = payload.users ? payload.users = payload.users.map(u => config.Database.prefix + u) : [];
+    const sequelize = require('sequelize');
+    getDatabases().then(databaseList => {
+        let response = [];
+        asyncLoop(databaseList, (db, next) => {
+            if (dbs.indexOf(db) !== -1) {
+                let query = "SELECT * FROM " + db + ".project";
+                dbConnection.sequelize.query(query, {type: sequelize.QueryTypes.SELECT}).then(projects => {
+                    projects.forEach(project => {
+                        if (!response.find(p => p.name === project.name && p.createdBy === project.createdBy)) {
+                            response.push(project);
+                        }
+                    });
+                    next();
+                });
+            } else {
+                next();
+            }
+        }, function () {
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Done", response));
+        });
+    });
+}
+
+function deleteProjectOwner(payload, done, dbConnection) {
+    dbConnection.Project.findById(payload.idProject).then(p => {
+        if (p) {
+            p.destroy().then(() => {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Done", p));
+            }).catch(err => {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Error while delete project", err));
+            });
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No project found by id"));
+        }
+    })
+}
+
 module.exports = {
     createNewProject: createNewProject,
     editProject: editProject,
@@ -297,5 +343,7 @@ module.exports = {
     deleteProject: deleteProject,
     getProjectFullInfo: getProjectFullInfo,
     closeProject: closeProject,
-    updatePermission: updatePermission
+    updatePermission: updatePermission,
+    listProjectOffAllUser: listProjectOffAllUser,
+    deleteProjectOwner: deleteProjectOwner
 };

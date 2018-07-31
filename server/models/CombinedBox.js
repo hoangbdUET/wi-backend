@@ -8,7 +8,7 @@ module.exports = function (sequelize, DataTypes) {
         name: {
             type: DataTypes.STRING(50),
             allowNull: false,
-            unique: "name-idWell"
+            unique: "name-idProject"
         },
         selection: {
             type: DataTypes.TEXT,

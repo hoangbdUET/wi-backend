@@ -202,8 +202,12 @@ function newDbInstance(dbName, callback) {
             foreignKey: {name: "idProject", allowNull: false, unique: "name-idProject"},
             onDelete: 'CASCADE'
         });
-        m.Well.hasMany(m.CombinedBox, {
-            foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
+        m.Project.hasMany(m.CombinedBox, {
+            foreignKey: {name: "idProject", allowNull: false, unique: "name-idProject"},
+            onDelete: 'CASCADE'
+        });
+        m.CombinedBox.belongsTo(m.Project, {
+            foreignKey: {name: "idProject", allowNull: false, unique: "name-idProject"},
             onDelete: 'CASCADE'
         });
         m.Well.hasMany(m.WellHeader, {
@@ -278,7 +282,6 @@ function newDbInstance(dbName, callback) {
         m.PointSet.belongsTo(m.Curve, {foreignKey: {name: 'idCurveX', allowNull: true}});
         m.PointSet.belongsTo(m.Curve, {foreignKey: {name: 'idCurveY', allowNull: true}});
         m.PointSet.belongsTo(m.Curve, {foreignKey: {name: 'idCurveZ', allowNull: true}});
-        m.PointSet.belongsTo(m.Well, {foreignKey: {name: 'idWell', allowNull: false}, onDelete: 'CASCADE'});
         m.PointSet.belongsTo(m.ZoneSet, {foreignKey: {name: 'idZoneSet', allowNull: true}});
         m.PointSet.belongsTo(m.OverlayLine, {foreignKey: {name: 'idOverlayLine', allowNull: true}});
 

@@ -116,8 +116,8 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: 'zone'
         },
-        printSetting: {
-            type: DataTypes.TEXT,
+        configs: {
+            type: DataTypes.TEXT('medium'),
             allowNull: true
         },
         createdBy: {

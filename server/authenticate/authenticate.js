@@ -5,15 +5,16 @@ let ErrorCodes = require('../../error-codes').CODES;
 let ResponseJSON = require('../response');
 let openingProject = require('./opening-project');
 let skipList = [
-    '^/pattern.*\.png$'
+    '^/pattern.*\.png$',
+    '/csv/.*'
 ];
 module.exports = function () {
     return function (req, res, next) {
-        if (new RegExp(skipList[0]).test(req.originalUrl)) {
+        if (new RegExp(skipList.join('|')).test(req.originalUrl)) {
             next();
         } else {
             openingProject.sync().then(function (opening) {
-                let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
+                let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization') || req.query.token;
                 if (token) {
                     jwt.verify(token, 'secretKey', function (err, decoded) {
                         if (err) {
