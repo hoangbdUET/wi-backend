@@ -14,7 +14,7 @@ module.exports = function () {
             next();
         } else {
             openingProject.sync().then(function (opening) {
-                let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
+                let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization') || req.query.token;
                 if (token) {
                     jwt.verify(token, 'secretKey', function (err, decoded) {
                         if (err) {
