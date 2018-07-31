@@ -5,11 +5,12 @@ let ErrorCodes = require('../../error-codes').CODES;
 let ResponseJSON = require('../response');
 let openingProject = require('./opening-project');
 let skipList = [
-    '^/pattern.*\.png$'
+    '^/pattern.*\.png$',
+    '/csv/.*'
 ];
 module.exports = function () {
     return function (req, res, next) {
-        if (new RegExp(skipList[0]).test(req.originalUrl)) {
+        if (new RegExp(skipList.join('|')).test(req.originalUrl)) {
             next();
         } else {
             openingProject.sync().then(function (opening) {
