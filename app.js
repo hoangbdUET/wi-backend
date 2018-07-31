@@ -149,6 +149,17 @@ function main() {
     //     // fallback to standard filter function
     //     return compression.filter(req, res)
     // }
+    let request = require('request');
+    app.use('/csv', (req, res) => {
+        let url = 'http://csv-transformer.dev.i2g.cloud' + req.url;
+        console.log(url);
+        req.pipe(
+            request({
+                url,
+                method: req.method
+            })
+        ).pipe(res);
+    });
 
     app.use('/', globalFamilyRouter);
     app.get('/', function (req, res) {
