@@ -430,7 +430,13 @@ function updateWellHeader(payload, done, dbConnection) {
             where: {
                 idWell: payload.idWell,
                 header: payload.header
-            }, defaults: {header: payload.header, value: payload.value, idWell: payload.idWell}
+            }, defaults: {
+                header: payload.header,
+                value: payload.value,
+                idWell: payload.idWell,
+                unit: payload.unit,
+                description: payload.description
+            }
         }).then(rs => {
             if (rs[1]) {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Successful created new header", rs[0]));
