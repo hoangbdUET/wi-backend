@@ -418,6 +418,8 @@ function updateWellHeader(payload, done, dbConnection) {
     if (payload.idWellHeader) {
         dbConnection.WellHeader.findById(payload.idWellHeader).then((header) => {
             header.value = payload.value;
+            header.unit = payload.unit;
+            header.description = payload.description;
             header.save().then(() => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", header));
             }).catch(err => {
