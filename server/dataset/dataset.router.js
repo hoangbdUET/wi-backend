@@ -38,6 +38,6 @@ router.post('/dataset/duplicate', function (req, res) {
 router.post('/dataset/bulk-update-params', function (req, res) {
     datasetModel.updateDatasetParams(req.body, function (status) {
         res.send(status);
-    });
+    }, req.dbConnection);
 });
 module.exports = router;
