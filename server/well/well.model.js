@@ -444,6 +444,8 @@ function updateWellHeader(payload, done, dbConnection) {
             } else {
                 //found
                 rs[0].value = payload.value;
+                rs[0].unit = payload.unit;
+                rs[0].description = payload.description;
                 rs[0].save().then(() => {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Successful update header", rs[0]));
                 }).catch(err => {
