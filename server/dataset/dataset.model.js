@@ -181,11 +181,57 @@ function getDatasetInfoByName(dataset, done, dbConnection) {
     });
 }
 
+function updateDatasetParams(payload, done, dbConnection) {
+    dbConnection.Dataset.findById(payload.idDataset).then(dataset => {
+        if (dataset) {
+            asyncEach(payload.params, function (param, next) {
+                dbConnection.DatasetParams.findOrCreate({
+                    where: {
+                        idDataset: dataset.idDataset,
+                        mnem: param.mnem
+                    },
+                    defaults: {
+                        idDataset: dataset.idDataset,
+                        mnem: param.mnem,
+                        unit: param.unit,
+                        description: param.description
+                    }
+                }).then(rs => {
+                    if (rs[1]) {
+                        //create
+                        response.push({param: param, result: "CREATED"});
+                        next();
+                    } else {
+                        //found
+                        rs[0].value = param.value;
+                        rs[0].save().then(() => {
+                            response.push({param: param, result: "UPDATED"});
+                            next();
+                        }).catch(err => {
+                            response.push({param: param, result: "ERROR : " + err.message});
+                            next();
+                        });
+                    }
+                }).catch(err => {
+                    console.log(err);
+                    response.push({param: param, result: "Error " + err});
+                    next();
+                })
+            }, function () {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
+            });
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No dataset found by id"));
+        }
+    });
+}
+
 module.exports = {
     createNewDataset: createNewDataset,
     editDataset: editDataset,
     deleteDataset: deleteDataset,
     getDatasetInfo: getDatasetInfo,
     duplicateDataset: duplicateDataset,
-    getDatasetInfoByName: getDatasetInfoByName
+    getDatasetInfoByName: getDatasetInfoByName,
+    updateDatasetParams: updateDatasetParams
 };

@@ -455,7 +455,13 @@ function bulkUpdateWellHeader(headers, idWell, done, dbConnection) {
     asyncEach(headers, function (header, next) {
         dbConnection.WellHeader.findOrCreate({
             where: {idWell: idWell, header: header.header},
-            defaults: {idWell: idWell, header: header.header, value: header.value}
+            defaults: {
+                idWell: idWell,
+                header: header.header,
+                value: header.value,
+                description: header.description,
+                unit: header.unit
+            }
         }).then(rs => {
             if (rs[1]) {
                 //create

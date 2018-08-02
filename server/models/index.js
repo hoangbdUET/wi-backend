@@ -99,6 +99,7 @@ function newDbInstance(dbName, callback) {
         'CrossPlot',
         'Curve',
         'Dataset',
+        'DatasetParams',
         'DepthAxis',
         'Family',
         'FamilyCondition',
@@ -220,6 +221,12 @@ function newDbInstance(dbName, callback) {
                 allowNull: false,
                 unique: "name-idDataset"
             }, onDelete: 'CASCADE', hooks: true
+        });
+        m.Dataset.hasMany(m.DatasetParams, {
+            foreignKey: {
+                name: "idDataset",
+                allowNull: false
+            }, onDelete: 'CASCADE'
         });
         m.Plot.hasMany(m.Track, {foreignKey: {name: "idPlot", allowNull: false}, onDelete: 'CASCADE'});
         m.Plot.hasMany(m.DepthAxis, {
