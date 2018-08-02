@@ -21,7 +21,7 @@ router.post('/project/list', function (req, res) {
 router.post('/project/list-of-all-user', function (req, res) {
     projectModel.listProjectOffAllUser(req.body, function (status) {
         res.send(status);
-    }, req.dbConnection)
+    }, req.dbConnection, req.token)
 });
 
 router.post('/project/info', function (req, res) {

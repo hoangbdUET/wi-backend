@@ -182,6 +182,7 @@ function getDatasetInfoByName(dataset, done, dbConnection) {
 }
 
 function updateDatasetParams(payload, done, dbConnection) {
+    let response = [];
     dbConnection.Dataset.findById(payload.idDataset).then(dataset => {
         if (dataset) {
             asyncEach(payload.params, function (param, next) {

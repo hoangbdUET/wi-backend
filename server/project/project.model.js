@@ -296,7 +296,33 @@ function closeProject(payload, done, dbConnection, username) {
     });
 }
 
-function listProjectOffAllUser(payload, done, dbConnection) {
+function getAllSharedProject(token) {
+    return new Promise(function (resolve, reject) {
+        let options = {
+            method: 'POST',
+            url: 'http://' + config.Service.authenticate + '/shared-project/all',
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            },
+            body: {},
+            json: true
+        };
+        request(options, function (error, response, body) {
+            if (error) {
+                console.log(error);
+                resolve([]);
+            } else {
+                resolve(body.content);
+            }
+        });
+    });
+}
+
+async function listProjectOffAllUser(payload, done, dbConnection, token) {
+    let sharedProjectList = await getAllSharedProject(token);
+    console.log(sharedProjectList);
     let dbs = payload.users ? payload.users = payload.users.map(u => config.Database.prefix + u) : [];
     const sequelize = require('sequelize');
     getDatabases().then(databaseList => {
@@ -307,6 +333,8 @@ function listProjectOffAllUser(payload, done, dbConnection) {
                 dbConnection.sequelize.query(query, {type: sequelize.QueryTypes.SELECT}).then(projects => {
                     projects.forEach(project => {
                         if (!response.find(p => p.name === project.name && p.createdBy === project.createdBy)) {
+                            let shared = sharedProjectList.find(s => s.project_name === project.name && s.user.username === project.createdBy);
+                            if (shared) project.shareKey = shared.shareKey;
                             response.push(project);
                         }
                     });
