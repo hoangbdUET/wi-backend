@@ -174,7 +174,10 @@ function importCurves(curves, token, callback, dbConnection, username) {
 }
 
 function importDataset(datasets, token, callback, dbConnection, username, createdBy, updatedBy) {
-    let response = [];
+    let response = {
+        curves: [],
+        dataset: {}
+    }
     asyncEach(datasets, function (dataset, next) {
         let newDataset = {};
         newDataset.name = dataset.name;
@@ -192,15 +195,16 @@ function importDataset(datasets, token, callback, dbConnection, username, create
             defaults: newDataset
         }).then(rs => {
             let _dataset = rs[0];
+            response.dataset = _dataset;
             asyncEach(dataset.curves, function (curve, nextCurve) {
                 setTimeout(function () {
                     curve.idDesDataset = _dataset.idDataset;
                     curveModels.getCurveDataFromInventory(curve, token, function (err, result) {
                         if (err) {
-                            response.push(err);
+                            response.curves.push(err);
                             nextCurve();
                         } else {
-                            response.push(result);
+                            response.curves.push(result);
                             nextCurve();
                         }
                     }, dbConnection, username, createdBy, updatedBy);
@@ -210,7 +214,7 @@ function importDataset(datasets, token, callback, dbConnection, username, create
             });
         }).catch(err => {
             console.log(err);
-            response.push(err);
+            response.curves.push(err);
             next();
         });
     }, function () {
