@@ -773,7 +773,8 @@ async function getCurveDataFromInventory(curveInfo, token, callback, dbConnectio
             initValue: curve.initValue,
             unit: curve.unit,
             createdBy: createdBy,
-            updatedBy: updatedBy
+            updatedBy: updatedBy,
+            description: curve.description
         }
     }).then(rs => {
         // console.log(rs);

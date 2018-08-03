@@ -480,6 +480,8 @@ function bulkUpdateWellHeader(headers, idWell, done, dbConnection) {
             } else {
                 //found
                 rs[0].value = header.value;
+                rs[0].unit = header.unit;
+                rs[0].description = header.description;
                 rs[0].save().then(() => {
                     response.push({header: header, result: "UPDATED"});
                     next();
