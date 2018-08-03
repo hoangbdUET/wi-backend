@@ -391,7 +391,7 @@ function deleteLine(lineInfo, done, dbConnection) {
                     {idRightLine: line.idLine}
                 )
             }).then(shadings => {
-                line.destroy()
+                line.destroy({force: true})
                     .then(function () {
                         line = line.toJSON();
                         line.shadings = shadings;

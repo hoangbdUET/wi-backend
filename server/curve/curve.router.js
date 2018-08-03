@@ -30,14 +30,12 @@ router.post('/curve/copy', (req, res) => {
 });
 
 router.post('/curve/move', (req, res) => {
-    console.log(req.body);
     curveModel.moveCurve(req.body, (status) => {
         res.send(status);
     }, req.dbConnection, req.decoded.username);
 });
 
 router.delete('/curve/delete', function (req, res) {
-    console.log(req.body);
     curveModel.deleteCurve(req.body, (status) => {
         res.send(status);
     }, req.dbConnection, req.decoded.username);

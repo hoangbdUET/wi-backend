@@ -9,7 +9,7 @@ let fs = require('fs-extra');
 let request = require('request');
 let rename = require('../utils/function').renameObjectForDustbin;
 let curveFunction = require('../utils/curve.function');
-
+let checkPermisson = require('../utils/permission/check-permisison');
 let wiImport = require('wi-import');
 let hashDir = wiImport.hashDir;
 
@@ -69,6 +69,7 @@ function editCurve(curveInfo, done, dbConnection, username) {
                                     curve.name = curveInfo.name;
                                     curve.unit = curveInfo.unit ? curveInfo.unit : curve.unit;
                                     curve.initValue = curveInfo.initValue ? curveInfo.initValue : curve.initValue;
+                                    curve.updatedBy = curveInfo.updatedBy;
                                     curve.save()
                                         .then(() => {
                                             let path = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curveName, curveName + '.txt');
@@ -263,107 +264,41 @@ async function moveCurve(param, done, dbConnection, username) {
     curveParents.username = username;
     let newCurve = {...curveParents};
     newCurve.dataset = desDataset.name;
-    curveUtils.moveCurveData(curveParents, newCurve, function (err, successPath) {
-        if (err) {
-            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
-        } else {
-            curve.destroy({permanently: true, force: true}).then(() => {
-                dbConnection.Curve.findOne({
-                    where: {
-                        name: _curve.name,
-                        idDataset: desDataset.idDataset
-                    }
-                }).then(existed => {
-                    if (!existed) {
-                        dbConnection.Curve.create({
-                            name: _curve.name,
-                            idDataset: desDataset.idDataset,
-                            createdBy: _curve.createdBy,
-                            updatedBy: _curve.updatedBy,
-                            unit: _curve.unit,
-                            initValue: _curve.unit,
-                            idFamily: _curve.idFamily
-                        }).then(() => {
-                            done(ResponseJSON(ErrorCodes.SUCCESS, "Successful"));
-                        });
-                    } else {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful"));
-                    }
-                })
-            });
-        }
-    });
-}
-
-function _moveCurve(param, rs, dbConnection, username) {
-    let Curve = dbConnection.Curve;
-    let Dataset = dbConnection.Dataset;
-    let Well = dbConnection.Well;
-    let Project = dbConnection.Project;
-    Curve.findById(param.idCurve).then(curve => {
-        if (curve) {
-            Dataset.findById(curve.idDataset).then(srcDataset => {
-                if (srcDataset) {
-                    Well.findById(srcDataset.idWell).then(srcWell => {
-                        Project.findById(srcWell.idProject).then(srcProject => {
-                            Dataset.findById(param.desDatasetId).then(desDataset => {
-                                if (desDataset) {
-                                    Well.findById(desDataset.idWell).then(desWell => {
-                                        try {
-                                            let srcHashPath = hashDir.getHashPath(config.curveBasePath, username + srcProject.name + srcWell.name + srcDataset.name + curve.name, curve.name + ".txt");
-                                            hashDir.copyFile(config.curveBasePath, srcHashPath, username + srcProject.name + desWell.name + desDataset.name + curve.name, curve.name + ".txt");
-                                            curve.idDataset = param.desDatasetId;
-                                            Curve.findAll({
-                                                where: {
-                                                    idDataset: param.desDatasetId,
-                                                    name: curve.name
-                                                }
-                                            }).then(c => {
-                                                if (c.length > 0) {
-                                                    Curve.destroy({
-                                                        where: {
-                                                            idCurve: c[0].idCurve
-                                                        }
-                                                    }).then(() => {
-                                                        curve.save().then(() => {
-                                                            hashDir.deleteFolder(config.curveBasePath, username + srcProject.name + srcWell.name + srcDataset.name + curve.name);
-                                                            rs(ResponseJSON(ErrorCodes.SUCCESS, "Successful"));
-                                                        }).catch(err => {
-                                                            rs(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "FAILE", err));
-                                                        });
-                                                    });
-                                                } else {
-                                                    curve.save().then(() => {
-                                                        hashDir.deleteFolder(config.curveBasePath, username + srcProject.name + srcWell.name + srcDataset.name + curve.name);
-                                                        rs(ResponseJSON(ErrorCodes.SUCCESS, "Successful"));
-                                                    }).catch(err => {
-                                                        rs(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "FAILE", err));
-                                                    });
-                                                }
-                                            }).catch();
-
-
-                                        } catch (err) {
-                                            // console.log(err);
-                                            rs(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't move"));
-                                        }
-                                    });
-                                } else {
-                                    rs(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Destination Dataset not found"));
-                                }
-                            });
-                        });
+    checkPermisson(param.updatedBy, 'curve.update', function (result) {
+        if (result) {
+            curveUtils.moveCurveData(curveParents, newCurve, function (err, successPath) {
+                if (err) {
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                } else {
+                    curve.destroy({permanently: true, force: true}).then(() => {
+                        dbConnection.Curve.findOne({
+                            where: {
+                                name: _curve.name,
+                                idDataset: desDataset.idDataset
+                            }
+                        }).then(existed => {
+                            if (!existed) {
+                                dbConnection.Curve.create({
+                                    name: _curve.name,
+                                    idDataset: desDataset.idDataset,
+                                    createdBy: _curve.createdBy,
+                                    updatedBy: _curve.updatedBy,
+                                    unit: _curve.unit,
+                                    initValue: _curve.unit,
+                                    idFamily: _curve.idFamily
+                                }).then(() => {
+                                    done(ResponseJSON(ErrorCodes.SUCCESS, "Successful"));
+                                });
+                            } else {
+                                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful"));
+                            }
+                        })
                     });
-
                 }
-            }).catch(err => {
-                console.log(err.stack);
             });
         } else {
-            rs(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found"));
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve : Do not have permission", "Curve : Do not have permission"));
         }
-    }).catch(err => {
-        console.log(err.stack);
     });
 }
 

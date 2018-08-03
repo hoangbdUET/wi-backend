@@ -281,7 +281,7 @@ function deleteHistogram(histogramInfo, done, dbConnection) {
     let Histogram = dbConnection.Histogram;
     Histogram.findById(histogramInfo.idHistogram)
         .then(function (histogram) {
-            histogram.setDataValue('updatedAt', histogramInfo.updatedBy);
+            histogram.setDataValue('updatedBy', histogramInfo.updatedBy);
             histogram.destroy()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Histogram is deleted", histogram));

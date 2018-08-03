@@ -51,6 +51,7 @@ function editDataset(datasetInfo, done, dbConnection, username) {
                 dataset.name = datasetInfo.name;
                 dataset.datasetKey = datasetInfo.datasetKey;
                 dataset.datasetLabel = datasetInfo.datasetLabel;
+                dataset.updatedBy = datasetInfo.updatedBy;
                 dataset.save().then(() => {
                     dbConnection.Well.findById(dataset.idWell).then(well => {
                         dbConnection.Project.findById(well.idProject).then(project => {
@@ -104,6 +105,7 @@ function deleteDataset(datasetInfo, done, dbConnection) {
     let Dataset = dbConnection.Dataset;
     Dataset.findById(datasetInfo.idDataset, {include: {all: true}})
         .then(function (dataset) {
+            dataset.setDataValue('updatedBy', datasetInfo.updatedBy);
             dataset.destroy()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Dataset is deleted", dataset));
@@ -161,6 +163,8 @@ function duplicateDataset(data, done, dbConnection, username) {
                 }
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Done", _dataset));
             });
+        }).catch(err=>{
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
         });
     });
 }

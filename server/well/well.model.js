@@ -150,6 +150,7 @@ function editWell(wellInfo, done, dbConnection, username) {
                 well.bottomDepth = wellInfo.bottomDepth;
                 well.step = wellInfo.step;
                 well.idGroup = wellInfo.idGroup;
+                well.updatedBy = wellInfo.updatedBy;
                 well.save()
                     .then(function () {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Well success", well));
