@@ -529,7 +529,6 @@ function newDbInstance(dbName, callback) {
             STRT: well.topDepth,
             STOP: well.bottomDepth,
             STEP: well.step,
-            TOP: well.topDepth,
         };
         for (let header in headers) {
             WellHeader.create({
