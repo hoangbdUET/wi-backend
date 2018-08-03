@@ -32,7 +32,7 @@ let findFamilyIdByName = function (familyName, dbConnection, callback) {
 };
 
 function createNewHistogram(histogramInfo, done, dbConnection) {
-    let curves = histogramInfo.idCurves ? histogramInfo.idCurves : [];
+    let curves = histogramInfo.curves ? histogramInfo.curves : [];
     if (histogramInfo.histogramTemplate) {
         console.log("NEW HISTOGRAM TEMPLATE ", histogramInfo.histogramTemplate);
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Not implemented", "Not implemented"));
