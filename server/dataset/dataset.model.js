@@ -205,6 +205,8 @@ function updateDatasetParams(payload, done, dbConnection) {
                     } else {
                         //found
                         rs[0].value = param.value;
+                        rs[0].unit = param.unit;
+                        rs[0].description = param.description;
                         rs[0].save().then(() => {
                             response.push({param: param, result: "UPDATED"});
                             next();
