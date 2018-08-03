@@ -760,6 +760,7 @@ async function getCurveDataFromInventory(curveInfo, token, callback, dbConnectio
     let curve = {};
     curve.name = curveInfo.name;
     curve.unit = curveInfo.unit;
+    curve.description = curveInfo.description;
     curve.initValue = 0;
     curve.idDataset = dataset.idDataset;
     dbConnection.Curve.findOrCreate({
