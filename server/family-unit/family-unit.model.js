@@ -44,7 +44,7 @@ let getListUnit = function (data, callback, dbConnection) {
         });
     } else {
         if (data.idUnitGroup) {
-            dbConnection.Unit.findAll({where: {idUnitGroup: data.idUnitGroup}}).then(units => {
+            dbConnection.FamilyUnit.findAll({where: {idUnitGroup: data.idUnitGroup}}).then(units => {
                 callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", units));
             });
         } else {
