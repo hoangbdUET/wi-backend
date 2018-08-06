@@ -568,7 +568,7 @@ function newDbInstance(dbName, callback) {
     Well.hook('beforeDestroy', function (well, options) {
         console.log("Hooks delete well");
         return new Promise(function (resolve) {
-            if (well.permanently) {
+            if (options.permanently) {
                 resolve(well, options);
             } else {
                 let oldName = well.name;
@@ -624,7 +624,7 @@ function newDbInstance(dbName, callback) {
     Dataset.hook('beforeDestroy', function (dataset, options) {
         console.log("Hooks delete dataset");
         return new Promise(function (resolve, reject) {
-            if (dataset.permanently) {
+            if (options.permanently) {
                 resolve(dataset, options);
             } else {
                 let oldName = dataset.name;
