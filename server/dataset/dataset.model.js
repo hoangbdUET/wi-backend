@@ -139,31 +139,60 @@ function duplicateDataset(data, done, dbConnection, username) {
         let newDataset = dataset.toJSON();
         delete newDataset.idDataset;
         newDataset.name = dataset.name + '_Copy_' + dataset.duplicated;
+        newDataset.step = dataset.step;
+        newDataset.top = dataset.top;
+        newDataset.bottom = dataset.bottom;
+        newDataset.unit = dataset.unit;
         newDataset.createdBy = data.createdBy;
         newDataset.updatedBy = data.updatedBy;
         dataset.duplicated++;
         await dataset.save();
         dbConnection.Dataset.create(newDataset).then(_dataset => {
-            asyncEach(newDataset.curves, function (curve, next) {
-                let curvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
-                let newCurvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + _dataset.name + curve.name, curve.name + '.txt');
-                delete curve.idCurve;
-                curve.idDataset = _dataset.idDataset;
-                dbConnection.Curve.create(curve).then(c => {
-                    fsExtra.copy(curvePath, newCurvePath, function (err) {
-                        if (err) {
-                            console.log(err);
-                        }
+            asyncEach(dataset.dataset_params, function (dataset_param, nextDatasetParam) {
+                dbConnection.DatasetParams.create({
+                    mnem: dataset_param.mnem,
+                    value: dataset_param.value,
+                    unit: dataset_param.unit,
+                    description: dataset_param.description,
+                    idDataset: _dataset.idDataset
+                }).then(() => {
+                    nextDatasetParam();
+                }).catch(err => {
+                    console.log(err);
+                    nextDatasetParam();
+                });
+            }, function () {
+                asyncEach(newDataset.curves, function (curve, next) {
+                    let curvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+                    let newCurvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + _dataset.name + curve.name, curve.name + '.txt');
+                    delete curve.idCurve;
+                    curve.idDataset = _dataset.idDataset;
+                    dbConnection.Curve.create({
+                        name: curve.name,
+                        unit: curve.unit,
+                        idDataset: _dataset.idDataset,
+                        initValue: "dataset-duplicated",
+                        createdBy: data.createdBy,
+                        updatedBy: data.updatedBy
+                    }).then(c => {
+                        fsExtra.copy(curvePath, newCurvePath, function (err) {
+                            if (err) {
+                                console.log(err);
+                            }
+                            next();
+                        });
+                    }).catch(err => {
+                        console.log(err);
                         next();
                     });
+                }, function (err) {
+                    if (err) {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
+                    }
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Done", _dataset));
                 });
-            }, function (err) {
-                if (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
-                }
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Done", _dataset));
             });
-        }).catch(err=>{
+        }).catch(err => {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
         });
     });
