@@ -299,7 +299,7 @@ async function moveCurve(param, done, dbConnection, username) {
         } else {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve : Do not have permission", "Curve : Do not have permission"));
         }
-    });
+    }, param.createdBy);
 }
 
 async function deleteCurve(curveInfo, done, dbConnection, username) {
