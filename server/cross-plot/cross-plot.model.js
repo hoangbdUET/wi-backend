@@ -40,7 +40,8 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
         name: crossPlotInfo.name,
         axisColors: crossPlotInfo.axisColors,
         createdBy: crossPlotInfo.createdBy,
-        updatedBy: crossPlotInfo.updatedBy
+        updatedBy: crossPlotInfo.updatedBy,
+        configs: crossPlotInfo.configs
     }).then(function (crossPlot) {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new CrossPlot success", crossPlot.toJSON()));
     }).catch(function (err) {
