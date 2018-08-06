@@ -101,27 +101,35 @@ let searchReferenceCurve = function (idProject, dbConnection, callback) {
 function findCurveForTemplate(families, idProject, dbConnection, callback, idDataset) {
     //find curve in extractly dataset with idDataset !== null
     if (idDataset) {
-        findFamilyIdByName(family.name, dbConnection, function (idFamily) {
-            if (idFamily) {
-                dbConnection.Curve.findOne({
-                    where: {
-                        idDataset: idDataset,
-                        idFamily: idFamily
-                    }
-                }).then(curve => {
-                    if (curve) {
-                        callback(null, curve);
-                    } else {
-                        callback(null, null);
-                    }
-                });
-            } else {
-                callback(null, null);
+        asyncLoop(families, function (family, next) {
+            findFamilyIdByName(family.name, dbConnection, function (idFamily) {
+                if (idFamily) {
+                    dbConnection.Curve.findOne({
+                        where: {
+                            idDataset: idDataset,
+                            idFamily: idFamily
+                        }
+                    }).then(curve => {
+                        if (curve) {
+                            next(curve);
+                        } else {
+                            next();
+                        }
+                    });
+                } else {
+                    next();
+                }
+            });
+        }, function (done) {
+            if (done) {
+                console.log("BREAK");
+                return callback(null, done);
             }
+            console.log("DONE ALL FAMILY");
+            return callback(null, null);
         });
     } else {
         asyncLoop(families, function (family, next) {
-            console.log(family);
             findFamilyIdByName(family.name, dbConnection, function (idFamily) {
                 if (idFamily) {
                     dbConnection.Well.findAll({where: {idProject: idProject}}).then(wells => {
