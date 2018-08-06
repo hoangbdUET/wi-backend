@@ -98,48 +98,70 @@ let searchReferenceCurve = function (idProject, dbConnection, callback) {
     })
 };
 
-function findCurveForTemplate(families, idProject, dbConnection, callback) {
-    asyncLoop(families, function (family, next) {
-        console.log(family);
+function findCurveForTemplate(families, idProject, dbConnection, callback, idDataset) {
+    //find curve in extractly dataset with idDataset !== null
+    if (idDataset) {
         findFamilyIdByName(family.name, dbConnection, function (idFamily) {
             if (idFamily) {
-                dbConnection.Well.findAll({where: {idProject: idProject}}).then(wells => {
-                    asyncLoop(wells, function (well, nextWell) {
-                        dbConnection.Dataset.findAll({where: {idWell: well.idWell}}).then(datasets => {
-                            asyncLoop(datasets, function (dataset, nextDataset) {
-                                dbConnection.Curve.findOne({
-                                    where: {
-                                        idDataset: dataset.idDataset,
-                                        idFamily: idFamily
-                                    }
-                                }).then(curve => {
-                                    if (curve) {
-                                        nextDataset(curve);
-                                    } else {
-                                        nextDataset();
-                                    }
-                                });
-                            }, function (done) {
-                                nextWell(done);
-                            });
-                        });
-                    }, function (done) {
-                        if (done) return next(done);
-                        next();
-                    });
+                dbConnection.Curve.findOne({
+                    where: {
+                        idDataset: idDataset,
+                        idFamily: idFamily
+                    }
+                }).then(curve => {
+                    if (curve) {
+                        callback(null, curve);
+                    } else {
+                        callback(null, null);
+                    }
                 });
             } else {
-                next();
+                callback(null, null);
             }
         });
-    }, function (done) {
-        if (done) {
-            console.log("BREAK");
-            return callback(null, done);
-        }
-        console.log("DONE ALL FAMILY");
-        return callback(null, null);
-    });
+    } else {
+        asyncLoop(families, function (family, next) {
+            console.log(family);
+            findFamilyIdByName(family.name, dbConnection, function (idFamily) {
+                if (idFamily) {
+                    dbConnection.Well.findAll({where: {idProject: idProject}}).then(wells => {
+                        asyncLoop(wells, function (well, nextWell) {
+                            dbConnection.Dataset.findAll({where: {idWell: well.idWell}}).then(datasets => {
+                                asyncLoop(datasets, function (dataset, nextDataset) {
+                                    dbConnection.Curve.findOne({
+                                        where: {
+                                            idDataset: dataset.idDataset,
+                                            idFamily: idFamily
+                                        }
+                                    }).then(curve => {
+                                        if (curve) {
+                                            nextDataset(curve);
+                                        } else {
+                                            nextDataset();
+                                        }
+                                    });
+                                }, function (done) {
+                                    nextWell(done);
+                                });
+                            });
+                        }, function (done) {
+                            if (done) return next(done);
+                            next();
+                        });
+                    });
+                } else {
+                    next();
+                }
+            });
+        }, function (done) {
+            if (done) {
+                console.log("BREAK");
+                return callback(null, done);
+            }
+            console.log("DONE ALL FAMILY");
+            return callback(null, null);
+        });
+    }
 }
 
 let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
@@ -190,7 +212,7 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
                             } else {
                                 nextLine();
                             }
-                        });
+                        }, myPlot.idDataset);
                     }, function (done) {
                         if (done) nextTrack();
                         nextTrack();
@@ -229,6 +251,7 @@ let createNewPlot = function (plotInfo, done, dbConnection, username) {
             myPlot.name = plotInfo.name ? plotInfo.name : myPlot.name;
             myPlot.createdBy = plotInfo.createdBy;
             myPlot.updatedBy = plotInfo.updatedBy;
+            myPlot.idDataset = plotInfo.idDataset || null;
             createPlotTemplate(myPlot, dbConnection, function (err, result) {
                 if (err) {
                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed", "PLOT NAME EXISTED"));
