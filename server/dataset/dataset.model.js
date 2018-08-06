@@ -199,6 +199,7 @@ function updateDatasetParams(payload, done, dbConnection) {
                         idDataset: dataset.idDataset,
                         mnem: param.mnem,
                         unit: param.unit,
+                        value: param.value,
                         description: param.description
                     }
                 }).then(rs => {
