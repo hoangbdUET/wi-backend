@@ -43,7 +43,11 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", h));
             });
         }).catch(err => {
-            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
+            if (err.name === "SequelizeUniqueConstraintError") {
+                callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram name existed!"));
+            } else {
+                callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+            }
         });
     }
 }
