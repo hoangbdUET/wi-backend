@@ -112,13 +112,31 @@ function getZoneSetInfo(zoneSet, done, dbConnection) {
 
 function getZoneSetList(setInfo, done, dbConnection) {
     let ZoneSet = dbConnection.ZoneSet;
-    ZoneSet.findAll({where: {idWell: setInfo.idWell}})
-        .then(function (zoneSetList) {
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Get list zoneset success", zoneSetList));
+    if (setInfo.idProject) {
+        let response = [];
+        dbConnection.Well.findAll({where: {idProject: setInfo.idProject}}).then(wells => {
+            asyncEach(wells, function (well, next) {
+                dbConnection.ZoneSet.findAll({where: {idWell: well.idWell}}).then(zss => {
+                    asyncEach(zss, function (zs, nextzs) {
+                        response.push(zs);
+                        nextzs();
+                    }, function () {
+                        next();
+                    })
+                });
+            }, function () {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Done", response));
+            })
         })
-        .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "get zone-set list error"));
-        })
+    } else {
+        ZoneSet.findAll({where: {idWell: setInfo.idWell}})
+            .then(function (zoneSetList) {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Get list zoneset success", zoneSetList));
+            })
+            .catch(function () {
+                done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "get zone-set list error"));
+            });
+    }
 }
 
 async function duplicateZoneSet(data, done, dbConnection) {
