@@ -161,16 +161,22 @@ function getCurveInfo(curve, done, dbConnection, username) {
     })
         .then(curve => {
             if (!curve) throw "not exits";
-            if (!curve.idFamily) {
-                console.log("No Family");
-                calculateScale(curve.idCurve, username, dbConnection, function (err, result) {
+            calculateScale(curve.idCurve, username, dbConnection, function (err, result) {
+                console.log(result);
+                if (!curve.idFamily) {
                     curve = curve.toJSON();
+                    curve.DataStatistic = {
+                        minValue: 0,
+                        maxValue: 0,
+                        meanValue: 0,
+                        medianValue: 0
+                    };
                     if (err) {
                         curve.LineProperty = {
                             name: "Khong tinh duoc :(((",
                             minScale: 0,
-                            maxScale: 200
-                        }
+                            maxScale: 200,
+                        };
                     } else {
                         curve.LineProperty = {
                             "idFamily": null,
@@ -185,24 +191,38 @@ function getCurveInfo(curve, done, dbConnection, username) {
                             "lineStyle": "[0]",
                             "lineWidth": 1,
                             "lineColor": "red",
-                        }
+                        };
+                        curve.DataStatistic.minValue = result.minScale ? parseFloat(result.minScale) : 0;
+                        curve.DataStatistic.maxValue = result.maxScale ? parseFloat(result.maxScale) : 0;
+                        curve.DataStatistic.meanValue = result.meanValue ? parseFloat(result.meanValue) : 0;
+                        curve.DataStatistic.medianValue = result.medianValue ? parseFloat(result.medianValue) : 0;
                     }
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Curve success", curve));
-                });
-            } else {
-                let curveObj = curve.toJSON();
-                curveObj.LineProperty.blockPosition = curveObj.LineProperty.family_spec[0].blockPosition;
-                curveObj.LineProperty.displayMode = curveObj.LineProperty.family_spec[0].displayMode;
-                curveObj.LineProperty.displayType = curveObj.LineProperty.family_spec[0].displayType;
-                curveObj.LineProperty.lineColor = curveObj.LineProperty.family_spec[0].lineColor;
-                curveObj.LineProperty.lineStyle = curveObj.LineProperty.family_spec[0].lineStyle;
-                curveObj.LineProperty.lineWidth = curveObj.LineProperty.family_spec[0].lineWidth;
-                curveObj.LineProperty.maxScale = curveObj.LineProperty.family_spec[0].maxScale;
-                curveObj.LineProperty.minScale = curveObj.LineProperty.family_spec[0].minScale;
-                curveObj.LineProperty.unit = curveObj.LineProperty.family_spec[0].unit;
-                delete curveObj.LineProperty.family_spec;
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Curve success", curveObj));
-            }
+                } else {
+                    let curveObj = curve.toJSON();
+                    curveObj.DataStatistic = {
+                        minValue: 0,
+                        maxValue: 0,
+                        meanValue: 0,
+                        medianValue: 0
+                    };
+                    curveObj.LineProperty.blockPosition = curveObj.LineProperty.family_spec[0].blockPosition;
+                    curveObj.LineProperty.displayMode = curveObj.LineProperty.family_spec[0].displayMode;
+                    curveObj.LineProperty.displayType = curveObj.LineProperty.family_spec[0].displayType;
+                    curveObj.LineProperty.lineColor = curveObj.LineProperty.family_spec[0].lineColor;
+                    curveObj.LineProperty.lineStyle = curveObj.LineProperty.family_spec[0].lineStyle;
+                    curveObj.LineProperty.lineWidth = curveObj.LineProperty.family_spec[0].lineWidth;
+                    curveObj.LineProperty.maxScale = curveObj.LineProperty.family_spec[0].maxScale;
+                    curveObj.LineProperty.minScale = curveObj.LineProperty.family_spec[0].minScale;
+                    curveObj.LineProperty.unit = curveObj.LineProperty.family_spec[0].unit;
+                    curveObj.DataStatistic.minValue = result.minScale ? parseFloat(result.minScale) : 0;
+                    curveObj.DataStatistic.maxValue = result.maxScale ? parseFloat(result.maxScale) : 0;
+                    curveObj.DataStatistic.meanValue = result.meanValue ? parseFloat(result.meanValue) : 0;
+                    curveObj.DataStatistic.medianValue = result.medianValue ? parseFloat(result.medianValue) : 0;
+                    delete curveObj.LineProperty.family_spec;
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Curve success", curveObj));
+                }
+            });
         })
         .catch((e) => {
             console.log(e);
