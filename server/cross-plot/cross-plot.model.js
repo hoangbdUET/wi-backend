@@ -251,8 +251,10 @@ function editCrossPlot(crossPlotInfo, done, dbConnection) {
                 crossPlotInfo.discriminator = JSON.stringify(crossPlotInfo.discriminator);
                 Object.assign(crossPlot, crossPlotInfo);
                 crossPlot.save()
-                    .then(function () {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Edit CrossPlot success", crossPlotInfo));
+                    .then(function (c) {
+                        dbConnection.CrossPlot.findById(c.idCrossPlot, {include: {all: true}}).then(_c => {
+                            done(ResponseJSON(ErrorCodes.SUCCESS, "Edit CrossPlot success", _c));
+                        });
                     })
                     .catch(function (err) {
                         if (err.name === "SequelizeUniqueConstraintError") {
