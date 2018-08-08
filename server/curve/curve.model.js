@@ -42,6 +42,7 @@ function createNewCurve(curveInfo, done, dbConnection) {
 }
 
 function editCurve(curveInfo, done, dbConnection, username) {
+    curveInfo.name = curveInfo.name ? curveInfo.name.toUpperCase() : '';
     delete curveInfo.createdBy;
     let Curve = dbConnection.Curve;
     let Dataset = dbConnection.Dataset;
