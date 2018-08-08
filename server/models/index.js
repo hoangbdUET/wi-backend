@@ -79,9 +79,9 @@ function newDbInstance(dbName, callback) {
         },
         paranoid: true,
         pool: {
-            max: 2,
+            max: 20,
             min: 0,
-            idle: 200
+            idle: 1000 * 60 * 15
         },
         operatorsAliases: Sequelize.Op,
         storage: config.storage
