@@ -162,7 +162,7 @@ function getCurveInfo(curve, done, dbConnection, username) {
         .then(curve => {
             if (!curve) throw "not exits";
             calculateScale(curve.idCurve, username, dbConnection, function (err, result) {
-                console.log(result);
+                // console.log(result);
                 if (!curve.idFamily) {
                     curve = curve.toJSON();
                     curve.DataStatistic = {

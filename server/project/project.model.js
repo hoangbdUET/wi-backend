@@ -322,7 +322,7 @@ function getAllSharedProject(token) {
 
 async function listProjectOffAllUser(payload, done, dbConnection, token) {
     let sharedProjectList = await getAllSharedProject(token);
-    console.log(sharedProjectList);
+    // console.log(sharedProjectList);
     let dbs = payload.users ? payload.users = payload.users.map(u => config.Database.prefix + u) : [];
     const sequelize = require('sequelize');
     getDatabases().then(databaseList => {
