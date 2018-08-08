@@ -67,7 +67,7 @@ module.exports = {
             "pid_file": "./pids/5005.pid",
             "max_memory_restart": "1G",
             "env": {
-                "NODE_ENV": "app1"
+                "NODE_ENV": "app5"
             }
         },
         {
