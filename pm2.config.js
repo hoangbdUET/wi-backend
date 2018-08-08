@@ -132,7 +132,7 @@ module.exports = {
             "exec_mode": "fork",
             "timestamp": "MM-DD-YYYY HH:mm Z",
             "log_date_format": "MM-DD-YYYY HH:mm Z",
-            "error_file": "./logs/error/50101-stderr.log",
+            "error_file": "./logs/error/5010-stderr.log",
             "out_file": "./logs/out/5010-stdout.log",
             "pid_file": "./pids/5010.pid",
             "max_memory_restart": "1G",
