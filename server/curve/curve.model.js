@@ -533,6 +533,8 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
 
                                     lineReader.on('close', function () {
                                         //console.log(arrY);
+                                        let median = require('compute-median');
+                                        let medianArray = [];
                                         let min = parseFloat(arrY[0]);
                                         let max = parseFloat(arrY[0]);
                                         let sum = 0;
@@ -542,9 +544,15 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
                                                 sum += element;
                                                 if (element < min) min = element;
                                                 if (element > max) max = element;
+                                                medianArray.push(element);
                                             }
                                         });
-                                        callback(null, {minScale: min, maxScale: max, meanValue: sum / arrY.length});
+                                        callback(null, {
+                                            minScale: min,
+                                            maxScale: max,
+                                            meanValue: sum / arrY.length,
+                                            medianValue: median(medianArray)
+                                        });
                                     });
                                 }).catch(err => {
                                     console.log("LOI : ", err);
