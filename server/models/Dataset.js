@@ -6,12 +6,12 @@ module.exports = function (sequelize, DataTypes) {
             primaryKey: true
         },
         name: {
-            type: DataTypes.STRING(50),
+            type: DataTypes.STRING(250),
             allowNull: false,
             unique: "name-idWell"
         },
         datasetKey: {
-            type: DataTypes.STRING(50),
+            type: DataTypes.STRING(250),
             allowNull: false
         },
         datasetLabel: {
