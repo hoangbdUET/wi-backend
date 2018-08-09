@@ -472,7 +472,7 @@ function newDbInstance(dbName, callback) {
             })(curve.name, curve.unit);
         } else {
             Family.findById(curve.idFamily, {include: {model: FamilySpec, as: 'family_spec'}}).then(family => {
-                curve.unit = family.family_spec[0].unit;
+                curve.unit = curve.unit || family.family_spec[0].unit;
                 curve.save();
             }).catch(err => {
                 console.log("err while update curve unit ", err);
