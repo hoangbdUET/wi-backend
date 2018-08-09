@@ -46,9 +46,9 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new CrossPlot success", crossPlot.toJSON()));
     }).catch(function (err) {
         if (err.name === "SequelizeUniqueConstraintError") {
-            callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CrossPlot name existed!"));
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CrossPlot name existed!"));
         } else {
-            callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
         }
     });
 }
