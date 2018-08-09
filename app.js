@@ -21,29 +21,30 @@ Object.defineProperty(Array.prototype, "forEachDone", {
         });
     }
 });
+
 setTimeout(function () {
     const fs = require('fs');
     fs.appendFileSync('./pids.pid', process.pid + '\n');
     main();
-    let familySystemSync = require('./server/family/FamilySystemSync');
-    familySystemSync(function () {
-        overlayLineUpdate(function () {
-
-        });
-        workflowSpecUpdate(function () {
-
-        });
-        taskSpecUpdate(function () {
-
-        });
-        zoneTemplateUpdate(function () {
-
-        });
-        markerTemplateUpdate(function () {
-
-        })
-    });
-}, 1000);
+    // let familySystemSync = require('./server/family/FamilySystemSync');
+    // familySystemSync(function () {
+    //     overlayLineUpdate(function () {
+    //
+    //     });
+    //     workflowSpecUpdate(function () {
+    //
+    //     });
+    //     taskSpecUpdate(function () {
+    //
+    //     });
+    //     zoneTemplateUpdate(function () {
+    //
+    //     });
+    //     markerTemplateUpdate(function () {
+    //
+    //     })
+    // });
+}, 100);
 
 function main() {
     let authenticate;
@@ -140,6 +141,27 @@ function main() {
 
     let request = require('request');
 
+    app.get('/update', function (req, res) {
+        let familySystemSync = require('./server/family/FamilySystemSync');
+        familySystemSync(function () {
+            overlayLineUpdate(function () {
+
+            });
+            workflowSpecUpdate(function () {
+
+            });
+            taskSpecUpdate(function () {
+
+            });
+            zoneTemplateUpdate(function () {
+
+            });
+            markerTemplateUpdate(function () {
+
+            });
+            res.send("Done");
+        });
+    });
     app.use('/', globalFamilyRouter);
     app.get('/', function (req, res) {
         res.send("WELCOME TO WI-SYSTEM");
