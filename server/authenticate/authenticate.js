@@ -32,7 +32,7 @@ module.exports = function () {
                                     req.updatedBy = decoded.realUser;
                                     req.body.createdBy = decoded.realUser;
                                     req.body.updatedBy = decoded.realUser;
-                                    console.log("=============", decoded.realUser);
+                                    // console.log("=============", decoded.realUser);
                                     next();
                                 }).catch(err => {
                                     return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Error connecting to database", "Error connecting to database"));
