@@ -38,6 +38,10 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: true,
             defaultValue: 'm'
         },
+        depthRefSpec: {
+            type: DataTypes.STRING(50),
+            allowNull: true
+        },
         createdBy: {
             type: DataTypes.STRING(50),
             allowNull: false,
