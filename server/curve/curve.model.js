@@ -454,40 +454,6 @@ function exportData(param, successFunc, errorFunc, dbConnection, username) {
 };
 
 let getScale = function (req, done, dbConnection) {
-    // dbConnection.Curve.findById(req.body.idCurve).then(curve => {
-    //     dbConnection.FamilyCondition.findAll()
-    //         .then(conditions => {
-    //             let result = conditions.find(function (aCondition) {
-    //                 let regex;
-    //                 try {
-    //                     // console.log(curve.name + "id: " + aCondition.idFamilyCondition + " curveName: " + aCondition.curveName + " unit: " + aCondition.unit);
-    //                     regex = new RegExp("^" + aCondition.curveName + "$", "i").test(curve.name) && new RegExp("^" + aCondition.unit + "$", "i").test(curve.unit);
-    //                     if (regex) console.log("=====", curve.name + "id: " + aCondition.idFamilyCondition + " curveName: " + aCondition.curveName + " unit: " + aCondition.unit);
-    //                 } catch (err) {
-    //                     console.log(err);
-    //                 }
-    //                 return regex;
-    //             });
-    //             console.log("RESULT ", result ? result.idFamilyCondition : "Null");
-    //             if (!result) {
-    //                 done(ResponseJSON(ErrorCodes.SUCCESS, "min max curve success", {
-    //                     minScale: 0,
-    //                     maxScale: 100,
-    //                     meanValue: 50
-    //                 }));
-    //                 return;
-    //             }
-    //             result.getFamily()
-    //                 .then(aFamily => {
-    //                     curve.setLineProperty(aFamily);
-    //                 });
-    //             done(ResponseJSON(ErrorCodes.SUCCESS, "min max curve success", {
-    //                 minScale: 0,
-    //                 maxScale: 100,
-    //                 meanValue: 50
-    //             }));
-    //         })
-    // });
     calculateScale(req.body.idCurve, req.decoded.username, dbConnection, function (err, result) {
         if (err) {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
@@ -581,16 +547,10 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy) {
     let Dataset = dbConnection.Dataset;
     let Well = dbConnection.Well;
     let Project = dbConnection.Project;
-    let Line = dbConnection.Line;
-    let Histogram = dbConnection.Histogram;
-    let CrossPlot = dbConnection.CrossPlot;
-    let PointSet = dbConnection.PointSet;
     let idDataset = req.body.idDataset;
     let filePath = req.tmpPath;
     let newCurveName = req.body.curveName ? req.body.curveName.toUpperCase() : null;
-    // console.log("=======", req.body.unit);
     let unit = req.body.unit ? req.body.unit : "US/F";
-    // let unit = "US/F";
     let idFamily = req.body.idFamily ? (req.body.idFamily === 'null' ? null : req.body.idFamily) : null;
     let idDesCurve = req.body.idDesCurve;
     Dataset.findById(idDataset).then(dataset => {
@@ -602,7 +562,7 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy) {
                         Curve.create({
                             name: newCurveName,
                             unit: unit,
-                            initValue: "abc",
+                            initValue: "0",
                             idDataset: idDataset,
                             idFamily: idFamily,
                             createdBy: createdBy,
@@ -622,7 +582,7 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy) {
                             if (err.name === "SequelizeUniqueConstraintError") {
                                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve name existed!"));
                             } else {
-                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error occurred!", err.message));
+                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                             }
 
                         });
@@ -630,65 +590,23 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy) {
                         //overwrite curve
                         Curve.findById(idDesCurve).then(curve => {
                             if (curve) {
-                                let response = new Object();
-                                let newPath = hashDir.createPath(config.curveBasePath, req.decoded.username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
-                                fs.copy(filePath, newPath, function (err) {
-                                    if (err) {
-                                        console.log("ERR COPY FILE : ", err);
+                                checkPermisson(req.updatedBy, 'curve.update', function (perm) {
+                                    if (perm) {
+                                        let response = {};
+                                        let newPath = hashDir.createPath(config.curveBasePath, req.decoded.username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+                                        fs.copy(filePath, newPath, function (err) {
+                                            if (err) {
+                                                console.log("ERR COPY FILE : ", err);
+                                            }
+                                            console.log("Copy file success!");
+                                            fs.unlink(filePath);
+                                            done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
+                                        });
+                                    } else {
+                                        fs.unlink(filePath);
+                                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve : Do not have permission"));
                                     }
-                                    console.log("Copy file success!");
-                                    fs.unlink(filePath);
-                                    done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
-                                    // Line.findAll({where: {idCurve: curve.idCurve}}).then(lines => {
-                                    //     asyncLoop(lines, function (line, next) {
-                                    //         if (line) {
-                                    //             let lineInfo = line.toJSON();
-                                    //             lineInfo.idCurve = curve.idCurve;
-                                    //             lineInfo.unit = curve.unit;
-                                    //             Object.assign(line, lineInfo).save().then(rs => {
-                                    //                 response.lines.push(line);
-                                    //                 next();
-                                    //             }).catch(err => {
-                                    //                 console.log(err);
-                                    //                 next();
-                                    //             });
-                                    //         } else {
-                                    //             next();
-                                    //         }
-                                    //     }, function () {
-                                    //         Histogram.findAll({where: {idCurve: parseInt(curve.idCurve)}}).then(histograms => {
-                                    //             asyncLoop(histograms, function (histogram, next) {
-                                    //                 if (histogram) {
-                                    //                     response.histograms.push(histogram.toJSON());
-                                    //                     next();
-                                    //                 } else {
-                                    //                     next();
-                                    //                 }
-                                    //             }, function () {
-                                    //                 let Sequelize = require('sequelize');
-                                    //                 PointSet.findAll({
-                                    //                     where: Sequelize.or(
-                                    //                         {idCurveX: curve.idCurve},
-                                    //                         {idCurveY: curve.idCurve},
-                                    //                         {idCurveZ: curve.idCurve}
-                                    //                     )
-                                    //                 }).then(crossplots => {
-                                    //                     asyncLoop(crossplots, function (crossplot, next) {
-                                    //                         if (crossplot) {
-                                    //                             response.pointsets.push(crossplot.toJSON());
-                                    //                             next();
-                                    //                         } else {
-                                    //                             next();
-                                    //                         }
-                                    //                     }, function () {
-                                    //                         done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
-                                    //                     });
-                                    //                 });
-                                    //             });
-                                    //         })
-                                    //     });
-                                    // });
-                                });
+                                }, curve.createdBy);
                             } else {
                                 fs.unlink(filePath);
                                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve not existed"));
