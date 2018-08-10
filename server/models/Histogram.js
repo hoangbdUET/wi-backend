@@ -120,6 +120,10 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.TEXT('medium'),
             allowNull: true
         },
+        discriminator: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
         createdBy: {
             type: DataTypes.STRING(50),
             allowNull: false,

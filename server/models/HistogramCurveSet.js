@@ -39,10 +39,6 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: 'Blue'
         },
-        discriminator: {
-            type: DataTypes.TEXT,
-            allowNull: true
-        },
         // createdBy: {
         //     type: DataTypes.STRING(50),
         //     allowNull: false,
