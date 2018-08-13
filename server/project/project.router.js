@@ -3,7 +3,6 @@ let projectModel = require('./project.model');
 let router = express.Router();
 let bodyParser = require('body-parser');
 let Project = require('../models').Project;
-let shareProject = require('./project.share');
 
 router.use(bodyParser.json());
 router.registerHooks = function (io) {
