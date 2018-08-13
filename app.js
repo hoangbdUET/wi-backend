@@ -118,6 +118,7 @@ function main() {
     let markerSetRouter = require('./server/marker-set/marker-set.router');
     let markerTemplateRouter = require('./server/marker-template/marker-template.router');
     let resetDefaulParameters = require('./server/reset-parameter/reset-pamameter.router');
+    let permissionRouter = require('./server/permission/permission.router');
     let queue = {};
     let http = require('http').Server(app);
     app.use(cors());
@@ -214,6 +215,7 @@ function main() {
     app.use('/', workflowSpecRouter);
     app.use('/', zoneTemplateRouter);
     app.use('/', taskSpecRouter);
+    app.use('/permission', permissionRouter);
     app.use('/reset-parameter', resetDefaulParameters);
     app.use('/pal', palRouter);
     app.use('/custom-fill', customFillRouter);
