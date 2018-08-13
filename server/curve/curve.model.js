@@ -707,7 +707,7 @@ function duplicateCurve(data, done, dbConnection, username) {
 
                 }).catch(err => {
                     console.log(err);
-                    throw err;
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message))
                 })
             } catch (err) {
                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Some err : " + err.message, err))
