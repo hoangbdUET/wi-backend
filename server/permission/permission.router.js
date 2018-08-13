@@ -6,9 +6,9 @@ const ResponseJSON = require('../response');
 
 router.post("/check", function (req, res) {
     let data = req.body;
-    checkPermission(req.decoded.username, data.perm, function (status) {
+    checkPermission(req.updatedBy, data.perm, function (status) {
         res.send(ResponseJSON(200, "Done", {
-            username: data.username,
+            username: req.updatedBy,
             perm: data.perm,
             value: status
         }));
