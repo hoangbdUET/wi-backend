@@ -155,6 +155,7 @@ let createTrack = function (myTrack, dbConnection, callback) {
         labelFormat: myTrack.labelFormat,
         idPlot: myTrack.idPlot,
         zoomFactor: myTrack.zoomFactor,
+        widthUnit: myTrack.widthUnit,
         createdBy: myTrack.createdBy,
         updatedBy: myTrack.updatedBy
     }).then(track => {
