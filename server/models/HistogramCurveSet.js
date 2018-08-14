@@ -6,6 +6,14 @@ module.exports = function (sequelize, DataTypes) {
             allowNull:false,
             autoIncrement:true
         },
+        intervalDepthTop: {
+            type: DataTypes.DOUBLE,
+            allowNull: true
+        },
+        intervalDepthBottom: {
+            type: DataTypes.DOUBLE,
+            allowNull: true
+        },
         showGaussian: {
             type: DataTypes.BOOLEAN,
             allowNull: false,

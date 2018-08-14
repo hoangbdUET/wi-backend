@@ -25,14 +25,6 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.DOUBLE,
             allowNull: true
         },
-        intervalDepthTop: {
-            type: DataTypes.DOUBLE,
-            allowNull: true
-        },
-        intervalDepthBottom: {
-            type: DataTypes.DOUBLE,
-            allowNull: true
-        },
         activeZone: {
             type: DataTypes.STRING,
             allowNull: true,
