@@ -84,7 +84,7 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: 1.0
         },
-        zoneAboveShading: {
+        zoneAboveCurve: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: true
