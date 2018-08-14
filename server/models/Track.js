@@ -89,6 +89,11 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: true
         },
+        zoneOpacity: {
+            type: DataTypes.DOUBLE,
+            allowNull: false,
+            defaultValue: 0.6
+        },
         createdBy: {
             type: DataTypes.STRING(50),
             allowNull: false,
