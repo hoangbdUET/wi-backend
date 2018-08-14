@@ -318,14 +318,8 @@ let editPlot = function (plotInfo, done, dbConnection) {
     const Plot = dbConnection.Plot;
     Plot.findById(plotInfo.idPlot)
         .then(function (plot) {
-            plot.idProject = plotInfo.idProject || plot.idProject;
-            plot.name = plotInfo.name || plot.name;
-            plot.referenceCurve = plotInfo.referenceCurve || plot.referenceCurve;
-            plot.option = plotInfo.option || plot.option;
-            plot.currentState = plotInfo.currentState || plot.currentState;
-            plot.cropDisplay = plotInfo.cropDisplay;
-            plot.updatedBy = plotInfo.updatedBy;
-            plot.save()
+            Object.assign(plot, plotInfo)
+                .save()
                 .then(function (a) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Plot success", plotInfo));
                 })
