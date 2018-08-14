@@ -86,7 +86,7 @@ router.post('/curve/getData', function (req, res) {
 
 router.post('/curve/getDataFile', function (req, res) {
     curveModel.getDataFile(req.body, function (resultFile) {
-        if(resultFile) {
+        if (resultFile) {
             // res.send(returnFile);
             res.setHeader('content-type', 'text/javascript');
             resultFile.pipe(res);
@@ -102,7 +102,14 @@ function writeToTmpFile(data, callback) {
     let text = new String();
     let count = 0;
     data.forEachDone(function (row) {
-        text += (count++ + " " + row + "\n");
+        if (Array.isArray(row)) {
+            row.forEach(value => {
+                text += value + " ";
+            });
+            text += "\n";
+        } else {
+            text += (count++ + " " + row + "\n");
+        }
     }, function () {
         fs.writeFileSync(tmpPath, text);
         callback(tmpPath);
@@ -159,8 +166,8 @@ router.post('/curve/convert-unit', function (req, res) {
     }, req.dbConnection, req.decoded.username)
 });
 
-router.post('/curve/info-by-name', function(req, res) {
-    curveModel.getCurveByName(req.body.name, req.body.idDataset, function(err, curve) {
+router.post('/curve/info-by-name', function (req, res) {
+    curveModel.getCurveByName(req.body.name, req.body.idDataset, function (err, curve) {
         if (err) {
             res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
         } else {
