@@ -163,6 +163,12 @@ function getCurveInfo(curve, done, dbConnection, username) {
         .then(curve => {
             if (!curve) throw "not exits";
             calculateScale(curve.idCurve, username, dbConnection, function (err, result) {
+                if (!result) result = {
+                    minScale: -1,
+                    maxScale: -1,
+                    meanValue: -1,
+                    medianValue: -1
+                };
                 // console.log(result);
                 if (!curve.idFamily) {
                     curve = curve.toJSON();
