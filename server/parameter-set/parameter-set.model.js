@@ -12,7 +12,7 @@ let createNewParameterSet = function (data, done, dbConnection) {
         if (rs[1]) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs[0]));
         } else {
-            done(ResponseJSON(ErrorCodes.SUCCESS, "Parameter set already existed", rs[0]));
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Parameter set already existed", rs[0]));
         }
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
