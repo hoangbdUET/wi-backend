@@ -147,12 +147,7 @@ function editWell(wellInfo, done, dbConnection, username) {
                         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.name));
                     });
             } else {
-                well.topDepth = wellInfo.topDepth;
-                well.bottomDepth = wellInfo.bottomDepth;
-                well.step = wellInfo.step;
-                well.idGroup = wellInfo.idGroup;
-                well.updatedBy = wellInfo.updatedBy;
-                well.save()
+                Object.assign(well, wellInfo).save()
                     .then(function () {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Well success", well));
                     })
