@@ -11,6 +11,7 @@ let asyncParallel = require('async/parallel');
 let fsExtra = require('fs-extra');
 let importFromInventory = require('../import-from-inventory/import.model');
 let asyncSeries = require('async/series');
+let checkPermisson = require('../utils/permission/check-permisison');
 
 function createNewWell(wellInfo, done, dbConnection) {
     let Well = dbConnection.Well;
@@ -416,53 +417,60 @@ function getWellHeader(idWell, done, dbConnection) {
 }
 
 function updateWellHeader(payload, done, dbConnection) {
-    if (payload.idWellHeader) {
-        dbConnection.WellHeader.findById(payload.idWellHeader).then((header) => {
-            header.value = payload.value;
-            header.unit = payload.unit;
-            header.description = payload.description;
-            header.save().then(() => {
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", header));
-            }).catch(err => {
-                console.log(err);
-                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
-            })
-        });
-    } else {
-        dbConnection.WellHeader.findOrCreate({
-            where: {
-                idWell: payload.idWell,
-                header: payload.header
-            }, defaults: {
-                header: payload.header,
-                value: payload.value,
-                idWell: payload.idWell,
-                unit: payload.unit,
-                description: payload.description
-            }
-        }).then(rs => {
-            if (rs[1]) {
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful created new header", rs[0]));
-                //created
+    checkPermisson(payload.updatedBy, 'well.update', function (pass) {
+        if (pass) {
+            if (payload.idWellHeader) {
+                dbConnection.WellHeader.findById(payload.idWellHeader).then((header) => {
+                    header.value = payload.value;
+                    header.unit = payload.unit;
+                    header.description = payload.description;
+                    header.save().then(() => {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", header));
+                    }).catch(err => {
+                        console.log(err);
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
+                    })
+                });
             } else {
-                //found
-                rs[0].value = payload.value;
-                rs[0].unit = payload.unit;
-                rs[0].description = payload.description;
-                rs[0].save().then(() => {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Successful update header", rs[0]));
+                dbConnection.WellHeader.findOrCreate({
+                    where: {
+                        idWell: payload.idWell,
+                        header: payload.header
+                    }, defaults: {
+                        header: payload.header,
+                        value: payload.value,
+                        idWell: payload.idWell,
+                        unit: payload.unit,
+                        description: payload.description
+                    }
+                }).then(rs => {
+                    if (rs[1]) {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful created new header", rs[0]));
+                        //created
+                    } else {
+                        //found
+                        rs[0].value = payload.value;
+                        rs[0].unit = payload.unit;
+                        rs[0].description = payload.description;
+                        rs[0].save().then(() => {
+                            done(ResponseJSON(ErrorCodes.SUCCESS, "Successful update header", rs[0]));
+                        }).catch(err => {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error " + err.message, err));
+                        });
+                    }
                 }).catch(err => {
                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error " + err.message, err));
                 });
             }
-        }).catch(err => {
-            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error " + err.message, err));
-        });
-    }
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Well: Do not have permission", "Well: Do not have permission"));
+        }
+    })
 }
 
 function bulkUpdateWellHeader(headers, idWell, done, dbConnection) {
     let response = [];
+
     asyncEach(headers, function (header, next) {
         dbConnection.WellHeader.findOrCreate({
             where: {idWell: idWell, header: header.header},
