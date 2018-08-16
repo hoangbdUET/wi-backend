@@ -322,7 +322,6 @@ function getAllSharedProject(token) {
 
 async function listProjectOffAllUser(payload, done, dbConnection, token) {
     let sharedProjectList = await getAllSharedProject(token);
-    // console.log(sharedProjectList);
     let dbs = payload.users ? payload.users = payload.users.map(u => config.Database.prefix + u) : [];
     const sequelize = require('sequelize');
     getDatabases().then(databaseList => {
@@ -334,7 +333,10 @@ async function listProjectOffAllUser(payload, done, dbConnection, token) {
                     projects.forEach(project => {
                         if (!response.find(p => p.name === project.name && p.createdBy === project.createdBy)) {
                             let shared = sharedProjectList.find(s => s.project_name === project.name && s.user.username === project.createdBy);
-                            if (shared) project.shareKey = shared.shareKey;
+                            if (shared) {
+                                project.groups = shared.groups;
+                                project.shareKey = shared.shareKey;
+                            }
                             response.push(project);
                         }
                     });
