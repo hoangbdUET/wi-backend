@@ -116,7 +116,10 @@ function getZoneSetList(setInfo, done, dbConnection) {
         let response = [];
         dbConnection.Well.findAll({where: {idProject: setInfo.idProject}}).then(wells => {
             asyncEach(wells, function (well, next) {
-                dbConnection.ZoneSet.findAll({where: {idWell: well.idWell}, include: dbConnection.Zone}).then(zss => {
+                dbConnection.ZoneSet.findAll({
+                    where: {idWell: well.idWell},
+                    include: {model: dbConnection.Zone, include: dbConnection.ZoneTemplate}
+                }).then(zss => {
                     asyncEach(zss, function (zs, nextzs) {
                         response.push(zs);
                         nextzs();
