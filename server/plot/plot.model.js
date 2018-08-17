@@ -245,71 +245,71 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
 };
 
 let createNewPlot = function (plotInfo, done, dbConnection, username) {
-    searchReferenceCurvePromise(plotInfo.idProject, dbConnection).then(idRefCurve => {
-        plotInfo.referenceCurve = idRefCurve;
-        if (plotInfo.plotTemplate) {
-            let myPlot = null;
-            try {
-                myPlot = require('./plot-template/' + plotInfo.plotTemplate + '.json');
-            } catch (err) {
-                return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot type not existed!", "PLOT TYPE TEMPLATE NOT FOUND"));
-            }
-            myPlot.referenceCurve = plotInfo.referenceCurve;
-            myPlot.idProject = plotInfo.idProject;
-            myPlot.name = plotInfo.name ? plotInfo.name : myPlot.name;
-            myPlot.createdBy = plotInfo.createdBy;
-            myPlot.updatedBy = plotInfo.updatedBy;
-            myPlot.idDataset = plotInfo.idDataset || null;
-            createPlotTemplate(myPlot, dbConnection, function (err, result) {
-                if (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed", "PLOT NAME EXISTED"));
-                } else {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create " + plotInfo.plotTemplate + " successful", result));
-                }
-            }, username);
-        } else {
-            let newPlot = {
-                idProject: plotInfo.idProject,
-                name: plotInfo.name,
-                referenceCurve: plotInfo.referenceCurve,
-                option: plotInfo.option,
-                createdBy: plotInfo.createdBy,
-                updatedBy: plotInfo.updatedBy
-            };
-            let isOverride = plotInfo.override || false;
-            dbConnection.Plot.findOrCreate({
-                where: {name: plotInfo.name, idProject: plotInfo.idProject},
-                defaults: newPlot
-            }).then(rs => {
-                if (rs[1]) {
-                    //created new
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Plot success", rs[0]));
-                } else {
-                    //existed
-                    if (isOverride) {
-                        dbConnection.Plot.findById(rs[0].idPlot).then(delPlot => {
-                            delPlot.destroy({force: true}).then(() => {
-                                dbConnection.Plot.create(newPlot).then((p) => {
-                                    done(ResponseJSON(ErrorCodes.SUCCESS, "Override plot success", p.toJSON()));
-                                }).catch(err => {
-                                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
-                                });
-                            })
-                        });
-                    } else {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed!"));
-                    }
-                }
-            }).catch(err => {
-                console.log(err);
-                if (err.name === "SequelizeUniqueConstraintError") {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed!"));
-                } else {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
-                }
-            });
+    // searchReferenceCurvePromise(plotInfo.idProject, dbConnection).then(idRefCurve => {
+    //     plotInfo.referenceCurve = idRefCurve;
+    // });
+    if (plotInfo.plotTemplate) {
+        let myPlot = null;
+        try {
+            myPlot = require('./plot-template/' + plotInfo.plotTemplate + '.json');
+        } catch (err) {
+            return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot type not existed!", "PLOT TYPE TEMPLATE NOT FOUND"));
         }
-    });
+        myPlot.referenceCurve = plotInfo.referenceCurve;
+        myPlot.idProject = plotInfo.idProject;
+        myPlot.name = plotInfo.name ? plotInfo.name : myPlot.name;
+        myPlot.createdBy = plotInfo.createdBy;
+        myPlot.updatedBy = plotInfo.updatedBy;
+        myPlot.idDataset = plotInfo.idDataset || null;
+        createPlotTemplate(myPlot, dbConnection, function (err, result) {
+            if (err) {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed", "PLOT NAME EXISTED"));
+            } else {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Create " + plotInfo.plotTemplate + " successful", result));
+            }
+        }, username);
+    } else {
+        let newPlot = {
+            idProject: plotInfo.idProject,
+            name: plotInfo.name,
+            referenceCurve: plotInfo.referenceCurve,
+            option: plotInfo.option,
+            createdBy: plotInfo.createdBy,
+            updatedBy: plotInfo.updatedBy
+        };
+        let isOverride = plotInfo.override || false;
+        dbConnection.Plot.findOrCreate({
+            where: {name: plotInfo.name, idProject: plotInfo.idProject},
+            defaults: newPlot
+        }).then(rs => {
+            if (rs[1]) {
+                //created new
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Plot success", rs[0]));
+            } else {
+                //existed
+                if (isOverride) {
+                    dbConnection.Plot.findById(rs[0].idPlot).then(delPlot => {
+                        delPlot.destroy({force: true}).then(() => {
+                            dbConnection.Plot.create(newPlot).then((p) => {
+                                done(ResponseJSON(ErrorCodes.SUCCESS, "Override plot success", p.toJSON()));
+                            }).catch(err => {
+                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
+                            });
+                        })
+                    });
+                } else {
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed!"));
+                }
+            }
+        }).catch(err => {
+            console.log(err);
+            if (err.name === "SequelizeUniqueConstraintError") {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed!"));
+            } else {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+            }
+        });
+    }
 };
 
 let editPlot = function (plotInfo, done, dbConnection) {
