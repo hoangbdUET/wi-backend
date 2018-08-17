@@ -687,6 +687,67 @@ async function getCurveDataFromInventory(curveInfo, token, callback, dbConnectio
     });
 }
 
+
+function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, username, createdBy, updatedBy) {
+    let start = new Date();
+    return new Promise(async function (resolve, reject) {
+        let options = {
+            method: 'POST',
+            url: 'http://' + config.Service.inventory + '/user/well/dataset/curve/data',
+            headers:
+                {
+                    Authorization: token,
+                    'Content-Type': 'application/json'
+                },
+            body: {idCurve: curveInfo.idInvCurve},
+            json: true
+        };
+        let idDataset = curveInfo.idDesDataset;
+        let dataset = await dbConnection.Dataset.findById(idDataset);
+        let well = await dbConnection.Well.findById(dataset.idWell);
+        let project = await dbConnection.Project.findById(well.idProject);
+        let curve = {};
+        curve.name = curveInfo.name;
+        curve.unit = curveInfo.unit;
+        curve.description = curveInfo.description;
+        curve.initValue = 0;
+        curve.idDataset = dataset.idDataset;
+        dbConnection.Curve.findOrCreate({
+            where: {
+                name: curve.name,
+                idDataset: curve.idDataset
+            },
+            defaults: {
+                name: curve.name,
+                idDataset: curve.idDataset,
+                initValue: curve.initValue,
+                unit: curve.unit,
+                createdBy: createdBy,
+                updatedBy: updatedBy,
+                description: curve.description
+            }
+        }).then(rs => {
+            let _curve = rs[0];
+            let curvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + _curve.name, _curve.name + '.txt');
+            try {
+                let stream = request(options).pipe(fs.createWriteStream(curvePath));
+                stream.on('close', function () {
+                    console.log("Import Done ", curvePath, " : ", new Date() - start, "ms");
+                    resolve(_curve);
+                });
+                stream.on('error', function (err) {
+                    reject(err);
+                });
+            } catch (err) {
+                reject(err);
+            }
+        }).catch(err => {
+            console.log(err);
+            reject(err);
+        });
+    });
+}
+
 function duplicateCurve(data, done, dbConnection, username) {
     dbConnection.Curve.findById(data.idCurve).then(async curve => {
         if (curve) {
@@ -788,6 +849,7 @@ module.exports = {
     duplicateCurve: duplicateCurve,
     checkCurveExisted: checkCurveExisted,
     getCurveParents: getCurveParents,
-    getCurveByName: getCurveByName
+    getCurveByName: getCurveByName,
+    getCurveDataFromInventoryPromise: getCurveDataFromInventoryPromise
 };
 
