@@ -75,7 +75,7 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
                 });
             }, function () {
                 histogram.setCurves(curves).then(() => {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Done", histogram));
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Done", histogram));
                 });
             });
         }).catch(err => {
