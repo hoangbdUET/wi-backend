@@ -97,9 +97,9 @@ let exportData = function (payload, done, error, dbConnection, username) {
             model: dbConnection.Shading,
             include: [{model: dbConnection.Line, as: 'leftLine'}, {model: dbConnection.Line, as: 'rightLine'}]
         }, {
-            model: dbConnection.Marker
+            model: dbConnection.MarkerSet
         }, {
-            model: dbConnection.Image
+            model: dbConnection.ZoneSet
         }, {
             model: dbConnection.Annotation
         }]
@@ -439,22 +439,6 @@ let duplicateTrack = function (payload, done, dbConnection) {
                             dbConnection.Line.create(line).then(l => {
                                 myObj.newLine = l.idLine;
                                 change.push(myObj);
-                                next();
-                            }).catch(err => {
-                                console.log(err);
-                                next();
-                            });
-                        }, function () {
-                            cb(null, true);
-                        });
-                    },
-                    function (cb) {
-                        asyncLoop(track.markers, function (marker, next) {
-                            delete marker.idMarker;
-                            delete marker.createdAt;
-                            delete marker.updatedAt;
-                            marker.idTrack = idTrack;
-                            dbConnection.Marker.create(marker).then(l => {
                                 next();
                             }).catch(err => {
                                 console.log(err);
