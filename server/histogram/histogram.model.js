@@ -384,7 +384,7 @@ function editHistogramCurveSet(payload, done, dbConnection) {
                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
             });
         } else {
-            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No histogram found"));
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No histogram curve set found"));
         }
     });
 }
