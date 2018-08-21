@@ -410,6 +410,9 @@ function newDbInstance(dbName, callback) {
         m.Well.hasMany(m.MarkerSet, {
             foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"}
         });
+        m.Well.hasMany(m.DepthAxis, {
+            foreignKey: {name: "idWell", allowNull: true}
+        });
         m.MarkerSet.hasMany(m.Marker, {
             foreignKey: {name: "idMarkerSet", allowNull: false}
         });
