@@ -22,7 +22,7 @@ module.exports = function () {
                         } else {
                             decoded.realUser = decoded.username;
                             if (opening[decoded.username]) {
-                                // console.log(decoded.realUser + " --- Working with shared session from : ", opening[decoded.username].owner);
+                                console.log(decoded.realUser + " --- Working with shared session from : ", opening[decoded.username].owner);
                                 decoded.username = opening[decoded.username].owner;
                                 req.dbConnection = models(config.Database.prefix + decoded.username.toLowerCase());
                                 req.dbConnection.sequelize.authenticate().then(() => {
@@ -32,12 +32,13 @@ module.exports = function () {
                                     req.updatedBy = decoded.realUser;
                                     req.body.createdBy = decoded.realUser;
                                     req.body.updatedBy = decoded.realUser;
+                                    // console.log("=============", decoded.realUser);
                                     next();
                                 }).catch(err => {
                                     return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Error connecting to database", "Error connecting to database"));
                                 });
                             } else {
-                                // console.log(decoded.username + " --- Working with master session");
+                                console.log(decoded.username + " --- Working with master session");
                                 req.dbConnection = models(config.Database.prefix + decoded.username.toLowerCase(), (err) => {
                                     console.log(err);
                                     if (err) return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Some err", "Some err"));

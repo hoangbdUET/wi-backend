@@ -11,7 +11,7 @@
     "prefix": "wi0710_"
   },
   "Application": {
-    "port": 5003
+    "port": 5006
   },
   "influx": {
     "host": "localhost",

@@ -5,25 +5,30 @@ let express = require('express');
 let router = express.Router();
 let bodyParser = require('body-parser');
 router.use(bodyParser.json({limit: '5mb'}));
+const {gzip, ungzip} = require('node-gzip');
 
 router.post('/task/list', function (req, res) {
-    taskModel.listTask(req.body, function (done) {
+    taskModel.listTask(data, function (done) {
         res.send(done);
     }, req.dbConnection);
 });
 
 router.post('/task/new', function (req, res) {
-    req.body.content = req.body.content || "{}";
-    taskModel.createTask(req.body, function (done) {
-        res.send(done);
-    }, req.dbConnection);
+    ungzip(Uint8Array.from(req.body.content.data)).then(content => {
+        req.body.content = JSON.parse(content.toString());
+        taskModel.createTask(req.body, function (done) {
+            res.send(done);
+        }, req.dbConnection);
+    });
 });
 
 router.post('/task/edit', function (req, res) {
-    req.body.content = req.body.content || "{}";
-    taskModel.editTask(req.body, function (done) {
-        res.send(done);
-    }, req.dbConnection);
+    ungzip(Uint8Array.from(req.body.content.data)).then(content => {
+        req.body.content = JSON.parse(content.toString());
+        taskModel.editTask(req.body, function (done) {
+            res.send(done);
+        }, req.dbConnection);
+    });
 });
 
 router.post('/task/info', function (req, res) {

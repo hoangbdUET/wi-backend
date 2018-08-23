@@ -22,10 +22,20 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING(250),
             allowNull: false
         },
+        unit: {
+            type: DataTypes.STRING(30),
+            allowNull: false,
+            defaultValue: "m"
+        },
         duplicated: {
             type: DataTypes.INTEGER,
             allowNull: true,
             defaultValue: 1
+        },
+        color: {
+            type: DataTypes.STRING(30),
+            allowNull: true,
+            defaultValue: '#f3b86d'
         },
         createdBy: {
             type: DataTypes.STRING(50),

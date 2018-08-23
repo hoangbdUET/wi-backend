@@ -34,7 +34,8 @@ function editSelectionTool(payload, done, dbConnection, username) {
     Model.findById(payload.idSelectionTool).then(row => {
         if (row) {
             if (payload.BIN) {
-                let binPath = hashDir.createPath(config.curveBasePath, username + row.idSelectionTool, row.idSelectionTool + '.txt');
+				let binPath = hashDir.createPath(config.curveBasePath, username + row.idSelectionTool, row.idSelectionTool + '.txt');
+				console.log("THong ", binPath, payload.BIN);
                 fs.copy(payload.BIN, binPath, function (err) {
                     if (err) {
                         fs.unlinkSync(payload.BIN);
@@ -51,11 +52,9 @@ function editSelectionTool(payload, done, dbConnection, username) {
                     });
                 });
             } else {
-                Object.assign(row, payload).save().then(() => {
-                    fs.unlinkSync(payload.BIN);
+				Object.assign(row, payload).save().then(() => {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", row));
-                }).catch(err => {
-                    fs.unlinkSync(payload.BIN);
+				}).catch(err => {
                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
                 });
             }
@@ -75,6 +74,7 @@ function infoSelectionTool(payload, done, dbConnection, username) {
         if (rs) {
             rs = rs.toJSON();
 			let binPath = hashDir.createPath(config.curveBasePath, username + rs.idSelectionTool, rs.idSelectionTool + '.txt');
+
 			console.log("Get selection tool data path ", binPath);
             rs.data = JSON.parse(fs.readFileSync(binPath).toString());
             done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));

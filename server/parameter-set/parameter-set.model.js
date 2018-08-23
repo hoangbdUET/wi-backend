@@ -2,14 +2,27 @@ const ResponseJSON = require('../response');
 const ErrorCodes = require('../../error-codes').CODES;
 
 let createNewParameterSet = function (data, done, dbConnection) {
-    dbConnection.ParameterSet.create(data).then(p => {
-        done(ResponseJSON(ErrorCodes.SUCCESS, "Done", p));
+    dbConnection.ParameterSet.findOrCreate({
+        where: {
+            idProject: data.idProject,
+            name: data.name
+        },
+        defaults: data
+    }).then(rs => {
+        if (rs[1]) {
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs[0]));
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Parameter set already existed", rs[0]));
+        }
     }).catch(err => {
-        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
-    })
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+    });
 };
 let listParameterSet = function (data, done, dbConnection) {
-	let conditions = data.idTaskSpec ? {idProject: data.idProject, idTaskSpec: data.idTaskSpec} : {idProject: data.idProject};
+    let conditions = data.idTaskSpec ? {
+        idProject: data.idProject,
+        idTaskSpec: data.idTaskSpec
+    } : {idProject: data.idProject};
     dbConnection.ParameterSet.findAll({where: conditions}).then(ps => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", ps));
     }).catch(err => {

@@ -1,19 +1,30 @@
 {
-  "Database":{
-    "dialect":"mysql",  // "postgres" for PostgreSql, "mysql" for MySql, "sqlite" for sqLite
-    "host":"localhost",
-    "port":3306,
-    "user":"root",
-    "password":"qwertyui",
-    "logging":false,     //Logging all database query if is set "true"
-    "storage":"/tmp/wi_backend.sqlite", //Path to database.sqlite (used for sqlite only)
-    "dbName":"wi_backend"
+  "Database": {
+    "dialect": "mysql",
+    "host": "localhost",
+    "port": 3306,
+    "user": "root",
+    "password": "qwertyui",
+    "logging": false,
+    "storage": "/tmp/wi_backend.sqlite",
+    "dbName": "wi_backend",
+    "prefix": "wi0710_"
   },
-  "Application":{
-    "port":3001
+  "Application": {
+    "port": 5002
+  },
+  "influx": {
+    "host": "localhost",
+    "port": 8086,
+    "username": "root",
+    "password": "root",
+    "database": "wi_backend"
+  },
+  "Service": {
+    "inventory": "13.250.197.210",
+    "authenticate": "admin.dev.i2g.cloud"
   },
   "curveBasePath": "../data",
-  "imageBasePath": "wi-images"
+  "imageBasePath": "wi-images",
+  "exportPath": "./server/export/exported-files"
 }
-
-// should ignore from git

@@ -79,9 +79,9 @@ function newDbInstance(dbName, callback) {
         },
         paranoid: true,
         pool: {
-            max: 2,
+            max: 20,
             min: 0,
-            idle: 200
+            idle: 1000 * 60 * 15
         },
         operatorsAliases: Sequelize.Op,
         storage: config.storage
@@ -99,6 +99,7 @@ function newDbInstance(dbName, callback) {
         'CrossPlot',
         'Curve',
         'Dataset',
+        'DatasetParams',
         'DepthAxis',
         'Family',
         'FamilyCondition',
@@ -220,6 +221,12 @@ function newDbInstance(dbName, callback) {
                 allowNull: false,
                 unique: "name-idDataset"
             }, onDelete: 'CASCADE', hooks: true
+        });
+        m.Dataset.hasMany(m.DatasetParams, {
+            foreignKey: {
+                name: "idDataset",
+                allowNull: false
+            }, onDelete: 'CASCADE'
         });
         m.Plot.hasMany(m.Track, {foreignKey: {name: "idPlot", allowNull: false}, onDelete: 'CASCADE'});
         m.Plot.hasMany(m.DepthAxis, {
@@ -403,6 +410,9 @@ function newDbInstance(dbName, callback) {
         m.Well.hasMany(m.MarkerSet, {
             foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"}
         });
+        m.Well.hasMany(m.DepthAxis, {
+            foreignKey: {name: "idWell", allowNull: true}
+        });
         m.MarkerSet.hasMany(m.Marker, {
             foreignKey: {name: "idMarkerSet", allowNull: false}
         });
@@ -465,7 +475,7 @@ function newDbInstance(dbName, callback) {
             })(curve.name, curve.unit);
         } else {
             Family.findById(curve.idFamily, {include: {model: FamilySpec, as: 'family_spec'}}).then(family => {
-                curve.unit = family.family_spec[0].unit;
+                curve.unit = curve.unit || family.family_spec[0].unit;
                 curve.save();
             }).catch(err => {
                 console.log("err while update curve unit ", err);
@@ -516,53 +526,52 @@ function newDbInstance(dbName, callback) {
     });
 
 
-    Well.hook('afterCreate', function (well) {
-        console.log("Hook after create well");
-        let headers = {
-            STRT: well.topDepth,
-            STOP: well.bottomDepth,
-            STEP: well.step,
-            TOP: well.topDepth,
-        };
-        for (let header in headers) {
-            WellHeader.create({
-                idWell: well.idWell,
-                header: header,
-                createdBy: well.createdBy,
-                updatedBy: well.updatedBy,
-                value: headers[header]
-            });
-        }
-    });
+    // Well.hook('afterCreate', function (well) {
+    //     console.log("Hook after create well");
+    // let headers = {
+    //     STRT: well.topDepth,
+    //     STOP: well.bottomDepth,
+    //     STEP: well.step,
+    // };
+    // for (let header in headers) {
+    //     WellHeader.create({
+    //         idWell: well.idWell,
+    //         header: header,
+    //         createdBy: well.createdBy,
+    //         updatedBy: well.updatedBy,
+    //         value: headers[header]
+    //     });
+    // }
+    // });
 
-    Well.hook('beforeUpdate', async function (well, options) {
-        console.log("Hook before update well");
-        let headers = {
-            STRT: well.topDepth,
-            STOP: well.bottomDepth,
-            STEP: well.step,
-            TOP: well.topDepth,
-        };
-        for (let header in headers) {
-            let h = await WellHeader.findOne({where: {idWell: well.idWell, header: header}});
-            if (h) {
-                await h.update({value: headers[header]});
-            } else {
-                await WellHeader.create({
-                    header: header,
-                    value: headers[header],
-                    idWell: well.idWell,
-                    createdBy: well.createdBy,
-                    updatedBy: well.updatedBy
-                })
-            }
-        }
-    });
+    // Well.hook('beforeUpdate', async function (well, options) {
+    //     console.log("Hook before update well");
+    // let headers = {
+    //     STRT: well.topDepth,
+    //     STOP: well.bottomDepth,
+    //     STEP: well.step,
+    //     TOP: well.topDepth,
+    // };
+    // for (let header in headers) {
+    //     let h = await WellHeader.findOne({where: {idWell: well.idWell, header: header}});
+    //     if (h) {
+    //         await h.update({value: headers[header]});
+    //     } else {
+    //         await WellHeader.create({
+    //             header: header,
+    //             value: headers[header],
+    //             idWell: well.idWell,
+    //             createdBy: well.createdBy,
+    //             updatedBy: well.updatedBy
+    //         })
+    //     }
+    // }
+    // });
 
     Well.hook('beforeDestroy', function (well, options) {
         console.log("Hooks delete well");
         return new Promise(function (resolve) {
-            if (well.permanently) {
+            if (options.permanently) {
                 resolve(well, options);
             } else {
                 let oldName = well.name;
@@ -618,7 +627,7 @@ function newDbInstance(dbName, callback) {
     Dataset.hook('beforeDestroy', function (dataset, options) {
         console.log("Hooks delete dataset");
         return new Promise(function (resolve, reject) {
-            if (dataset.permanently) {
+            if (options.permanently) {
                 resolve(dataset, options);
             } else {
                 let oldName = dataset.name;

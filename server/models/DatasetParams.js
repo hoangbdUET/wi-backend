@@ -1,15 +1,11 @@
 module.exports = function (sequelize, DataTypes) {
-    return sequelize.define('well_header', {
-        idWellHeader: {
+    return sequelize.define('dataset_params', {
+        idDatasetParam: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true
         },
-        idWell: {
-            type: DataTypes.INTEGER,
-            primaryKey: true
-        },
-        header: {
+        mnem: {
             type: DataTypes.STRING,
             primaryKey: true
         },
@@ -26,11 +22,6 @@ module.exports = function (sequelize, DataTypes) {
         description: {
             type: DataTypes.STRING,
             defaultValue: ''
-        },
-        standard: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: true
         }
     });
 };

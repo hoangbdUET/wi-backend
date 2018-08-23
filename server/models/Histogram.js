@@ -25,14 +25,6 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.DOUBLE,
             allowNull: true
         },
-        intervalDepthTop: {
-            type: DataTypes.DOUBLE,
-            allowNull: true
-        },
-        intervalDepthBottom: {
-            type: DataTypes.DOUBLE,
-            allowNull: true
-        },
         activeZone: {
             type: DataTypes.STRING,
             allowNull: true,
@@ -118,6 +110,10 @@ module.exports = function (sequelize, DataTypes) {
         },
         configs: {
             type: DataTypes.TEXT('medium'),
+            allowNull: true
+        },
+        discriminator: {
+            type: DataTypes.TEXT,
             allowNull: true
         },
         createdBy: {

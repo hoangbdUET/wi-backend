@@ -10,7 +10,8 @@ let getListPattern = function (payload, done) {
         if (row[0] !== '') {
             response[row[0]] = {
                 full_name: row[1],
-                src: '/pattern/' + row[0] + '.png'
+                src: '/pattern/' + row[0] + '.png',
+                typical: row[2]
             }
         }
     });

@@ -17,6 +17,7 @@ function writeToTmpFile(data, callback, type) {
 }
 
 router.post('/selection-tool/new', upload.array(), function (req, res) {
+	console.log("===================", req.body.data);
     writeToTmpFile(req.body.data, function (tmpPath) {
         req.body.BIN = tmpPath;
         req.body.createdBy = req.createdBy;
@@ -35,10 +36,11 @@ router.post('/selection-tool/info', function (req, res) {
 
 router.post('/selection-tool/edit', upload.array(), function (req, res) {
     req.body.createdBy = req.createdBy;
-    req.body.updatedBy = req.updatedBy;
+	req.body.updatedBy = req.updatedBy;
+	console.log(req.body.data);
     if (req.body.data) {
-        writeToTmpFile(req.body.data, function (tmpPath) {
-            req.body.BIN = tmpPath;
+		writeToTmpFile(req.body.data, function (tmpPath) {
+			req.body.BIN = tmpPath;
             selectionToolModel.editSelectionTool(req.body, function (status) {
                 res.send(status);
             }, req.dbConnection, req.decoded.username);

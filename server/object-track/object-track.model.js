@@ -33,7 +33,7 @@ function editObjectTrack(info, done, dbConnection) {
             Object.assign(result, info).save().then(() => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Successful ObjectTrack", info));
             }).catch(err => {
-                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Some err"));
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
             })
         }
     }).catch(err => {

@@ -50,6 +50,7 @@ function deleteAnnotation(annotationInfo, done, dbConnection) {
     let Annotation = dbConnection.Annotation;
     Annotation.findById(annotationInfo.idAnnotation)
         .then(function (annotation) {
+            annotation.setDataValue('updatedBy', annotationInfo.updatedBy);
             annotation.destroy()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Annotation is deleted", annotation));

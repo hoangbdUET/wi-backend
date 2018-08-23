@@ -6,6 +6,14 @@ module.exports = function (sequelize, DataTypes) {
             allowNull:false,
             autoIncrement:true
         },
+        intervalDepthTop: {
+            type: DataTypes.DOUBLE,
+            allowNull: true
+        },
+        intervalDepthBottom: {
+            type: DataTypes.DOUBLE,
+            allowNull: true
+        },
         showGaussian: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
@@ -38,10 +46,6 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING(20),
             allowNull: false,
             defaultValue: 'Blue'
-        },
-        discriminator: {
-            type: DataTypes.TEXT,
-            allowNull: true
         },
         // createdBy: {
         //     type: DataTypes.STRING(50),

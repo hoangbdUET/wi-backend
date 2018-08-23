@@ -44,7 +44,7 @@ router.post('/database/update', function (req, res) {
                     storage: config.storage
                 });
                 let dbName = config.prefix + decoded.username.toLowerCase();
-                sequelize.query("CREATE DATABASE IF NOT EXISTS `" + dbName + "`").then(rs => {
+                sequelize.query("CREATE DATABASE IF NOT EXISTS `" + dbName + "` CHARACTER SET utf8 COLLATE utf8_general_ci").then(rs => {
                     if (rs[0].warningStatus === 0) {
                         models(dbName).sequelize.sync().then(() => {
                             let userDbConnection = models(dbName, function (err) {

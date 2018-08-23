@@ -6,6 +6,7 @@ let asyncQueue = require('async/queue');
 let wiImport = require('wi-import');
 let hashDir = wiImport.hashDir;
 let fs = require('fs-extra');
+let async = require('async');
 
 class Options {
     constructor(path, token, payload) {
@@ -174,7 +175,10 @@ function importCurves(curves, token, callback, dbConnection, username) {
 }
 
 function importDataset(datasets, token, callback, dbConnection, username, createdBy, updatedBy) {
-    let response = [];
+    let response = {
+        curves: [],
+        datasets: []
+    };
     asyncEach(datasets, function (dataset, next) {
         let newDataset = {};
         newDataset.name = dataset.name;
@@ -192,25 +196,33 @@ function importDataset(datasets, token, callback, dbConnection, username, create
             defaults: newDataset
         }).then(rs => {
             let _dataset = rs[0];
-            asyncEach(dataset.curves, function (curve, nextCurve) {
-                setTimeout(function () {
-                    curve.idDesDataset = _dataset.idDataset;
-                    curveModels.getCurveDataFromInventory(curve, token, function (err, result) {
-                        if (err) {
-                            response.push(err);
-                            nextCurve();
-                        } else {
-                            response.push(result);
-                            nextCurve();
-                        }
-                    }, dbConnection, username, createdBy, updatedBy);
-                }, 100);
+            response.datasets.push(_dataset);
+            async.eachSeries(dataset.curves, function (curve, nextCurve) {
+                // setTimeout(function () {
+                curve.idDesDataset = _dataset.idDataset;
+                // curveModels.getCurveDataFromInventory(curve, token, function (err, result) {
+                //     if (err) {
+                //         response.curves.push(err);
+                //         nextCurve();
+                //     } else {
+                //         response.curves.push(result);
+                //         nextCurve();
+                //     }
+                // }, dbConnection, username, createdBy, updatedBy);
+                curveModels.getCurveDataFromInventoryPromise(curve, token, dbConnection, username, createdBy, updatedBy).then(curve => {
+                    response.curves.push(curve);
+                    nextCurve();
+                }).catch(err => {
+                    response.curves.push(err);
+                    nextCurve();
+                });
+                // }, 100);
             }, function () {
                 next();
             });
         }).catch(err => {
             console.log(err);
-            response.push(err);
+            response.curves.push(err);
             next();
         });
     }, function () {

@@ -51,6 +51,7 @@ function editDataset(datasetInfo, done, dbConnection, username) {
                 dataset.name = datasetInfo.name;
                 dataset.datasetKey = datasetInfo.datasetKey;
                 dataset.datasetLabel = datasetInfo.datasetLabel;
+                dataset.updatedBy = datasetInfo.updatedBy;
                 dataset.save().then(() => {
                     dbConnection.Well.findById(dataset.idWell).then(well => {
                         dbConnection.Project.findById(well.idProject).then(project => {
@@ -104,6 +105,7 @@ function deleteDataset(datasetInfo, done, dbConnection) {
     let Dataset = dbConnection.Dataset;
     Dataset.findById(datasetInfo.idDataset, {include: {all: true}})
         .then(function (dataset) {
+            dataset.setDataValue('updatedBy', datasetInfo.updatedBy);
             dataset.destroy()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Dataset is deleted", dataset));
@@ -137,30 +139,61 @@ function duplicateDataset(data, done, dbConnection, username) {
         let newDataset = dataset.toJSON();
         delete newDataset.idDataset;
         newDataset.name = dataset.name + '_Copy_' + dataset.duplicated;
+        newDataset.step = dataset.step;
+        newDataset.top = dataset.top;
+        newDataset.bottom = dataset.bottom;
+        newDataset.unit = dataset.unit;
         newDataset.createdBy = data.createdBy;
         newDataset.updatedBy = data.updatedBy;
         dataset.duplicated++;
         await dataset.save();
         dbConnection.Dataset.create(newDataset).then(_dataset => {
-            asyncEach(newDataset.curves, function (curve, next) {
-                let curvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
-                let newCurvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + _dataset.name + curve.name, curve.name + '.txt');
-                delete curve.idCurve;
-                curve.idDataset = _dataset.idDataset;
-                dbConnection.Curve.create(curve).then(c => {
-                    fsExtra.copy(curvePath, newCurvePath, function (err) {
-                        if (err) {
-                            console.log(err);
-                        }
+            asyncEach(dataset.dataset_params, function (dataset_param, nextDatasetParam) {
+                dbConnection.DatasetParams.create({
+                    mnem: dataset_param.mnem,
+                    value: dataset_param.value,
+                    unit: dataset_param.unit,
+                    description: dataset_param.description,
+                    idDataset: _dataset.idDataset
+                }).then(() => {
+                    nextDatasetParam();
+                }).catch(err => {
+                    console.log(err);
+                    nextDatasetParam();
+                });
+            }, function () {
+                asyncEach(newDataset.curves, function (curve, next) {
+                    let curvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+                    let newCurvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + _dataset.name + curve.name, curve.name + '.txt');
+                    delete curve.idCurve;
+                    curve.idDataset = _dataset.idDataset;
+                    dbConnection.Curve.create({
+                        name: curve.name,
+                        unit: curve.unit,
+                        idDataset: _dataset.idDataset,
+                        initValue: "dataset-duplicated",
+                        createdBy: data.createdBy,
+                        updatedBy: data.updatedBy
+                    }).then(c => {
+                        fsExtra.copy(curvePath, newCurvePath, function (err) {
+                            if (err) {
+                                console.log(err);
+                            }
+                            next();
+                        });
+                    }).catch(err => {
+                        console.log(err);
                         next();
                     });
+                }, function (err) {
+                    if (err) {
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
+                    }
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Done", _dataset));
                 });
-            }, function (err) {
-                if (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
-                }
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Done", _dataset));
             });
+        }).catch(err => {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
         });
     });
 }
@@ -181,11 +214,61 @@ function getDatasetInfoByName(dataset, done, dbConnection) {
     });
 }
 
+function updateDatasetParams(payload, done, dbConnection) {
+    let response = [];
+    dbConnection.Dataset.findById(payload.idDataset).then(dataset => {
+        if (dataset) {
+            asyncEach(payload.params, function (param, next) {
+                dbConnection.DatasetParams.findOrCreate({
+                    where: {
+                        idDataset: dataset.idDataset,
+                        mnem: param.mnem
+                    },
+                    defaults: {
+                        idDataset: dataset.idDataset,
+                        mnem: param.mnem,
+                        unit: param.unit,
+                        value: param.value,
+                        description: param.description
+                    }
+                }).then(rs => {
+                    if (rs[1]) {
+                        //create
+                        response.push({param: param, result: "CREATED"});
+                        next();
+                    } else {
+                        //found
+                        rs[0].value = param.value;
+                        rs[0].unit = param.unit;
+                        rs[0].description = param.description;
+                        rs[0].save().then(() => {
+                            response.push({param: param, result: "UPDATED"});
+                            next();
+                        }).catch(err => {
+                            response.push({param: param, result: "ERROR : " + err.message});
+                            next();
+                        });
+                    }
+                }).catch(err => {
+                    console.log(err);
+                    response.push({param: param, result: "Error " + err});
+                    next();
+                })
+            }, function () {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
+            });
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No dataset found by id"));
+        }
+    });
+}
+
 module.exports = {
     createNewDataset: createNewDataset,
     editDataset: editDataset,
     deleteDataset: deleteDataset,
     getDatasetInfo: getDatasetInfo,
     duplicateDataset: duplicateDataset,
-    getDatasetInfoByName: getDatasetInfoByName
+    getDatasetInfoByName: getDatasetInfoByName,
+    updateDatasetParams: updateDatasetParams
 };

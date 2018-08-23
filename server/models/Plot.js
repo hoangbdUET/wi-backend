@@ -33,6 +33,15 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.TEXT,
             allowNull: true
         },
+        unit: {
+            type: DataTypes.STRING(30),
+            allowNull: true,
+            defaultValue: 'm'
+        },
+        depthRefSpec: {
+            type: DataTypes.STRING(50),
+            allowNull: true
+        },
         createdBy: {
             type: DataTypes.STRING(50),
             allowNull: false,

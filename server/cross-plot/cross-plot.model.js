@@ -40,11 +40,16 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
         name: crossPlotInfo.name,
         axisColors: crossPlotInfo.axisColors,
         createdBy: crossPlotInfo.createdBy,
-        updatedBy: crossPlotInfo.updatedBy
+        updatedBy: crossPlotInfo.updatedBy,
+        configs: crossPlotInfo.configs
     }).then(function (crossPlot) {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new CrossPlot success", crossPlot.toJSON()));
     }).catch(function (err) {
-        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Cross Plot existed!"));
+        if (err.name === "SequelizeUniqueConstraintError") {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CrossPlot name existed!"));
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+        }
     });
 }
 
@@ -246,8 +251,10 @@ function editCrossPlot(crossPlotInfo, done, dbConnection) {
                 crossPlotInfo.discriminator = JSON.stringify(crossPlotInfo.discriminator);
                 Object.assign(crossPlot, crossPlotInfo);
                 crossPlot.save()
-                    .then(function () {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Edit CrossPlot success", crossPlotInfo));
+                    .then(function (c) {
+                        dbConnection.CrossPlot.findById(c.idCrossPlot, {include: {all: true}}).then(_c => {
+                            done(ResponseJSON(ErrorCodes.SUCCESS, "Edit CrossPlot success", _c));
+                        });
                     })
                     .catch(function (err) {
                         if (err.name === "SequelizeUniqueConstraintError") {
@@ -271,6 +278,7 @@ function deleteCrossPlot(crossPlotInfo, done, dbConnection) {
     let CrossPlot = dbConnection.CrossPlot;
     CrossPlot.findById(crossPlotInfo.idCrossPlot)
         .then(function (crossPlot) {
+            crossPlot.setDataValue('updatedBy', crossPlotInfo.updatedBy);
             crossPlot.destroy()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "CrossPlot is deleted", crossPlot));

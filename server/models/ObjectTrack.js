@@ -31,6 +31,11 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: 1
         },
+        widthUnit: {
+            type: DataTypes.STRING(20),
+            allowNull: true,
+            defaultValue: "inch"
+        },
         zoomFactor: {
             type: DataTypes.DOUBLE,
             allowNull: false,

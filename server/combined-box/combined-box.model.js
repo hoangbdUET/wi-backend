@@ -16,7 +16,7 @@ function createNewCombinedBox(payload, done, dbConnection) {
         await done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
     }).catch(err => {
         if (err.name === "SequelizeUniqueConstraintError") {
-            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Combined box existed!"));
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Combined plot existed!"));
         } else {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
         }

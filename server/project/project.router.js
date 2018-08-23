@@ -3,7 +3,6 @@ let projectModel = require('./project.model');
 let router = express.Router();
 let bodyParser = require('body-parser');
 let Project = require('../models').Project;
-let shareProject = require('./project.share');
 
 router.use(bodyParser.json());
 router.registerHooks = function (io) {
@@ -21,7 +20,7 @@ router.post('/project/list', function (req, res) {
 router.post('/project/list-of-all-user', function (req, res) {
     projectModel.listProjectOffAllUser(req.body, function (status) {
         res.send(status);
-    }, req.dbConnection)
+    }, req.dbConnection, req.token)
 });
 
 router.post('/project/info', function (req, res) {

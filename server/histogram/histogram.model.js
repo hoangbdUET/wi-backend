@@ -32,10 +32,59 @@ let findFamilyIdByName = function (familyName, dbConnection, callback) {
 };
 
 function createNewHistogram(histogramInfo, done, dbConnection) {
-    let curves = histogramInfo.idCurves ? histogramInfo.idCurves : [];
-    if (histogramInfo.histogramTemplate) {
+    let curves = histogramInfo.curves ? histogramInfo.curves : [];
+    if (histogramInfo.histogramTemplate && histogramInfo.datasets) {
         console.log("NEW HISTOGRAM TEMPLATE ", histogramInfo.histogramTemplate);
-        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Not implemented", "Not implemented"));
+        let myData = null;
+        let loga = false;
+        try {
+            myData = require('./histogram-template/' + histogramInfo.histogramTemplate + '.json');
+        } catch (err) {
+            return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No histogarm template found"));
+        }
+        if (histogramInfo.histogramTemplate === "ShadowResistivity" || histogramInfo.histogramTemplate === "DeepResistivity") {
+            loga = true;
+        }
+        histogramInfo.name = histogramInfo.name || myData.name;
+        histogramInfo.loga = loga;
+        dbConnection.Histogram.create(histogramInfo).then(async histogram => {
+            let curves = [];
+            asyncLoop(histogramInfo.datasets, function (idDataset, nextDataset) {
+                asyncLoop(myData.families, function (family, nextFamily) {
+                    findFamilyIdByName(family.name, dbConnection, function (family) {
+                        if (family) {
+                            dbConnection.Curve.findOne({
+                                where: {
+                                    idDataset: idDataset,
+                                    idFamily: family.idFamily
+                                }
+                            }).then(foundCurve => {
+                                if (foundCurve) {
+                                    nextFamily(foundCurve);
+                                } else {
+                                    nextFamily();
+                                }
+                            });
+                        } else {
+                            nextFamily();
+                        }
+                    })
+                }, function (found) {
+                    if (found) curves.push(found.idCurve);
+                    nextDataset();
+                });
+            }, function () {
+                histogram.setCurves(curves).then(() => {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Done", histogram));
+                });
+            });
+        }).catch(err => {
+            if (err.name === "SequelizeUniqueConstraintError") {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram name existed!"));
+            } else {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+            }
+        });
     } else {
         dbConnection.Histogram.create(histogramInfo).then(async histogram => {
             await histogram.setCurves(curves);
@@ -43,7 +92,11 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", h));
             });
         }).catch(err => {
-            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
+            if (err.name === "SequelizeUniqueConstraintError") {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram name existed!"));
+            } else {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+            }
         });
     }
 }
@@ -281,7 +334,7 @@ function deleteHistogram(histogramInfo, done, dbConnection) {
     let Histogram = dbConnection.Histogram;
     Histogram.findById(histogramInfo.idHistogram)
         .then(function (histogram) {
-            histogram.setDataValue('updatedAt', histogramInfo.updatedBy);
+            histogram.setDataValue('updatedBy', histogramInfo.updatedBy);
             histogram.destroy()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Histogram is deleted", histogram));
@@ -331,7 +384,7 @@ function editHistogramCurveSet(payload, done, dbConnection) {
                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
             });
         } else {
-            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No histogram found"));
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No histogram curve set found"));
         }
     });
 }

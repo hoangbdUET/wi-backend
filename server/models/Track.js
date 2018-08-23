@@ -60,6 +60,11 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: 2
         },
+        widthUnit: {
+            type: DataTypes.STRING(20),
+            allowNull: true,
+            defaultValue: "inch"
+        },
         color: {
             type: DataTypes.STRING(50),
             allowNull: false,
@@ -78,6 +83,16 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.DOUBLE,
             allowNull: false,
             defaultValue: 1.0
+        },
+        zoneAboveCurve: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true
+        },
+        zoneOpacity: {
+            type: DataTypes.DOUBLE,
+            allowNull: false,
+            defaultValue: 0.6
         },
         createdBy: {
             type: DataTypes.STRING(50),

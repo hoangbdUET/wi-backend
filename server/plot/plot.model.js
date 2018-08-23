@@ -98,48 +98,78 @@ let searchReferenceCurve = function (idProject, dbConnection, callback) {
     })
 };
 
-function findCurveForTemplate(families, idProject, dbConnection, callback) {
-    asyncLoop(families, function (family, next) {
-        console.log(family);
-        findFamilyIdByName(family.name, dbConnection, function (idFamily) {
-            if (idFamily) {
-                dbConnection.Well.findAll({where: {idProject: idProject}}).then(wells => {
-                    asyncLoop(wells, function (well, nextWell) {
-                        dbConnection.Dataset.findAll({where: {idWell: well.idWell}}).then(datasets => {
-                            asyncLoop(datasets, function (dataset, nextDataset) {
-                                dbConnection.Curve.findOne({
-                                    where: {
-                                        idDataset: dataset.idDataset,
-                                        idFamily: idFamily
-                                    }
-                                }).then(curve => {
-                                    if (curve) {
-                                        nextDataset(curve);
-                                    } else {
-                                        nextDataset();
-                                    }
-                                });
-                            }, function (done) {
-                                nextWell(done);
-                            });
-                        });
-                    }, function (done) {
-                        if (done) return next(done);
-                        next();
+function findCurveForTemplate(families, idProject, dbConnection, callback, idDataset) {
+    //find curve in extractly dataset with idDataset !== null
+    if (idDataset) {
+        asyncLoop(families, function (family, next) {
+            findFamilyIdByName(family.name, dbConnection, function (idFamily) {
+                if (idFamily) {
+                    dbConnection.Curve.findOne({
+                        where: {
+                            idDataset: idDataset,
+                            idFamily: idFamily
+                        }
+                    }).then(curve => {
+                        if (curve) {
+                            next(curve);
+                        } else {
+                            next();
+                        }
                     });
-                });
-            } else {
-                next();
+                } else {
+                    next();
+                }
+            });
+        }, function (done) {
+            if (done) {
+                console.log("BREAK");
+                return callback(null, done);
             }
+            console.log("DONE ALL FAMILY");
+            return callback(null, null);
         });
-    }, function (done) {
-        if (done) {
-            console.log("BREAK");
-            return callback(null, done);
-        }
-        console.log("DONE ALL FAMILY");
-        return callback(null, null);
-    });
+    } else {
+        asyncLoop(families, function (family, next) {
+            findFamilyIdByName(family.name, dbConnection, function (idFamily) {
+                if (idFamily) {
+                    dbConnection.Well.findAll({where: {idProject: idProject}}).then(wells => {
+                        asyncLoop(wells, function (well, nextWell) {
+                            dbConnection.Dataset.findAll({where: {idWell: well.idWell}}).then(datasets => {
+                                asyncLoop(datasets, function (dataset, nextDataset) {
+                                    dbConnection.Curve.findOne({
+                                        where: {
+                                            idDataset: dataset.idDataset,
+                                            idFamily: idFamily
+                                        }
+                                    }).then(curve => {
+                                        if (curve) {
+                                            nextDataset(curve);
+                                        } else {
+                                            nextDataset();
+                                        }
+                                    });
+                                }, function (done) {
+                                    nextWell(done);
+                                });
+                            });
+                        }, function (done) {
+                            if (done) return next(done);
+                            next();
+                        });
+                    });
+                } else {
+                    next();
+                }
+            });
+        }, function (done) {
+            if (done) {
+                console.log("BREAK");
+                return callback(null, done);
+            }
+            console.log("DONE ALL FAMILY");
+            return callback(null, null);
+        });
+    }
 }
 
 let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
@@ -190,7 +220,7 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
                             } else {
                                 nextLine();
                             }
-                        });
+                        }, myPlot.idDataset);
                     }, function (done) {
                         if (done) nextTrack();
                         nextTrack();
@@ -215,70 +245,71 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
 };
 
 let createNewPlot = function (plotInfo, done, dbConnection, username) {
-    searchReferenceCurvePromise(plotInfo.idProject, dbConnection).then(idRefCurve => {
-        plotInfo.referenceCurve = idRefCurve;
-        if (plotInfo.plotTemplate) {
-            let myPlot = null;
-            try {
-                myPlot = require('./plot-template/' + plotInfo.plotTemplate + '.json');
-            } catch (err) {
-                return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot type not existed!", "PLOT TYPE TEMPLATE NOT FOUND"));
-            }
-            myPlot.referenceCurve = plotInfo.referenceCurve;
-            myPlot.idProject = plotInfo.idProject;
-            myPlot.name = plotInfo.name ? plotInfo.name : myPlot.name;
-            myPlot.createdBy = plotInfo.createdBy;
-            myPlot.updatedBy = plotInfo.updatedBy;
-            createPlotTemplate(myPlot, dbConnection, function (err, result) {
-                if (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed", "PLOT NAME EXISTED"));
-                } else {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create " + plotInfo.plotTemplate + " successful", result));
-                }
-            }, username);
-        } else {
-            let newPlot = {
-                idProject: plotInfo.idProject,
-                name: plotInfo.name,
-                referenceCurve: plotInfo.referenceCurve,
-                option: plotInfo.option,
-                createdBy: plotInfo.createdBy,
-                updatedBy: plotInfo.updatedBy
-            };
-            let isOverride = plotInfo.override || false;
-            dbConnection.Plot.findOrCreate({
-                where: {name: plotInfo.name, idProject: plotInfo.idProject},
-                defaults: newPlot
-            }).then(rs => {
-                if (rs[1]) {
-                    //created new
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Plot success", rs[0]));
-                } else {
-                    //existed
-                    if (isOverride) {
-                        dbConnection.Plot.findById(rs[0].idPlot).then(delPlot => {
-                            delPlot.destroy({force: true}).then(() => {
-                                dbConnection.Plot.create(newPlot).then((p) => {
-                                    done(ResponseJSON(ErrorCodes.SUCCESS, "Override plot success", p.toJSON()));
-                                }).catch(err => {
-                                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
-                                });
-                            })
-                        });
-                    } else {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed!"));
-                    }
-                }
-            }).catch(err => {
-                console.log(err);
-                if (err.name === "SequelizeUniqueConstraintError") {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed!"));
-                } else {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
-                }
-            });
+    // searchReferenceCurvePromise(plotInfo.idProject, dbConnection).then(idRefCurve => {
+    //     plotInfo.referenceCurve = idRefCurve;
+    // });
+    if (plotInfo.plotTemplate) {
+        let myPlot = null;
+        try {
+            myPlot = require('./plot-template/' + plotInfo.plotTemplate + '.json');
+        } catch (err) {
+            return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot type not existed!", "PLOT TYPE TEMPLATE NOT FOUND"));
         }
-    });
+        myPlot.referenceCurve = plotInfo.referenceCurve;
+        myPlot.idProject = plotInfo.idProject;
+        myPlot.name = plotInfo.name ? plotInfo.name : myPlot.name;
+        myPlot.createdBy = plotInfo.createdBy;
+        myPlot.updatedBy = plotInfo.updatedBy;
+        myPlot.idDataset = plotInfo.idDataset || null;
+        createPlotTemplate(myPlot, dbConnection, function (err, result) {
+            if (err) {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed", "PLOT NAME EXISTED"));
+            } else {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Create " + plotInfo.plotTemplate + " successful", result));
+            }
+        }, username);
+    } else {
+        let newPlot = {
+            idProject: plotInfo.idProject,
+            name: plotInfo.name,
+            referenceCurve: plotInfo.referenceCurve,
+            option: plotInfo.option,
+            createdBy: plotInfo.createdBy,
+            updatedBy: plotInfo.updatedBy
+        };
+        let isOverride = plotInfo.override || false;
+        dbConnection.Plot.findOrCreate({
+            where: {name: plotInfo.name, idProject: plotInfo.idProject},
+            defaults: newPlot
+        }).then(rs => {
+            if (rs[1]) {
+                //created new
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Plot success", rs[0]));
+            } else {
+                //existed
+                if (isOverride) {
+                    dbConnection.Plot.findById(rs[0].idPlot).then(delPlot => {
+                        delPlot.destroy({force: true}).then(() => {
+                            dbConnection.Plot.create(newPlot).then((p) => {
+                                done(ResponseJSON(ErrorCodes.SUCCESS, "Override plot success", p.toJSON()));
+                            }).catch(err => {
+                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
+                            });
+                        })
+                    });
+                } else {
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed!"));
+                }
+            }
+        }).catch(err => {
+            console.log(err);
+            if (err.name === "SequelizeUniqueConstraintError") {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed!"));
+            } else {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+            }
+        });
+    }
 };
 
 let editPlot = function (plotInfo, done, dbConnection) {
@@ -287,14 +318,8 @@ let editPlot = function (plotInfo, done, dbConnection) {
     const Plot = dbConnection.Plot;
     Plot.findById(plotInfo.idPlot)
         .then(function (plot) {
-            plot.idProject = plotInfo.idProject || plot.idProject;
-            plot.name = plotInfo.name || plot.name;
-            plot.referenceCurve = plotInfo.referenceCurve || plot.referenceCurve;
-            plot.option = plotInfo.option || plot.option;
-            plot.currentState = plotInfo.currentState || plot.currentState;
-            plot.cropDisplay = plotInfo.cropDisplay;
-            plot.updatedBy = plotInfo.updatedBy;
-            plot.save()
+            Object.assign(plot, plotInfo)
+                .save()
                 .then(function (a) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Plot success", plotInfo));
                 })
