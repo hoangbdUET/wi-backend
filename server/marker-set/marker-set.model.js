@@ -6,7 +6,7 @@ function createNew(payload, done, dbConnection) {
     if (payload.template) {
         dbConnection.MarkerSet.create(payload).then(markerSet => {
             let Op = require('sequelize').Op;
-            if (payload.template && (zoneSetInfo.start || zoneSetInfo.start==0) && zoneSetInfo.stop) {
+            if (payload.template && (payload.start || payload.start==0) && payload.stop) {
                 dbConnection.MarkerTemplate.findAll({where: {template: payload.template}}).then(async templates => {
                     let stop = payload.stop;
                     let start = payload.start;
