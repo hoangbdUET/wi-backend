@@ -40,4 +40,9 @@ router.post('/dataset/bulk-update-params', function (req, res) {
         res.send(status);
     }, req.dbConnection);
 });
+router.post('/dataset/create-md', function (req, res) {
+    datasetModel.createMdCurve(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection, req.decoded.username);
+});
 module.exports = router;

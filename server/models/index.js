@@ -445,6 +445,7 @@ function newDbInstance(dbName, callback) {
     let Plot = object.Plot;
     let ZoneSet = object.ZoneSet;
     let Zone = object.Zone;
+    let Project = object.Project;
     let username = dbName.substring(dbName.indexOf("_") + 1);
     let async = require('async');
     let rename = require('../utils/function').renameObjectForDustbin;
@@ -672,6 +673,24 @@ function newDbInstance(dbName, callback) {
             }
         })
 
+    });
+
+    Dataset.hook('afterCreate', function (dataset) {
+        console.log("Hooks after create dataset", dataset.toJSON());
+        Well.findById(dataset.idWell).then(w => {
+            Project.findById(w.idProject).then(p => {
+                let createMD = require('../dataset/create-md-curve');
+                let parents = {
+                    username: username,
+                    project: p.name,
+                    well: w.name,
+                    dataset: dataset.name
+                };
+                createMD(parents, dataset, object).then(c => {
+                    console.log("Create MD for dataset " + dataset.name + " successful");
+                });
+            });
+        });
     });
 
     Histogram.hook('beforeDestroy', function (histogram, options) {

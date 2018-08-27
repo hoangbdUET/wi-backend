@@ -263,6 +263,21 @@ function updateDatasetParams(payload, done, dbConnection) {
     });
 }
 
+async function createMdCurve(payload, done, dbConnection, username) {
+    let createMD = require('./create-md-curve');
+    let dataset = await dbConnection.Dataset.findById(payload.idDataset);
+    let well = await dbConnection.Well.findById(dataset.idWell);
+    let project = await dbConnection.Project.findById(well.idProject);
+    let parents = {
+        username: username,
+        project: project.name,
+        well: well.name,
+        dataset: dataset.name
+    };
+    let result = await createMD(parents, dataset, dbConnection);
+    done(ResponseJSON(ErrorCodes.SUCCESS, "Done", result));
+}
+
 module.exports = {
     createNewDataset: createNewDataset,
     editDataset: editDataset,
@@ -270,5 +285,6 @@ module.exports = {
     getDatasetInfo: getDatasetInfo,
     duplicateDataset: duplicateDataset,
     getDatasetInfoByName: getDatasetInfoByName,
-    updateDatasetParams: updateDatasetParams
+    updateDatasetParams: updateDatasetParams,
+    createMdCurve: createMdCurve
 };
