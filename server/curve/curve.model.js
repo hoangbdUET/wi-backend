@@ -763,7 +763,7 @@ function duplicateCurve(data, done, dbConnection, username) {
                 let newCurve = curve.toJSON();
                 newCurve.createdBy = data.createdBy;
                 newCurve.updatedBy = data.updatedBy;
-                newCurve.name = curve.name + '_Copy_' + curve.duplicated;
+                newCurve.name = curve.name + '_COPY_' + curve.duplicated;
                 delete newCurve.idCurve;
                 curve.duplicated += 1;
                 await curve.save();
