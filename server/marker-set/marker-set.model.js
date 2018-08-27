@@ -6,16 +6,10 @@ function createNew(payload, done, dbConnection) {
     if (payload.template) {
         dbConnection.MarkerSet.create(payload).then(markerSet => {
             let Op = require('sequelize').Op;
-            if (payload.template) {
+            if (payload.template && (payload.start || payload.start==0) && payload.stop) {
                 dbConnection.MarkerTemplate.findAll({where: {template: payload.template}}).then(async templates => {
-                    let well = await dbConnection.Well.findById(markerSet.idWell, {
-                        include: {
-                            model: dbConnection.WellHeader,
-                            where: {header: {[Op.or]: [{[Op.like]: 'STRT'}, {[Op.like]: 'STOP'}, {[Op.like]: 'STEP'}]}}
-                        }
-                    });
-                    let stop = parseFloat((well.well_headers.find(s => s.header === 'STOP')).value);
-                    let start = parseFloat((well.well_headers.find(s => s.header === 'STRT')).value);
+                    let stop = payload.stop;
+                    let start = payload.start;
                     let range = (stop - start) / templates.length;
                     async.eachSeries(templates, function (tp, next) {
                         dbConnection.Marker.create({

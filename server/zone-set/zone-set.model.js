@@ -6,17 +6,11 @@ let eachSeries = require('async/eachSeries');
 function createNewZoneSet(zoneSetInfo, done, dbConnection) {
     let ZoneSet = dbConnection.ZoneSet;
     ZoneSet.create(zoneSetInfo).then(zs => {
-        if (zoneSetInfo.template) {
+        if (zoneSetInfo.template && (zoneSetInfo.start || zoneSetInfo.start==0) && zoneSetInfo.stop) {
             let Op = require('sequelize').Op;
             dbConnection.ZoneTemplate.findAll({where: {template: zoneSetInfo.template}}).then(async (zones) => {
-                let well = await dbConnection.Well.findById(zoneSetInfo.idWell, {
-                    include: {
-                        model: dbConnection.WellHeader,
-                        where: {header: {[Op.or]: [{[Op.like]: 'STRT'}, {[Op.like]: 'STOP'}, {[Op.like]: 'STEP'}]}}
-                    }
-                });
-                let stop = parseFloat((well.well_headers.find(s => s.header === 'STOP')).value);
-                let start = parseFloat((well.well_headers.find(s => s.header === 'STRT')).value);
+                let stop = zoneSetInfo.stop;
+                let start = zoneSetInfo.start;
                 let range = (stop - start) / zones.length;
                 eachSeries(zones, function (zone, nextZone) {
                     dbConnection.Zone.create({
