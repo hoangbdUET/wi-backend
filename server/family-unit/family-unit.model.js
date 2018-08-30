@@ -64,7 +64,9 @@ let getListUnit = function (data, callback, dbConnection) {
     }
 };
 let getAllUnit = function (data, callback, dbConnection) {
-    dbConnection.FamilyUnit.findAll().then(units => {
+    dbConnection.FamilyUnit.findAll({
+        order: ['name']
+    }).then(units => {
         callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", units));
     });
 };
