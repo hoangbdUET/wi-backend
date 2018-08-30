@@ -13,7 +13,7 @@ module.exports = function (parents, dataset, dbConnection) {
             dataset.top = parseFloat(dataset.top);
             dataset.bottom = parseFloat(dataset.bottom);
             let curve = {
-                name: '.MD',
+                name: '__MD',
                 unit: dataset.unit,
                 idFamily: 743,
                 initValue: 'Auto created',
