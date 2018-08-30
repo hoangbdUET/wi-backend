@@ -72,7 +72,7 @@ function getFamilyInfo(familyInfo, done, dbConnection) {
 function getFamilyList(done, dbConnection) {
     let Family = dbConnection.Family;
     Family.all({
-        order: ['name', 'DESC'],
+        order: ['name'],
         include: {
             model: dbConnection.FamilySpec,
             'as': 'family_spec'
