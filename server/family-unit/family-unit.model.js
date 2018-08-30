@@ -9,7 +9,8 @@ function getListUnitByIdFamily(idFamily, dbConnection) {
                 model: dbConnection.FamilySpec,
                 as: 'family_spec',
                 // where: {isDefault: true}
-            }
+            },
+            order: [['name', 'DESC']]
         }).then(family => {
             if (family.family_spec[0].idUnitGroup) {
                 dbConnection.FamilyUnit.findAll({where: {idUnitGroup: family.family_spec[0].idUnitGroup}}).then(units => {
@@ -44,7 +45,15 @@ let getListUnit = function (data, callback, dbConnection) {
         });
     } else {
         if (data.idUnitGroup) {
-            dbConnection.FamilyUnit.findAll({where: {idUnitGroup: data.idUnitGroup}}).then(units => {
+            dbConnection.FamilyUnit.findAll({
+                where: {idUnitGroup: data.idUnitGroup},
+                order: [['name', 'DESC']]
+            }).then(units => {
+                // response.sort((a, b) => {
+                //     let nameA = a.name.toUpperCase();
+                //     let nameB = b.name.toUpperCase();
+                //     return nameA === nameB ? 0 : nameA > nameB ? 1 : -1;
+                // });
                 callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", units));
             });
         } else {
