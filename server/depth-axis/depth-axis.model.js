@@ -19,7 +19,8 @@ function createNewDepthAxis(depthAxisInfo, done, dbConnection) {
                     geometryWidth: depthAxisInfo.geometryWidth,
                     width: depthAxisInfo.width || 0.5,
                     createdBy: depthAxisInfo.createdBy,
-                    updatedBy: depthAxisInfo.updatedBy
+                    updatedBy: depthAxisInfo.updatedBy,
+                    idWell: depthAxisInfo.idWell
                 });
                 depthAxis.save()
                     .then(function (depthAxis) {
