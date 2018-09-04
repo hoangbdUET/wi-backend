@@ -190,7 +190,7 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                         orderNum: lineInfo.orderNum,
                         createdBy: lineInfo.createdBy,
                         updatedBy: lineInfo.updatedBy,
-                        unit: lineInfo.unit || 'N/A'
+                        unit: curve.unit || 'N/A'
                     }).then(l => {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", l.toJSON()));
                     }).catch(function (err) {
