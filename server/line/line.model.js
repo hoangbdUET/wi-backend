@@ -189,7 +189,8 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                         maxValue: curveMaxScale,
                         orderNum: lineInfo.orderNum,
                         createdBy: lineInfo.createdBy,
-                        updatedBy: lineInfo.updatedBy
+                        updatedBy: lineInfo.updatedBy,
+                        unit: lineInfo.unit || 'N/A'
                     }).then(l => {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", l.toJSON()));
                     }).catch(function (err) {
