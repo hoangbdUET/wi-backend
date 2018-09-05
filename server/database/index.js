@@ -26,6 +26,7 @@ router.post('/database/update', function (req, res) {
                 return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Authentication failed", "Authentication failed"));
             } else {
                 let sequelize = new Sequelize('wi_backend', config.user, config.password, {
+                    host: config.host,
                     define: {
                         freezeTableName: true
                     },
@@ -80,6 +81,7 @@ router.delete('/database/update', function (req, res) {
                 return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Authentication failed", "Authentication failed"));
             } else {
                 let sequelize = new Sequelize('wi_backend', config.user, config.password, {
+                    host: config.host,
                     define: {
                         freezeTableName: true
                     },

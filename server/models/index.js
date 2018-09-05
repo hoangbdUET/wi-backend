@@ -68,6 +68,7 @@ module.exports = function (dbName, callback, isDelete) {
 function newDbInstance(dbName, callback) {
     let object = new Object();
     const sequelize = new Sequelize(dbName, config.user, config.password, {
+        host: config.host,
         define: {
             freezeTableName: true
         },

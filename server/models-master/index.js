@@ -3,6 +3,7 @@ let config = require('config').Database;
 
 
 const sequelize = new Sequelize(config.dbName, config.user, config.password, {
+    host: config.host,
     define: {
         freezeTableName: true
     },
