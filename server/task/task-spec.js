@@ -75,6 +75,7 @@ function listTaskSpec(payload, done, dbConnection) {
     dbConnection.TaskSpec.findAll().then(r => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
     }).catch(err => {
+        console.log(err);
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
     });
 }
