@@ -219,6 +219,7 @@ function importDataset(datasets, token, callback, dbConnection, username, create
                 newDataset.name = newDataset.name + "__" + newDataset.duplicated;
                 _dataset.duplicated++;
                 _dataset.save();
+                delete newDataset.idDataset;
                 dbConnection.Dataset.create(newDataset).then(d => {
                     response.datasets.push(d);
                     async.eachSeries(dataset.curves, function (curve, nextCurve) {

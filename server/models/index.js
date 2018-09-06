@@ -678,7 +678,7 @@ function newDbInstance(dbName, callback) {
     });
 
     Dataset.hook('afterCreate', function (dataset) {
-        console.log("Hooks after create dataset", dataset.toJSON());
+        console.log("Hooks after create dataset");
         Well.findById(dataset.idWell).then(w => {
             Project.findById(w.idProject).then(p => {
                 let createMD = require('../dataset/create-md-curve');
