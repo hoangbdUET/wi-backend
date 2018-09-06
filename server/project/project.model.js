@@ -330,7 +330,7 @@ async function listProjectOffAllUser(payload, done, dbConnection, token) {
         let response = [];
         asyncLoop(databaseList, (db, next) => {
             if (dbs.indexOf(db) !== -1) {
-                let query = "SELECT * FROM " + db + ".project";
+                let query = "SELECT * FROM ''" + db + "'.project";
                 dbConnection.sequelize.query(query, {type: sequelize.QueryTypes.SELECT}).then(projects => {
                     projects.forEach(project => {
                         if (!response.find(p => p.name === project.name && p.createdBy === project.createdBy)) {
