@@ -198,30 +198,43 @@ function importDataset(datasets, token, callback, dbConnection, username, create
             defaults: newDataset
         }).then(rs => {
             let _dataset = rs[0];
-            response.datasets.push(_dataset);
-            async.eachSeries(dataset.curves, function (curve, nextCurve) {
-                // setTimeout(function () {
-                curve.idDesDataset = _dataset.idDataset;
-                // curveModels.getCurveDataFromInventory(curve, token, function (err, result) {
-                //     if (err) {
-                //         response.curves.push(err);
-                //         nextCurve();
-                //     } else {
-                //         response.curves.push(result);
-                //         nextCurve();
-                //     }
-                // }, dbConnection, username, createdBy, updatedBy);
-                curveModels.getCurveDataFromInventoryPromise(curve, token, dbConnection, username, createdBy, updatedBy).then(curve => {
-                    response.curves.push(curve);
-                    nextCurve();
-                }).catch(err => {
-                    response.curves.push(err);
-                    nextCurve();
+            if (rs[1]) {
+                //created
+                response.datasets.push(_dataset);
+                async.eachSeries(dataset.curves, function (curve, nextCurve) {
+                    curve.idDesDataset = _dataset.idDataset;
+                    curveModels.getCurveDataFromInventoryPromise(curve, token, dbConnection, username, createdBy, updatedBy).then(curve => {
+                        response.curves.push(curve);
+                        nextCurve();
+                    }).catch(err => {
+                        response.curves.push(err);
+                        nextCurve();
+                    });
+                }, function () {
+                    next();
                 });
-                // }, 100);
-            }, function () {
-                next();
-            });
+            } else {
+                //found
+                let newDataset = _dataset.toJSON();
+                newDataset.name = newDataset.name + "__" + newDataset.duplicated;
+                _dataset.duplicated++;
+                _dataset.save();
+                dbConnection.Dataset.create(newDataset).then(d => {
+                    response.datasets.push(d);
+                    async.eachSeries(dataset.curves, function (curve, nextCurve) {
+                        curve.idDesDataset = d.idDataset;
+                        curveModels.getCurveDataFromInventoryPromise(curve, token, dbConnection, username, createdBy, updatedBy).then(curve => {
+                            response.curves.push(curve);
+                            nextCurve();
+                        }).catch(err => {
+                            response.curves.push(err);
+                            nextCurve();
+                        });
+                    }, function () {
+                        next();
+                    });
+                });
+            }
         }).catch(err => {
             console.log(err);
             response.curves.push(err);
