@@ -643,7 +643,8 @@ async function getCurveDataFromInventory(curveInfo, token, callback, dbConnectio
                 'Content-Type': 'application/json'
             },
         body: {idCurve: curveInfo.idInvCurve},
-        json: true
+        json: true,
+        strictSSL: false
     };
     let idDataset = curveInfo.idDesDataset;
     let dataset = await dbConnection.Dataset.findById(idDataset);
@@ -704,7 +705,8 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
                     'Content-Type': 'application/json'
                 },
             body: {idCurve: curveInfo.idInvCurve},
-            json: true
+            json: true,
+            strictSSL: false
         };
         let idDataset = curveInfo.idDesDataset;
         let dataset = await dbConnection.Dataset.findById(idDataset);

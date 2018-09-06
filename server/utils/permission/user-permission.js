@@ -6,14 +6,15 @@ function getPermissionFromAuthenService(token, project_name) {
     return new Promise(function (resolve) {
         let options = {
             method: 'POST',
-            url: 'http://' + config.Service.authenticate + '/user/get-permission',
+            url: config.Service.authenticate + '/user/get-permission',
             headers: {
                 'Cache-Control': 'no-cache',
                 'Authorization': token,
                 'Content-Type': 'application/json'
             },
             body: {project_name: project_name},
-            json: true
+            json: true,
+            strictSSL: false
         };
         request(options, function (error, response, body) {
             if (error) {

@@ -19,6 +19,7 @@ class Options {
         };
         this.body = payload;
         this.json = true;
+        this.strictSSL = false;
     }
 }
 
@@ -83,7 +84,8 @@ async function importWell(well, token, callback, dbConnection, username, created
                                 'Content-Type': 'application/json'
                             },
                         body: {idCurve: curve.idCurve},
-                        json: true
+                        json: true,
+                        strictSSL: false
                     };
                     dbConnection.Curve.create({
                         name: curve.name,

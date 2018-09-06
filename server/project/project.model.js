@@ -75,7 +75,8 @@ function getSharedProject(token, username) {
                 'Content-Type': 'application/json'
             },
             body: {username: username},
-            json: true
+            json: true,
+            strictSSL: false
         };
         request(options, function (error, response, body) {
             if (error) {
@@ -307,7 +308,8 @@ function getAllSharedProject(token) {
                 'Content-Type': 'application/json'
             },
             body: {},
-            json: true
+            json: true,
+            strictSSL: false
         };
         request(options, function (error, response, body) {
             if (error) {
