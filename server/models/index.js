@@ -99,6 +99,7 @@ function newDbInstance(dbName, callback) {
         'CombinedBoxTool',
         'CrossPlot',
         'Curve',
+        'CustomFill',
         'Dataset',
         'DatasetParams',
         'DepthAxis',
