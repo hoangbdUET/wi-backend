@@ -20,6 +20,10 @@
     "password": "root",
     "database": "wi_backend"
   },
+  "redis": {
+    "host": "127.0.0.1",
+    "port": 6379
+  },
   "Service": {
     "inventory": "13.250.197.210",
     "authenticate": "admin.dev.i2g.cloud"
