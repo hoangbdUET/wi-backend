@@ -171,7 +171,7 @@ function main() {
     authenticate = require('./server/authenticate/authenticate');
     app.use(authenticate());
     app.use('/csv', (req, res) => {
-        let url = 'http://csv-transformer.dev.i2g.cloud' + req.originalUrl;
+        let url = fullConfig.csvService.host + req.originalUrl;
         console.log(url);
         req.pipe(
             request({

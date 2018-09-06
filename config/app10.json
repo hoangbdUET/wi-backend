@@ -24,9 +24,12 @@
     "host": "127.0.0.1",
     "port": 6379
   },
+  "csvService": {
+    "host": "http://csv-transformer.dev.i2g.cloud"
+  },
   "Service": {
-    "inventory": "13.250.197.210",
-    "authenticate": "admin.dev.i2g.cloud"
+    "inventory": "http://13.250.197.210",
+    "authenticate": "http://admin.dev.i2g.cloud"
   },
   "curveBasePath": "../data",
   "imageBasePath": "wi-images",

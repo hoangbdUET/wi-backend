@@ -68,7 +68,7 @@ function getSharedProject(token, username) {
     return new Promise(function (resolve, reject) {
         let options = {
             method: 'POST',
-            url: 'http://' + config.Service.authenticate + '/shared-project/list',
+            url: config.Service.authenticate + '/shared-project/list',
             headers: {
                 'Cache-Control': 'no-cache',
                 'Authorization': token,
@@ -300,7 +300,7 @@ function getAllSharedProject(token) {
     return new Promise(function (resolve, reject) {
         let options = {
             method: 'POST',
-            url: 'http://' + config.Service.authenticate + '/shared-project/all',
+            url: config.Service.authenticate + '/shared-project/all',
             headers: {
                 'Cache-Control': 'no-cache',
                 'Authorization': token,

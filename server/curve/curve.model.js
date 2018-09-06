@@ -636,7 +636,7 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy) {
 async function getCurveDataFromInventory(curveInfo, token, callback, dbConnection, username, createdBy, updatedBy) {
     let options = {
         method: 'POST',
-        url: 'http://' + config.Service.inventory + '/user/well/dataset/curve/data',
+        url: config.Service.inventory + '/user/well/dataset/curve/data',
         headers:
             {
                 Authorization: token,
@@ -697,7 +697,7 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
     return new Promise(async function (resolve, reject) {
         let options = {
             method: 'POST',
-            url: 'http://' + config.Service.inventory + '/user/well/dataset/curve/data',
+            url: config.Service.inventory + '/user/well/dataset/curve/data',
             headers:
                 {
                     Authorization: token,

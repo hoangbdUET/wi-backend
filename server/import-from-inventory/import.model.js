@@ -11,7 +11,7 @@ let async = require('async');
 class Options {
     constructor(path, token, payload) {
         this.method = 'POST';
-        this.url = 'http://' + config.Service.inventory + path;
+        this.url = config.Service.inventory + path;
         this.headers = {
             'Cache-Control': 'no-cache',
             Authorization: token,
@@ -76,7 +76,7 @@ async function importWell(well, token, callback, dbConnection, username, created
                 let queue = asyncQueue(function (curve, cb) {
                     let options = {
                         method: 'POST',
-                        url: 'http://' + config.Service.inventory + '/user/well/dataset/curve/data',
+                        url: config.Service.inventory + '/user/well/dataset/curve/data',
                         headers:
                             {
                                 Authorization: token,
