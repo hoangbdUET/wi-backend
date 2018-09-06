@@ -29,7 +29,7 @@
   },
   "Service": {
     "inventory": "http://13.250.197.210",
-    "authenticate": "http://admin.dev.i2g.cloud"
+    "authenticate": "https://admin.dev.i2g.cloud"
   },
   "curveBasePath": "../data",
   "imageBasePath": "wi-images",
