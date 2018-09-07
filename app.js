@@ -176,7 +176,8 @@ function main() {
         req.pipe(
             request({
                 url,
-                method: req.method
+                method: req.method,
+                strictSSL: false
             })
         ).pipe(res);
     });
