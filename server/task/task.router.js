@@ -3,8 +3,6 @@
 let taskModel = require('./task.model');
 let express = require('express');
 let router = express.Router();
-let bodyParser = require('body-parser');
-router.use(bodyParser.json({limit: '5mb'}));
 const {gzip, ungzip} = require('node-gzip');
 
 router.post('/task/list', function (req, res) {
@@ -14,6 +12,7 @@ router.post('/task/list', function (req, res) {
 });
 
 router.post('/task/new', function (req, res) {
+	console.log("hihihihihihihihihi");
     ungzip(Uint8Array.from(req.body.content.data)).then(content => {
         req.body.content = JSON.parse(content.toString());
         taskModel.createTask(req.body, function (done) {
