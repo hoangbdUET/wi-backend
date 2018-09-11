@@ -207,7 +207,7 @@ router.post('/files', function (req, res) {
     let filePath = path.join(config.exportPath, req.decoded.username, req.body.fileName);
     fs.exists(filePath, function (exists) {
         if (exists) {
-            res.sendFile(path.join(__dirname, '../../', filePath));
+            res.sendFile(filePath);
         } else {
             res.send(ResponseJSON(404, "ERROR File does not exist"));
         }
