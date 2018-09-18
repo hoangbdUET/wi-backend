@@ -23,14 +23,14 @@ module.exports = function (sequelize, DataTypes) {
         rate: {
             type: DataTypes.STRING(100),
             allowNull: false,
-            get() {
-                const value = this.getDataValue('rate');
-                try {
-                    return convertEquation(JSON.parse(value));
-                } catch (e) {
-                    console.log("ERR", value);
-                }
-            }
+            // get() {
+            //     const value = this.getDataValue('rate');
+            //     try {
+            //         return convertEquation(JSON.parse(value));
+            //     } catch (e) {
+            //         console.log("ERR", value);
+            //     }
+            // }
         }
     });
 };
