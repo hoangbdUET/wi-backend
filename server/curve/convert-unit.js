@@ -11,7 +11,9 @@ let checkPerm = require('../utils/permission/check-permisison');
 module.exports = function (data, callback, dbConnection, username) {
     checkPerm(data.updatedBy, 'curve.update', function (pass) {
         if (pass) {
-            let ratio = data.desUnit.rate / data.srcUnit.rate;
+            // let ratio = data.desUnit.rate / data.srcUnit.rate;
+            let s1 = JSON.parse(data.srcUnit.rate);
+            let s2 = JSON.parse(data.desUnit.rate);
             curveFunction.getFullCurveParents({idCurve: data.idCurve}, dbConnection).then(curveParents => {
                 curveParents.username = username;
                 let hashPath = wiImport.hashDir.createPath(config.curveBasePath, username + curveParents.project + curveParents.well + curveParents.dataset + curveParents.curve, curveParents.curve + '.txt');
@@ -26,7 +28,8 @@ module.exports = function (data, callback, dbConnection, username) {
                     if (valueString === 'null' || valueString === 'NaN') {
                         fs.writeSync(fd, line + '\n');
                     } else {
-                        fs.writeSync(fd, index + " " + parseFloat(valueString) * ratio + '\n');
+                        let value = (parseFloat(valueString) - s1[1]) * (s2[0] / s1[0]) + s2[1];
+                        fs.writeSync(fd, index + " " + value + '\n');
                     }
                 });
                 rl.on('close', function () {
