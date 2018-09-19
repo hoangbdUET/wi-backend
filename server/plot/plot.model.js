@@ -373,7 +373,28 @@ let duplicatePlot = function (payload, done, dbConnection, isSave) {
     let ImageTrack = dbConnection.ImageTrack;
     let ObjectTrack = dbConnection.ObjectTrack;
     let DepthAxis = dbConnection.DepthAxis;
-    Plot.findById(payload.idPlot, {include: [{all: true, include: [{all: true, include: {all: true}}]}]}).then(rs => {
+    Plot.findById(payload.idPlot, {
+        include: [{
+            model: dbConnection.Track,
+            include: [{
+                model: dbConnection.Shading
+            }, {
+                model: dbConnection.Annotaion
+            }, {
+                model: dbConnection.Marker
+            }, {
+                model: dbConnection.Line
+            }]
+        }, {
+            model: dbConnection.DepthAxis
+        }, {
+            model: dbConnection.ImageTrack
+        }, {
+            model: dbConnection.ObjectTrack
+        }, {
+            model: dbConnection.ZoneTrack
+        }]
+    }).then(rs => {
         if (rs) {
             let newPlot = rs.toJSON();
             delete newPlot.idPlot;
