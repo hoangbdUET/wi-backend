@@ -379,18 +379,22 @@ let duplicatePlot = function (payload, done, dbConnection, isSave) {
             include: [{
                 model: dbConnection.Shading
             }, {
-                model: dbConnection.Annotaion
-            }, {
-                model: dbConnection.Marker
+                model: dbConnection.Annotation
             }, {
                 model: dbConnection.Line
             }]
         }, {
             model: dbConnection.DepthAxis
         }, {
-            model: dbConnection.ImageTrack
+            model: dbConnection.ImageTrack,
+            include: {
+                model: dbConnection.ImageOfTrack
+            }
         }, {
-            model: dbConnection.ObjectTrack
+            model: dbConnection.ObjectTrack,
+            include: {
+                model: dbConnection.ObjectOfTrack
+            }
         }, {
             model: dbConnection.ZoneTrack
         }]
@@ -447,25 +451,6 @@ let duplicatePlot = function (payload, done, dbConnection, isSave) {
                                             });
                                         }, function () {
                                             cb(null, lineArr);
-                                        });
-                                    },
-                                    function (cb) {
-                                        let markers = track.markers;
-                                        asyncLoop(markers, function (marker, nextMarker) {
-                                            delete marker.idMarker;
-                                            delete marker.createAt;
-                                            delete marker.updatedAt;
-                                            marker.createdBy = payload.createdBy;
-                                            marker.updatedBy = payload.updatedBy;
-                                            marker.idTrack = idTrack;
-                                            dbConnection.Marker.create(marker).then(() => {
-                                                nextMarker();
-                                            }).catch(err => {
-                                                console.log(err);
-                                                nextMarker();
-                                            });
-                                        }, function () {
-                                            cb(null, true);
                                         });
                                     },
                                     function (cb) {
