@@ -46,6 +46,9 @@ function getFullCurveParents(curve, dbConnection) {
 function copyCurveData(srcCurve, desCurve, callback) {
     let srcPath = hashDir.createPath(config.curveBasePath, srcCurve.username + srcCurve.project + srcCurve.well + srcCurve.dataset + srcCurve.curve, srcCurve.curve + '.txt');
     let desPath = hashDir.createPath(config.curveBasePath, desCurve.username + desCurve.project + desCurve.well + desCurve.dataset + desCurve.curve, desCurve.curve + '.txt');
+    console.log("SRC ", config.curveBasePath, srcCurve.username + srcCurve.project + srcCurve.well + srcCurve.dataset + srcCurve.curve);
+    console.log("DES ", config.curveBasePath, desCurve.username + desCurve.project + desCurve.well + desCurve.dataset + desCurve.curve);
+    console.log("Copy from ", srcPath, " to ", desPath);
     fsExtra.copy(srcPath, desPath).then(() => {
         callback(null, desPath);
     }).catch(err => {

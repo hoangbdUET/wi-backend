@@ -24,15 +24,25 @@ let storage = multer.diskStorage({
 let upload = multer({storage: storage});
 
 router.post('/curve/copy', (req, res) => {
-    curveModel.copyCurve(req.body, (status) => {
-        res.send(status);
-    }, req.dbConnection, req.decoded.username);
+    res.send({
+        code: 512,
+        content: "This function has been moved to client",
+        reason: "This function has been moved to client"
+    });
+    // curveModel.copyCurve(req.body, (status) => {
+    //     res.send(status);
+    // }, req.dbConnection, req.decoded.username);
 });
 
 router.post('/curve/move', (req, res) => {
-    curveModel.moveCurve(req.body, (status) => {
-        res.send(status);
-    }, req.dbConnection, req.decoded.username);
+    res.send({
+        code: 512,
+        content: "This function has been moved to client",
+        reason: "This function has been moved to client"
+    });
+    // curveModel.moveCurve(req.body, (status) => {
+    //     res.send(status);
+    // }, req.dbConnection, req.decoded.username);
 });
 
 router.delete('/curve/delete', function (req, res) {
