@@ -63,4 +63,14 @@ router.post('/track/duplicate', function (req, res) {
     }, req.dbConnection)
 });
 
+router.post('/track/apply-to-well', async function (req, res) {
+    return res.send({
+        code: 512,
+        content: {},
+        reason: "Not implemented"
+    });
+    // const status = await trackModel.applyToWell(req.body, req.dbConnection);
+    // return res.send(status);
+});
+
 module.exports = router;
