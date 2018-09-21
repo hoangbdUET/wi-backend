@@ -561,20 +561,24 @@ async function applyToWell(payload, dbConnection) {
                 delete shading.idShading;
                 delete shading.idControlCurve;
                 shading.idTrack = _track.idTrack;
-                let leftLine = lines.find(l => l.alias === shading.leftLine.alias);
-                let rightLine = lines.find(l => l.alias === shading.rightLine.alias);
+                let leftLine = shading.leftLine ? lines.find(l => l.alias === shading.leftLine.alias) : null;
+                let rightLine = shading.rightLine ? lines.find(l => l.alias === shading.rightLine.alias) : null;
                 shading.idLeftLine = leftLine ? leftLine.idLine : null;
                 shading.idRightLine = rightLine ? rightLine.idLine : null;
                 checkCurveIsExistedInWell(well, shading.curve.name).then(curve => {
                     if (curve) {
                         shading.idControlCurve = curve.idCurve;
                     }
-                    dbConnection.Shading.create(shading).then(() => {
+                    if (shading.idLeftLine || shading.idRightLine) {
+                        dbConnection.Shading.create(shading).then(() => {
+                            next();
+                        }).catch(err => {
+                            console.log(err);
+                            next();
+                        });
+                    } else {
                         next();
-                    }).catch(err => {
-                        console.log(err);
-                        next();
-                    });
+                    }
                 });
             }, function () {
                 resolve();
