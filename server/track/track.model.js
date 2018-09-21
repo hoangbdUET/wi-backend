@@ -610,8 +610,8 @@ async function applyToWell(payload, dbConnection) {
         track = track.toJSON();
         delete track.idTrack;
         well = well.toJSON();
-        let foundZoneSetInNewWell = well.zone_sets.find(zs => zs.name === track.zone_set.name);
-        let foundMarkerSetInNewWell = well.marker_sets.find(ms => ms.name === track.marker_set.name);
+        let foundZoneSetInNewWell = track.zone_set ? well.zone_sets.find(zs => zs.name === track.zone_set.name) : null;
+        let foundMarkerSetInNewWell = track.marker_set ? well.marker_sets.find(ms => ms.name === track.marker_set.name) : null;
         track.idZoneSet = foundZoneSetInNewWell ? foundZoneSetInNewWell.idZoneSet : null;
         track.idMarkerSet = foundMarkerSetInNewWell ? foundMarkerSetInNewWell.idMarkerSet : null;
         track.orderNum = payload.orderNum;
