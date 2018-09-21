@@ -624,7 +624,7 @@ async function applyToWell(payload, dbConnection) {
         let _lines = await createLines(track.lines, well, _track);
         await createAnnotations(track.annotations, _track);
         await createShadings(track.shadings, well, _lines, _track);
-        return ResponseJSON(ErrorCodes.SUCCESS, track, well);
+        return ResponseJSON(ErrorCodes.SUCCESS, "Done", _track);
     } catch (err) {
         return ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err);
     }
