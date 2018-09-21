@@ -290,6 +290,7 @@ let createNewPlot = function (plotInfo, done, dbConnection, username) {
                 if (isOverride) {
                     dbConnection.Plot.findById(rs[0].idPlot).then(delPlot => {
                         delPlot.destroy({force: true}).then(() => {
+                            newPlot.idPlot = delPlot.idPlot;
                             dbConnection.Plot.create(newPlot).then((p) => {
                                 done(ResponseJSON(ErrorCodes.SUCCESS, "Override plot success", p.toJSON()));
                             }).catch(err => {
@@ -372,7 +373,32 @@ let duplicatePlot = function (payload, done, dbConnection, isSave) {
     let ImageTrack = dbConnection.ImageTrack;
     let ObjectTrack = dbConnection.ObjectTrack;
     let DepthAxis = dbConnection.DepthAxis;
-    Plot.findById(payload.idPlot, {include: [{all: true, include: [{all: true, include: {all: true}}]}]}).then(rs => {
+    Plot.findById(payload.idPlot, {
+        include: [{
+            model: dbConnection.Track,
+            include: [{
+                model: dbConnection.Shading
+            }, {
+                model: dbConnection.Annotation
+            }, {
+                model: dbConnection.Line
+            }]
+        }, {
+            model: dbConnection.DepthAxis
+        }, {
+            model: dbConnection.ImageTrack,
+            include: {
+                model: dbConnection.ImageOfTrack
+            }
+        }, {
+            model: dbConnection.ObjectTrack,
+            include: {
+                model: dbConnection.ObjectOfTrack
+            }
+        }, {
+            model: dbConnection.ZoneTrack
+        }]
+    }).then(rs => {
         if (rs) {
             let newPlot = rs.toJSON();
             delete newPlot.idPlot;
@@ -425,25 +451,6 @@ let duplicatePlot = function (payload, done, dbConnection, isSave) {
                                             });
                                         }, function () {
                                             cb(null, lineArr);
-                                        });
-                                    },
-                                    function (cb) {
-                                        let markers = track.markers;
-                                        asyncLoop(markers, function (marker, nextMarker) {
-                                            delete marker.idMarker;
-                                            delete marker.createAt;
-                                            delete marker.updatedAt;
-                                            marker.createdBy = payload.createdBy;
-                                            marker.updatedBy = payload.updatedBy;
-                                            marker.idTrack = idTrack;
-                                            dbConnection.Marker.create(marker).then(() => {
-                                                nextMarker();
-                                            }).catch(err => {
-                                                console.log(err);
-                                                nextMarker();
-                                            });
-                                        }, function () {
-                                            cb(null, true);
                                         });
                                     },
                                     function (cb) {
