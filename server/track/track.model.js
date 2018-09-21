@@ -4,6 +4,7 @@ let fs = require('fs');
 let asyncLoop = require('async/each');
 let asyncSeries = require('async/series');
 let path = require('path');
+let async = require('async');
 
 function createNewTrack(trackInfo, done, dbConnection) {
     dbConnection.Track.create(trackInfo).then(track => {
@@ -511,6 +512,130 @@ let duplicateTrack = function (payload, done, dbConnection) {
     ).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
     });
+};
+
+async function applyToWell(payload, dbConnection) {
+    function createLines(lines, well, _track) {
+        let _lines = [];
+        return new Promise((resolve => {
+            async.each(lines, (line, next) => {
+                delete line.idLine;
+                line.idTrack = _track.idTrack;
+                checkCurveIsExistedInWell(well, line.curve.name).then(curve => {
+                    if (curve) {
+                        line.idCurve = curve.idCurve;
+                        dbConnection.Line.create(line).then((l) => {
+                            _lines.push(l);
+                            next();
+                        }).catch(err => {
+                            console.log(err);
+                            next();
+                        });
+                    } else {
+                        next();
+                    }
+                });
+            }, () => {
+                resolve(_lines);
+            });
+        }));
+    }
+
+    function createAnnotations(annotations, _track) {
+        return new Promise(resolve => {
+            async.each(annotations, (annotation, next) => {
+                delete annotation.idAnnotation;
+                annotation.idTrack = _track.idTrack;
+                dbConnection.Annotation.create(annotation).then(() => {
+                    next();
+                });
+            }, function () {
+                resolve();
+            })
+        });
+    }
+
+    function createShadings(shadings, well, lines, _track) {
+        return new Promise(resolve => {
+            async.each(shadings, function (shading, next) {
+                delete shading.idShading;
+                delete shading.idControlCurve;
+                shading.idTrack = _track.idTrack;
+                let leftLine = lines.find(l => l.alias === shading.leftLine.alias);
+                let rightLine = lines.find(l => l.alias === shading.rightLine.alias);
+                shading.idLeftLine = leftLine ? leftLine.idLine : null;
+                shading.idRightLine = rightLine ? rightLine.idLine : null;
+                checkCurveIsExistedInWell(well, shading.curve.name).then(curve => {
+                    if (curve) {
+                        shading.idControlCurve = curve.idCurve;
+                    }
+                    dbConnection.Shading.create(shading).then(() => {
+                        next();
+                    }).catch(err => {
+                        console.log(err);
+                        next();
+                    });
+                });
+            }, function () {
+                resolve();
+            })
+        });
+    }
+
+    try {
+        let track = await dbConnection.Track.findById(payload.idTrack, {
+            include: [
+                {model: dbConnection.Line, include: {model: dbConnection.Curve}},
+                {
+                    model: dbConnection.Shading,
+                    include: [{model: dbConnection.Line, as: 'leftLine'}, {
+                        model: dbConnection.Line,
+                        as: 'rightLine'
+                    }, {model: dbConnection.Curve}]
+                },
+                {model: dbConnection.Annotation},
+                {model: dbConnection.ZoneSet},
+                {model: dbConnection.MarkerSet}
+            ]
+        });
+        let well = await dbConnection.Well.findById(payload.idWell, {
+            include: [
+                {model: dbConnection.Dataset, include: {model: dbConnection.Curve}},
+                {model: dbConnection.MarkerSet},
+                {model: dbConnection.ZoneSet},
+            ]
+        });
+        if (!track) throw new Error("No Track found by id");
+        if (!well) throw new Error("No Well found by id");
+        track = track.toJSON();
+        delete track.idTrack;
+        well = well.toJSON();
+        let foundZoneSetInNewWell = well.zone_sets.find(zs => zs.name === track.zone_set.name);
+        let foundMarkerSetInNewWell = well.marker_sets.find(ms => ms.name === track.marker_set.name);
+        track.idZoneSet = foundZoneSetInNewWell ? foundZoneSetInNewWell.idZoneSet : null;
+        track.idMarkerSet = foundMarkerSetInNewWell ? foundMarkerSetInNewWell.idMarkerSet : null;
+        track.orderNum = payload.orderNum;
+        track.title = "Created from " + track.title;
+        let _track = await dbConnection.Track.create(track);
+        let _lines = await createLines(track.lines, well, _track);
+        await createAnnotations(track.annotations, _track);
+        await createShadings(track.shadings, well, _lines, _track);
+        return ResponseJSON(ErrorCodes.SUCCESS, track, well);
+    } catch (err) {
+        return ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err);
+    }
+}
+
+function checkCurveIsExistedInWell(well, curveName) {
+    return new Promise(function (resolve) {
+        let curve;
+        async.each(well.datasets, (d, next) => {
+            curve = d.curves.find(c => c.name === curveName);
+            next();
+        }, function () {
+            resolve(curve);
+        });
+    });
 }
 
 module.exports = {
@@ -520,5 +645,6 @@ module.exports = {
     getTrackInfo: getTrackInfo,
     exportData: exportData,
     importTrackTemplate: importTrackTemplate,
-    duplicateTrack: duplicateTrack
+    duplicateTrack: duplicateTrack,
+    applyToWell: applyToWell
 };
