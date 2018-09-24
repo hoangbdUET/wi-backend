@@ -109,7 +109,7 @@ router.post('/curve/getDataFile', function (req, res) {
 function writeToTmpFile(data, callback) {
     let name = Date.now();
     let tmpPath = path.join(__dirname, name + '.txt');
-    let text = new String();
+    let text = "";
     let count = 0;
     data.forEachDone(function (row) {
         if (Array.isArray(row)) {
