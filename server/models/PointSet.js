@@ -48,12 +48,28 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: true//TODO has default???:9
         },
-        scaleMin: {
-            type: DataTypes.INTEGER,
+        scaleMin1: {
+            type: DataTypes.FLOAT,
             allowNull: true
         },
-        scaleMax: {
-            type: DataTypes.INTEGER,
+        scaleMin2: {
+            type: DataTypes.FLOAT,
+            allowNull: true
+        },
+        scaleMin3: {
+            type: DataTypes.FLOAT,
+            allowNull: true
+        },
+        scaleMax1: {
+            type: DataTypes.FLOAT,
+            allowNull: true
+        },
+        scaleMax2: {
+            type: DataTypes.FLOAT,
+            allowNull: true
+        },
+        scaleMax3: {
+            type: DataTypes.FLOAT,
             allowNull: true
         },
         numColor: {

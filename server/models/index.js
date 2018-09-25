@@ -291,6 +291,9 @@ function newDbInstance(dbName, callback) {
         m.PointSet.belongsTo(m.Curve, {foreignKey: {name: 'idCurveX', allowNull: true}});
         m.PointSet.belongsTo(m.Curve, {foreignKey: {name: 'idCurveY', allowNull: true}});
         m.PointSet.belongsTo(m.Curve, {foreignKey: {name: 'idCurveZ', allowNull: true}});
+        m.PointSet.belongsTo(m.Curve, {foreignKey: {name: 'idCurveZ1', allowNull: true}});
+        m.PointSet.belongsTo(m.Curve, {foreignKey: {name: 'idCurveZ2', allowNull: true}});
+        m.PointSet.belongsTo(m.Curve, {foreignKey: {name: 'idCurveZ3', allowNull: true}});
         m.PointSet.belongsTo(m.ZoneSet, {foreignKey: {name: 'idZoneSet', allowNull: true}});
         m.PointSet.belongsTo(m.OverlayLine, {foreignKey: {name: 'idOverlayLine', allowNull: true}});
 
