@@ -634,7 +634,8 @@ function checkCurveIsExistedInWell(well, curveName) {
     return new Promise(function (resolve) {
         let curve;
         async.each(well.datasets, (d, next) => {
-            curve = d.curves.find(c => c.name.trim() == curveName.trim());
+            let foundCurve = d.curves.find(c => c.name.trim() == curveName.trim());
+            if (foundCurve) curve = foundCurve;
             next();
         }, function () {
             resolve(curve);
