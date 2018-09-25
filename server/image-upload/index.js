@@ -14,7 +14,7 @@ let asyncEach = require('async/each');
 
 let router = express.Router();
 // let saveDir = path.join(__dirname, '../..', config.imageBasePath);
-let saveDir = config.imageBasepath;
+let saveDir = path.join(config.imageBasepath);
 
 
 router.use(cors());
