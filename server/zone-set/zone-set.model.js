@@ -6,7 +6,7 @@ let eachSeries = require('async/eachSeries');
 function createNewZoneSet(zoneSetInfo, done, dbConnection) {
     let ZoneSet = dbConnection.ZoneSet;
     ZoneSet.create(zoneSetInfo).then(zs => {
-        if (zoneSetInfo.template && (zoneSetInfo.start || zoneSetInfo.start==0) && zoneSetInfo.stop) {
+        if (zoneSetInfo.template && (zoneSetInfo.start || zoneSetInfo.start == 0) && zoneSetInfo.stop) {
             let Op = require('sequelize').Op;
             dbConnection.ZoneTemplate.findAll({where: {template: zoneSetInfo.template}}).then(async (zones) => {
                 let stop = zoneSetInfo.stop;
@@ -20,7 +20,8 @@ function createNewZoneSet(zoneSetInfo, done, dbConnection) {
                         name: zone.name,
                         createdBy: zoneSetInfo.createdBy,
                         updatedBy: zoneSetInfo.updatedBy,
-                        idZoneTemplate: zone.idZoneTemplate
+                        idZoneTemplate: zone.idZoneTemplate,
+                        orderNum: zone.orderNum
                     }).then(z => {
                         start = start + range;
                         nextZone();

@@ -35,6 +35,11 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: true
         },
+        orderNum: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: '0'
+        },
         // name: {
         //     type: DataTypes.STRING(100),
         //     allowNull: false//TODO: has defaultValue????
