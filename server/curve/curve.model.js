@@ -403,7 +403,7 @@ function getData(param, successFunc, errorFunc, dbConnection, username) {
                                                 successFunc(stream);
                                             }
                                         }, {
-                                            isCore: (dataset.step === 0)
+                                            isCore: (dataset.step === 0 || dataset.step === '0')
                                         }
                                     );
                                 });
