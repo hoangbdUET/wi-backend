@@ -110,7 +110,6 @@ module.exports = function (idWell, done, dbConnection, username, createdBy, upda
                                         name: curve.name,
                                         unit: curve.unit,
                                         idDataset: _dataset.idDataset,
-                                        initValue: "well-duplicated",
                                         createdBy: createdBy,
                                         updatedBy: updatedBy
                                     }).then(_curve => {

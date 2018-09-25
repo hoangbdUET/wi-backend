@@ -90,7 +90,6 @@ async function importWell(well, token, callback, dbConnection, username, created
                     dbConnection.Curve.create({
                         name: curve.name,
                         unit: curve.curve_revisions[0].unit,
-                        initValue: "batch",
                         idDataset: wiDataset.idDataset,
                         createdBy: createdBy,
                         updatedBy: updatedBy

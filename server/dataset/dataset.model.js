@@ -171,7 +171,6 @@ function duplicateDataset(data, done, dbConnection, username) {
                         name: curve.name,
                         unit: curve.unit,
                         idDataset: _dataset.idDataset,
-                        initValue: "dataset-duplicated",
                         createdBy: data.createdBy,
                         updatedBy: data.updatedBy
                     }).then(c => {

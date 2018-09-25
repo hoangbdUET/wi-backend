@@ -16,7 +16,6 @@ module.exports = function (parents, dataset, dbConnection) {
                 name: '__MD',
                 unit: dataset.unit,
                 idFamily: 743,
-                initValue: 'Auto created',
                 description: 'MD Curve',
                 idDataset: dataset.idDataset,
                 createdBy: parents.username,

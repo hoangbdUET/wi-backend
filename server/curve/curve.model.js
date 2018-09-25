@@ -22,7 +22,6 @@ function createNewCurve(curveInfo, done, dbConnection) {
                     name: curveInfo.name,
                     dataset: curveInfo.dataset,
                     unit: curveInfo.unit,
-                    initValue: curveInfo.initValue,
                     createdBy: curveInfo.createdBy,
                     updatedBy: curveInfo.updatedBy
                 });
@@ -69,7 +68,6 @@ function editCurve(curveInfo, done, dbConnection, username) {
                                     curve.idDataset = curveInfo.idDataset ? curveInfo.idDataset : curve.idDataset;
                                     curve.name = curveInfo.name;
                                     curve.unit = curveInfo.unit ? curveInfo.unit : curve.unit;
-                                    curve.initValue = curveInfo.initValue ? curveInfo.initValue : curve.initValue;
                                     curve.updatedBy = curveInfo.updatedBy;
                                     curve.save()
                                         .then(() => {
@@ -311,7 +309,6 @@ async function moveCurve(param, done, dbConnection, username) {
                                     createdBy: _curve.createdBy,
                                     updatedBy: _curve.updatedBy,
                                     unit: _curve.unit,
-                                    initValue: _curve.unit,
                                     idFamily: _curve.idFamily
                                 }).then(() => {
                                     done(ResponseJSON(ErrorCodes.SUCCESS, "Successful"));
@@ -572,7 +569,6 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy) {
                         Curve.create({
                             name: newCurveName,
                             unit: unit,
-                            initValue: "0",
                             idDataset: idDataset,
                             idFamily: idFamily,
                             createdBy: createdBy,
@@ -654,7 +650,6 @@ async function getCurveDataFromInventory(curveInfo, token, callback, dbConnectio
     curve.name = curveInfo.name;
     curve.unit = curveInfo.unit;
     curve.description = curveInfo.description;
-    curve.initValue = 0;
     curve.idDataset = dataset.idDataset;
     dbConnection.Curve.findOrCreate({
         where: {
@@ -664,7 +659,6 @@ async function getCurveDataFromInventory(curveInfo, token, callback, dbConnectio
         defaults: {
             name: curve.name,
             idDataset: curve.idDataset,
-            initValue: curve.initValue,
             unit: curve.unit,
             createdBy: createdBy,
             updatedBy: updatedBy,
@@ -716,7 +710,6 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
         curve.name = curveInfo.name;
         curve.unit = curveInfo.unit;
         curve.description = curveInfo.description;
-        curve.initValue = 0;
         curve.idDataset = dataset.idDataset;
         dbConnection.Curve.findOrCreate({
             where: {
@@ -726,7 +719,6 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
             defaults: {
                 name: curve.name,
                 idDataset: curve.idDataset,
-                initValue: curve.initValue,
                 unit: curve.unit,
                 createdBy: createdBy,
                 updatedBy: updatedBy,

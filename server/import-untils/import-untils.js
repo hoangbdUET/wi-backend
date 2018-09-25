@@ -45,7 +45,6 @@ function createCurvesWithProjectExist(projectInfo, wellInfo, datasetInfo, dbConn
                         where: {name: curve.name, idDataset: dataset.idDataset}, defaults: {
                             name: curve.name,
                             unit: curve.unit,
-                            initValue: curve.initValue,
                             createdBy: createdBy,
                             updatedBy: updatedBy
                         }

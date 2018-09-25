@@ -376,7 +376,6 @@ async function exportToProject(info, done, dbConnection, username) {
                     dbConnection.Curve.create({
                         name: curve.name,
                         unit: curve.unit,
-                        initValue: curve.initValue,
                         idDataset: newDataset.idDataset,
                         idFamily: curve.idFamily
                     }).then(newCurve => {
