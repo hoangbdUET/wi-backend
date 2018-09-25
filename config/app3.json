@@ -32,6 +32,6 @@
     "authenticate": "https://admin.dev.i2g.cloud"
   },
   "curveBasePath": "../data",
-  "imageBasePath": "wi-images",
+  "imageBasePath": "/opt/wi-backend/wi-images",
   "exportPath": "./server/export/exported-files"
 }
