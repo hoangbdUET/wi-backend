@@ -76,6 +76,14 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: true
         },
+        numSize: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        numSymbol: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
         pointSymbol: {
             type: DataTypes.STRING(60),
             allowNull: false,
@@ -138,6 +146,7 @@ module.exports = function (sequelize, DataTypes) {
             defaultValue: "intervalDepth",
             allowNull: true
         },
+
         // referenceTopDepth: {
         //     type: DataTypes.DOUBLE,
         //     allowNull: false,
