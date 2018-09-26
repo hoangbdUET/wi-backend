@@ -77,6 +77,11 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: true,
             defaultValue: 0
         },
+        showZones:{
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+            defaultValue: 0
+        },
         configs: {
             type: DataTypes.TEXT('medium'),
             allowNull: true
