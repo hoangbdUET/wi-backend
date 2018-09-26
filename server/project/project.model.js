@@ -35,6 +35,7 @@ function editProject(projectInfo, done, dbConnection) {
 			project.department = projectInfo.department;
 			project.description = projectInfo.description;
 			project.updatedBy = projectInfo.updatedBy;
+			project.alias = projectInfo.alias;
 			project.save()
 				.then(function () {
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Project success", projectInfo));
