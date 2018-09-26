@@ -141,7 +141,7 @@ async function duplicateZoneSet(data, done, dbConnection) {
     let zoneset = await dbConnection.ZoneSet.findById(data.idZoneSet, {include: {all: true}});
     let newZoneset = zoneset.toJSON();
     delete newZoneset.idZoneSet;
-    newZoneset.name = zoneset.name + '_Copy_' + zoneset.duplicated;
+    newZoneset.name = zoneset.name + '_COPY_' + zoneset.duplicated;
     zoneset.duplicated++;
     newZoneset.createdBy = data.createdBy;
     newZoneset.updatedBy = data.updatedBy;

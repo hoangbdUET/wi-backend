@@ -138,7 +138,7 @@ function duplicateDataset(data, done, dbConnection, username) {
         let project = await dbConnection.Project.findById(well.idProject);
         let newDataset = dataset.toJSON();
         delete newDataset.idDataset;
-        newDataset.name = dataset.name + '_Copy_' + dataset.duplicated;
+        newDataset.name = dataset.name + '_COPY_' + dataset.duplicated;
         newDataset.step = dataset.step;
         newDataset.top = dataset.top;
         newDataset.bottom = dataset.bottom;

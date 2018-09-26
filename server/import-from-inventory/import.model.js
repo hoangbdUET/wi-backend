@@ -215,7 +215,7 @@ function importDataset(datasets, token, callback, dbConnection, username, create
             } else {
                 //found
                 let newDataset = _dataset.toJSON();
-                newDataset.name = newDataset.name + "__" + newDataset.duplicated;
+                newDataset.name = newDataset.name + "_" + newDataset.duplicated;
                 _dataset.duplicated++;
                 _dataset.save();
                 delete newDataset.idDataset;

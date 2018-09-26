@@ -359,7 +359,7 @@ function duplicateHistogram(payload, done, dbConnection) {
             delete newHistogram.updatedAt;
             // newHistogram.name = newHistogram.name + '_' + new Date().toLocaleString('en-US', {timeZone: "Asia/Ho_Chi_Minh"});
             newHistogram.duplicated = 1;
-            newHistogram.name = newHistogram.name + "_Copy_" + hisogram.duplicated;
+            newHistogram.name = newHistogram.name + "_COPY_" + hisogram.duplicated;
             newHistogram.createdBy = payload.createdBy;
             newHistogram.updatedBy = payload.updatedBy;
             hisogram.duplicated++;

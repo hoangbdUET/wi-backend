@@ -410,7 +410,7 @@ let duplicatePlot = function (payload, done, dbConnection, isSave) {
             } else {
                 // newPlot.name = newPlot.name + "_" + new Date().toLocaleString('en-US', {timeZone: "Asia/Ho_Chi_Minh"});
                 newPlot.duplicated = 1;
-                newPlot.name = newPlot.name + "_Copy_" + rs.duplicated;
+                newPlot.name = newPlot.name + "_COPY_" + rs.duplicated;
                 newPlot.createdBy = payload.createdBy;
                 newPlot.updatedBy = payload.updatedBy;
                 rs.duplicated += 1;

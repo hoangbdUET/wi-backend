@@ -371,7 +371,7 @@ function duplicateCrossplot(payload, done, dbConnection) {
             delete newCrossPlot.updatedAt;
             // newCrossPlot.name = newCrossPlot.name + '_' + new Date().toLocaleString('en-US', {timeZone: "Asia/Ho_Chi_Minh"});
             newCrossPlot.duplicated = 1;
-            newCrossPlot.name = newCrossPlot.name + "_Copy_" + crossplot.duplicated;
+            newCrossPlot.name = newCrossPlot.name + "_COPY_" + crossplot.duplicated;
             newCrossPlot.createdBy = payload.createdBy;
             newCrossPlot.updatedBy = payload.updatedBy;
             crossplot.duplicated++;

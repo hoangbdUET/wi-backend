@@ -24,7 +24,7 @@ module.exports = function (idWell, done, dbConnection, username, createdBy, upda
             delete newWell.deletedAt;
             delete newWell.idWell;
             newWell.duplicated = 1;
-            newWell.name = newWell.name + "_Copy_" + well.duplicated;
+            newWell.name = newWell.name + "_COPY_" + well.duplicated;
             newWell.createdBy = createdBy;
             newWell.updatedBy = updatedBy;
             newWell.topDepth = well.topDepth;
