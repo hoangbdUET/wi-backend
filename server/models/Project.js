@@ -13,6 +13,10 @@ module.exports = function (sequelize, DataTypes) {
                 notEmpty: true
             }
         },
+        alias:{
+            type: DataTypes.STRING,
+            allowNull: true
+        },
         location: {
             type: DataTypes.STRING(250),
             allowNull: true
