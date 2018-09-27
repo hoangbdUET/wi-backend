@@ -35,22 +35,128 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
     if (crossPlotInfo.axisColors && typeof(crossPlotInfo.axisColors === "object")) {
         JSON.stringify(crossPlotInfo.axisColors);
     }
-    dbConnection.CrossPlot.create({
-        idProject: crossPlotInfo.idProject,
-        name: crossPlotInfo.name,
-        axisColors: crossPlotInfo.axisColors,
-        createdBy: crossPlotInfo.createdBy,
-        updatedBy: crossPlotInfo.updatedBy,
-        configs: crossPlotInfo.configs
-    }).then(function (crossPlot) {
-        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new CrossPlot success", crossPlot.toJSON()));
-    }).catch(function (err) {
-        if (err.name === "SequelizeUniqueConstraintError") {
-            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CrossPlot name existed!"));
-        } else {
-            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+    if (crossPlotInfo.crossTemplate && crossPlotInfo.datasets) {
+        let myData = null;
+        try {
+            myData = require('./cross-template/' + crossPlotInfo.crossTemplate + '.json');
+        } catch (err) {
+            return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CrossPlot type not found"));
         }
-    });
+        dbConnection.CrossPlot.create({
+            idProject: crossPlotInfo.idProject,
+            name: crossPlotInfo.name,
+            axisColors: crossPlotInfo.axisColors,
+            createdBy: crossPlotInfo.createdBy,
+            updatedBy: crossPlotInfo.updatedBy,
+            configs: crossPlotInfo.configs
+        }).then(_cr => {
+            asyncLoop(crossPlotInfo.datasets, (dataset, nextDataset) => {
+                let found = {
+                    curveX: {},
+                    curveY: {}
+                };
+                asyncLoop(myData.curveX.families, function (family, nextFamily) {
+                    findFamilyIdByName(family.name, dbConnection, function (idFamily, scale) {
+                        if (idFamily) {
+                            dbConnection.Curve.findOne({
+                                where: {
+                                    idFamily: idFamily,
+                                    idDataset: dataset.idDataset
+                                }
+                            }).then(curve => {
+                                if (curve) {
+                                    let curveX = curve.toJSON();
+                                    curveX.scaleLeft = scale.minScale;
+                                    curveX.scaleRight = scale.maxScale;
+                                    found.curveX = curveX;
+                                    nextFamily();
+                                } else {
+                                    nextFamily();
+                                }
+                            })
+                        } else {
+                            nextFamily();
+                        }
+                    });
+                }, function () {
+                    asyncLoop(myData.curveY.families, function (family, nextFamily) {
+                        findFamilyIdByName(family.name, dbConnection, function (idFamily, scale) {
+                            if (idFamily) {
+                                dbConnection.Curve.findOne({
+                                    where: {
+                                        idFamily: idFamily,
+                                        idDataset: dataset.idDataset
+                                    }
+                                }).then(curve => {
+                                    if (curve) {
+                                        let curveY = curve.toJSON();
+                                        curveY.scaleTop = scale.maxScale;
+                                        curveY.scaleBottom = scale.minScale;
+                                        found.curveY = curveY;
+                                        nextFamily();
+                                    } else {
+                                        nextFamily();
+                                    }
+                                })
+                            } else {
+                                nextFamily();
+                            }
+                        });
+                    }, function () {
+                        let pointset = {};
+                        pointset.idCurveX = found.curveX.idCurve;
+                        pointset.idCurveY = found.curveY.idCurve;
+                        pointset.scaleLeft = found.curveX.scaleLeft;
+                        pointset.scaleRight = found.curveX.scaleRight;
+                        pointset.scaleBottom = found.curveY.scaleBottom;
+                        pointset.scaleTop = found.curveY.scaleTop;
+                        pointset.idCrossPlot = _cr.idCrossPlot;
+                        pointset.intervalDepthTop = dataset.top;
+                        pointset.intervalDepthBottom = dataset.bottom;
+                        pointset.majorX = 5;
+                        pointset.majorY = 5;
+                        pointset.minorX = 1;
+                        pointset.minorY = 1;
+                        pointset.createdBy = crossPlotInfo.createdBy;
+                        pointset.updatedBy = crossPlotInfo.updatedBy;
+                        if (pointset.idCurveX && pointset.idCurveY) {
+                            dbConnection.PointSet.create(pointset).then(nextDataset()).catch(err => {
+                                nextDataset()
+                            });
+                        } else {
+                            nextDataset();
+                        }
+                    });
+                });
+            }, function () {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Create new CrossPlot success", _cr));
+            });
+        }).catch(err => {
+
+            if (err.name === "SequelizeUniqueConstraintError") {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CrossPlot name existed!"));
+            } else {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+            }
+        });
+    } else {
+        dbConnection.CrossPlot.create({
+            idProject: crossPlotInfo.idProject,
+            name: crossPlotInfo.name,
+            axisColors: crossPlotInfo.axisColors,
+            createdBy: crossPlotInfo.createdBy,
+            updatedBy: crossPlotInfo.updatedBy,
+            configs: crossPlotInfo.configs
+        }).then(function (crossPlot) {
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new CrossPlot success", crossPlot.toJSON()));
+        }).catch(function (err) {
+            if (err.name === "SequelizeUniqueConstraintError") {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CrossPlot name existed!"));
+            } else {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+            }
+        });
+    }
 }
 
 async function _createNewCrossPlot(crossPlotInfo, done, dbConnection) {
