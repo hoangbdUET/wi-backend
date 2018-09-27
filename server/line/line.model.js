@@ -133,72 +133,76 @@ function createNewLine(lineInfo, done, dbConnection, username) {
     let convertUnit = require('../family-unit/family-unit.model');
     if (!lineInfo.idCurve) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Need idCurve"));
     dbConnection.Curve.findById(lineInfo.idCurve).then(curve => {
-        curveModel.calculateScale(curve.idCurve, username, dbConnection, function (err, result) {
-            let curveMinScale = result.minScale;
-            let curveMaxScale = result.maxScale;
-            curve.getLineProperty({
-                include: {
-                    model: dbConnection.FamilySpec,
-                    as: 'family_spec',
-                    // where: {isDefault: true}
-                }
-            }).then(family => {
-                if (family) {
-                    convertUnit.getListUnitByIdFamily(family.idFamily, dbConnection).then(units => {
-                        let unitConvertData = {};
-                        let _line = {};
-                        unitConvertData.srcUnit = units.find(u => u.name === curve.unit);
-                        unitConvertData.desUnit = units.find(u => u.name === family.family_spec[0].unit);
-                        _line.minValue = family.family_spec[0].minScale;
-                        _line.maxValue = family.family_spec[0].maxScale;
-                        console.log(family.family_spec[0].minScale);
-                        console.log(family.family_spec[0].maxScale);
-                        if (_line.minValue === null || _line.maxValue === null || !family.family_spec[0]) {
-                            console.log("CHANGE VALUE");
-                            _line.minValue = curveMinScale;
-                            _line.maxValue = curveMaxScale;
-                        }
-                        _line.idTrack = lineInfo.idTrack;
-                        _line.idCurve = curve.idCurve;
-                        _line.alias = curve.name;
-                        _line.unit = curve.unit;
-                        _line.displayMode = family.family_spec[0].displayMode;
-                        _line.blockPosition = family.family_spec[0].blockPosition;
-                        _line.displayType = family.family_spec[0].displayType;
-                        _line.lineStyle = family.family_spec[0].lineStyle;
-                        _line.lineWidth = family.family_spec[0].lineWidth;
-                        _line.lineColor = family.family_spec[0].lineColor;
-                        _line.symbolFillStyle = family.family_spec[0].lineColor;
-                        _line.symbolStrokeStyle = family.family_spec[0].lineColor;
-                        _line.orderNum = lineInfo.orderNum;
-                        _line.createdBy = lineInfo.createdBy;
-                        _line.updatedBy = lineInfo.updatedBy;
-                        dbConnection.Line.create(_line).then(l => {
-                            done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", l));
-                        }).catch(err => {
-                            console.log(err);
-                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
-                        })
-                    });
-                } else {
-                    dbConnection.Line.create({
-                        idTrack: lineInfo.idTrack,
-                        idCurve: curve.idCurve,
-                        alias: curve.name,
-                        minValue: curveMinScale,
-                        maxValue: curveMaxScale,
-                        orderNum: lineInfo.orderNum,
-                        createdBy: lineInfo.createdBy,
-                        updatedBy: lineInfo.updatedBy,
-                        unit: curve.unit || 'N/A'
-                    }).then(l => {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", l.toJSON()));
-                    }).catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name + err.message));
-                    });
-                }
+        if(!curve){
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No curve found in line info", lineInfo));
+        }  else {
+            curveModel.calculateScale(curve.idCurve, username, dbConnection, function (err, result) {
+                let curveMinScale = result.minScale;
+                let curveMaxScale = result.maxScale;
+                curve.getLineProperty({
+                    include: {
+                        model: dbConnection.FamilySpec,
+                        as: 'family_spec',
+                        // where: {isDefault: true}
+                    }
+                }).then(family => {
+                    if (family) {
+                        convertUnit.getListUnitByIdFamily(family.idFamily, dbConnection).then(units => {
+                            let unitConvertData = {};
+                            let _line = {};
+                            unitConvertData.srcUnit = units.find(u => u.name === curve.unit);
+                            unitConvertData.desUnit = units.find(u => u.name === family.family_spec[0].unit);
+                            _line.minValue = family.family_spec[0].minScale;
+                            _line.maxValue = family.family_spec[0].maxScale;
+                            console.log(family.family_spec[0].minScale);
+                            console.log(family.family_spec[0].maxScale);
+                            if (_line.minValue === null || _line.maxValue === null || !family.family_spec[0]) {
+                                console.log("CHANGE VALUE");
+                                _line.minValue = curveMinScale;
+                                _line.maxValue = curveMaxScale;
+                            }
+                            _line.idTrack = lineInfo.idTrack;
+                            _line.idCurve = curve.idCurve;
+                            _line.alias = curve.name;
+                            _line.unit = curve.unit;
+                            _line.displayMode = family.family_spec[0].displayMode;
+                            _line.blockPosition = family.family_spec[0].blockPosition;
+                            _line.displayType = family.family_spec[0].displayType;
+                            _line.lineStyle = family.family_spec[0].lineStyle;
+                            _line.lineWidth = family.family_spec[0].lineWidth;
+                            _line.lineColor = family.family_spec[0].lineColor;
+                            _line.symbolFillStyle = family.family_spec[0].lineColor;
+                            _line.symbolStrokeStyle = family.family_spec[0].lineColor;
+                            _line.orderNum = lineInfo.orderNum;
+                            _line.createdBy = lineInfo.createdBy;
+                            _line.updatedBy = lineInfo.updatedBy;
+                            dbConnection.Line.create(_line).then(l => {
+                                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", l));
+                            }).catch(err => {
+                                console.log(err);
+                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                            })
+                        });
+                    } else {
+                        dbConnection.Line.create({
+                            idTrack: lineInfo.idTrack,
+                            idCurve: curve.idCurve,
+                            alias: curve.name,
+                            minValue: curveMinScale,
+                            maxValue: curveMaxScale,
+                            orderNum: lineInfo.orderNum,
+                            createdBy: lineInfo.createdBy,
+                            updatedBy: lineInfo.updatedBy,
+                            unit: curve.unit || 'N/A'
+                        }).then(l => {
+                            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", l.toJSON()));
+                        }).catch(function (err) {
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name + err.message));
+                        });
+                    }
+                });
             });
-        });
+        }
     });
 }
 
