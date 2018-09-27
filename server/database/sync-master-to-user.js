@@ -132,6 +132,25 @@ let syncWorkflowSpec = function (userDbConnection, callback) {
         });
     });
 };
+
+let syncZoneSetTemplate = function (userDbConnection, callback) {
+    userDbConnection.ZoneSetTemplate.destroy({where: {}}).then(() => {
+        modelMaster.ZoneSetTemplate.findAll().then(rss => {
+            async.each(rss, function (rs, next) {
+                userDbConnection.ZoneSetTemplate.create(rs.toJSON()).then(() => {
+                    next();
+                }).catch(err => {
+                    console.log(err);
+                    next(err);
+                })
+            }, function (err) {
+                if (err) return callback(err);
+                callback();
+            });
+        });
+    });
+};
+
 let syncZoneTemplate = function (userDbConnection, callback) {
     userDbConnection.ZoneTemplate.destroy({where: {}}).then(() => {
         modelMaster.ZoneTemplate.findAll().then(rss => {
@@ -252,8 +271,11 @@ module.exports = function (userDbConnection, callback, resetObject) {
                 syncWorkflowSpec(userDbConnection, function () {
                     console.log("Done workflow spec");
                 });
-                syncZoneTemplate(userDbConnection, function () {
-                    console.log("Done zone template");
+                syncZoneSetTemplate(userDbConnection, function () {
+                    console.log("Done all zone set template")
+                    syncZoneTemplate(userDbConnection, function () {
+                        console.log("Done zone template");
+                    });
                 });
                 syncMarkerTemplate(userDbConnection, function () {
                     console.log("Done marker template");

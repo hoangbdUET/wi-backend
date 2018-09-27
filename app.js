@@ -5,6 +5,7 @@ let overlayLineUpdate = require('./server/overlay-line/overlay-line.update');
 let workflowSpecUpdate = require('./server/workflow-spec/workflow-spec.update');
 let taskSpecUpdate = require('./server/task/task-spec').createTaskSpec;
 let zoneTemplateUpdate = require('./server/zone-template/zone-template.model').createZoneTemplateFromXLSX;
+let zoneSetTemplateUpdate = require('./server/zone-template/zone-template.model').createZoneSetTemplateFromXLSX;
 let markerTemplateUpdate = require('./server/marker-template/marker-template.function').importMarkerTemplate;
 const QUEUE_TIME = 500;
 
@@ -108,6 +109,7 @@ function main() {
     let combinedBoxToolRouter = require('./server/combined-box-tool/combined-box-tool.router');
     let combinedBoxRouter = require('./server/combined-box/combined-box.router');
     let asyncQueue = require('async/queue');
+    let zoneSetTemplateRouter = require('./server/zone-set-template/zone-set-template.router');
     let zoneTemplateRouter = require('./server/zone-template/zone-template.router');
     let patternRouter = require('./server/pattern/pattern.router');
     let flowRouter = require('./server/flow/flow.router');
@@ -120,10 +122,10 @@ function main() {
     let resetDefaulParameters = require('./server/reset-parameter/reset-pamameter.router');
     let permissionRouter = require('./server/permission/permission.router');
     let queue = {};
-	let http = require('http').Server(app);
-	let bodyParser = require('body-parser');
-	app.use(bodyParser.json({limit: '50mb', extended: true, type: 'application/json'}));
-	app.use(bodyParser.urlencoded({limit: '50mb', extended: true, type: 'application/json'}));
+    let http = require('http').Server(app);
+    let bodyParser = require('body-parser');
+    app.use(bodyParser.json({limit: '50mb', extended: true, type: 'application/json'}));
+    app.use(bodyParser.urlencoded({limit: '50mb', extended: true, type: 'application/json'}));
     app.use(cors());
     // app.use(queue({activeLimit: 2, queuedLimit: 2}));
     /**
@@ -157,8 +159,10 @@ function main() {
             taskSpecUpdate(function () {
 
             });
-            zoneTemplateUpdate(function () {
+            zoneSetTemplateUpdate(function () {
+                zoneTemplateUpdate(function () {
 
+                });
             });
             markerTemplateUpdate(function () {
 
@@ -218,6 +222,7 @@ function main() {
     app.use('/', workflowRouter);
     app.use('/', workflowSpecRouter);
     app.use('/', zoneTemplateRouter);
+    app.use('/', zoneSetTemplateRouter);
     app.use('/', taskSpecRouter);
     app.use('/permission', permissionRouter);
     app.use('/reset-parameter', resetDefaulParameters);

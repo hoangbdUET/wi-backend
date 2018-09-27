@@ -33,7 +33,8 @@ let models = [
     'TaskSpec',
     'UnitGroup',
     'WorkflowSpec',
-    'ZoneTemplate'
+    'ZoneTemplate',
+    'ZoneSetTemplate'
 ];
 models.forEach(function (model) {
     module.exports[model] = sequelize.import(__dirname + '/' + model);
@@ -44,5 +45,6 @@ models.forEach(function (model) {
     m.Family.hasMany(m.FamilySpec, {foreignKey: 'idFamily'});
     m.FamilySpec.belongsTo(m.UnitGroup, {foreignKey: 'idUnitGroup'});
     m.UnitGroup.hasMany(m.FamilyUnit, {foreignKey: 'idUnitGroup'});
+    m.ZoneSetTemplate.hasMany(m.ZoneTemplate, {foreignKey: 'idZoneSetTemplate'});
 })(module.exports);
 module.exports.sequelize = sequelize;
