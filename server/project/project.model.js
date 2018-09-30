@@ -125,7 +125,8 @@ async function getProjectList(owner, done, dbConnection, username, realUser, tok
                                 next();
                             } else {
                                 p = p.toJSON();
-                                p.displayName = p.alias || p.name + '   || ' + prj.owner + ' || ' + prj.group;
+                                let name = p.alias || p.name;
+                                p.displayName = name + '   || ' + prj.owner + ' || ' + prj.group;
                                 p.shared = true;
                                 p.owner = prj.owner;
                                 response.push(p);
