@@ -186,5 +186,10 @@ router.post('/curve/info-by-name', function (req, res) {
     }, req.dbConnection);
 });
 
+router.post('/curve/resync-family', (req, res) => {
+    curveModel.resyncFamily(req.body, (status => {
+        res.send(status);
+    }), req.dbConnection);
+});
 
 module.exports = router;

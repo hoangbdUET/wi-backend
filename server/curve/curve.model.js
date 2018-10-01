@@ -829,8 +829,48 @@ function getCurveByName(name, idDataset, callback, dbConnection) {
     })
 }
 
+function resyncFamily(payload, done, dbConnection) {
+    dbConnection.Curve.findAll().then(curves => {
+        asyncLoop(curves, function (curve, next) {
+            let curveName = curve.name;
+            let unit = curve.unit;
+            if(curveName === '__MD'){
+                curve.idFamily = 743;
+                curve.save();
+                next();
+            } else {
+                dbConnection.FamilyCondition.findAll()
+                    .then(conditions => {
+                        let result = conditions.find(function (aCondition) {
+                            let regex;
+                            try {
+                                regex = new RegExp("^" + aCondition.curveName + "$", "i").test(curveName) && new RegExp("^" + aCondition.unit + "$", "i").test(unit);
+                            } catch (err) {
+                                console.log(err);
+                            }
+                            return regex;
+                        });
+                        if (!result) {
+                            next();
+                        } else {
+                            result.getFamily()
+                                .then(aFamily => {
+                                    curve.setLineProperty(aFamily);
+                                    next();
+                                }).catch(() => {
+                                next();
+                            });
+                        }
+                    });
+            }
+        }, function () {
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Done", curves));
+        })
+    });
+}
 
 module.exports = {
+    resyncFamily: resyncFamily,
     createNewCurve: createNewCurve,
     editCurve: editCurve,
     deleteCurve: deleteCurve,
