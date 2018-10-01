@@ -43,7 +43,6 @@ function createZoneSetTemplateFromXLSX(callback) {
             }).then(() => {
                 next();
             }).catch((err) => {
-                console.log(err);
                 next();
             });
 
