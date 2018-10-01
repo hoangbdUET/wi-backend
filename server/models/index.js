@@ -251,7 +251,7 @@ function newDbInstance(dbName, callback) {
 
 
         m.ZoneSetTemplate.hasMany(m.ZoneTemplate, {
-            foreignKey: {name: "idZoneSetTemplate", allowNull: false, unique: "name-idZoneSetTemplate"},
+            foreignKey: {name: "idZoneSetTemplate", allowNull: false},
             onDelete: 'CASCADE'
         });
         m.ZoneSetTemplate.hasMany(m.ZoneSet, {

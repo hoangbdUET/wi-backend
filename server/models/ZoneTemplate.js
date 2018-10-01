@@ -7,8 +7,7 @@ module.exports = function (sequelize, DataTypes) {
         },
         name: {
             type: DataTypes.STRING(100),
-            allowNull: false,
-            unique: 'name-idZoneSetTemplate'
+            allowNull: false
         },
         background: {
             type: DataTypes.STRING(30),
