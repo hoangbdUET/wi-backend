@@ -12,6 +12,7 @@ let curveFunction = require('../utils/curve.function');
 let checkPermisson = require('../utils/permission/check-permisison');
 let wiImport = require('wi-import');
 let hashDir = wiImport.hashDir;
+let async = require('async');
 
 function createNewCurve(curveInfo, done, dbConnection) {
     let Curve = dbConnection.Curve;
@@ -831,7 +832,7 @@ function getCurveByName(name, idDataset, callback, dbConnection) {
 
 function resyncFamily(payload, done, dbConnection) {
     dbConnection.Curve.findAll().then(curves => {
-        asyncLoop(curves, function (curve, next) {
+        async.eachSeries(curves, function (curve, next) {
             let curveName = curve.name;
             let unit = curve.unit;
             if(curveName === '__MD'){
