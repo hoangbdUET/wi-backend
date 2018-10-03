@@ -16,7 +16,10 @@ module.exports = function (sequelize, DataTypes) {
         // },
         unit: {
             type: DataTypes.STRING(250),
-            allowNull: false
+            allowNull: false,
+            set(value) {
+                this.setDataValue('unit', (value.trim() === "" || !value) ? "UNKNOWN" : value);
+            },
         },
         description: {
             type: DataTypes.STRING(250),
