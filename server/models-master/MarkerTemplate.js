@@ -5,11 +5,6 @@ module.exports = function (sequelize, DataTypes) {
             primaryKey: true,
             autoIncrement: true
         },
-        template: {
-            type: DataTypes.STRING(200),
-            allowNull: false,
-            unique: 'name-template'
-        },
         name: {
             type: DataTypes.STRING(100),
             allowNull: false,
