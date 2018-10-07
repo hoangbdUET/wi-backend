@@ -3,7 +3,7 @@ const ErrorCodes = require('../../error-codes').CODES;
 const async = require('async');
 
 function createNew(payload, done, dbConnection) {
-    if (payload.template) {
+    if (payload.idMarkerSetTemplate) {
         dbConnection.MarkerSet.create(payload).then(markerSet => {
             let Op = require('sequelize').Op;
             if (payload.idMarkerSetTemplate && (payload.start || payload.start === 0) && payload.stop) {
