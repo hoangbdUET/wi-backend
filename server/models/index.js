@@ -199,6 +199,11 @@ function newDbInstance(dbName, callback) {
             foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
             onDelete: 'CASCADE'
         });
+        m.ZoneSet.belongsTo(m.Well, {
+            foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
+            onDelete: 'CASCADE'
+        })
+
         m.Project.hasMany(m.CrossPlot, {
             foreignKey: {name: "idProject", allowNull: false, unique: "name-idProject"},
             onDelete: 'CASCADE'
