@@ -6,6 +6,8 @@ let fs = require('fs');
 let config = require('config');
 let ResponseJSON = require('../response');
 let exporter = require('wi-export-test');
+const csv = require('fast-csv');
+const ErrorCodes = require('../../error-codes').CODES;
 
 router.post('/las2', function (req, res) {
     let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
@@ -213,4 +215,37 @@ router.post('/files', function (req, res) {
         }
     });
 })
+
+router.post('/zone-set', async function (req, res) {
+    if(req.body.idZoneSets) {
+        let zonesets = [];
+        const csvStream = csv.createWriteStream({headers: ['Well name', 'Zone name', 'Top depth', 'Bottom depth', 'Unit']});
+
+        csvStream.pipe(res);
+
+        for (const id of req.body.idZoneSets) {
+            const zoneSet = await req.dbConnection.ZoneSet.findById(id, {
+                include: [
+                    {
+                        model: req.dbConnection.Zone,
+                        include: [{model: req.dbConnection.ZoneTemplate}]
+                    },
+                    {
+                        model: req.dbConnection.Well
+                    }
+                ]
+            });
+            for (const zone of zoneSet.zones){
+                const line = [zoneSet.well.name, zone.zone_template.name, zone.startDepth, zone.endDepth, zoneSet.well.unit]
+                csvStream.write(line);
+            }
+            zonesets.push(zoneSet);
+        }
+
+        csvStream.end();
+    }else {
+        res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Missing zoneset id"));
+    }
+})
+
 module.exports = router;
