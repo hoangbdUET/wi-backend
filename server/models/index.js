@@ -117,6 +117,7 @@ function newDbInstance(dbName, callback) {
         'Line',
         'Marker',
         'MarkerSet',
+        'MarkerSetTemplate',
         'MarkerTemplate',
         'ObjectOfTrack',
         'ObjectTrack',
@@ -438,15 +439,19 @@ function newDbInstance(dbName, callback) {
         m.Well.hasMany(m.DepthAxis, {
             foreignKey: {name: "idWell", allowNull: true}
         });
-        m.MarkerSet.hasMany(m.Marker, {
-            foreignKey: {name: "idMarkerSet", allowNull: false}
+        m.MarkerSetTemplate.hasMany(m.MarkerTemplate, {
+            foreignKey: {name: "idMarkerSetTemplate", allowNull: false},
+            onDelete: "CASCADE"
         });
-        m.MarkerTemplate.hasMany(m.Marker, {
-            foreignKey: {name: "idMarkerTemplate", allowNull: true}
+        m.MarkerSetTemplate.hasMany(m.MarkerSet, {
+            foreignKey: {name: "idMarkerSetTemplate", allowNull: false},
+            onDelete: "CASCADE"
         });
         m.Marker.belongsTo(m.MarkerTemplate, {
-            foreignKey: {name: "idMarkerTemplate", allowNull: true},
-            onDelete: 'CASCADE'
+            foreignKey: {name: "idMarkerTemplate", allowNull: false}, onDelete: "CASCADE"
+        });
+        m.MarkerSet.hasMany(m.Marker, {
+            foreignKey: {name: "idMarkerSet", allowNull: false}
         });
         m.DepthAxis.belongsTo(m.Curve, {
             foreignKey: {name: "idCurve", allowNull: true},

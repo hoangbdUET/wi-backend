@@ -7,6 +7,7 @@ let taskSpecUpdate = require('./server/task/task-spec').createTaskSpec;
 let zoneTemplateUpdate = require('./server/zone-template/zone-template.model').createZoneTemplateFromXLSX;
 let zoneSetTemplateUpdate = require('./server/zone-template/zone-template.model').createZoneSetTemplateFromXLSX;
 let markerTemplateUpdate = require('./server/marker-template/marker-template.function').importMarkerTemplate;
+let markerSetTemplateUpdate = require('./server/marker-template/marker-template.function').importMarkerSetTemplate;
 const QUEUE_TIME = 500;
 
 Object.defineProperty(Array.prototype, "forEachDone", {
@@ -119,6 +120,7 @@ function main() {
     let parameterSetRouter = require('./server/parameter-set/parameter-set.router');
     let markerSetRouter = require('./server/marker-set/marker-set.router');
     let markerTemplateRouter = require('./server/marker-template/marker-template.router');
+    let markerSetTemplateRouter = require('./server/marker-set-template/marker-set-template.router');
     let resetDefaulParameters = require('./server/reset-parameter/reset-pamameter.router');
     let permissionRouter = require('./server/permission/permission.router');
     let queue = {};
@@ -164,8 +166,10 @@ function main() {
 
                 });
             });
-            markerTemplateUpdate(function () {
+            markerSetTemplateUpdate(function () {
+                markerTemplateUpdate(function () {
 
+                });
             });
             res.send("Done");
         });
@@ -210,7 +214,6 @@ function main() {
         });
         next();
     });
-    app.use('/project', parameterSetRouter);
     app.use('/', patternRouter);
     app.use('/', inventoryRouter);
     app.use('/', uploadRouter);
@@ -223,7 +226,10 @@ function main() {
     app.use('/', workflowSpecRouter);
     app.use('/', zoneTemplateRouter);
     app.use('/', zoneSetTemplateRouter);
+    app.use('/', markerSetTemplateRouter);
+    app.use('/', markerTemplateRouter);
     app.use('/', taskSpecRouter);
+    app.use('/project', parameterSetRouter);
     app.use('/permission', permissionRouter);
     app.use('/reset-parameter', resetDefaulParameters);
     app.use('/pal', palRouter);
@@ -238,7 +244,6 @@ function main() {
     app.use('/project/well', referenceCurveRouter);
     app.use('/project', combinedBoxRouter);
     app.use('/project/well', markerSetRouter);
-    app.use('/', markerTemplateRouter);
     app.use('/project', flowRouter);
     app.use('/project/flow', taskRouter);
     //middleware for all curve router to block spam request

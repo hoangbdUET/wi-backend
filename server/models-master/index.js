@@ -27,6 +27,7 @@ let models = [
     'FamilyCondition',
     'FamilySpec',
     'FamilyUnit',
+    'MarkerSetTemplate',
     'MarkerTemplate',
     'OpenSharedProject',
     'OverlayLine',
@@ -46,5 +47,6 @@ models.forEach(function (model) {
     m.FamilySpec.belongsTo(m.UnitGroup, {foreignKey: 'idUnitGroup'});
     m.UnitGroup.hasMany(m.FamilyUnit, {foreignKey: 'idUnitGroup'});
     m.ZoneSetTemplate.hasMany(m.ZoneTemplate, {foreignKey: 'idZoneSetTemplate'});
+    m.MarkerSetTemplate.hasMany(m.MarkerTemplate, {foreignKey: 'idMarkerSetTemplate'});
 })(module.exports);
 module.exports.sequelize = sequelize;

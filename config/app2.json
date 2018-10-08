@@ -8,7 +8,7 @@
     "logging": false,
     "storage": "/tmp/wi_backend.sqlite",
     "dbName": "wi_backend",
-    "prefix": "wi0710_"
+    "prefix": "wi1004_"
   },
   "Application": {
     "port": 5002

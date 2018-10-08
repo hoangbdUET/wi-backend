@@ -187,6 +187,24 @@ let syncMarkerTemplate = function (userDbConnection, callback) {
     });
 };
 
+let syncMarkerSetTemplate = function (userDbConnection, callback) {
+    userDbConnection.MarkerSetTemplate.destroy({where: {}}).then(() => {
+        modelMaster.MarkerSetTemplate.findAll().then(rss => {
+            async.each(rss, function (rs, next) {
+                userDbConnection.MarkerSetTemplate.create(rs.toJSON()).then(() => {
+                    next();
+                }).catch(err => {
+                    console.log(err);
+                    next(err);
+                })
+            }, function (err) {
+                if (err) return callback(err);
+                callback();
+            });
+        });
+    });
+};
+
 module.exports = function (userDbConnection, callback, resetObject) {
     if (resetObject) {
         switch (resetObject) {
@@ -277,8 +295,11 @@ module.exports = function (userDbConnection, callback, resetObject) {
                         console.log("Done zone template");
                     });
                 });
-                syncMarkerTemplate(userDbConnection, function () {
-                    console.log("Done marker template");
+                syncMarkerSetTemplate(userDbConnection, function () {
+                    console.log("Done all marker set template");
+                    syncMarkerTemplate(userDbConnection, function () {
+                        console.log("Done marker template");
+                    });
                 });
                 callback();
             });
