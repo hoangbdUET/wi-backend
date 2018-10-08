@@ -10,6 +10,13 @@ let markerTemplateUpdate = require('./server/marker-template/marker-template.fun
 let markerSetTemplateUpdate = require('./server/marker-template/marker-template.function').importMarkerSetTemplate;
 const QUEUE_TIME = 500;
 
+const EventEmitter = require('events');
+
+class MyEmitter extends EventEmitter {
+}
+
+global.wiEventEmitter = new MyEmitter();
+
 Object.defineProperty(Array.prototype, "forEachDone", {
     enumerable: false,
     value: function (task, cb) {
@@ -181,6 +188,7 @@ function main() {
     app.use('/', databaseRouter);
     authenticate = require('./server/authenticate/authenticate');
     app.use(authenticate());
+    app.use('/', testRouter);
     app.use('/csv', (req, res) => {
         let url = fullConfig.csvService.host + req.originalUrl;
         console.log(url);
