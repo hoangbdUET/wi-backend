@@ -68,11 +68,6 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: 0
         },
-        referenceScale: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 1000
-        },
         duplicated: {
             type: DataTypes.INTEGER,
             allowNull: false,
