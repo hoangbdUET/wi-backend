@@ -107,8 +107,6 @@ function createNewHistogram_(histogramInfo, done, dbConnection) {
     let Well = dbConnection.Well;
     Well.findById(parseInt(histogramInfo.idWell)).then(well => {
         let myData;
-        histogramInfo.referenceTopDepth = well.topDepth;
-        histogramInfo.referenceBottomDepth = well.bottomDepth;
         if (histogramInfo.histogramTemplate) {
             console.log("NEW HISTOGRAM TEMPLATE ", histogramInfo.histogramTemplate);
             myData = null;
@@ -125,10 +123,8 @@ function createNewHistogram_(histogramInfo, done, dbConnection) {
             Histogram.create({
                 name: myData.name,
                 idWell: histogramInfo.idWell,
-                referenceTopDepth: histogramInfo.referenceTopDepth,
-                referenceBottomDepth: histogramInfo.referenceBottomDepth,
-                intervalDepthTop: histogramInfo.referenceTopDepth,
-                intervalDepthBottom: histogramInfo.referenceBottomDepth,
+                intervalDepthTop: histogramInfo.intervalDepthTop,
+                intervalDepthBottom: histogramInfo.intervalDepthBottom,
                 loga: loga,
                 colorBy: histogramInfo.colorBy,
                 createdBy: histogramInfo.createdBy,
@@ -213,28 +209,14 @@ function createNewHistogram_(histogramInfo, done, dbConnection) {
                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram name existed!", err.message));
                 });
             } else {
-                if (!histogramInfo.intervalDepthTop) {
-                    histogramInfo.intervalDepthTop = well.topDepth;
-                    histogramInfo.intervalDepthBottom = well.bottomDepth;
-                    Histogram.create(histogramInfo).then(result => {
-                        Histogram.findById(result.idHistogram).then(his => {
-                            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
-                        });
-                    }).catch(err => {
-                        // console.log(err);
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram existed!", err.errors));
+                Histogram.create(histogramInfo).then(result => {
+                    Histogram.findById(result.idHistogram).then(his => {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
                     });
-
-                } else {
-                    Histogram.create(histogramInfo).then(result => {
-                        Histogram.findById(result.idHistogram).then(his => {
-                            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
-                        });
-                    }).catch(err => {
-                        // console.log(err);
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram name existed!", err.errors));
-                    });
-                }
+                }).catch(err => {
+                    // console.log(err);
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram name existed!", err.errors));
+                });
             }
 
         }

@@ -380,12 +380,17 @@ let importTrackTemplate = async function (req, done, dbConnection) {
                                         if (!annotation) annotation = {};
                                         delete annotation.idAnnotation;
                                         annotation.idTrack = idTrack;
-                                        if (annotation.top <= parseFloat(well.topDepth)) annotation.top = well.topDepth;
-                                        if (annotation.bottom >= parseFloat(well.bottomDepth)) annotation.bottom = well.bottomDepth;
-                                        dbConnection.Annotation.create(annotation).then(() => {
-                                            next();
-                                        }).catch(() => {
-                                            next();
+                                        let wiFunctions = require('../utils/function');
+                                        wiFunctions.getWellTopDepth(well.idWell, dbConnection).then(topDepth => {
+                                            wiFunctions.getWellBottomDepth(well.idWell, dbConnection).then(bottomDepth => {
+                                                if (annotation.top <= parseFloat(topDepth)) annotation.top = topDepth;
+                                                if (annotation.bottom >= parseFloat(bottomDepth)) annotation.bottom = bottomDepth;
+                                                dbConnection.Annotation.create(annotation).then(() => {
+                                                    next();
+                                                }).catch(() => {
+                                                    next();
+                                                });
+                                            });
                                         });
                                     }, function (err) {
                                         console.log("ALL ANNOTATION DONE");

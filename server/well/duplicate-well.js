@@ -27,9 +27,6 @@ module.exports = function (idWell, done, dbConnection, username, createdBy, upda
             newWell.name = newWell.name + "_COPY_" + well.duplicated;
             newWell.createdBy = createdBy;
             newWell.updatedBy = updatedBy;
-            newWell.topDepth = well.topDepth;
-            newWell.bottomDepth = well.bottomDepth;
-            newWell.step = well.step;
             newWell.unit = well.unit;
             well.duplicated++;
             await well.save();

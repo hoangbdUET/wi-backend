@@ -165,9 +165,7 @@ function deleteObject(payload, callback, dbConnection) {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
                     rs.destroy({permanently: true, force: true}).then(() => {
-                        wiEventEmitter.emit('update-well-depth', rs.idWell, dbConnection, () => {
-                            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
-                        });
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     })
@@ -322,37 +320,35 @@ function restoreObject(payload, callback, dbConnection, username) {
                 rename(rs, function (err, r) {
                     if (!err) {
                         rs.restore().then(() => {
-                            wiEventEmitter.emit('update-well-depth', rs.idWell, dbConnection, () => {
-                                asyncEach(rs.curves, function (curve, nextCurve) {
-                                    curveFunction.getFullCurveParents(curve, dbConnection).then(function (curveParents) {
-                                        curveParents.username = username;
-                                        let srcCurve = {
-                                            username: curveParents.username,
-                                            project: curveParents.project,
-                                            well: curveParents.well,
-                                            dataset: oldName,
-                                            curve: curveParents.curve
-                                        };
-                                        curveFunction.moveCurveData(srcCurve, curveParents, function () {
-                                            curve.restore().then(() => {
-                                                dbConnection.Line.findAll({
-                                                    where: {idCurve: curve.idCurve},
-                                                    paranoid: false
-                                                }).then(lines => {
-                                                    asyncEach(lines, function (line, next) {
-                                                        line.restore().then(() => {
-                                                            next();
-                                                        });
-                                                    }, function () {
-                                                        nextCurve();
+                            asyncEach(rs.curves, function (curve, nextCurve) {
+                                curveFunction.getFullCurveParents(curve, dbConnection).then(function (curveParents) {
+                                    curveParents.username = username;
+                                    let srcCurve = {
+                                        username: curveParents.username,
+                                        project: curveParents.project,
+                                        well: curveParents.well,
+                                        dataset: oldName,
+                                        curve: curveParents.curve
+                                    };
+                                    curveFunction.moveCurveData(srcCurve, curveParents, function () {
+                                        curve.restore().then(() => {
+                                            dbConnection.Line.findAll({
+                                                where: {idCurve: curve.idCurve},
+                                                paranoid: false
+                                            }).then(lines => {
+                                                asyncEach(lines, function (line, next) {
+                                                    line.restore().then(() => {
+                                                        next();
                                                     });
+                                                }, function () {
+                                                    nextCurve();
                                                 });
                                             });
                                         });
                                     });
-                                }, function () {
-                                    callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", r));
                                 });
+                            }, function () {
+                                callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", r));
                             });
                         });
                     } else {

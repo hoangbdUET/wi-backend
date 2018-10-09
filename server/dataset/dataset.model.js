@@ -25,9 +25,7 @@ function createNewDataset(datasetInfo, done, dbConnection) {
                 });
                 dataset.save()
                     .then(function (dataset) {
-                        wiEventEmitter.emit('update-well-depth', dataset.idWell, dbConnection, () => {
-                            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Dataset success", dataset));
-                        });
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Dataset success", dataset));
                     })
                     .catch(function (err) {
                         console.log(err);
@@ -57,31 +55,29 @@ function editDataset(datasetInfo, done, dbConnection, username) {
                 dataset.save().then(() => {
                     dbConnection.Well.findById(dataset.idWell).then(well => {
                         dbConnection.Project.findById(well.idProject).then(project => {
-                            wiEventEmitter.emit('update-well-depth', dataset.idWell, dbConnection, () => {
-                                dbConnection.Curve.findAll({
-                                    where: {idDataset: datasetInfo.idDataset},
-                                    paranoid: false
-                                }).then(curves => {
-                                    asyncEach(curves, function (curve, next) {
-                                        let path = hashDir.createPath(config.curveBasePath, username + project.name + well.name + datasetname + curve.name, curve.name + '.txt');
-                                        let newPath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + datasetInfo.name + curve.name, curve.name + '.txt');
-                                        let copy = fs.createReadStream(path).pipe(fs.createWriteStream(newPath));
-                                        copy.on('close', function () {
-                                            hashDir.deleteFolder(config.curveBasePath, username + project.name + well.name + datasetname + curve.name);
-                                            next();
-                                        });
-                                        copy.on('error', function (err) {
-                                            next(err);
-                                        });
-                                    }, function (err) {
-                                        if (err) {
-                                            return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
-                                        }
-                                        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", dataset));
+                            dbConnection.Curve.findAll({
+                                where: {idDataset: datasetInfo.idDataset},
+                                paranoid: false
+                            }).then(curves => {
+                                asyncEach(curves, function (curve, next) {
+                                    let path = hashDir.createPath(config.curveBasePath, username + project.name + well.name + datasetname + curve.name, curve.name + '.txt');
+                                    let newPath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + datasetInfo.name + curve.name, curve.name + '.txt');
+                                    let copy = fs.createReadStream(path).pipe(fs.createWriteStream(newPath));
+                                    copy.on('close', function () {
+                                        hashDir.deleteFolder(config.curveBasePath, username + project.name + well.name + datasetname + curve.name);
+                                        next();
                                     });
+                                    copy.on('error', function (err) {
+                                        next(err);
+                                    });
+                                }, function (err) {
+                                    if (err) {
+                                        return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
+                                    }
+                                    done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", dataset));
                                 });
                             });
-                        })
+                        });
                     }).catch(err => {
                         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
                     });
@@ -112,9 +108,7 @@ function deleteDataset(datasetInfo, done, dbConnection) {
             dataset.setDataValue('updatedBy', datasetInfo.updatedBy);
             dataset.destroy()
                 .then(function () {
-                    wiEventEmitter.emit('update-well-depth', dataset.idWell, dbConnection, ()=>{
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Dataset is deleted", dataset));
-                    });
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Dataset is deleted", dataset));
                 })
                 .catch(function (err) {
                     done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.message, err.message));

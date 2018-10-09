@@ -97,9 +97,6 @@ function editWell(wellInfo, done, dbConnection, username) {
             if (well.name !== wellInfo.name) {
                 let oldWellName = well.name;
                 well.name = wellInfo.name;
-                well.topDepth = wellInfo.topDepth;
-                well.bottomDepth = wellInfo.bottomDepth;
-                well.step = wellInfo.step;
                 well.idGroup = wellInfo.idGroup;
                 well.updatedBy = wellInfo.updatedBy;
                 well.save()

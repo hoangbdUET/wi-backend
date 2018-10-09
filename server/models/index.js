@@ -556,49 +556,6 @@ function newDbInstance(dbName, callback) {
         });
     });
 
-
-    // Well.hook('afterCreate', function (well) {
-    //     console.log("Hook after create well");
-    // let headers = {
-    //     STRT: well.topDepth,
-    //     STOP: well.bottomDepth,
-    //     STEP: well.step,
-    // };
-    // for (let header in headers) {
-    //     WellHeader.create({
-    //         idWell: well.idWell,
-    //         header: header,
-    //         createdBy: well.createdBy,
-    //         updatedBy: well.updatedBy,
-    //         value: headers[header]
-    //     });
-    // }
-    // });
-
-    // Well.hook('beforeUpdate', async function (well, options) {
-    //     console.log("Hook before update well");
-    // let headers = {
-    //     STRT: well.topDepth,
-    //     STOP: well.bottomDepth,
-    //     STEP: well.step,
-    //     TOP: well.topDepth,
-    // };
-    // for (let header in headers) {
-    //     let h = await WellHeader.findOne({where: {idWell: well.idWell, header: header}});
-    //     if (h) {
-    //         await h.update({value: headers[header]});
-    //     } else {
-    //         await WellHeader.create({
-    //             header: header,
-    //             value: headers[header],
-    //             idWell: well.idWell,
-    //             createdBy: well.createdBy,
-    //             updatedBy: well.updatedBy
-    //         })
-    //     }
-    // }
-    // });
-
     Well.hook('beforeDestroy', function (well, options) {
         console.log("Hooks delete well");
         return new Promise(function (resolve) {

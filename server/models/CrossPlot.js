@@ -24,36 +24,6 @@ module.exports = function (sequelize, DataTypes) {
                 return JSON.parse(value);
             }
         },
-        referenceTopDepth: {
-            type: DataTypes.DOUBLE,
-            allowNull: true,
-            defaultValue: 0
-        },
-        referenceBottomDepth: {
-            type: DataTypes.DOUBLE,
-            allowNull: true,
-            defaultValue: 0
-        },
-        referenceScale: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 1000
-        },
-        referenceVertLineNumber: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 7
-        },
-        referenceDisplay: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: false
-        },
-        referenceShowDepthGrid: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: true
-        },
         discriminator: {
             type: DataTypes.TEXT,
             allowNull: true

@@ -220,20 +220,18 @@ function importDataset(datasets, token, callback, dbConnection, username, create
                 _dataset.save();
                 delete newDataset.idDataset;
                 dbConnection.Dataset.create(newDataset).then(d => {
-                    wiEventEmitter.emit('update-well-depth', d.idWell, dbConnection, () => {
-                        response.datasets.push(d);
-                        async.eachSeries(dataset.curves, function (curve, nextCurve) {
-                            curve.idDesDataset = d.idDataset;
-                            curveModels.getCurveDataFromInventoryPromise(curve, token, dbConnection, username, createdBy, updatedBy).then(curve => {
-                                response.curves.push(curve);
-                                nextCurve();
-                            }).catch(err => {
-                                response.curves.push(err);
-                                nextCurve();
-                            });
-                        }, function () {
-                            next();
+                    response.datasets.push(d);
+                    async.eachSeries(dataset.curves, function (curve, nextCurve) {
+                        curve.idDesDataset = d.idDataset;
+                        curveModels.getCurveDataFromInventoryPromise(curve, token, dbConnection, username, createdBy, updatedBy).then(curve => {
+                            response.curves.push(curve);
+                            nextCurve();
+                        }).catch(err => {
+                            response.curves.push(err);
+                            nextCurve();
                         });
+                    }, function () {
+                        next();
                     });
                 }).catch(err => {
                     console.log(err);

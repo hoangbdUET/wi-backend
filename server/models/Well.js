@@ -10,18 +10,6 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             unique: "name-idProject"
         },
-        topDepth: {
-            type: DataTypes.STRING(250),
-            allowNull: false
-        },
-        bottomDepth: {
-            type: DataTypes.STRING(250),
-            allowNull: false
-        },
-        step: {
-            type: DataTypes.STRING(250),
-            allowNull: false
-        },
         unit: {
             type: DataTypes.STRING(30),
             allowNull: false,
