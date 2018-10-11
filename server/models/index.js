@@ -257,7 +257,7 @@ function newDbInstance(dbName, callback) {
 
 
         m.ZoneSetTemplate.hasMany(m.ZoneTemplate, {
-            foreignKey: {name: "idZoneSetTemplate", allowNull: false},
+            foreignKey: {name: "idZoneSetTemplate", allowNull: false, unique: "name-idZoneSetTemplate"},
             onDelete: 'CASCADE'
         });
         m.ZoneSetTemplate.hasMany(m.ZoneSet, {
@@ -440,7 +440,7 @@ function newDbInstance(dbName, callback) {
             foreignKey: {name: "idWell", allowNull: true}
         });
         m.MarkerSetTemplate.hasMany(m.MarkerTemplate, {
-            foreignKey: {name: "idMarkerSetTemplate", allowNull: false},
+            foreignKey: {name: "idMarkerSetTemplate", allowNull: false, unique: "name-idMarkerSetTemplate"},
             onDelete: "CASCADE"
         });
         m.MarkerSetTemplate.hasMany(m.MarkerSet, {
