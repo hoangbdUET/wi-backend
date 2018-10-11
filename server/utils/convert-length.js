@@ -98,7 +98,12 @@ function getDistanceRate(inputUnit, outputUnit) {
     return outputScale / inputScale;
 }
 
+function getUnitTable () {
+    return length;
+}
+
 module.exports = {
     convertDistance: convertDistance,
-    getDistanceRate: getDistanceRate
+    getDistanceRate: getDistanceRate,
+    getUnitTable: getUnitTable
 };
