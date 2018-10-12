@@ -51,8 +51,8 @@ function deleteImageOfTrack(info, done, dbConnection, username) {
             image.setDataValue('updatedBy', info.updatedBy);
             Model.destroy({where: {idImageOfTrack: info.idImageOfTrack}}).then(result => {
                 if (result > 0) {
-                    let imgPath = path.join(__dirname, '../..', config.imageBasePath, image.imageUrl.substring(image.imageUrl.indexOf('/' + username + '/')));
-                    fs.unlinkSync(imgPath);
+                    // let imgPath = path.join(config.imageBasePath, image.imageUrl.substring(image.imageUrl.indexOf('/' + username + '/')));
+                    // fs.unlinkSync(imgPath);
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Delete successful", info));
                 } else {
                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Not found for delete"));
