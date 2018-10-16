@@ -31,7 +31,7 @@ router.post('/las2', function (req, res) {
                 }],
             }).then(project => {
                 if (project && project.createdBy === req.decoded.username) {
-    
+
                     exporter.exportLas2FromProject(project, idObj.datasets, config.exportPath, config.curveBasePath, req.decoded.username, function (err, result) {
                         console.log('exportLas2 callback called');
                         if (err) {
@@ -166,7 +166,7 @@ router.post('/CSV/rv', function (req, res) {
                 })
             }
         });
-    });    
+    });
 })
 router.post('/CSV/wdrv', function (req, res) {
     let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
@@ -224,12 +224,8 @@ router.post('/files', function (req, res) {
 })
 
 router.post('/zone-set', async function (req, res) {
-    if(req.body.idZoneSets) {
-        let zonesets = [];
-        const csvStream = csv.createWriteStream({headers: ['Well name', 'Zone name', 'Top depth', 'Bottom depth', 'Unit']});
-
-        csvStream.pipe(res);
-
+    if (req.body.idZoneSets) {
+        let arrData = [['','','','','']]; //??????????????
         for (const id of req.body.idZoneSets) {
             const zoneSet = await req.dbConnection.ZoneSet.findById(id, {
                 include: [
@@ -242,17 +238,14 @@ router.post('/zone-set', async function (req, res) {
                     }
                 ]
             });
-            for (const zone of zoneSet.zones){
-                const line = [zoneSet.well.name, zone.zone_template.name, zone.startDepth, zone.endDepth, zoneSet.well.unit]
-                csvStream.write(line);
-            }
-            zonesets.push(zoneSet);
+            zoneSet.zones.forEach(zone => {
+                arrData.push([zoneSet.well.name, zone.zone_template.name, zone.startDepth, zone.endDepth, zoneSet.well.unit]);
+            });
         }
-
-        csvStream.end();
-    }else {
+        csv.write(arrData, {headers: ['Well name', 'Zone name', 'Top depth', 'Bottom depth', 'Unit']}).pipe(res);
+    } else {
         res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Missing zoneset id"));
     }
-})
+});
 
 module.exports = router;
