@@ -33,5 +33,5 @@
   },
   "curveBasePath": "../data",
   "imageBasePath": "/opt/wi-backend/wi-images",
-  "exportPath": "./server/export/exported-files"
+  "exportPath": "/opt/wi-backend/server/export/exported-files"
 }
