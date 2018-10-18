@@ -10,9 +10,9 @@ module.exports = function (parents, dataset, dbConnection) {
             console.log("No top|bottom|step");
             resolve();
         } else {
-            dataset.step = convertLength.convertDistance(parseFloat(dataset.step), 'm', dataset.unit);
-            dataset.top = convertLength.convertDistance(parseFloat(dataset.top), 'm', dataset.unit);
-            dataset.bottom = convertLength.convertDistance(parseFloat(dataset.bottom), 'm', dataset.unit);
+            dataset.step = parseFloat(dataset.step);
+            dataset.top = parseFloat(dataset.top);
+            dataset.bottom = parseFloat(dataset.bottom);
             let curve = {
                 name: '__MD',
                 unit: dataset.unit,
