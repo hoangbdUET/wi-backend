@@ -2,6 +2,7 @@ const hasdDir = require('wi-import').hashDir;
 const fs = require('fs');
 const config = require('config');
 const async = require('async');
+const convertLength = require('../utils/convert-length');
 
 module.exports = function (parents, dataset, dbConnection) {
     return new Promise(function (resolve) {
@@ -9,12 +10,12 @@ module.exports = function (parents, dataset, dbConnection) {
             console.log("No top|bottom|step");
             resolve();
         } else {
-            dataset.step = parseFloat(dataset.step);
-            dataset.top = parseFloat(dataset.top);
-            dataset.bottom = parseFloat(dataset.bottom);
+            dataset.step = convertLength(parseFloat(dataset.step), 'm', dataset.unit);
+            dataset.top = convertLength(parseFloat(dataset.top), 'm', dataset.unit);
+            dataset.bottom = convertLength(parseFloat(dataset.bottom), 'm', dataset.unit);
             let curve = {
                 name: '__MD',
-                unit: 'm',
+                unit: dataset.unit,
                 idFamily: 743,
                 description: 'MD Curve',
                 idDataset: dataset.idDataset,
