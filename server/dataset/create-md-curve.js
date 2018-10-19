@@ -15,7 +15,7 @@ module.exports = function (parents, dataset, dbConnection) {
             dataset.bottom = parseFloat(dataset.bottom);
             let curve = {
                 name: '__MD',
-                unit: dataset.unit,
+                unit: 'm',
                 idFamily: 743,
                 description: 'MD Curve',
                 idDataset: dataset.idDataset,
