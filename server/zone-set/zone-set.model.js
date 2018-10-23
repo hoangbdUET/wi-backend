@@ -8,7 +8,7 @@ function createNewZoneSet(zoneSetInfo, done, dbConnection) {
     ZoneSet.create(zoneSetInfo).then(zs => {
         if (zoneSetInfo.idZoneSetTemplate && (zoneSetInfo.start || zoneSetInfo.start === 0) && zoneSetInfo.stop) {
             let Op = require('sequelize').Op;
-            dbConnection.ZoneTemplate.findAll({where: {idZoneSetTemplate: zoneSetInfo.idZoneSetTemplate}}).then(async (zones) => {
+            dbConnection.ZoneTemplate.findAll({where: {idZoneSetTemplate: zoneSetInfo.idZoneSetTemplate}, order: [['orderNum','ASC']]}).then(async (zones) => {
                 let stop = zoneSetInfo.stop;
                 let start = zoneSetInfo.start;
                 let range = (stop - start) / zones.length;

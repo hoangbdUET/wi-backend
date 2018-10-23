@@ -2,6 +2,7 @@ const hasdDir = require('wi-import').hashDir;
 const fs = require('fs');
 const config = require('config');
 const async = require('async');
+const convertLength = require('../utils/convert-length');
 
 module.exports = function (parents, dataset, dbConnection) {
     return new Promise(function (resolve) {
@@ -14,7 +15,7 @@ module.exports = function (parents, dataset, dbConnection) {
             dataset.bottom = parseFloat(dataset.bottom);
             let curve = {
                 name: '__MD',
-                unit: dataset.unit,
+                unit: 'm',
                 idFamily: 743,
                 description: 'MD Curve',
                 idDataset: dataset.idDataset,

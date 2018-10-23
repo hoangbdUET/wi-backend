@@ -269,11 +269,11 @@ function getWellFullInfo(well, done, dbConnection) {
                     cb(null, zonesets);
                 });
             },
-            function (cb) {
-                dbConnection.CombinedBox.findAll({where: {idWell: well.idWell}}).then(combined_boxes => {
-                    cb(null, combined_boxes);
-                });
-            },
+            // function (cb) {
+            //     dbConnection.CombinedBox.findAll({where: {idWell: well.idWell}}).then(combined_boxes => {
+            //         cb(null, combined_boxes);
+            //     });
+            // },
             function (cb) {
                 dbConnection.WellHeader.findAll({where: {idWell: well.idWell}}).then(headers => {
                     cb(null, headers);
@@ -282,8 +282,8 @@ function getWellFullInfo(well, done, dbConnection) {
         ], function (err, result) {
             wellObj.datasets = result[0];
             wellObj.zone_sets = result[1];
-            wellObj.combined_boxes = result[2];
-            wellObj.well_headers = result[3];
+            // wellObj.combined_boxes = result[2];
+            wellObj.well_headers = result[2];
             done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", wellObj));
         });
     })

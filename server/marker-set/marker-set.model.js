@@ -7,7 +7,10 @@ function createNew(payload, done, dbConnection) {
         dbConnection.MarkerSet.create(payload).then(markerSet => {
             let Op = require('sequelize').Op;
             if (payload.idMarkerSetTemplate && (payload.start || payload.start === 0) && payload.stop) {
-                dbConnection.MarkerTemplate.findAll({where: {idMarkerSetTemplate: payload.idMarkerSetTemplate}}).then(async templates => {
+                dbConnection.MarkerTemplate.findAll({
+                    where: {idMarkerSetTemplate: payload.idMarkerSetTemplate},
+                    order: [['orderNum', 'ASC']]
+                }).then(async templates => {
                     let stop = payload.stop;
                     let start = payload.start;
                     let range = (stop - start) / templates.length;
