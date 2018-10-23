@@ -191,8 +191,10 @@ router.post('/files', function (req, res) {
     fs.exists(filePath, async function (exists) {
         if (exists) {
             const currentSize = getFilesizeInBytes(filePath);
-            await sleep(2000);
+            console.log("Current size : ", currentSize);
+            await sleep(4000);
             const newSize = getFilesizeInBytes(filePath);
+            console.log("New size : ", newSize);
             if (currentSize !== newSize) {
                 res.send(ResponseJSON(512, "Your file is currently processing", "Your file is currently processing"));
             } else {
