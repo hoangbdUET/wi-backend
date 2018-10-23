@@ -21,9 +21,11 @@ router.post('/las2', function (req, res) {
                         model: req.dbConnection.WellHeader
                     }, {
                         model: req.dbConnection.Dataset,
-                        include: {
+                        include: [{
                             model: req.dbConnection.Curve
-                        }
+                        }, {
+                            model: req.dbConnection.DatasetParam
+                        }]
                     }],
                     where: {
                         idWell: idObj.idWell
