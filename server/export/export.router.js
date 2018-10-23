@@ -195,8 +195,9 @@ router.post('/files', function (req, res) {
             const newSize = getFilesizeInBytes(filePath);
             if (currentSize !== newSize) {
                 res.send(ResponseJSON(512, "Your file is currently processing", "Your file is currently processing"));
+            } else {
+                res.sendFile(filePath);
             }
-            res.sendFile(filePath);
         } else {
             res.send(ResponseJSON(404, "ERROR File does not exist"));
         }
