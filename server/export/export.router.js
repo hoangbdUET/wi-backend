@@ -10,26 +10,33 @@ const csv = require('fast-csv');
 const ErrorCodes = require('../../error-codes').CODES;
 let convertLength = require('../utils/convert-length')
 
+function getFullProjectObj(idProject, idWell, dbConnection) {
+    return new Promise(async (resolve) => {
+        try {
+            let project = await dbConnection.Project.findById(idProject);
+            if (!project) resolve(null);
+            project.wells = [];
+            let well = await dbConnection.Well.findById(idWell, {include: [{model: dbConnection.WellHeader}, {model: dbConnection.Dataset}]});
+            async.each(well.datasets, async (dataset, next) => {
+                dataset.curves = await dbConnection.Curve.findAll({where: {idDataset: dataset.idDataset}});
+                dataset.dataset_params = await dbConnection.DatasetParams.findAll({where: {idDataset: dataset.idDataset}});
+                next();
+            }, () => {
+                project.wells.push(well);
+                resolve(project);
+            });
+        } catch (e) {
+            console.log(e);
+            resolve(null);
+        }
+    })
+}
+
 router.post('/las2', function (req, res) {
     let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
     exporter.setUnitTable(convertLength.getUnitTable(), function () {
         async.map(req.body.idObjs, function (idObj, callback) {
-            req.dbConnection.Project.findById(idObj.idProject, {
-                include: [{
-                    model: req.dbConnection.Well,
-                    include: [{
-                        model: req.dbConnection.WellHeader
-                    }, {
-                        model: req.dbConnection.Dataset,
-                        include: {
-                            model: req.dbConnection.Curve
-                        }
-                    }],
-                    where: {
-                        idWell: idObj.idWell
-                    }
-                }],
-            }).then(project => {
+            getFullProjectObj(idObj.idProject, idObj.idWell, req.dbConnection).then(project => {
                 if (project && project.createdBy === req.decoded.username) {
 
                     exporter.exportLas2FromProject(project, idObj.datasets, config.exportPath, config.curveBasePath, req.decoded.username, function (err, result) {
@@ -72,22 +79,7 @@ router.post('/las3', function (req, res) {
     let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
     exporter.setUnitTable(convertLength.getUnitTable(), function () {
         async.map(req.body.idObjs, function (idObj, callback) {
-            req.dbConnection.Project.findById(idObj.idProject, {
-                include: [{
-                    model: req.dbConnection.Well,
-                    include: [{
-                        model: req.dbConnection.WellHeader
-                    }, {
-                        model: req.dbConnection.Dataset,
-                        include: {
-                            model: req.dbConnection.Curve
-                        }
-                    }],
-                    where: {
-                        idWell: idObj.idWell
-                    }
-                }],
-            }).then(project => {
+            getFullProjectObj(idObj.idProject, idObj.idWell, req.dbConnection).then(project => {
                 if (project && project.createdBy === req.decoded.username) {
                     exporter.exportLas3FromProject(project, idObj.datasets, config.exportPath, config.curveBasePath, req.decoded.username, function (err, result) {
                         if (err) {
@@ -116,22 +108,7 @@ router.post('/CSV/rv', function (req, res) {
     let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
     exporter.setUnitTable(convertLength.getUnitTable(), function () {
         async.map(req.body.idObjs, function (idObj, callback) {
-            req.dbConnection.Project.findById(idObj.idProject, {
-                include: [{
-                    model: req.dbConnection.Well,
-                    include: [{
-                        model: req.dbConnection.WellHeader
-                    }, {
-                        model: req.dbConnection.Dataset,
-                        include: {
-                            model: req.dbConnection.Curve
-                        }
-                    }],
-                    where: {
-                        idWell: idObj.idWell
-                    }
-                }],
-            }).then(project => {
+            getFullProjectObj(idObj.idProject, idObj.idWell, req.dbConnection).then(project => {
                 if (project && project.createdBy === req.decoded.username) {
                     exporter.exportCsvRVFromProject(project, idObj.datasets, config.exportPath, config.curveBasePath, req.decoded.username, function (err, result) {
                         if (err) {
@@ -172,22 +149,7 @@ router.post('/CSV/wdrv', function (req, res) {
     let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
     exporter.setUnitTable(convertLength.getUnitTable(), function () {
         async.map(req.body.idObjs, function (idObj, callback) {
-            req.dbConnection.Project.findById(idObj.idProject, {
-                include: [{
-                    model: req.dbConnection.Well,
-                    include: [{
-                        model: req.dbConnection.WellHeader
-                    }, {
-                        model: req.dbConnection.Dataset,
-                        include: {
-                            model: req.dbConnection.Curve
-                        }
-                    }],
-                    where: {
-                        idWell: idObj.idWell
-                    }
-                }],
-            }).then(project => {
+            getFullProjectObj(idObj.idProject, idObj.idWell, req.dbConnection).then(project => {
                 if (project && project.createdBy === req.decoded.username) {
                     exporter.exportCsvWDRVFromProject(project, idObj.datasets, config.exportPath, config.curveBasePath, req.decoded.username, function (err, result) {
                         if (err) {
@@ -225,7 +187,7 @@ router.post('/files', function (req, res) {
 
 router.post('/zone-set', async function (req, res) {
     if (req.body.idZoneSets) {
-        let arrData = [['','','','','']]; //??????????????
+        let arrData = [['', '', '', '', '']]; //??????????????
         for (const id of req.body.idZoneSets) {
             const zoneSet = await req.dbConnection.ZoneSet.findById(id, {
                 include: [
