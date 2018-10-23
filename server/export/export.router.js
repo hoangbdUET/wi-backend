@@ -174,16 +174,34 @@ router.post('/CSV/wdrv', function (req, res) {
     });
 })
 
+function getFilesizeInBytes(filename) {
+    const stats = fs.statSync(filename);
+    const fileSizeInBytes = stats.size;
+    return fileSizeInBytes
+}
+
+function sleep(ms) {
+    return new Promise(resolve => {
+        setTimeout(resolve, ms)
+    });
+}
+
 router.post('/files', function (req, res) {
     let filePath = path.join(config.exportPath, req.decoded.username, req.body.fileName);
-    fs.exists(filePath, function (exists) {
+    fs.exists(filePath, async function (exists) {
         if (exists) {
+            const currentSize = getFilesizeInBytes(filePath);
+            await sleep(2000);
+            const newSize = getFilesizeInBytes(filePath);
+            if (currentSize !== newSize) {
+                res.send(ResponseJSON(512, "Your file is currently processing", "Your file is currently processing"));
+            }
             res.sendFile(filePath);
         } else {
             res.send(ResponseJSON(404, "ERROR File does not exist"));
         }
     });
-})
+});
 
 router.post('/zone-set', async function (req, res) {
     if (req.body.idZoneSets) {
