@@ -225,7 +225,7 @@ router.post('/zone-set', async function (req, res) {
                 arrData.push([zoneSet.well.name, zone.zone_template.name, zone.startDepth, zone.endDepth, zoneSet.well.unit]);
             });
         }
-        csv.write(arrData, {headers: ['Well name', 'Zone name', 'Top depth', 'Bottom depth', 'Unit']}).pipe(res);
+        csv.write(arrData, {headers: ['Well', 'Zone', 'Top_Depth', 'Bottom_Depth', 'Unit']}).pipe(res);
     } else {
         res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Missing zoneset id"));
     }
