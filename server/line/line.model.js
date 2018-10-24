@@ -133,9 +133,9 @@ function createNewLine(lineInfo, done, dbConnection, username) {
     let convertUnit = require('../family-unit/family-unit.model');
     if (!lineInfo.idCurve) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Need idCurve"));
     dbConnection.Curve.findById(lineInfo.idCurve).then(curve => {
-        if(!curve){
+        if (!curve) {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No curve found in line info", lineInfo));
-        }  else {
+        } else {
             curveModel.calculateScale(curve.idCurve, username, dbConnection, function (err, result) {
                 let curveMinScale = result.minScale;
                 let curveMaxScale = result.maxScale;
@@ -152,8 +152,10 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                             let _line = {};
                             unitConvertData.srcUnit = units.find(u => u.name === curve.unit);
                             unitConvertData.desUnit = units.find(u => u.name === family.family_spec[0].unit);
-                            _line.minValue = family.family_spec[0].minScale;
-                            _line.maxValue = family.family_spec[0].maxScale;
+                            let s1 = JSON.parse(unitConvertData.desUnit.rate);
+                            let s2 = JSON.parse(unitConvertData.srcUnit.rate);
+                            _line.minValue = (parseFloat(family.family_spec[0].minScale) - s1[1]) * (s2[0] / s1[0]) + s2[1];
+                            _line.maxValue = (parseFloat(family.family_spec[0].maxScale) - s1[1]) * (s2[0] / s1[0]) + s2[1];
                             console.log(family.family_spec[0].minScale);
                             console.log(family.family_spec[0].maxScale);
                             if (_line.minValue === null || _line.maxValue === null || !family.family_spec[0]) {
