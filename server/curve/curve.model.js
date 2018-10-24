@@ -599,6 +599,9 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy) {
                             if (curve) {
                                 checkPermisson(req.updatedBy, 'curve.update', function (perm) {
                                     if (perm) {
+                                        let overwriteInfo = {
+                                            unit: unit
+                                        };
                                         let response = {};
                                         let newPath = hashDir.createPath(config.curveBasePath, req.decoded.username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
                                         fs.copy(filePath, newPath, function (err) {
@@ -607,7 +610,11 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy) {
                                             }
                                             console.log("Copy file success!");
                                             fs.unlink(filePath);
-                                            done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
+                                            Object.assign(curve, overwriteInfo).save().then(() => {
+                                                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
+                                            }).catch(err => {
+                                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
+                                            })
                                         });
                                     } else {
                                         fs.unlink(filePath);
@@ -835,7 +842,7 @@ function resyncFamily(payload, done, dbConnection) {
         async.eachSeries(curves, function (curve, next) {
             let curveName = curve.name;
             let unit = curve.unit;
-            if(curveName === '__MD'){
+            if (curveName === '__MD') {
                 curve.idFamily = 743;
                 curve.save();
                 next();
