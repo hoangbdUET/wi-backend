@@ -600,7 +600,8 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy) {
                                 checkPermisson(req.updatedBy, 'curve.update', function (perm) {
                                     if (perm) {
                                         let overwriteInfo = {
-                                            unit: unit
+                                            unit: unit,
+                                            idFamily: idFamily
                                         };
                                         let response = {};
                                         let newPath = hashDir.createPath(config.curveBasePath, req.decoded.username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
