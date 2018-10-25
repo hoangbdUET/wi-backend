@@ -231,4 +231,42 @@ router.post('/zone-set', async function (req, res) {
     }
 });
 
+router.post('/marker-set', async function (req, res) {
+    if(req.body.idMarkerSets){
+        let arrData = [['', '', '']];
+        let unit = null;
+        for (const id of req.body.idMarkerSets) {
+            const markerSet = await req.dbConnection.MarkerSet.findById(id, {
+                include: [
+                    {
+                        model: req.dbConnection.Marker,
+                        include: [{model: req.dbConnection.MarkerTemplate}]
+                    },
+                    {
+                        model: req.dbConnection.Well
+                    }
+                ]
+            });
+            if(!unit){
+                unit = markerSet.well.unit;
+                arrData.push(['', '', unit]);
+            }
+            if(markerSet.well.unit != unit){
+                //convert unit of depth
+                markerSet.markers.forEach(marker => {
+                    arrData.push([markerSet.well.name, marker.marker_template.name, convertLength.convertDistance( marker.depth, markerSet.well.unit, unit)]);
+                });
+            } else {
+                markerSet.markers.forEach(marker => {
+                    arrData.push([markerSet.well.name, marker.marker_template.name, marker.depth]);
+                });
+            }
+        }
+        csv.write(arrData, {headers: ['Well_name', 'Maker_name', 'Depth']}).pipe(res);
+    }
+    else {
+        res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Missing idMarkerSets"));
+    }
+})
+
 module.exports = router;
