@@ -8,7 +8,7 @@ module.exports = function (sequelize, DataTypes) {
         name: {
             type: DataTypes.STRING(200),
             allowNull: false,
-            unique: true
+            unique: "name-idProject"
         }
     });
 };

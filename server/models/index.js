@@ -256,6 +256,14 @@ function newDbInstance(dbName, callback) {
         m.ZoneTrack.belongsTo(m.ZoneSet, {foreignKey: {name: "idZoneSet", allowNull: true}});//TODO allowNull??
 
 
+        m.Project.hasMany(m.ZoneSetTemplate, {
+            foreignKey: {
+                name: "idProject",
+                allowNull: true,
+                unique: "name-idProject"
+            },
+            onDelete: "CASCADE"
+        });
         m.ZoneSetTemplate.hasMany(m.ZoneTemplate, {
             foreignKey: {name: "idZoneSetTemplate", allowNull: false, unique: "name-idZoneSetTemplate"},
             onDelete: 'CASCADE'
@@ -438,6 +446,13 @@ function newDbInstance(dbName, callback) {
         });
         m.Well.hasMany(m.DepthAxis, {
             foreignKey: {name: "idWell", allowNull: true}
+        });
+        m.Project.hasMany(m.MarkerSetTemplate, {
+            foreignKey: {
+                name: "idProject",
+                allowNull: true,
+                unique: "name-idProject"
+            }, onDelete: 'CASCADE'
         });
         m.MarkerSetTemplate.hasMany(m.MarkerTemplate, {
             foreignKey: {name: "idMarkerSetTemplate", allowNull: false, unique: "name-idMarkerSetTemplate"},
