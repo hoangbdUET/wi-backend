@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const async = require('async');
 
-router.get('/migrate/clone-zone-set-template', async (req, res) => {
+router.post('/migrate/clone-zone-set-template', async (req, res) => {
     let dbConnection = req.dbConnection;
     let projects = await dbConnection.Project.findAll();
     let zoneSetTemplates = await dbConnection.ZoneSetTemplate.findAll({
@@ -43,7 +43,7 @@ router.get('/migrate/clone-zone-set-template', async (req, res) => {
     });
 });
 
-router.get('/migrate/clone-marker-set-template', async (req, res) => {
+router.post('/migrate/clone-marker-set-template', async (req, res) => {
     let dbConnection = req.dbConnection;
     let projects = await dbConnection.Project.findAll();
     let markerSetTemplates = await dbConnection.MarkerSetTemplate.findAll({
@@ -84,7 +84,7 @@ router.get('/migrate/clone-marker-set-template', async (req, res) => {
     });
 });
 
-router.get('/migrate/update-zone-set', async (req, res) => {
+router.post('/migrate/update-zone-set', async (req, res) => {
     let dbConnection = req.dbConnection;
     let zonesets = await dbConnection.ZoneSet.findAll({
         include: {
@@ -134,7 +134,7 @@ router.get('/migrate/update-zone-set', async (req, res) => {
     });
 });
 
-router.get('/migrate/update-marker-set', async (req, res) => {
+router.post('/migrate/update-marker-set', async (req, res) => {
     let dbConnection = req.dbConnection;
     let markersets = await dbConnection.MarkerSet.findAll({
         include: {
