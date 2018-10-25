@@ -94,6 +94,11 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: 0.6
         },
+        trackOffset: {
+            type: DataTypes.FLOAT,
+            allowNull: false,
+            defaultValue: 0
+        },
         createdBy: {
             type: DataTypes.STRING(50),
             allowNull: false,
