@@ -208,7 +208,7 @@ router.post('/files', function (req, res) {
 
 router.post('/zone-set', async function (req, res) {
     if (req.body.idZoneSets) {
-        let arrData = [['', '', '', '', '']]; //??????????????
+        let arrData = [['', '', '', '']]; //??????????????
         for (const id of req.body.idZoneSets) {
             const zoneSet = await req.dbConnection.ZoneSet.findById(id, {
                 include: [
@@ -221,14 +221,61 @@ router.post('/zone-set', async function (req, res) {
                     }
                 ]
             });
-            zoneSet.zones.forEach(zone => {
-                arrData.push([zoneSet.well.name, zone.zone_template.name, zone.startDepth, zone.endDepth, zoneSet.well.unit]);
-            });
+            if(arrData.length < 2){
+                arrData.push(['', '', zoneSet.well.unit, zoneSet.well.unit]);
+            }
+            if(zoneSet.well.unit != 'm' || zoneSet.well.unit != 'M'){
+                zoneSet.zones.forEach(zone => {
+                    arrData.push([zoneSet.well.name, zone.zone_template.name,
+                        convertLength.convertDistance(zone.startDepth, 'm', zoneSet.well.unit),
+                        convertLength.convertDistance(zone.endDepth, 'm', zoneSet.well.unit)]);
+                });
+            }else {
+                zoneSet.zones.forEach(zone => {
+                    arrData.push([zoneSet.well.name, zone.zone_template.name, zone.startDepth, zone.endDepth]);
+                });
+            }
         }
-        csv.write(arrData, {headers: ['Well', 'Zone', 'Top_Depth', 'Bottom_Depth', 'Unit']}).pipe(res);
+        csv.write(arrData, {headers: ['Well', 'Zone', 'Top_Depth', 'Bottom_Depth']}).pipe(res);
     } else {
         res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Missing zoneset id"));
     }
 });
+
+router.post('/marker-set', async function (req, res) {
+    if(req.body.idMarkerSets){
+        let arrData = [['', '', '']];
+        for (const id of req.body.idMarkerSets) {
+            const markerSet = await req.dbConnection.MarkerSet.findById(id, {
+                include: [
+                    {
+                        model: req.dbConnection.Marker,
+                        include: [{model: req.dbConnection.MarkerTemplate}]
+                    },
+                    {
+                        model: req.dbConnection.Well
+                    }
+                ]
+            });
+            if(arrData.length < 2){
+                arrData.push(['', '', markerSet.well.unit]);
+            }
+            if(markerSet.well.unit != 'm' || markerSet.well.unit != 'M'){
+                //convert unit of depth
+                markerSet.markers.forEach(marker => {
+                    arrData.push([markerSet.well.name, marker.marker_template.name, convertLength.convertDistance( marker.depth, 'm', markerSet.well.unit)]);
+                });
+            } else {
+                markerSet.markers.forEach(marker => {
+                    arrData.push([markerSet.well.name, marker.marker_template.name, marker.depth]);
+                });
+            }
+        }
+        csv.write(arrData, {headers: ['Well_name', 'Maker_name', 'Depth']}).pipe(res);
+    }
+    else {
+        res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Missing idMarkerSets"));
+    }
+})
 
 module.exports = router;
