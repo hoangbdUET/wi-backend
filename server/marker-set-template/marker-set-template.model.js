@@ -2,6 +2,7 @@ let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
 
 function createNewMarkerSetTemplate(payload, done, dbConnection) {
+    if(!payload.idProject) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Need idProject", "Need idProject"));
     dbConnection.MarkerSetTemplate.create(payload).then(rs => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
     }).catch(err => {
