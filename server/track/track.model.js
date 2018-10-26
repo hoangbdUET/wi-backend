@@ -424,7 +424,7 @@ let importTrackTemplate = async function (req, done, dbConnection) {
 }
 
 let duplicateTrack = function (payload, done, dbConnection) {
-    dbConnection.Track.findById(payload.idtrack.idTrack, {include: {all: true}}).then(rs => {
+    dbConnection.Track.findById(payload.idTrack.idTrack, {include: {all: true}}).then(rs => {
             let track = rs.toJSON();
             delete track.idTrack;
             delete track.createdAt;
