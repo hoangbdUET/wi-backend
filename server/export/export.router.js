@@ -226,13 +226,16 @@ router.post('/zone-set', async function (req, res) {
             }
             if(zoneSet.well.unit != 'm' || zoneSet.well.unit != 'M'){
                 zoneSet.zones.forEach(zone => {
-                    arrData.push([zoneSet.well.name, zone.zone_template.name,
+                    arrData.push([zoneSet.well.name.replace(/\s+/g, '_'),
+                        zone.zone_template.name.replace(/,/g, '').replace(/\s+/g, '_'),
                         convertLength.convertDistance(zone.startDepth, 'm', zoneSet.well.unit),
                         convertLength.convertDistance(zone.endDepth, 'm', zoneSet.well.unit)]);
                 });
             }else {
                 zoneSet.zones.forEach(zone => {
-                    arrData.push([zoneSet.well.name, zone.zone_template.name, zone.startDepth, zone.endDepth]);
+                    arrData.push([zoneSet.well.name.replace(/\s+/g, '_'),
+                        zone.zone_template.name.replace(/,/g, '').replace(/\s+/g, '_'),
+                        zone.startDepth, zone.endDepth]);
                 });
             }
         }
@@ -263,11 +266,15 @@ router.post('/marker-set', async function (req, res) {
             if(markerSet.well.unit != 'm' || markerSet.well.unit != 'M'){
                 //convert unit of depth
                 markerSet.markers.forEach(marker => {
-                    arrData.push([markerSet.well.name, marker.marker_template.name, convertLength.convertDistance( marker.depth, 'm', markerSet.well.unit)]);
+                    arrData.push([markerSet.well.name.replace(/\s+/g, '_'),
+                        marker.marker_template.name.replace(/,/g, '').replace(/\s+/g, '_'),
+                        convertLength.convertDistance( marker.depth, 'm', markerSet.well.unit)]);
                 });
             } else {
                 markerSet.markers.forEach(marker => {
-                    arrData.push([markerSet.well.name, marker.marker_template.name, marker.depth]);
+                    arrData.push([markerSet.well.name.replace(/\s+/g, '_'),
+                        marker.marker_template.name.replace(/,/g, '').replace(/\s+/g, '_'),
+                        marker.depth]);
                 });
             }
         }
