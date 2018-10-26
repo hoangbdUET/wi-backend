@@ -442,6 +442,7 @@ let duplicateTrack = function (payload, done, dbConnection) {
                             delete line.idLine;
                             delete line.createdAt;
                             delete line.updatedAt;
+                            line.updatedBy = payload.updatedBy;
                             line.idTrack = idTrack;
                             dbConnection.Line.create(line).then(l => {
                                 myObj.newLine = l.idLine;
@@ -461,6 +462,7 @@ let duplicateTrack = function (payload, done, dbConnection) {
                             delete annotation.createdAt;
                             delete annotation.updatedAt;
                             annotation.idTrack = idTrack;
+                            annotation.updatedBy = payload.updatedBy;
                             dbConnection.Annotation.create(annotation).then(l => {
                                 next();
                             }).catch(err => {
@@ -477,6 +479,7 @@ let duplicateTrack = function (payload, done, dbConnection) {
                         delete shading.createdAt;
                         delete shading.updatedAt;
                         shading.idTrack = idTrack;
+                        shading.updatedBy = payload.updatedBy;
                         asyncSeries([
                             function (cb) {
                                 if (shading.idLeftLine) {
