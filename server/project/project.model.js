@@ -6,6 +6,71 @@ let request = require('request');
 let config = require('config');
 let models = require('../models');
 let openProject = require('../authenticate/opening-project');
+let dbMaster = require('../models-master');
+let async = require('async');
+
+function createDefaultZoneSetTemplate(zoneSetTemplates, idProject, dbConnection) {
+    return new Promise(resolve => {
+        async.each(zoneSetTemplates, (zoneSetTemplate, nextZst) => {
+            dbConnection.ZoneSetTemplate.create({
+                name: zoneSetTemplate.name,
+                idProject: idProject
+            }).then(zst => {
+                async.each(zoneSetTemplate.zone_templates, (zoneTemplate, nextZt) => {
+                    dbConnection.ZoneTemplate.create({
+                        idZoneSetTemplate: zst.idZoneSetTemplate,
+                        name: zoneTemplate.name,
+                        background: zoneTemplate.background,
+                        foreground: zoneTemplate.foreground,
+                        pattern: zoneTemplate.pattern,
+                        orderNum: zoneTemplate.orderNum
+                    }).then(() => {
+                        nextZt();
+                    }).catch(err => {
+                        console.log(err);
+                        nextZt();
+                    })
+                }, () => {
+                    nextZst();
+                })
+            })
+        }, function () {
+            resolve();
+        })
+    });
+}
+
+function createDefaultMarkerSetTemplate(markerSetTemplates, idProject, dbConnection) {
+    return new Promise(resolve => {
+        async.each(markerSetTemplates, (markerSetTemplate, nextZst) => {
+            dbConnection.MarkerSetTemplate.create({
+                name: markerSetTemplate.name,
+                idProject: idProject
+            }).then(zst => {
+                async.each(markerSetTemplate.marker_templates, (markerTemplate, nextZt) => {
+                    dbConnection.MarkerTemplate.create({
+                        idMarkerSetTemplate: zst.idMarkerSetTemplate,
+                        name: markerTemplate.name,
+                        color: markerTemplate.color,
+                        lineStyle: markerTemplate.lineStyle,
+                        lineWidth: markerTemplate.lineWidth,
+                        orderNum: markerTemplate.orderNum,
+                        description: markerTemplate.description
+                    }).then(() => {
+                        nextZt();
+                    }).catch(err => {
+                        console.log(err);
+                        nextZt();
+                    })
+                }, () => {
+                    nextZst();
+                })
+            })
+        }, function () {
+            resolve();
+        })
+    });
+}
 
 function createNewProject(projectInfo, done, dbConnection) {
     let Project = dbConnection.Project;
@@ -14,7 +79,17 @@ function createNewProject(projectInfo, done, dbConnection) {
         .then(function () {
             return Project.create(projectInfo);
         })
-        .then(function (project) {
+        .then(async function (project) {
+            let zsts = await dbConnection.ZoneSetTemplate.findAll({
+                where: {idProject: null},
+                include: {model: dbConnection.ZoneTemplate}
+            });
+            let msks = await dbConnection.MarkerSetTemplate.findAll({
+                where: {idProject: null},
+                include: {model: dbConnection.MarkerTemplate}
+            });
+            await createDefaultZoneSetTemplate(zsts, project.idProject, dbConnection);
+            await createDefaultMarkerSetTemplate(msks, project.idProject, dbConnection);
             done(ResponseJSON(ErrorCodes.SUCCESS, "Create new project success", project));
         })
         .catch(function (err) {

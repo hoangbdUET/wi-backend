@@ -2,6 +2,7 @@ let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
 
 function createNewMarkerSetTemplate(payload, done, dbConnection) {
+    if(!payload.idProject) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Need idProject", "Need idProject"));
     dbConnection.MarkerSetTemplate.create(payload).then(rs => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
     }).catch(err => {
@@ -18,11 +19,14 @@ function infoMarkerSetTemplate(payload, done, dbConnection) {
 }
 
 function listMarkerSetTemplate(payload, done, dbConnection) {
-    dbConnection.MarkerSetTemplate.findAll({include: [{model: dbConnection.MarkerTemplate}, {model: dbConnection.MarkerSet}]}).then(rs => {
+    dbConnection.MarkerSetTemplate.findAll({
+        include: [{model: dbConnection.MarkerTemplate}, {model: dbConnection.MarkerSet}],
+        where: {idProject: payload.idProject ? payload.idProject : null}
+    }).then(rs => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
-    })
+    });
 }
 
 

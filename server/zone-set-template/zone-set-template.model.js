@@ -2,6 +2,7 @@ let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
 
 function createNewZoneSetTemplate(payload, done, dbConnection) {
+    if(!payload.idProject) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Need idProject", "Need idProject"));
     dbConnection.ZoneSetTemplate.create(payload).then(rs => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
     }).catch(err => {
@@ -18,7 +19,10 @@ function infoZoneSetTemplate(payload, done, dbConnection) {
 }
 
 function listZoneSetTemplate(payload, done, dbConnection) {
-    dbConnection.ZoneSetTemplate.findAll({include: [{model: dbConnection.ZoneTemplate}, {model: dbConnection.ZoneSet}]}).then(rs => {
+    dbConnection.ZoneSetTemplate.findAll({
+        include: [{model: dbConnection.ZoneTemplate}, {model: dbConnection.ZoneSet}],
+        where: {idProject: payload.idProject ? payload.idProject : null}
+    }).then(rs => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
