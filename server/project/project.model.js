@@ -51,10 +51,11 @@ function createDefaultMarkerSetTemplate(markerSetTemplates, idProject, dbConnect
                     dbConnection.MarkerTemplate.create({
                         idMarkerSetTemplate: zst.idMarkerSetTemplate,
                         name: markerTemplate.name,
-                        background: markerTemplate.background,
-                        foreground: markerTemplate.foreground,
-                        pattern: markerTemplate.pattern,
-                        orderNum: markerTemplate.orderNum
+                        color: markerTemplate.color,
+                        lineStyle: markerTemplate.lineStyle,
+                        lineWidth: markerTemplate.lineWidth,
+                        orderNum: markerTemplate.orderNum,
+                        description: markerTemplate.description
                     }).then(() => {
                         nextZt();
                     }).catch(err => {
