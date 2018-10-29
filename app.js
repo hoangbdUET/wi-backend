@@ -188,8 +188,8 @@ function main() {
     app.use('/', databaseRouter);
     authenticate = require('./server/authenticate/authenticate');
     app.use(authenticate());
-    let scriptRouter = require('./server/script');
-    app.use('/script', scriptRouter);
+    let scriptRouter = require('./server/script/script');
+    // app.use('/script', scriptRouter);
     app.use('/', testRouter);
     app.use('/csv', (req, res) => {
         let url = fullConfig.csvService.host + req.originalUrl;
