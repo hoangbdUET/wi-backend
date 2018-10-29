@@ -430,7 +430,7 @@ let duplicateTrack = function (payload, done, dbConnection) {
             delete track.createdAt;
             delete track.updatedAt;
             track.updatedBy = payload.updatedBy;
-            track.orderNum = payload.orderNum;
+            track.orderNum = payload.idTrack.orderNum;
             dbConnection.Track.create(track).then(rs => {
                 let idTrack = rs.idTrack;
                 let change = new Array();
