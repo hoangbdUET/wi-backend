@@ -63,6 +63,11 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: true,
             defaultValue: "inch"
         },
+        trackOffset: {
+            type: DataTypes.FLOAT,
+            allowNull: false,
+            defaultValue: 0
+        },
         createdBy: {
             type: DataTypes.STRING(50),
             allowNull: false,
