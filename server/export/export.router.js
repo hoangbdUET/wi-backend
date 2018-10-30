@@ -209,6 +209,7 @@ router.post('/files', function (req, res) {
 router.post('/zone-set', async function (req, res) {
     if (req.body.idZoneSets) {
         let arrData = [['', '', '', '']]; //??????????????
+        let exportUnit = null;
         for (const id of req.body.idZoneSets) {
             const zoneSet = await req.dbConnection.ZoneSet.findById(id, {
                 include: [
@@ -221,15 +222,16 @@ router.post('/zone-set', async function (req, res) {
                     }
                 ]
             });
-            if(arrData.length < 2){
-                arrData.push(['', '', zoneSet.well.unit, zoneSet.well.unit]);
+            if(!exportUnit){
+                exportUnit = zoneSet.well.unit;
+                arrData.push(['', '', exportUnit, exportUnit]);
             }
-            if(zoneSet.well.unit != 'm' || zoneSet.well.unit != 'M'){
+            if(exportUnit != 'm' && exportUnit != 'M'){
                 zoneSet.zones.forEach(zone => {
                     arrData.push([zoneSet.well.name.replace(/\s+/g, '_'),
                         zone.zone_template.name.replace(/,/g, '').replace(/\s+/g, '_'),
-                        convertLength.convertDistance(zone.startDepth, 'm', zoneSet.well.unit),
-                        convertLength.convertDistance(zone.endDepth, 'm', zoneSet.well.unit)]);
+                        convertLength.convertDistance(zone.startDepth, 'm', exportUnit),
+                        convertLength.convertDistance(zone.endDepth, 'm', exportUnit)]);
                 });
             }else {
                 zoneSet.zones.forEach(zone => {
@@ -248,6 +250,7 @@ router.post('/zone-set', async function (req, res) {
 router.post('/marker-set', async function (req, res) {
     if(req.body.idMarkerSets){
         let arrData = [['', '', '']];
+        let exportUnit = null;
         for (const id of req.body.idMarkerSets) {
             const markerSet = await req.dbConnection.MarkerSet.findById(id, {
                 include: [
@@ -260,15 +263,16 @@ router.post('/marker-set', async function (req, res) {
                     }
                 ]
             });
-            if(arrData.length < 2){
-                arrData.push(['', '', markerSet.well.unit]);
+            if(!exportUnit){
+                exportUnit = markerSet.well.unit;
+                arrData.push(['', '', exportUnit]);
             }
-            if(markerSet.well.unit != 'm' || markerSet.well.unit != 'M'){
+            if(exportUnit != 'm' && exportUnit != 'M'){
                 //convert unit of depth
                 markerSet.markers.forEach(marker => {
                     arrData.push([markerSet.well.name.replace(/\s+/g, '_'),
                         marker.marker_template.name.replace(/,/g, '').replace(/\s+/g, '_'),
-                        convertLength.convertDistance( marker.depth, 'm', markerSet.well.unit)]);
+                        convertLength.convertDistance( marker.depth, 'm', exportUnit)]);
                 });
             } else {
                 markerSet.markers.forEach(marker => {
