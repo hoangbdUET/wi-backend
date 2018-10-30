@@ -206,10 +206,16 @@ router.post('/files', function (req, res) {
     });
 });
 
+function compareFn(item1, item2) {
+    if(item1[0] < item2[0]) return -1;
+    if(item1[0] > item2[0]) return 1;
+    return 0;
+}
+
 router.post('/zone-set', async function (req, res) {
     if (req.body.idZoneSets) {
-        let arrData = [['', '', '', '']]; //??????????????
         let exportUnit = null;
+        let arrData = [];
         for (const id of req.body.idZoneSets) {
             const zoneSet = await req.dbConnection.ZoneSet.findById(id, {
                 include: [
@@ -224,7 +230,6 @@ router.post('/zone-set', async function (req, res) {
             });
             if(!exportUnit){
                 exportUnit = zoneSet.well.unit;
-                arrData.push(['', '', exportUnit, exportUnit]);
             }
             if(exportUnit != 'm' && exportUnit != 'M'){
                 zoneSet.zones.forEach(zone => {
@@ -241,6 +246,9 @@ router.post('/zone-set', async function (req, res) {
                 });
             }
         }
+        arrData.sort(compareFn);
+        arrData.unshift(['', '', exportUnit, exportUnit]);
+        arrData.unshift(['', '', '', '']); //??????????????
         csv.write(arrData, {headers: ['Well', 'Zone', 'Top_Depth', 'Bottom_Depth']}).pipe(res);
     } else {
         res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Missing zoneset id"));
@@ -249,7 +257,7 @@ router.post('/zone-set', async function (req, res) {
 
 router.post('/marker-set', async function (req, res) {
     if(req.body.idMarkerSets){
-        let arrData = [['', '', '']];
+        let arrData = [];
         let exportUnit = null;
         for (const id of req.body.idMarkerSets) {
             const markerSet = await req.dbConnection.MarkerSet.findById(id, {
@@ -265,7 +273,6 @@ router.post('/marker-set', async function (req, res) {
             });
             if(!exportUnit){
                 exportUnit = markerSet.well.unit;
-                arrData.push(['', '', exportUnit]);
             }
             if(exportUnit != 'm' && exportUnit != 'M'){
                 //convert unit of depth
@@ -282,6 +289,9 @@ router.post('/marker-set', async function (req, res) {
                 });
             }
         }
+        arrData.sort(compareFn);
+        arrData.unshift(['', '', exportUnit]);
+        arrData.unshift(['', '', ''])
         csv.write(arrData, {headers: ['Well_name', 'Maker_name', 'Depth']}).pipe(res);
     }
     else {
