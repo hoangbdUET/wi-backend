@@ -58,7 +58,7 @@ router.post('/track/import', upload.single('file'), function (req, res) {
 });
 
 router.post('/track/duplicate', function (req, res) {
-    trackModel.duplicateTrack(req.body.idTrack, function (status) {
+    trackModel.duplicateTrack(req.body, function (status) {
         res.send(status);
     }, req.dbConnection)
 });

@@ -424,12 +424,13 @@ let importTrackTemplate = async function (req, done, dbConnection) {
 }
 
 let duplicateTrack = function (payload, done, dbConnection) {
-    dbConnection.Track.findById(payload.idTrack, {include: {all: true}}).then(rs => {
+    dbConnection.Track.findById(payload.idTrack.idTrack, {include: {all: true}}).then(rs => {
             let track = rs.toJSON();
             delete track.idTrack;
             delete track.createdAt;
             delete track.updatedAt;
-            track.orderNum = payload.orderNum;
+            track.updatedBy = payload.updatedBy;
+            track.orderNum = payload.idTrack.orderNum;
             dbConnection.Track.create(track).then(rs => {
                 let idTrack = rs.idTrack;
                 let change = new Array();
@@ -441,6 +442,7 @@ let duplicateTrack = function (payload, done, dbConnection) {
                             delete line.idLine;
                             delete line.createdAt;
                             delete line.updatedAt;
+                            line.updatedBy = payload.updatedBy;
                             line.idTrack = idTrack;
                             dbConnection.Line.create(line).then(l => {
                                 myObj.newLine = l.idLine;
@@ -460,6 +462,7 @@ let duplicateTrack = function (payload, done, dbConnection) {
                             delete annotation.createdAt;
                             delete annotation.updatedAt;
                             annotation.idTrack = idTrack;
+                            annotation.updatedBy = payload.updatedBy;
                             dbConnection.Annotation.create(annotation).then(l => {
                                 next();
                             }).catch(err => {
@@ -476,6 +479,7 @@ let duplicateTrack = function (payload, done, dbConnection) {
                         delete shading.createdAt;
                         delete shading.updatedAt;
                         shading.idTrack = idTrack;
+                        shading.updatedBy = payload.updatedBy;
                         asyncSeries([
                             function (cb) {
                                 if (shading.idLeftLine) {

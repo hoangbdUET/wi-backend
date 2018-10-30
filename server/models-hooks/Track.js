@@ -6,7 +6,7 @@ module.exports = function (dbConnection) {
                 if (result) {
                     resolve(track, options);
                 } else {
-                    reject({message: "Track: Do not have permission"});
+                    reject({message: "Track: (Create) Do not have permission"});
                 }
             });
         });
@@ -18,7 +18,7 @@ module.exports = function (dbConnection) {
                     resolve(track, options);
                 } else {
                     if (track.createdBy !== track.updatedBy) {
-                        reject({message: "Track: Do not have permission"});
+                        reject({message: "Track: (Delete) Do not have permission"});
                     } else {
                         resolve(track, options);
                     }
@@ -33,7 +33,7 @@ module.exports = function (dbConnection) {
                     resolve(track, options);
                 } else {
                     if (track.createdBy !== track.updatedBy) {
-                        reject({message: "Track: Do not have permission"});
+                        reject({message: "Track: (Update) Do not have permission"});
                     } else {
                         resolve(track, options);
                     }
