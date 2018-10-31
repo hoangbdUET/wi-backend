@@ -94,7 +94,7 @@ function getWellList(payload, done, dbConnection) {
 function editWell(wellInfo, done, dbConnection, username) {
     dbConnection.Well.findById(wellInfo.idWell).then(well => {
         if (well) {
-            if (well.name !== wellInfo.name) {
+            if (wellInfo.name && well.name.toUpperCase() !== wellInfo.name.toUpperCase()) {
                 let oldWellName = well.name;
                 well.name = wellInfo.name;
                 well.idGroup = wellInfo.idGroup;
