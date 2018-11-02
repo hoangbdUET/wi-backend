@@ -751,12 +751,12 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
                 console.log("=====", isRef);
                 if (isRef) {
                     console.log("Curve is reference");
+                    let rate = convertLength.getDistanceRate(_curve.unit, 'm');
                     const convertTransform = new Transform({
                         writableObjectMode: true,
                         transform(chunk, encoding, callback) {
                             let tokens = chunk.toString().split(/\s+/);
-                            this.push(tokens[0] + " " + convertLength.convertDistance(tokens[1], _curve.unit, 'm') + "\n");
-                            // console.log(tokens);
+                            this.push(tokens[0] + " " + tokens[1] * rate + "\n");
                             callback();
                         }
                     });
