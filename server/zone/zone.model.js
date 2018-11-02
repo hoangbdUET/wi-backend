@@ -11,10 +11,7 @@ function createNewZone(zoneInfo, done, dbConnection) {
                 let zone = Zone.build(zoneInfo);
                 zone.save()
                     .then(function (zone) {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Zone success", {
-                            idZone: zone.idZone,
-                            orderNum: zone.orderNum
-                        }));
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Zone success", zone));
                     })
                     .catch(function (err) {
                         console.log(err);
