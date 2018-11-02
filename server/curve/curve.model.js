@@ -1,18 +1,20 @@
 "use strict";
 
-let config = require('config');
-let exporter = require('./export');
-let ResponseJSON = require('../response');
-let ErrorCodes = require('../../error-codes').CODES;
-let asyncLoop = require('async/each');
-let fs = require('fs-extra');
-let request = require('request');
-let rename = require('../utils/function').renameObjectForDustbin;
-let curveFunction = require('../utils/curve.function');
-let checkPermisson = require('../utils/permission/check-permisison');
-let wiImport = require('wi-import');
-let hashDir = wiImport.hashDir;
-let async = require('async');
+const config = require('config');
+const exporter = require('./export');
+const ResponseJSON = require('../response');
+const ErrorCodes = require('../../error-codes').CODES;
+const asyncLoop = require('async/each');
+const fs = require('fs-extra');
+const request = require('request');
+const rename = require('../utils/function').renameObjectForDustbin;
+const curveFunction = require('../utils/curve.function');
+const checkPermisson = require('../utils/permission/check-permisison');
+const wiImport = require('wi-import');
+const hashDir = wiImport.hashDir;
+const async = require('async');
+const convertLength = require('../utils/convert-length');
+const {Transform} = require('stream');
 
 function createNewCurve(curveInfo, done, dbConnection) {
     let Curve = dbConnection.Curve;
@@ -696,6 +698,12 @@ async function getCurveDataFromInventory(curveInfo, token, callback, dbConnectio
 }
 
 
+function checkCurveIsReference(curveInfo) {
+    let referenceName = ['TVD', 'TVDSS', 'MD', '__MD', '_MD', 'DEPTH'];
+    let referenceUnit = convertLength.getUnitTable();
+    return !!(referenceName.includes(curveInfo.name.toUpperCase()) && referenceUnit[unit]);
+}
+
 function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, username, createdBy, updatedBy) {
     let start = new Date();
     return new Promise(async function (resolve, reject) {
@@ -737,7 +745,20 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
             let _curve = rs[0];
             let curvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + _curve.name, _curve.name + '.txt');
             try {
-                let stream = request(options).pipe(fs.createWriteStream(curvePath));
+                let stream;
+                if (checkCurveIsReference(_curve)) {
+                    const convertTransform = new Transform({
+                        writableObjectMode: true,
+                        transform(chunk, encoding, callback) {
+                            let tokens = chunk.toString().split(/\s+/);
+                            this.push(tokens[0] + " " + convertLength.convertDistance(tokens[1], _curve.unit, 'm') + "\n");
+                            callback();
+                        }
+                    });
+                    stream = request(options).pipe(convertTransform).pipe(fs.createWriteStream(curvePath));
+                } else {
+                    stream = request(options).pipe(fs.createWriteStream(curvePath));
+                }
                 stream.on('close', function () {
                     console.log("Import Done ", curvePath, " : ", new Date() - start, "ms");
                     resolve(_curve);
