@@ -699,9 +699,9 @@ async function getCurveDataFromInventory(curveInfo, token, callback, dbConnectio
 
 
 function checkCurveIsReference(curveInfo) {
-    let referenceName = ['TVD', 'TVDSS', 'MD', '__MD', '_MD', 'DEPTH'];
+    let referenceName = ['TVD', 'TVDSS', 'MD', '__MD', '_MD', 'DEPTH', 'XOFFSET', 'YOFFSET'];
     let referenceUnit = convertLength.getUnitTable();
-    return !!(referenceName.includes(curveInfo.name.toUpperCase()) && referenceUnit[unit]);
+    return !!(referenceName.includes(curveInfo.name.toUpperCase()) && referenceUnit[curveInfo.unit]);
 }
 
 function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, username, createdBy, updatedBy) {
@@ -744,19 +744,25 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
         }).then(rs => {
             let _curve = rs[0];
             let curvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + _curve.name, _curve.name + '.txt');
+            console.log("=======", _curve.name);
             try {
                 let stream;
-                if (checkCurveIsReference(_curve)) {
+                let isRef = checkCurveIsReference(_curve);
+                console.log("=====", isRef);
+                if (isRef) {
+                    console.log("Curve is reference");
                     const convertTransform = new Transform({
                         writableObjectMode: true,
                         transform(chunk, encoding, callback) {
                             let tokens = chunk.toString().split(/\s+/);
                             this.push(tokens[0] + " " + convertLength.convertDistance(tokens[1], _curve.unit, 'm') + "\n");
+                            // console.log(tokens);
                             callback();
                         }
                     });
                     stream = request(options).pipe(convertTransform).pipe(fs.createWriteStream(curvePath));
                 } else {
+                    console.log("Curve is not reference");
                     stream = request(options).pipe(fs.createWriteStream(curvePath));
                 }
                 stream.on('close', function () {
