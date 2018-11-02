@@ -394,6 +394,11 @@ function getData(param, successFunc, errorFunc, dbConnection, username) {
                         Well.findById(dataset.idWell).then(well => {
                             if (well) {
                                 Project.findById(well.idProject).then(project => {
+                                    let isRef = checkCurveIsReference(curve);
+                                    let rate = 1;
+                                    if (isRef) {
+                                        rate = convertLength.getDistanceRate(curve.unit, 'm');
+                                    }
                                     console.log("Hash : ", config.curveBasePath, username + project.name + well.name + dataset.name + curve.name + '.txt');
                                     hashDir.createJSONReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt', '{\n"code": 200,\n"content":', '}\n',
                                         function (err, stream) {
@@ -403,7 +408,8 @@ function getData(param, successFunc, errorFunc, dbConnection, username) {
                                                 successFunc(stream);
                                             }
                                         }, {
-                                            isCore: (dataset.step === 0 || dataset.step === '0')
+                                            isCore: (dataset.step === 0 || dataset.step === '0'),
+                                            rate: rate
                                         }
                                     );
                                 });
@@ -744,27 +750,27 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
         }).then(rs => {
             let _curve = rs[0];
             let curvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + _curve.name, _curve.name + '.txt');
-            console.log("=======", _curve.name);
+            // console.log("=======", _curve.name);
             try {
-                let stream;
-                let isRef = checkCurveIsReference(_curve);
-                console.log("=====", isRef);
-                if (isRef) {
-                    console.log("Curve is reference");
-                    let rate = convertLength.getDistanceRate(_curve.unit, 'm');
-                    const convertTransform = new Transform({
-                        writableObjectMode: true,
-                        transform(chunk, encoding, callback) {
-                            let tokens = chunk.toString().split(/\s+/);
-                            this.push(tokens[0] + " " + tokens[1] * rate + "\n");
-                            callback();
-                        }
-                    });
-                    stream = request(options).pipe(convertTransform).pipe(fs.createWriteStream(curvePath));
-                } else {
-                    console.log("Curve is not reference");
-                    stream = request(options).pipe(fs.createWriteStream(curvePath));
-                }
+                let stream = request(options).pipe(fs.createWriteStream(curvePath));
+                // let isRef = checkCurveIsReference(_curve);
+                // console.log("=====", isRef);
+                // if (isRef) {
+                //     console.log("Curve is reference");
+                //     let rate = convertLength.getDistanceRate(_curve.unit, 'm');
+                //     const convertTransform = new Transform({
+                //         writableObjectMode: true,
+                //         transform(chunk, encoding, callback) {
+                //             let tokens = chunk.toString().split(/\s+/);
+                //             this.push(tokens[0] + " " + tokens[1] * rate + "\n");
+                //             callback();
+                //         }
+                //     });
+                //     stream = request(options).pipe(convertTransform).pipe(fs.createWriteStream(curvePath));
+                // } else {
+                //     console.log("Curve is not reference");
+                //     stream = request(options).pipe(fs.createWriteStream(curvePath));
+                // }
                 stream.on('close', function () {
                     console.log("Import Done ", curvePath, " : ", new Date() - start, "ms");
                     resolve(_curve);
