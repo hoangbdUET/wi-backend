@@ -37,7 +37,7 @@ function createNew(payload, done, dbConnection) {
             }
         }).catch(err => {
             if (err.name === "SequelizeUniqueConstraintError") {
-                dbConnection.ZoneSet.findOne({where: {name: payload.name, idWell: payload.idWell}}).then(zs => {
+                dbConnection.MarkerSet.findOne({where: {name: payload.name, idWell: payload.idWell}}).then(zs => {
                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Marker set name existed!", zs));
                 });
             } else {
