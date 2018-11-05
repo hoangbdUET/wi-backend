@@ -36,7 +36,13 @@ function createNew(payload, done, dbConnection) {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Done", markerSet));
             }
         }).catch(err => {
-            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
+            if (err.name === "SequelizeUniqueConstraintError") {
+                dbConnection.ZoneSet.findOne({where: {name: payload.name, idWell: payload.idWell}}).then(zs => {
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Marker set name existed!", zs));
+                });
+            } else {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+            }
         })
     } else {
         dbConnection.MarkerSet.create(payload).then(m => {
