@@ -550,19 +550,19 @@ async function applyToWell(payload, dbConnection) {
         }));
     }
 
-    function createAnnotations(annotations, _track) {
-        return new Promise(resolve => {
-            async.each(annotations, (annotation, next) => {
-                delete annotation.idAnnotation;
-                annotation.idTrack = _track.idTrack;
-                dbConnection.Annotation.create(annotation).then(() => {
-                    next();
-                });
-            }, function () {
-                resolve();
-            })
-        });
-    }
+    // function createAnnotations(annotations, _track) {
+    //     return new Promise(resolve => {
+    //         async.each(annotations, (annotation, next) => {
+    //             delete annotation.idAnnotation;
+    //             annotation.idTrack = _track.idTrack;
+    //             dbConnection.Annotation.create(annotation).then(() => {
+    //                 next();
+    //             });
+    //         }, function () {
+    //             resolve();
+    //         })
+    //     });
+    // }
 
     function createShadings(shadings, well, lines, _track) {
         return new Promise(resolve => {
@@ -631,7 +631,7 @@ async function applyToWell(payload, dbConnection) {
         // track.title = "Created from " + track.title;
         let _track = await dbConnection.Track.create(track);
         let _lines = await createLines(track.lines, well, _track);
-        await createAnnotations(track.annotations, _track);
+        // await createAnnotations(track.annotations, _track);
         await createShadings(track.shadings, well, _lines, _track);
         return ResponseJSON(ErrorCodes.SUCCESS, "Done", _track);
     } catch (err) {
