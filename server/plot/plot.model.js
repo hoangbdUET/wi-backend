@@ -274,6 +274,7 @@ let createNewPlot = function (plotInfo, done, dbConnection, username) {
             name: plotInfo.name,
             referenceCurve: plotInfo.referenceCurve,
             option: plotInfo.option,
+            unit: plotInfo.unit,
             createdBy: plotInfo.createdBy,
             updatedBy: plotInfo.updatedBy
         };
