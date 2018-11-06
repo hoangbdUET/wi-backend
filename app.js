@@ -142,6 +142,7 @@ function main() {
      */
     app.get('/info', (req, res) => {
         const infor = require('./server/utils/information');
+        infor.application.host = req.headers.host;
         res.send(infor);
     });
     app.use(express.static(fullConfig.imageBasePath));
