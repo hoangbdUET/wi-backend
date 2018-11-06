@@ -8,7 +8,8 @@ let ResponseJSON = require('../response');
 let exporter = require('wi-export-test');
 const csv = require('fast-csv');
 const ErrorCodes = require('../../error-codes').CODES;
-let convertLength = require('../utils/convert-length')
+let convertLength = require('../utils/convert-length');
+const serverAddress = require('../utils/information').serverAddress;
 
 function getFullProjectObj(idProject, idWell, dbConnection) {
     return new Promise(async (resolve) => {
@@ -59,6 +60,7 @@ router.post('/las2', function (req, res) {
                 let responseArr = [];
                 async.each(results, function (rs, next) {
                     async.each(rs, function (r, _next) {
+                        r.ip = serverAddress;
                         responseArr.push(r);
                         _next();
                     }, function (err) {
@@ -98,6 +100,7 @@ router.post('/las3', function (req, res) {
             if (err) {
                 res.send(ResponseJSON(404, err));
             } else {
+                result.map(r => r.ip = serverAddress);
                 res.send(ResponseJSON(200, 'SUCCESSFULLY', result));
             }
         });
@@ -138,6 +141,7 @@ router.post('/CSV/rv', function (req, res) {
                     if (err) {
                         res.send(ResponseJSON(512, err));
                     } else {
+                        responseArr.map(r => r.ip = serverAddress);
                         res.send(ResponseJSON(200, 'SUCCESSFULLY', responseArr));
                     }
                 })
@@ -168,6 +172,7 @@ router.post('/CSV/wdrv', function (req, res) {
             if (err) {
                 res.send(ResponseJSON(404, err));
             } else {
+                result.map(r => r.ip = serverAddress);
                 res.send(ResponseJSON(200, 'SUCCESSFULLY', result));
             }
         });
@@ -207,8 +212,8 @@ router.post('/files', function (req, res) {
 });
 
 function compareFn(item1, item2) {
-    if(item1[0] < item2[0]) return -1;
-    if(item1[0] > item2[0]) return 1;
+    if (item1[0] < item2[0]) return -1;
+    if (item1[0] > item2[0]) return 1;
     return 0;
 }
 
@@ -228,17 +233,17 @@ router.post('/zone-set', async function (req, res) {
                     }
                 ]
             });
-            if(!exportUnit){
+            if (!exportUnit) {
                 exportUnit = zoneSet.well.unit;
             }
-            if(exportUnit != 'm' && exportUnit != 'M'){
+            if (exportUnit != 'm' && exportUnit != 'M') {
                 zoneSet.zones.forEach(zone => {
                     arrData.push([zoneSet.well.name.replace(/\s+/g, '_'),
                         zone.zone_template.name.replace(/,/g, '').replace(/\s+/g, '_'),
                         convertLength.convertDistance(zone.startDepth, 'm', exportUnit),
                         convertLength.convertDistance(zone.endDepth, 'm', exportUnit)]);
                 });
-            }else {
+            } else {
                 zoneSet.zones.forEach(zone => {
                     arrData.push([zoneSet.well.name.replace(/\s+/g, '_'),
                         zone.zone_template.name.replace(/,/g, '').replace(/\s+/g, '_'),
@@ -256,7 +261,7 @@ router.post('/zone-set', async function (req, res) {
 });
 
 router.post('/marker-set', async function (req, res) {
-    if(req.body.idMarkerSets){
+    if (req.body.idMarkerSets) {
         let arrData = [];
         let exportUnit = null;
         for (const id of req.body.idMarkerSets) {
@@ -271,15 +276,15 @@ router.post('/marker-set', async function (req, res) {
                     }
                 ]
             });
-            if(!exportUnit){
+            if (!exportUnit) {
                 exportUnit = markerSet.well.unit;
             }
-            if(exportUnit != 'm' && exportUnit != 'M'){
+            if (exportUnit != 'm' && exportUnit != 'M') {
                 //convert unit of depth
                 markerSet.markers.forEach(marker => {
                     arrData.push([markerSet.well.name.replace(/\s+/g, '_'),
                         marker.marker_template.name.replace(/,/g, '').replace(/\s+/g, '_'),
-                        convertLength.convertDistance( marker.depth, 'm', exportUnit)]);
+                        convertLength.convertDistance(marker.depth, 'm', exportUnit)]);
                 });
             } else {
                 markerSet.markers.forEach(marker => {

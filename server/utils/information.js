@@ -16,5 +16,8 @@ const serverInfo = {
         host: host
     }
 };
-
-module.exports = serverInfo;
+const serverAddress = host + ':' + config.Application.port;
+module.exports = {
+    serverInfo,
+    serverAddress
+};

@@ -141,8 +141,7 @@ function main() {
      Attach all routers to app
      */
     app.get('/info', (req, res) => {
-        const infor = require('./server/utils/information');
-        res.send(infor);
+        res.send(require('./server/utils/information').serverInfo);
     });
     app.use(express.static(fullConfig.imageBasePath));
     app.use('/pattern', express.static(path.join(__dirname, '/server/pattern/files')));
