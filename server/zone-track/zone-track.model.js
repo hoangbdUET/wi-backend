@@ -67,7 +67,7 @@ function getZoneTrackInfo(zoneTrack, done, dbConnection) {
     ZoneTrack.findById(zoneTrack.idZoneTrack, {
         include: {
             model: dbConnection.ZoneSet,
-            include: {model: dbConnection.Zone}
+            include: {model: dbConnection.Zone, include: {model: dbConnection.ZoneTemplate}}
         }
     })
         .then(function (zoneTrack) {
