@@ -84,6 +84,19 @@ router.post('/curve/export', function (req, res) {
 });
 
 router.post('/curve/getData', function (req, res) {
+    req.body.isRaw = false;
+    curveModel.getData(req.body, function (resultStream) {
+        if (resultStream) {
+            res.setHeader('content-type', 'text/javascript');
+            resultStream.pipe(res);
+        }
+    }, function (status) {
+        res.send(status);
+    }, req.dbConnection, req.decoded.username);
+});
+
+router.post('/curve/getRawData', function (req, res) {
+    req.body.isRaw = true;
     curveModel.getData(req.body, function (resultStream) {
         if (resultStream) {
             res.setHeader('content-type', 'text/javascript');

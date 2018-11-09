@@ -396,7 +396,7 @@ function getData(param, successFunc, errorFunc, dbConnection, username) {
                                 Project.findById(well.idProject).then(project => {
                                     let isRef = checkCurveIsReference(curve);
                                     let rate = 1;
-                                    if (isRef) {
+                                    if (isRef && !param.isRaw) {
                                         rate = convertLength.getDistanceRate(curve.unit, 'm');
                                     }
                                     console.log("Hash : ", config.curveBasePath, username + project.name + well.name + dataset.name + curve.name + '.txt');
