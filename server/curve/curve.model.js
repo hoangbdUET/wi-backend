@@ -52,7 +52,7 @@ function editCurve(curveInfo, done, dbConnection, username) {
     let Project = dbConnection.Project;
     Curve.findById(curveInfo.idCurve)
         .then(curve => {
-            if (curve.name !== curveInfo.name) {
+            if (curve.name.toUpperCase() !== curveInfo.name.toUpperCase()) {
                 console.log(curve.name, "-", curveInfo.name);
                 Curve.findOne({
                     where: {
