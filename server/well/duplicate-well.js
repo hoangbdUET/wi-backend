@@ -13,7 +13,7 @@ module.exports = function (idWell, done, dbConnection, username, createdBy, upda
     dbConnection.Well.findById(idWell, {
         include: [
             {model: dbConnection.Dataset, include: [{model: dbConnection.Curve}, {model: dbConnection.DatasetParams}]},
-            {model: dbConnection.WellHeader}
+            {model: dbConnection.WellHeader},
         ]
     }).then(async well => {
         let newWell = {};
@@ -102,27 +102,32 @@ module.exports = function (idWell, done, dbConnection, username, createdBy, upda
                                 });
                             }, function () {
                                 asyncEach(dataset.curves, function (curve, nextCurve) {
-                                    let curvePath = hashDir.createPath(config.curveBasePath, username + _project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
-                                    dbConnection.Curve.create({
-                                        name: curve.name,
-                                        unit: curve.unit,
-                                        idDataset: _dataset.idDataset,
-                                        createdBy: createdBy,
-                                        updatedBy: updatedBy
-                                    }).then(_curve => {
-                                        let newCurvePath = hashDir.createPath(config.curveBasePath, username + _project.name + _well.name + _dataset.name + _curve.name, _curve.name + '.txt');
-                                        try {
-                                            fsExtra.copy(curvePath, newCurvePath, function (err) {
-                                                if (err) {
-                                                    throw err;
-                                                }
+                                    if (curve.name === '__MD') {
+                                        nextCurve();
+                                    } else {
+                                        let curvePath = hashDir.createPath(config.curveBasePath, username + _project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+                                        dbConnection.Curve.create({
+                                            name: curve.name,
+                                            unit: curve.unit,
+                                            idFamily: curve.idFamily,
+                                            idDataset: _dataset.idDataset,
+                                            createdBy: createdBy,
+                                            updatedBy: updatedBy
+                                        }).then(_curve => {
+                                            let newCurvePath = hashDir.createPath(config.curveBasePath, username + _project.name + _well.name + _dataset.name + _curve.name, _curve.name + '.txt');
+                                            try {
+                                                fsExtra.copy(curvePath, newCurvePath, function (err) {
+                                                    if (err) {
+                                                        throw err;
+                                                    }
+                                                    nextCurve();
+                                                });
+                                            } catch (e) {
+                                                console.log(e);
                                                 nextCurve();
-                                            });
-                                        } catch (e) {
-                                            console.log(e);
-                                            nextCurve();
-                                        }
-                                    });
+                                            }
+                                        });
+                                    }
                                 }, function () {
                                     nextDataset();
                                 });
@@ -133,6 +138,85 @@ module.exports = function (idWell, done, dbConnection, username, createdBy, upda
                         });
                     }, function () {
                         callback();
+                    });
+                },
+                function (callback) {
+                    dbConnection.ZoneSet.findAll({
+                        where: {idWell: well.idWell},
+                        include: {model: dbConnection.Zone}
+                    }).then(zonesets => {
+                        asyncEach(zonesets, function (zoneset, next) {
+                            dbConnection.ZoneSet.create({
+                                name: zoneset.name,
+                                createdBy: createdBy,
+                                updatedBy: updatedBy,
+                                idWell: _well.idWell,
+                                idZoneSetTemplate: zoneset.idZoneSetTemplate
+                            }).then(zs => {
+                                asyncEach(zoneset.zones, (zone, nextZone) => {
+                                    dbConnection.Zone.create({
+                                        startDepth: zone.startDepth,
+                                        endDepth: zone.endDepth,
+                                        showName: zone.showName,
+                                        showOnTrack: zone.showOnTrack,
+                                        orderNum: zone.orderNum,
+                                        createdBy: createdBy,
+                                        updatedBy: updatedBy,
+                                        idZoneTemplate: zone.idZoneTemplate,
+                                        idZoneSet: zs.idZoneSet
+                                    }).then(() => {
+                                        nextZone();
+                                    }).catch(err => {
+                                        nextZone();
+                                    });
+                                }, function () {
+                                    next();
+                                })
+                            }).catch(err => {
+                                console.log(err);
+                                next()
+                            });
+                        }, function () {
+                            callback();
+                        });
+                    });
+                },
+                function (callback) {
+                    dbConnection.MarkerSet.findAll({
+                        where: {idWell: well.idWell},
+                        include: {model: dbConnection.Marker}
+                    }).then(markersets => {
+                        asyncEach(markersets, function (markerset, next) {
+                            dbConnection.MarkerSet.create({
+                                name: markerset.name,
+                                idWell: _well.idWell,
+                                createdBy: createdBy,
+                                updatedBy: updatedBy,
+                                idMarkerSetTemplate: markerset.idMarkerSetTemplate
+                            }).then(ms => {
+                                asyncEach(markerset.markers, (marker, nextMarker) => {
+                                    dbConnection.Marker.create({
+                                        depth: marker.depth,
+                                        showOnTrack: marker.showOnTrack,
+                                        createdBy: marker.createdBy,
+                                        updatedBy: marker.updatedBy,
+                                        idMarkerTemplate: marker.idMarkerTemplate,
+                                        idMarkerSet: ms.idMarkerSet
+                                    }).then(() => {
+                                        nextMarker();
+                                    }).catch(err => {
+                                        nextMarker();
+                                    });
+                                }, function () {
+                                    next();
+                                })
+                            }).catch(err => {
+                                console.log(err);
+                                next();
+                            });
+                        }, function () {
+                            callback();
+                        });
                     });
                 }
             ], function () {
