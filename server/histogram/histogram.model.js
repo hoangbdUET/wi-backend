@@ -350,7 +350,23 @@ function duplicateHistogram(payload, done, dbConnection) {
             let curves = hisogram.curves.map(c => c.idCurve);
             hisogram.save();
             Histogram.create(newHistogram).then(rs => {
-                rs.setCurves(curves);
+                asyncLoop(hisogram.curves, function (curve) {
+                    rs.addCurve(curve).then(c => {
+                        let curve_set = c[0][0];
+                        curve_set.intervalDepthTop = curve.histogram_curve_set.intervalDepthTop;
+                        curve_set.intervalDepthBottom = curve.histogram_curve_set.intervalDepthBottom;
+                        curve_set.showGaussian = curve.histogram_curve_set.showGaussian;
+                        curve_set.showCumulative = curve.histogram_curve_set.showCumulative;
+                        curve_set.lineStyle = curve.histogram_curve_set.lineStyle;
+                        curve_set.lineColor = curve.histogram_curve_set.lineColor;
+                        curve_set.plot = curve.histogram_curve_set.plot;
+                        curve_set.color = curve.histogram_curve_set.color;
+                        curve_set.save();
+                    })
+                });
+                // rs.setCurves(hisogram.curves).then(r => {
+                //     console.log(r);
+                // });
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", hisogram));
             }).catch(err => {
                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
