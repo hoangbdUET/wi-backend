@@ -3,14 +3,14 @@
   "curveX": {
     "families": [
       {
-        "name": "Deep resistivity"
+        "name": "Effective Porosity"
       }
     ]
   },
   "curveY": {
     "families": [
       {
-        "name": "Effective Porosity"
+        "name": "Deep resistivity"
       }
     ]
   }
