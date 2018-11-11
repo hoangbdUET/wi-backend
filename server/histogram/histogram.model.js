@@ -335,22 +335,23 @@ function deleteHistogram(histogramInfo, done, dbConnection) {
 
 function duplicateHistogram(payload, done, dbConnection) {
     let Histogram = dbConnection.Histogram;
-    Histogram.findById(payload.idHistogram).then(hisogram => {
+    Histogram.findById(payload.idHistogram, {include: {all: true}}).then(hisogram => {
         let newHistogram;
         if (hisogram) {
             newHistogram = hisogram.toJSON();
             delete newHistogram.idHistogram;
             delete newHistogram.createdAt;
             delete newHistogram.updatedAt;
-            // newHistogram.name = newHistogram.name + '_' + new Date().toLocaleString('en-US', {timeZone: "Asia/Ho_Chi_Minh"});
             newHistogram.duplicated = 1;
             newHistogram.name = newHistogram.name + "_COPY_" + hisogram.duplicated;
             newHistogram.createdBy = payload.createdBy;
             newHistogram.updatedBy = payload.updatedBy;
             hisogram.duplicated++;
+            let curves = hisogram.curves.map(c => c.idCurve);
             hisogram.save();
             Histogram.create(newHistogram).then(rs => {
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
+                rs.setCurves(curves);
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", hisogram));
             }).catch(err => {
                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
             });

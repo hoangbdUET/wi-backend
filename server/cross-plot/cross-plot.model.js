@@ -301,18 +301,22 @@ function duplicateCrossplot(payload, done, dbConnection) {
                 let idCrossPlot = cr.idCrossPlot;
                 asyncSeries([
                         function (callback) {
-                            let newPointSet = newCrossPlot.point_sets[0];
-                            delete newPointSet.idPointSet;
-                            delete newPointSet.createdAt;
-                            delete newPointSet.updatedAt;
-                            newPointSet.createdBy = payload.createdBy;
-                            newPointSet.updatedBy = payload.updatedBy;
-                            newPointSet.idCrossPlot = idCrossPlot;
-                            dbConnection.PointSet.create(newPointSet).then(ps => {
-                                callback(null, ps);
-                            }).catch(err => {
-                                console.log(err);
-                                callback(err, null);
+                            asyncLoop(newCrossPlot.point_sets, function (point_set, next) {
+                                let newPointSet = point_set;
+                                delete newPointSet.idPointSet;
+                                delete newPointSet.createdAt;
+                                delete newPointSet.updatedAt;
+                                newPointSet.createdBy = payload.createdBy;
+                                newPointSet.updatedBy = payload.updatedBy;
+                                newPointSet.idCrossPlot = idCrossPlot;
+                                dbConnection.PointSet.create(newPointSet).then(ps => {
+                                    callback(null, ps);
+                                }).catch(err => {
+                                    console.log(err);
+                                    next();
+                                });
+                            }, function () {
+                                callback();
                             });
                         },
                         function (callback) {
