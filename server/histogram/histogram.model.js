@@ -292,11 +292,14 @@ function editHistogram(histogramInfo, done, dbConnection) {
     let Histogram = dbConnection.Histogram;
     Histogram.findById(histogramInfo.idHistogram)
         .then(function (histogram) {
+            let isRename = histogramInfo.name && histogram.name !== histogramInfo.name;
             histogramInfo.discriminator = JSON.stringify(histogramInfo.discriminator);
             Object.assign(histogram, histogramInfo)
                 .save()
                 .then(async function (result) {
-                    await result.setCurves(curves);
+                    if (!isRename) {
+                        await result.setCurves(curves);
+                    }
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit histogram success", result));
                 })
                 .catch(function (err) {
