@@ -164,7 +164,7 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                             console.log(family.family_spec[0].minScale);
                             console.log(family.family_spec[0].maxScale);
                             let _ = require('lodash');
-                            if (!_isFinite(_line.minValue)|| !_isFinite(!_line.maxValue) || !family.family_spec[0]) {
+                            if (!_.isFinite(_line.minValue)|| !_.isFinite(!_line.maxValue) || !family.family_spec[0]) {
                                 console.log("CHANGE VALUE");
                                 _line.minValue = curveMinScale;
                                 _line.maxValue = curveMaxScale;
