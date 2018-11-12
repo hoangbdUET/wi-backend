@@ -163,27 +163,32 @@ function duplicateDataset(data, done, dbConnection, username) {
                 });
             }, function () {
                 asyncEach(newDataset.curves, function (curve, next) {
-                    let curvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
-                    let newCurvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + _dataset.name + curve.name, curve.name + '.txt');
-                    delete curve.idCurve;
-                    curve.idDataset = _dataset.idDataset;
-                    dbConnection.Curve.create({
-                        name: curve.name,
-                        unit: curve.unit,
-                        idDataset: _dataset.idDataset,
-                        createdBy: data.createdBy,
-                        updatedBy: data.updatedBy
-                    }).then(c => {
-                        fsExtra.copy(curvePath, newCurvePath, function (err) {
-                            if (err) {
-                                console.log(err);
-                            }
+                    if (curve.name === '__MD') {
+                        next();
+                    } else {
+                        let curvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+                        let newCurvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + _dataset.name + curve.name, curve.name + '.txt');
+                        delete curve.idCurve;
+                        curve.idDataset = _dataset.idDataset;
+                        dbConnection.Curve.create({
+                            name: curve.name,
+                            unit: curve.unit,
+                            idFamily: curve.idFamily,
+                            idDataset: _dataset.idDataset,
+                            createdBy: data.createdBy,
+                            updatedBy: data.updatedBy
+                        }).then(c => {
+                            fsExtra.copy(curvePath, newCurvePath, function (err) {
+                                if (err) {
+                                    console.log(err);
+                                }
+                                next();
+                            });
+                        }).catch(err => {
+                            console.log(err);
                             next();
                         });
-                    }).catch(err => {
-                        console.log(err);
-                        next();
-                    });
+                    }
                 }, function (err) {
                     if (err) {
                         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
