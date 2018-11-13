@@ -18,7 +18,7 @@ pipeline {
 
         stage('Deploy to dev') {
             steps {
-                sh 'ssh i2g-dev "cd /opt/wi-backend && pm2 restart ./pm2.config.js"'
+                sh 'ssh i2g-dev "cd /opt/wi-backend && pm2 restart ./pm2/dev/pm2.config.js"'
             }
         }
     }

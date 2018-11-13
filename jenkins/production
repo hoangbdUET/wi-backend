@@ -20,8 +20,8 @@ pipeline {
 
         stage('Deploy to dev') {
             steps {
-                sh 'ssh i2g-api-production-1 "cd /opt/wi-backend && NODE_ENV=production pm2 restart app"'
-                sh 'ssh i2g-api-production-2 "cd /opt/wi-backend && NODE_ENV=production pm2 restart app"'
+                sh 'ssh i2g-api-production-1 "cd /opt/wi-backend && NODE_ENV=production pm2 restart ./pm2/production/pm2.config.js"'
+                sh 'ssh i2g-api-production-2 "cd /opt/wi-backend && NODE_ENV=production pm2 restart ./pm2/production/pm2.config.js"'
             }
         }
     }
