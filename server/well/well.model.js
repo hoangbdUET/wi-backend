@@ -412,12 +412,8 @@ function updateWellHeader(payload, done, dbConnection) {
         if (pass) {
             if (payload.idWellHeader) {
                 dbConnection.WellHeader.findById(payload.idWellHeader).then((header) => {
-                    header.header = payload.header;
-                    header.value = payload.value;
-                    header.unit = payload.unit;
-                    header.description = payload.description;
-                    header.save().then(() => {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", header));
+                    Object.assign(header, payload).save().then((rs) => {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                     }).catch(err => {
                         console.log(err);
                         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));

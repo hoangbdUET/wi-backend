@@ -10,8 +10,7 @@ module.exports = function (sequelize, DataTypes) {
             primaryKey: true
         },
         header: {
-            type: DataTypes.STRING,
-            primaryKey: true
+            type: DataTypes.STRING
         },
         value: {
             type: DataTypes.STRING,

@@ -6,8 +6,7 @@ module.exports = function (sequelize, DataTypes) {
             primaryKey: true
         },
         mnem: {
-            type: DataTypes.STRING,
-            primaryKey: true
+            type: DataTypes.STRING
         },
         value: {
             type: DataTypes.STRING,
