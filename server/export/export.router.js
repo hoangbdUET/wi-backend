@@ -212,8 +212,11 @@ router.post('/files', function (req, res) {
 });
 
 function compareFn(item1, item2) {
-    if (item1[0] < item2[0]) return -1;
-    if (item1[0] > item2[0]) return 1;
+    if(item1[0] < item2[0]) return -1;
+    if(item1[0] > item2[0]) return 1;
+    //the same well
+    if(item1[2] < item2[2]) return -1;
+    if(item1[2] > item2[2]) return 1;
     return 0;
 }
 
