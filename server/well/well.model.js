@@ -412,6 +412,7 @@ function updateWellHeader(payload, done, dbConnection) {
         if (pass) {
             if (payload.idWellHeader) {
                 dbConnection.WellHeader.findById(payload.idWellHeader).then((header) => {
+                    header.header = payload.header;
                     header.value = payload.value;
                     header.unit = payload.unit;
                     header.description = payload.description;
@@ -440,6 +441,7 @@ function updateWellHeader(payload, done, dbConnection) {
                         //created
                     } else {
                         //found
+                        rs[0].header = payload.header;
                         rs[0].value = payload.value;
                         rs[0].unit = payload.unit;
                         rs[0].description = payload.description;

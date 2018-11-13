@@ -242,6 +242,7 @@ function updateDatasetParams(payload, done, dbConnection) {
                         next();
                     } else {
                         //found
+                        rs[0].mnem = param.mnem;
                         rs[0].value = param.value;
                         rs[0].unit = param.unit;
                         rs[0].description = param.description;
