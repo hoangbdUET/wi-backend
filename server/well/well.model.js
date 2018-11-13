@@ -169,7 +169,7 @@ function deleteWell(wellInfo, done, dbConnection) {
     Well.findById(wellInfo.idWell)
         .then(function (well) {
             well.setDataValue('updatedBy', wellInfo.updatedBy);
-            well.destroy()
+            well.destroy({permanently: true, force: true})
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Well is deleted", well));
                 })

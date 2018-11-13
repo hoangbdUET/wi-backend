@@ -336,7 +336,7 @@ async function deleteCurve(curveInfo, done, dbConnection, username) {
     curve.setDataValue('updatedBy', curveInfo.updatedBy);
     if (!curve) return done(ErrorCodes.ERROR_INVALID_PARAMS, "No curve found by id");
 
-    curve.destroy().then(() => {
+    curve.destroy({permanently: true, force: true}).then(() => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", curve));
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));

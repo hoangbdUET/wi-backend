@@ -106,7 +106,7 @@ function deleteDataset(datasetInfo, done, dbConnection) {
     Dataset.findById(datasetInfo.idDataset, {include: {all: true}})
         .then(function (dataset) {
             dataset.setDataValue('updatedBy', datasetInfo.updatedBy);
-            dataset.destroy()
+            dataset.destroy({permanently: true, force: true})
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Dataset is deleted", dataset));
                 })

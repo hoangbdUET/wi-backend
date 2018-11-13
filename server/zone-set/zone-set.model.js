@@ -78,7 +78,7 @@ function deleteZoneSet(zoneSetInfo, done, dbConnection) {
     ZoneSet.findById(zoneSetInfo.idZoneSet)
         .then(function (zoneSet) {
             zoneSet.setDataValue('updatedBy', zoneSetInfo.updatedBy);
-            zoneSet.destroy()
+            zoneSet.destroy({permanently: true, force: true})
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "ZoneSet is deleted", zoneSet));
                 })

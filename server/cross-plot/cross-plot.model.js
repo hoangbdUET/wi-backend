@@ -200,7 +200,7 @@ function deleteCrossPlot(crossPlotInfo, done, dbConnection) {
     CrossPlot.findById(crossPlotInfo.idCrossPlot)
         .then(function (crossPlot) {
             crossPlot.setDataValue('updatedBy', crossPlotInfo.updatedBy);
-            crossPlot.destroy()
+            crossPlot.destroy({permanently: true, force: true})
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "CrossPlot is deleted", crossPlot));
                 })

@@ -343,7 +343,7 @@ let deletePlot = function (plotInfo, done, dbConnection) {
     Plot.findById(plotInfo.idPlot)
         .then(function (plot) {
             plot.setDataValue('updatedBy', plotInfo.updatedBy);
-            plot.destroy()
+            plot.destroy({permanently: true, force: true})
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Plot is deleted", plot));
                 })

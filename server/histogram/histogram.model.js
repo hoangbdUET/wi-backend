@@ -320,7 +320,7 @@ function deleteHistogram(histogramInfo, done, dbConnection) {
     Histogram.findById(histogramInfo.idHistogram)
         .then(function (histogram) {
             histogram.setDataValue('updatedBy', histogramInfo.updatedBy);
-            histogram.destroy()
+            histogram.destroy({permanently: true, force: true})
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Histogram is deleted", histogram));
                 })
