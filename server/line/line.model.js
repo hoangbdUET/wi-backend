@@ -161,10 +161,10 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                                 _line.minValue = (parseFloat(family.family_spec[0].minScale) - s1[1]) * (s2[0] / s1[0]) + s2[1];
                                 _line.maxValue = (parseFloat(family.family_spec[0].maxScale) - s1[1]) * (s2[0] / s1[0]) + s2[1];
                             }
+                            let _ = require('lodash');
                             console.log(family.family_spec[0].minScale);
                             console.log(family.family_spec[0].maxScale);
-                            let _ = require('lodash');
-                            if (!_.isFinite(_line.minValue)|| !_.isFinite(!_line.maxValue) || !family.family_spec[0]) {
+                            if (!_.isFinite(_line.minValue) || !_.isFinite(_line.maxValue) || !family.family_spec[0]) {
                                 console.log("CHANGE VALUE");
                                 _line.minValue = curveMinScale;
                                 _line.maxValue = curveMaxScale;
