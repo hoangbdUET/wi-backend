@@ -153,13 +153,13 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                             unitConvertData.srcUnit = units.find(u => u.name === curve.unit);
                             unitConvertData.desUnit = units.find(u => u.name === family.family_spec[0].unit);
                             if (!unitConvertData.srcUnit || !unitConvertData.desUnit) {
-                                _line.minValue = family.family_spec[0].minScale;
-                                _line.maxValue = family.family_spec[0].maxScale;
+                                _line.minValue = lineInfo.minValue || family.family_spec[0].minScale;
+                                _line.maxValue = lineInfo.maxValue || family.family_spec[0].maxScale;
                             } else {
                                 let s1 = JSON.parse(unitConvertData.desUnit.rate);
                                 let s2 = JSON.parse(unitConvertData.srcUnit.rate);
-                                _line.minValue = (parseFloat(family.family_spec[0].minScale) - s1[1]) * (s2[0] / s1[0]) + s2[1];
-                                _line.maxValue = (parseFloat(family.family_spec[0].maxScale) - s1[1]) * (s2[0] / s1[0]) + s2[1];
+                                _line.minValue = lineInfo.minValue || (parseFloat(family.family_spec[0].minScale) - s1[1]) * (s2[0] / s1[0]) + s2[1];
+                                _line.maxValue = lineInfo.maxValue || (parseFloat(family.family_spec[0].maxScale) - s1[1]) * (s2[0] / s1[0]) + s2[1];
                             }
                             let _ = require('lodash');
                             console.log(family.family_spec[0].minScale);
@@ -171,19 +171,16 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                             }
                             _line.idTrack = lineInfo.idTrack;
                             _line.idCurve = curve.idCurve;
-                            _line.alias = curve.name;
-                            _line.unit = curve.unit;
-                            _line.displayMode = family.family_spec[0].displayMode;
-                            _line.blockPosition = family.family_spec[0].blockPosition;
-                            _line.displayType = family.family_spec[0].displayType;
-                            _line.lineStyle = family.family_spec[0].lineStyle;
-                            _line.lineWidth = family.family_spec[0].lineWidth;
-                            _line.lineColor = family.family_spec[0].lineColor;
-                            _line.symbolFillStyle = family.family_spec[0].lineColor;
-                            _line.symbolStrokeStyle = family.family_spec[0].lineColor;
-                            _line.orderNum = lineInfo.orderNum;
-                            _line.createdBy = lineInfo.createdBy;
-                            _line.updatedBy = lineInfo.updatedBy;
+                            _line.alias = lineInfo.name || curve.name;
+                            _line.unit = lineInfo.unit || curve.unit;
+                            _line.displayMode = lineInfo.displayMode || family.family_spec[0].displayMode;
+                            _line.blockPosition = lineInfo.blockPosition || family.family_spec[0].blockPosition;
+                            _line.displayType = lineInfo.displayType || family.family_spec[0].displayType;
+                            _line.lineStyle = lineInfo.lineStyle || family.family_spec[0].lineStyle;
+                            _line.lineWidth = lineInfo.lineWidth || family.family_spec[0].lineWidth;
+                            _line.lineColor = lineInfo.lineColor || family.family_spec[0].lineColor;
+                            _line.symbolFillStyle = lineInfo.lineColor || family.family_spec[0].lineColor;
+                            _line.symbolStrokeStyle = lineInfo.lineColor || family.family_spec[0].lineColor;
                             dbConnection.Line.create(_line).then(l => {
                                 done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", l));
                             }).catch(err => {
@@ -195,13 +192,21 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                         dbConnection.Line.create({
                             idTrack: lineInfo.idTrack,
                             idCurve: curve.idCurve,
-                            alias: curve.name,
-                            minValue: curveMinScale,
-                            maxValue: curveMaxScale,
+                            alias: lineInfo.name || curve.name,
+                            minValue: lineInfo.minValue || curveMinScale,
+                            maxValue: lineInfo.maxValue || curveMaxScale,
                             orderNum: lineInfo.orderNum,
                             createdBy: lineInfo.createdBy,
                             updatedBy: lineInfo.updatedBy,
-                            unit: curve.unit || 'N/A'
+                            unit: lineInfo.unit || curve.unit || 'N/A',
+                            displayMode: lineInfo.displayMode || null,
+                            blockPosition: lineInfo.blockPosition || null,
+                            displayType: lineInfo.displayType || null,
+                            lineStyle: lineInfo.lineStyle || null,
+                            lineWidth: lineInfo.lineWidth || null,
+                            lineColor: lineInfo.lineColor || null,
+                            symbolFillStyle: lineInfo.lineColor || null,
+                            symbolStrokeStyle: lineInfo.lineColor || null,
                         }).then(l => {
                             done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", l.toJSON()));
                         }).catch(function (err) {
