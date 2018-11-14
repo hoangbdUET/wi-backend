@@ -201,14 +201,14 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                             createdBy: lineInfo.createdBy,
                             updatedBy: lineInfo.updatedBy,
                             unit: lineInfo.unit || curve.unit || 'N/A',
-                            displayMode: lineInfo.displayMode || null,
-                            blockPosition: lineInfo.blockPosition || null,
-                            displayType: lineInfo.displayType || null,
-                            lineStyle: lineInfo.lineStyle || null,
-                            lineWidth: lineInfo.lineWidth || null,
-                            lineColor: lineInfo.lineColor || null,
-                            symbolFillStyle: lineInfo.lineColor || null,
-                            symbolStrokeStyle: lineInfo.lineColor || null,
+                            displayMode: lineInfo.displayMode,
+                            blockPosition: lineInfo.blockPosition,
+                            displayType: lineInfo.displayType,
+                            lineStyle: lineInfo.lineStyle,
+                            lineWidth: lineInfo.lineWidth,
+                            lineColor: lineInfo.lineColor,
+                            symbolFillStyle: lineInfo.lineColor,
+                            symbolStrokeStyle: lineInfo.lineColor,
                         }).then(l => {
                             done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", l.toJSON()));
                         }).catch(function (err) {
