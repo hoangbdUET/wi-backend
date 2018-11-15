@@ -243,8 +243,8 @@ router.post('/zone-set', async function (req, res) {
                 zoneSet.zones.forEach(zone => {
                     arrData.push([zoneSet.well.name.replace(/\s+/g, '_'),
                         zone.zone_template.name.replace(/,/g, '').replace(/\s+/g, '_'),
-                        convertLength.convertDistance(zone.startDepth, 'm', exportUnit),
-                        convertLength.convertDistance(zone.endDepth, 'm', exportUnit)]);
+                        convertLength.convertDistance(zone.startDepth, 'm', exportUnit).toFixed(4),
+                        convertLength.convertDistance(zone.endDepth, 'm', exportUnit)]).toFixed(4);
                 });
             } else {
                 zoneSet.zones.forEach(zone => {
@@ -287,7 +287,7 @@ router.post('/marker-set', async function (req, res) {
                 markerSet.markers.forEach(marker => {
                     arrData.push([markerSet.well.name.replace(/\s+/g, '_'),
                         marker.marker_template.name.replace(/,/g, '').replace(/\s+/g, '_'),
-                        convertLength.convertDistance(marker.depth, 'm', exportUnit)]);
+                        convertLength.convertDistance(marker.depth, 'm', exportUnit)]).toFixed(4);
                 });
             } else {
                 markerSet.markers.forEach(marker => {
