@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const async = require('async');
+const dbMaster = require('../models-master');
 
 router.post('/migrate/clone-zone-set-template', async (req, res) => {
     let dbConnection = req.dbConnection;
@@ -190,5 +191,20 @@ async function getIdProjectByIdWell(idWell, dbConnection) {
     return null;
 }
 
+router.post('/migrate/task-spec', async (req, res) => {
+    const dbConnection = req.dbConnection;
+    dbMaster.TaskSpec.findAll().then((master_tps) => {
+        async.each(master_tps, (master_tp, next) => {
+            dbConnection.TaskSpec.findById(master_tp.idTaskSpec).then(ts => {
+                ts.content = master_tp.content;
+                ts.save().then(() => {
+                    next();
+                });
+            });
+        }, function () {
+            res.json(req.decoded.username + " Done");
+        });
+    });
+});
 
 module.exports = router;
