@@ -197,6 +197,9 @@ router.post('/migrate/task-spec', async (req, res) => {
         async.each(master_tps, (master_tp, next) => {
             dbConnection.TaskSpec.findById(master_tp.idTaskSpec).then(ts => {
                 ts.content = master_tp.content;
+                ts.name = master_tp.name;
+                ts.type = master_tp.type;
+                ts.group = master_tp.group;
                 ts.save().then(() => {
                     next();
                 });
