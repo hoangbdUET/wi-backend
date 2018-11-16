@@ -181,6 +181,7 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                             _line.lineColor = lineInfo.lineColor || family.family_spec[0].lineColor;
                             _line.symbolFillStyle = lineInfo.lineColor || family.family_spec[0].lineColor;
                             _line.symbolStrokeStyle = lineInfo.lineColor || family.family_spec[0].lineColor;
+                            _line.orderNum = lineInfo.orderNum;
                             _line.createdBy = lineInfo.createdBy;
                             _line.updatedBy = lineInfo.updatedBy;
                             dbConnection.Line.create(_line).then(l => {
