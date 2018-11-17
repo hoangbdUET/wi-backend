@@ -284,11 +284,11 @@ router.post('/marker-set', async function (req, res) {
                 exportUnit = markerSet.well.unit;
             }
             if (exportUnit != 'm' && exportUnit != 'M') {
-                //convert unit of depth
+                console.log("convert unit of depth");
                 markerSet.markers.forEach(marker => {
                     arrData.push([markerSet.well.name.replace(/\s+/g, '_'),
                         marker.marker_template.name.replace(/,/g, '').replace(/\s+/g, '_'),
-                        convertLength.convertDistance(marker.depth, 'm', exportUnit)]).toFixed(4);
+                        convertLength.convertDistance(parseFloat(marker.depth), 'm', exportUnit).toFixed(4)])
                 });
             } else {
                 markerSet.markers.forEach(marker => {
@@ -298,6 +298,7 @@ router.post('/marker-set', async function (req, res) {
                 });
             }
         }
+        console.log(arrData);
         arrData.sort(compareFn);
         arrData.unshift(['', '', exportUnit]);
         arrData.unshift(['', '', ''])
