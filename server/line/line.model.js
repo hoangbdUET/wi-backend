@@ -174,6 +174,7 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                             _line.alias = lineInfo.name || curve.name;
                             _line.unit = lineInfo.unit || curve.unit;
                             _line.displayMode = lineInfo.displayMode || family.family_spec[0].displayMode;
+                            _line.disPlayAs = lineInfo.displayAs;
                             _line.blockPosition = lineInfo.blockPosition || family.family_spec[0].blockPosition;
                             _line.displayType = lineInfo.displayType || family.family_spec[0].displayType;
                             _line.lineStyle = lineInfo.lineStyle || family.family_spec[0].lineStyle;
@@ -210,6 +211,7 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                             lineColor: lineInfo.lineColor,
                             symbolFillStyle: lineInfo.lineColor,
                             symbolStrokeStyle: lineInfo.lineColor,
+                            disPlayAs : lineInfo.displayAs
                         }).then(l => {
                             done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", l.toJSON()));
                         }).catch(function (err) {
