@@ -12,7 +12,7 @@ let createTask = function (data, callback, dbConnection) {
             callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", w));
         }).catch(err => {
             if (err.name === "SequelizeUniqueConstraintError") {
-                callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Task name existed!"));
+                callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Task's name already exists!"));
             } else {
                 callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
             }
@@ -28,7 +28,7 @@ let editTask = function (data, callback, dbConnection) {
                 callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
             }).catch(err => {
                 if (err.name === "SequelizeUniqueConstraintError") {
-                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Task name existed!"));
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Task's name already exists!"));
                 } else {
                     callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                 }

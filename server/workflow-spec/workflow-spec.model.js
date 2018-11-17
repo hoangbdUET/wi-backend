@@ -12,7 +12,7 @@ let createWorkflowSpec = function (data, callback, dbConnection) {
         callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", w));
     }).catch(err => {
         if (err.name === "SequelizeUniqueConstraintError") {
-            callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "WorkflowSpec name existed!"));
+            callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Workflow Spec's name already exists"));
         } else {
             callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
         }
@@ -26,7 +26,7 @@ let editWorkflowSpec = function (data, callback, dbConnection) {
                 callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
             }).catch(err => {
                 if (err.name === "SequelizeUniqueConstraintError") {
-                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "WorkflowSpec name existed!"));
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Workflow Spec's name already exists"));
                 } else {
                     callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                 }

@@ -80,7 +80,7 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
             });
         }).catch(err => {
             if (err.name === "SequelizeUniqueConstraintError") {
-                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram name existed!"));
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram's name already exists"));
             } else {
                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
             }
@@ -93,7 +93,7 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
             });
         }).catch(err => {
             if (err.name === "SequelizeUniqueConstraintError") {
-                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram name existed!"));
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram's name already exists"));
             } else {
                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
             }
@@ -197,7 +197,7 @@ function createNewHistogram_(histogramInfo, done, dbConnection) {
                 });
             }).catch(err => {
                 console.log(err.message);
-                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram existed!", err.message));
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram's name already exists", err.message));
             })
         } else {
             if (histogramInfo.idZoneSet) {
@@ -206,7 +206,7 @@ function createNewHistogram_(histogramInfo, done, dbConnection) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
                     });
                 }).catch(err => {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram name existed!", err.message));
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram's name already exists", err.message));
                 });
             } else {
                 Histogram.create(histogramInfo).then(result => {
@@ -215,7 +215,7 @@ function createNewHistogram_(histogramInfo, done, dbConnection) {
                     });
                 }).catch(err => {
                     // console.log(err);
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram name existed!", err.errors));
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram's name already exists", err.errors));
                 });
             }
 
@@ -304,7 +304,7 @@ function editHistogram(histogramInfo, done, dbConnection) {
                 })
                 .catch(function (err) {
                     if (err.name === "SequelizeUniqueConstraintError") {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram name existed!"));
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram's name already exists"));
                     } else {
                         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     }

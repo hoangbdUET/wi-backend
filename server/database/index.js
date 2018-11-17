@@ -59,7 +59,7 @@ router.post('/database/update', function (req, res) {
                         });
                     } else {
                         console.log("DATABASE EXISTS ", dbName);
-                        res.send(ResponseJSON(ErrorCodes.SUCCESS, "Database existed", dbName));
+                        res.send(ResponseJSON(ErrorCodes.SUCCESS, "Database's name already exists", dbName));
                     }
                     sequelize.close();
                 }).catch(err => {

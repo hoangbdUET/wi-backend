@@ -61,7 +61,7 @@ function editCurve(curveInfo, done, dbConnection, username) {
                     }
                 }).then(foundCurve => {
                     if (foundCurve) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve name existed!"));
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve's name already exists"));
                     } else {
                         console.log("EDIT CURVE NAME");
                         Dataset.findById(curve.idDataset).then(dataset => {
@@ -87,7 +87,7 @@ function editCurve(curveInfo, done, dbConnection, username) {
                                         })
                                         .catch(err => {
                                             if (err.name === "SequelizeUniqueConstraintError") {
-                                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve existed!"));
+                                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve's name already exists"));
                                             } else {
                                                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                                             }
@@ -596,7 +596,7 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy) {
                         }).catch(err => {
                             fs.unlink(filePath);
                             if (err.name === "SequelizeUniqueConstraintError") {
-                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve name existed!"));
+                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve's name already exists"));
                             } else {
                                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                             }
@@ -633,7 +633,7 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy) {
                                 }, curve.createdBy);
                             } else {
                                 fs.unlink(filePath);
-                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve not existed"));
+                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve not exists"));
                             }
                         });
                     }

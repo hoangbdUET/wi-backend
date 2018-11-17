@@ -148,7 +148,7 @@ async function importWell(well, token, callback, dbConnection, username, created
     } catch (e) {
         if (e.name === "SequelizeUniqueConstraintError") {
             console.log(e);
-            callback({idProject: wiProject.idProject, reason: "Well existed!"}, null);
+            callback({idProject: wiProject.idProject, reason: "Well's name already exists"}, null);
         } else {
             console.log(e);
             callback({idProject: wiProject.idProject, reason: e}, null);

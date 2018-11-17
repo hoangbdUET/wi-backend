@@ -38,7 +38,7 @@ function createNew(payload, done, dbConnection) {
         }).catch(err => {
             if (err.name === "SequelizeUniqueConstraintError") {
                 dbConnection.MarkerSet.findOne({where: {name: payload.name, idWell: payload.idWell}}).then(zs => {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Marker set name existed!", zs));
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Marker set's name already exists", zs));
                 });
             } else {
                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));

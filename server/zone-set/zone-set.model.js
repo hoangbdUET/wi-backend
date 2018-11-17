@@ -42,7 +42,7 @@ function createNewZoneSet(zoneSetInfo, done, dbConnection) {
     }).catch(err => {
         if (err.name === "SequelizeUniqueConstraintError") {
             dbConnection.ZoneSet.findOne({where: {name: zoneSetInfo.name, idWell: zoneSetInfo.idWell}}).then(zs => {
-                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Zoneset name existed!", zs));
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Zone set's name already exists", zs));
             });
         } else {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
@@ -62,7 +62,7 @@ function editZoneSet(zoneSetInfo, done, dbConnection) {
                 })
                 .catch(function (err) {
                     if (err.name === "SequelizeUniqueConstraintError") {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Zoneset name existed!"));
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Zone set's name already exists"));
                     } else {
                         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     }

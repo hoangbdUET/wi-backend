@@ -30,7 +30,7 @@ function createNewDataset(datasetInfo, done, dbConnection) {
                     .catch(function (err) {
                         console.log(err);
                         if (err.name === "SequelizeUniqueConstraintError") {
-                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Dataset name existed!"));
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Dataset's name already exists"));
                         } else {
                             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                         }
@@ -83,7 +83,7 @@ function editDataset(datasetInfo, done, dbConnection, username) {
                     });
                 }).catch(err => {
                     if (err.name === "SequelizeUniqueConstraintError") {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Dataset name existed!"));
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Dataset's name already exists"));
                     } else {
                         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     }

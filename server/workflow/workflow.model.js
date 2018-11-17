@@ -12,7 +12,7 @@ let createWorkflow = function (data, callback, dbConnection) {
             callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", w));
         }).catch(err => {
             if (err.name === "SequelizeUniqueConstraintError") {
-                callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Workflow name existed!"));
+                callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Workflow's name already exists"));
             } else {
                 callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
             }
@@ -29,7 +29,7 @@ let editWorkflow = function (data, callback, dbConnection) {
             }).catch(err => {
 
                 if (err.name === "SequelizeUniqueConstraintError") {
-                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Workflow name existed!"));
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Workflow's name already exists"));
                 } else {
                     callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                 }

@@ -263,7 +263,7 @@ let createNewPlot = function (plotInfo, done, dbConnection, username) {
         myPlot.idDataset = plotInfo.idDataset || null;
         createPlotTemplate(myPlot, dbConnection, function (err, result) {
             if (err) {
-                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed", "PLOT NAME EXISTED"));
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot's name already exists", "PLOT NAME EXISTED"));
             } else {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Create " + plotInfo.plotTemplate + " successful", result));
             }
@@ -300,13 +300,13 @@ let createNewPlot = function (plotInfo, done, dbConnection, username) {
                         })
                     });
                 } else {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed!"));
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot's name already exists!"));
                 }
             }
         }).catch(err => {
             console.log(err);
             if (err.name === "SequelizeUniqueConstraintError") {
-                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed!"));
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot's name already exists!"));
             } else {
                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
             }
@@ -327,7 +327,7 @@ let editPlot = function (plotInfo, done, dbConnection) {
                 })
                 .catch(function (err) {
                     if (err.name === "SequelizeUniqueConstraintError") {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed!"));
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot's name already exists!"));
                     } else {
                         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     }

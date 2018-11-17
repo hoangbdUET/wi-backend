@@ -32,7 +32,7 @@ function createNewWell(wellInfo, done, dbConnection) {
                                     idProject: wellInfo.idProject
                                 }
                             }).then(w => {
-                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Well name existed!", w));
+                                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Well's name already exists!", w));
                             });
                         } else {
                             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
@@ -130,7 +130,7 @@ function editWell(wellInfo, done, dbConnection, username) {
                                 }, function (err) {
                                     if (err) {
                                         if (err.name === "SequelizeUniqueConstraintError") {
-                                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Well name existed!"));
+                                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Well's name already exists"));
                                         } else {
                                             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                                         }
@@ -150,7 +150,7 @@ function editWell(wellInfo, done, dbConnection, username) {
                     })
                     .catch(function (err) {
                         if (err.name === "SequelizeUniqueConstraintError") {
-                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Well name existed!"));
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Well's name already exists"));
                         } else {
                             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                         }
@@ -396,7 +396,7 @@ async function exportToProject(info, done, dbConnection, username) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "", well));
         });
     }).catch(err => {
-        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Well name existed!", well));
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Well's name already exists", well));
         console.log(err);
     });
 }

@@ -94,7 +94,7 @@ function createNewProject(projectInfo, done, dbConnection) {
         })
         .catch(function (err) {
             if (err.name === "SequelizeUniqueConstraintError") {
-                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Project existed!"));
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Project's name already exists"));
             } else {
                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
             }
@@ -118,7 +118,7 @@ function editProject(projectInfo, done, dbConnection) {
                 })
                 .catch(function (err) {
                     if (err.name === "SequelizeUniqueConstraintError") {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Project existed!"));
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Project's name already exists"));
                     } else {
                         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     }

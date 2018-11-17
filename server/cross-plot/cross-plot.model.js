@@ -134,7 +134,7 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
         }).catch(err => {
 
             if (err.name === "SequelizeUniqueConstraintError") {
-                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CrossPlot name existed!"));
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Cross plot's name already exists"));
             } else {
                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
             }
@@ -151,7 +151,7 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Create new CrossPlot success", crossPlot.toJSON()));
         }).catch(function (err) {
             if (err.name === "SequelizeUniqueConstraintError") {
-                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CrossPlot name existed!"));
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Cross plot's name already exists"));
             } else {
                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
             }
@@ -179,7 +179,7 @@ function editCrossPlot(crossPlotInfo, done, dbConnection) {
                     })
                     .catch(function (err) {
                         if (err.name === "SequelizeUniqueConstraintError") {
-                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed!"));
+                            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot's name already exists"));
                         } else {
                             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                         }
