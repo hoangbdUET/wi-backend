@@ -215,8 +215,8 @@ function compareFn(item1, item2) {
     if(item1[0] < item2[0]) return -1;
     if(item1[0] > item2[0]) return 1;
     //the same well
-    if(item1[2] < item2[2]) return -1;
-    if(item1[2] > item2[2]) return 1;
+    if(parseFloat(item1[2]) < parseFloat(item2[2])) return -1;
+    if(parseFloat(item1[2]) > parseFloat(item2[2])) return 1;
     return 0;
 }
 
@@ -250,7 +250,8 @@ router.post('/zone-set', async function (req, res) {
                 zoneSet.zones.forEach(zone => {
                     arrData.push([zoneSet.well.name.replace(/\s+/g, '_'),
                         zone.zone_template.name.replace(/,/g, '').replace(/\s+/g, '_'),
-                        zone.startDepth, zone.endDepth]);
+                        parseFloat(zone.startDepth).toFixed(4),
+                        parseFloat(zone.endDepth).toFixed(4)]);
                 });
             }
         }
@@ -293,7 +294,7 @@ router.post('/marker-set', async function (req, res) {
                 markerSet.markers.forEach(marker => {
                     arrData.push([markerSet.well.name.replace(/\s+/g, '_'),
                         marker.marker_template.name.replace(/,/g, '').replace(/\s+/g, '_'),
-                        marker.depth]);
+                        parseFloat(marker.depth).toFixed(4)]);
                 });
             }
         }
