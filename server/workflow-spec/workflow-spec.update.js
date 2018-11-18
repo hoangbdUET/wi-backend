@@ -228,10 +228,10 @@ let wfs = [
                 "type": "curve",
                 "inputs": [
                     {
-                        "class": "curve input"
+                        "class": "Input Curve"
                     },
                     {
-                        "class": "curve input"
+                        "class": "Input Curve"
                     },
                     {
                         "class": "Target Output"
@@ -262,10 +262,10 @@ let wfs = [
                 "type": "classification",
                 "inputs": [
                     {
-                        "class": "curve input"
+                        "class": "Input Curve"
                     },
                     {
-                        "class": "curve input"
+                        "class": "Input Curve"
                     },
                     {
                         "class": "Target Output"
@@ -339,10 +339,10 @@ let wfs = [
                 "type": "crp",
                 "inputs": [
                     {
-                        "class": "curve input"
+                        "class": "Input Curve"
                     },
                     {
-                        "class": "curve input"
+                        "class": "Input Curve"
                     },
                     {
                         "class": "Target Output"
