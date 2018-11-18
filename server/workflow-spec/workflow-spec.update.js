@@ -234,7 +234,7 @@ let wfs = [
                         "class": "curve input"
                     },
                     {
-                        "class": "curve output"
+                        "class": "Target Output"
                     }
                 ]
             },
@@ -268,7 +268,7 @@ let wfs = [
                         "class": "curve input"
                     },
                     {
-                        "class": "curve output"
+                        "class": "Target Output"
                     }
                 ]
             },
@@ -345,7 +345,7 @@ let wfs = [
                         "class": "curve input"
                     },
                     {
-                        "class": "curve output"
+                        "class": "Target Output"
                     }
                 ]
             },
