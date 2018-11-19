@@ -47,7 +47,8 @@ router.post('/plot/duplicate', function (req, res) {
 });
 
 router.post('/plot/export', function (req, res) {
-    plotModel.exportData(req.body, function (code, fileResult) {
+    let exporter = require('./plot.exporter');
+    exporter(req.body, function (code, fileResult) {
         res.status(code).sendFile(fileResult, function (err) {
             if (err) console.log('Export plot: ' + err);
             fs.unlinkSync(fileResult);
@@ -58,7 +59,8 @@ router.post('/plot/export', function (req, res) {
 });
 
 router.post('/plot/import', upload.single('file'), function (req, res) {
-    plotModel.importPlotTemplate(req, function (status) {
+    let importer = require('./plot.importer');
+    importer(req, function (status) {
         res.send(status);
     }, req.dbConnection);
 });

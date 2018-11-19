@@ -65,7 +65,7 @@ module.exports = {
     'image-track.delete': true,
     'object-track.get': true,
     'object-track.create': true,
-    'objecttrack.update': true,
+    'object-track.update': true,
     'object-track.delete': true,
     'zone-track.get': true,
     'zone-track.create': true,

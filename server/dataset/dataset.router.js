@@ -10,6 +10,11 @@ router.post('/dataset/info', function (req, res) {
         res.send(status);
     }, req.dbConnection);
 });
+router.post('/dataset/info-by-name', function (req, res) {
+    datasetModel.getDatasetInfoByName(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection);
+})
 router.post('/dataset/new', function (req, res) {
     datasetModel.createNewDataset(req.body, function (status) {
         res.send(status);
@@ -30,5 +35,14 @@ router.post('/dataset/duplicate', function (req, res) {
         res.send(status);
     }, req.dbConnection, req.decoded.username);
 });
-
+router.post('/dataset/bulk-update-params', function (req, res) {
+    datasetModel.updateDatasetParams(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection);
+});
+router.post('/dataset/create-md', function (req, res) {
+    datasetModel.createMdCurve(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection, req.decoded.username);
+});
 module.exports = router;

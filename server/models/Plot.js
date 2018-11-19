@@ -8,7 +8,7 @@ module.exports = function (sequelize, DataTypes) {
         name: {
             type: DataTypes.STRING(255),
             allowNull: false,
-            unique: "name-idWell"
+            unique: "name-idProject"
         },
         option: {
             type: DataTypes.STRING(250),
@@ -28,6 +28,19 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.BOOLEAN,
             allowNull: true,
             defaultValue: false
+        },
+        printSetting: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
+        unit: {
+            type: DataTypes.STRING(30),
+            allowNull: true,
+            defaultValue: 'm'
+        },
+        depthRefSpec: {
+            type: DataTypes.STRING(50),
+            allowNull: true
         },
         createdBy: {
             type: DataTypes.STRING(50),

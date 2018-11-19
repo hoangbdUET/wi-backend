@@ -10,22 +10,20 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             unique: "name-idProject"
         },
-        topDepth: {
-            type: DataTypes.STRING(250),
-            allowNull: false
-        },
-        bottomDepth: {
-            type: DataTypes.STRING(250),
-            allowNull: false
-        },
-        step: {
-            type: DataTypes.STRING(250),
-            allowNull: false
+        unit: {
+            type: DataTypes.STRING(30),
+            allowNull: false,
+            defaultValue: "m"
         },
         duplicated: {
             type: DataTypes.INTEGER,
             allowNull: true,
             defaultValue: 1
+        },
+        color: {
+            type: DataTypes.STRING(30),
+            allowNull: true,
+            defaultValue: '#f3b86d'
         },
         createdBy: {
             type: DataTypes.STRING(50),

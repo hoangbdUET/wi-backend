@@ -16,12 +16,14 @@ module.exports = function (sequelize, DataTypes) {
         // },
         unit: {
             type: DataTypes.STRING(250),
-            allowNull: false
+            allowNull: false,
+            set(value) {
+                this.setDataValue('unit', (value.trim() === "" || !value) ? "NULL" : value);
+            },
         },
-
-        initValue: {
+        description: {
             type: DataTypes.STRING(250),
-            allowNull: false
+            allowNull: true
         },
         duplicated: {
             type: DataTypes.INTEGER,

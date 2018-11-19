@@ -1,13 +1,14 @@
-var ResponseJSON = require('../response');
-var ErrorCodes = require('../../error-codes').CODES;
-var overlayLineMaster = require('../models-master').OverlayLine;
-var asyncLoop = require('async/each');
-var userModels = require('../models');
-var asyncSeries = require('async/series');
-var path = require('path');
+const ResponseJSON = require('../response');
+const ErrorCodes = require('../../error-codes').CODES;
+const overlayLineMaster = require('../models-master').OverlayLine;
+const asyncLoop = require('async/each');
+const userModels = require('../models');
+const asyncSeries = require('async/series');
+const path = require('path');
+let config = require('config');
 
 function syncOverlayLine(username, callback) {
-    let userDbConnection = userModels("wi_" + username, function (err) {
+    let userDbConnection = userModels(config.Database.prefix + username, function (err) {
         if (err) {
             console.log(err);
             return callback(err, null);

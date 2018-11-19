@@ -10,7 +10,7 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING(50),
             allowNull: false,
             defaultValue: "BlankCrossPlot",
-            unique: "name-idWell"
+            unique: "name-idProject"
         },
         title: {
             type: DataTypes.STRING,
@@ -23,36 +23,6 @@ module.exports = function (sequelize, DataTypes) {
                 const value = this.getDataValue('title');
                 return JSON.parse(value);
             }
-        },
-        referenceTopDepth: {
-            type: DataTypes.DOUBLE,
-            allowNull: false,
-            defaultValue: 0
-        },
-        referenceBottomDepth: {
-            type: DataTypes.DOUBLE,
-            allowNull: false,
-            defaultValue: 0
-        },
-        referenceScale: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 1000
-        },
-        referenceVertLineNumber: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 7
-        },
-        referenceDisplay: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: false
-        },
-        referenceShowDepthGrid: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: true
         },
         discriminator: {
             type: DataTypes.TEXT,
@@ -76,6 +46,15 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.BOOLEAN,
             allowNull: true,
             defaultValue: 0
+        },
+        showZones:{
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+            defaultValue: 0
+        },
+        configs: {
+            type: DataTypes.TEXT('medium'),
+            allowNull: true
         },
         createdBy: {
             type: DataTypes.STRING(50),

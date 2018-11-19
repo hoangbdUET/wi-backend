@@ -64,7 +64,7 @@ function deleteTernary(ternaryInfo, done, dbConnection) {
 function inforTernary(ternaryInfo, done, dbConnection) {
     let Ternary = dbConnection.Ternary;
     Ternary.findById(ternaryInfo.idTernary).then(ternary => {
-        done(ResponseJSON(ErrorCodes.SUCCESS, "SUcCeSsfuLL !", ternary));
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful !", ternary));
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "ERROR", err));
     })

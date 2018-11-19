@@ -31,10 +31,20 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: 1
         },
+        widthUnit: {
+            type: DataTypes.STRING(20),
+            allowNull: true,
+            defaultValue: "inch"
+        },
         zoomFactor: {
             type: DataTypes.DOUBLE,
             allowNull: false,
             defaultValue: 1.0
+        },
+        trackOffset: {
+            type: DataTypes.FLOAT,
+            allowNull: false,
+            defaultValue: 0
         },
         createdBy: {
             type: DataTypes.STRING(50),

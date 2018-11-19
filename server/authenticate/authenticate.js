@@ -1,18 +1,20 @@
 let jwt = require('jsonwebtoken');
+let config = require('config');
 let models = require('../models');
 let ErrorCodes = require('../../error-codes').CODES;
 let ResponseJSON = require('../response');
 let openingProject = require('./opening-project');
 let skipList = [
-    '^/pattern.*\.png$'
+    '^/pattern.*\.png$',
+    '/csv/.*'
 ];
 module.exports = function () {
     return function (req, res, next) {
-        if (new RegExp(skipList[0]).test(req.originalUrl)) {
+        if (new RegExp(skipList.join('|')).test(req.originalUrl)) {
             next();
         } else {
             openingProject.sync().then(function (opening) {
-                let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
+                let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization') || req.query.token;
                 if (token) {
                     jwt.verify(token, 'secretKey', function (err, decoded) {
                         if (err) {
@@ -22,7 +24,7 @@ module.exports = function () {
                             if (opening[decoded.username]) {
                                 console.log(decoded.realUser + " --- Working with shared session from : ", opening[decoded.username].owner);
                                 decoded.username = opening[decoded.username].owner;
-                                req.dbConnection = models('wi_' + decoded.username.toLowerCase());
+                                req.dbConnection = models(config.Database.prefix + decoded.username.toLowerCase());
                                 req.dbConnection.sequelize.authenticate().then(() => {
                                     req.decoded = decoded;
                                     req.token = token;
@@ -30,13 +32,14 @@ module.exports = function () {
                                     req.updatedBy = decoded.realUser;
                                     req.body.createdBy = decoded.realUser;
                                     req.body.updatedBy = decoded.realUser;
+                                    // console.log("=============", decoded.realUser);
                                     next();
                                 }).catch(err => {
                                     return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Error connecting to database", "Error connecting to database"));
                                 });
                             } else {
                                 console.log(decoded.username + " --- Working with master session");
-                                req.dbConnection = models('wi_' + decoded.username.toLowerCase(), (err) => {
+                                req.dbConnection = models(config.Database.prefix + decoded.username.toLowerCase(), (err) => {
                                     console.log(err);
                                     if (err) return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Some err", "Some err"));
                                 });

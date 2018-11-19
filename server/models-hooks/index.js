@@ -23,7 +23,9 @@ module.exports = function (dbConnection) {
         'Track',
         'UserDefineLine',
         'Well',
-        'ZoneTrack'
+        'ZoneSet',
+        'ZoneTrack',
+        'Zone'
     ];
     // let models = [];
     models.forEach(function (model) {

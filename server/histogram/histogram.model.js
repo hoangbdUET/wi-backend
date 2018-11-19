@@ -32,12 +32,81 @@ let findFamilyIdByName = function (familyName, dbConnection, callback) {
 };
 
 function createNewHistogram(histogramInfo, done, dbConnection) {
+    let curves = histogramInfo.curves ? histogramInfo.curves : [];
+    if (histogramInfo.histogramTemplate && histogramInfo.datasets) {
+        console.log("NEW HISTOGRAM TEMPLATE ", histogramInfo.histogramTemplate);
+        let myData = null;
+        let loga = false;
+        try {
+            myData = require('./histogram-template/' + histogramInfo.histogramTemplate + '.json');
+        } catch (err) {
+            return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No histogarm template found"));
+        }
+        if (histogramInfo.histogramTemplate === "ShadowResistivity" || histogramInfo.histogramTemplate === "DeepResistivity") {
+            loga = true;
+        }
+        histogramInfo.name = histogramInfo.name || myData.name;
+        histogramInfo.loga = loga;
+        dbConnection.Histogram.create(histogramInfo).then(async histogram => {
+            let curves = [];
+            asyncLoop(histogramInfo.datasets, function (idDataset, nextDataset) {
+                asyncLoop(myData.families, function (family, nextFamily) {
+                    findFamilyIdByName(family.name, dbConnection, function (family) {
+                        if (family) {
+                            dbConnection.Curve.findOne({
+                                where: {
+                                    idDataset: idDataset,
+                                    idFamily: family.idFamily
+                                }
+                            }).then(foundCurve => {
+                                if (foundCurve) {
+                                    nextFamily(foundCurve);
+                                } else {
+                                    nextFamily();
+                                }
+                            });
+                        } else {
+                            nextFamily();
+                        }
+                    })
+                }, function (found) {
+                    if (found) curves.push(found.idCurve);
+                    nextDataset();
+                });
+            }, function () {
+                histogram.setCurves(curves).then(() => {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Done", histogram));
+                });
+            });
+        }).catch(err => {
+            if (err.name === "SequelizeUniqueConstraintError") {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram's name already exists"));
+            } else {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+            }
+        });
+    } else {
+        dbConnection.Histogram.create(histogramInfo).then(async histogram => {
+            await histogram.setCurves(curves);
+            dbConnection.Histogram.findById(histogram.idHistogram, {include: {all: true}}).then(h => {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", h));
+            });
+        }).catch(err => {
+            if (err.name === "SequelizeUniqueConstraintError") {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram's name already exists"));
+            } else {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+            }
+        });
+    }
+}
+
+
+function createNewHistogram_(histogramInfo, done, dbConnection) {
     let Histogram = dbConnection.Histogram;
     let Well = dbConnection.Well;
     Well.findById(parseInt(histogramInfo.idWell)).then(well => {
         let myData;
-        histogramInfo.referenceTopDepth = well.topDepth;
-        histogramInfo.referenceBottomDepth = well.bottomDepth;
         if (histogramInfo.histogramTemplate) {
             console.log("NEW HISTOGRAM TEMPLATE ", histogramInfo.histogramTemplate);
             myData = null;
@@ -54,10 +123,8 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
             Histogram.create({
                 name: myData.name,
                 idWell: histogramInfo.idWell,
-                referenceTopDepth: histogramInfo.referenceTopDepth,
-                referenceBottomDepth: histogramInfo.referenceBottomDepth,
-                intervalDepthTop: histogramInfo.referenceTopDepth,
-                intervalDepthBottom: histogramInfo.referenceBottomDepth,
+                intervalDepthTop: histogramInfo.intervalDepthTop,
+                intervalDepthBottom: histogramInfo.intervalDepthBottom,
                 loga: loga,
                 colorBy: histogramInfo.colorBy,
                 createdBy: histogramInfo.createdBy,
@@ -130,7 +197,7 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
                 });
             }).catch(err => {
                 console.log(err.message);
-                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram existed!", err.message));
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram's name already exists", err.message));
             })
         } else {
             if (histogramInfo.idZoneSet) {
@@ -139,31 +206,17 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
                     });
                 }).catch(err => {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram name existed!", err.message));
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram's name already exists", err.message));
                 });
             } else {
-                if (!histogramInfo.intervalDepthTop) {
-                    histogramInfo.intervalDepthTop = well.topDepth;
-                    histogramInfo.intervalDepthBottom = well.bottomDepth;
-                    Histogram.create(histogramInfo).then(result => {
-                        Histogram.findById(result.idHistogram).then(his => {
-                            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
-                        });
-                    }).catch(err => {
-                        // console.log(err);
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram existed!", err.errors));
+                Histogram.create(histogramInfo).then(result => {
+                    Histogram.findById(result.idHistogram).then(his => {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
                     });
-
-                } else {
-                    Histogram.create(histogramInfo).then(result => {
-                        Histogram.findById(result.idHistogram).then(his => {
-                            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
-                        });
-                    }).catch(err => {
-                        // console.log(err);
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram name existed!", err.errors));
-                    });
-                }
+                }).catch(err => {
+                    // console.log(err);
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram's name already exists", err.errors));
+                });
             }
 
         }
@@ -234,19 +287,24 @@ function getHistogram(histogramId, done, dbConnection) {
 }
 
 function editHistogram(histogramInfo, done, dbConnection) {
+    let curves = histogramInfo.curves ? histogramInfo.curves : [];
     delete histogramInfo.createdBy;
     let Histogram = dbConnection.Histogram;
     Histogram.findById(histogramInfo.idHistogram)
         .then(function (histogram) {
+            let isRename = histogramInfo.name && histogram.name !== histogramInfo.name;
             histogramInfo.discriminator = JSON.stringify(histogramInfo.discriminator);
             Object.assign(histogram, histogramInfo)
                 .save()
-                .then(function (result) {
+                .then(async function (result) {
+                    if (!isRename) {
+                        await result.setCurves(curves);
+                    }
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit histogram success", result));
                 })
                 .catch(function (err) {
                     if (err.name === "SequelizeUniqueConstraintError") {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram name existed!"));
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Histogram's name already exists"));
                     } else {
                         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     }
@@ -261,8 +319,8 @@ function deleteHistogram(histogramInfo, done, dbConnection) {
     let Histogram = dbConnection.Histogram;
     Histogram.findById(histogramInfo.idHistogram)
         .then(function (histogram) {
-            histogram.setDataValue('updatedAt', histogramInfo.updatedBy);
-            histogram.destroy()
+            histogram.setDataValue('updatedBy', histogramInfo.updatedBy);
+            histogram.destroy({permanently: true, force: true})
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Histogram is deleted", histogram));
                 })
@@ -277,22 +335,39 @@ function deleteHistogram(histogramInfo, done, dbConnection) {
 
 function duplicateHistogram(payload, done, dbConnection) {
     let Histogram = dbConnection.Histogram;
-    Histogram.findById(payload.idHistogram).then(hisogram => {
+    Histogram.findById(payload.idHistogram, {include: {all: true}}).then(hisogram => {
         let newHistogram;
         if (hisogram) {
             newHistogram = hisogram.toJSON();
             delete newHistogram.idHistogram;
             delete newHistogram.createdAt;
             delete newHistogram.updatedAt;
-            // newHistogram.name = newHistogram.name + '_' + new Date().toLocaleString('en-US', {timeZone: "Asia/Ho_Chi_Minh"});
             newHistogram.duplicated = 1;
-            newHistogram.name = newHistogram.name + "_Copy_" + hisogram.duplicated;
+            newHistogram.name = newHistogram.name + "_COPY_" + hisogram.duplicated;
             newHistogram.createdBy = payload.createdBy;
             newHistogram.updatedBy = payload.updatedBy;
             hisogram.duplicated++;
+            let curves = hisogram.curves.map(c => c.idCurve);
             hisogram.save();
             Histogram.create(newHistogram).then(rs => {
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
+                asyncLoop(hisogram.curves, function (curve) {
+                    rs.addCurve(curve).then(c => {
+                        let curve_set = c[0][0];
+                        curve_set.intervalDepthTop = curve.histogram_curve_set.intervalDepthTop;
+                        curve_set.intervalDepthBottom = curve.histogram_curve_set.intervalDepthBottom;
+                        curve_set.showGaussian = curve.histogram_curve_set.showGaussian;
+                        curve_set.showCumulative = curve.histogram_curve_set.showCumulative;
+                        curve_set.lineStyle = curve.histogram_curve_set.lineStyle;
+                        curve_set.lineColor = curve.histogram_curve_set.lineColor;
+                        curve_set.plot = curve.histogram_curve_set.plot;
+                        curve_set.color = curve.histogram_curve_set.color;
+                        curve_set.save();
+                    })
+                });
+                // rs.setCurves(hisogram.curves).then(r => {
+                //     console.log(r);
+                // });
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", hisogram));
             }).catch(err => {
                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
             });
@@ -302,10 +377,25 @@ function duplicateHistogram(payload, done, dbConnection) {
     });
 }
 
+function editHistogramCurveSet(payload, done, dbConnection) {
+    dbConnection.HistogramCurveSet.findById(payload.idHistogramCurveSet).then(hcs => {
+        if (hcs) {
+            Object.assign(hcs, payload).save().then(h => {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Done", h));
+            }).catch(err => {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
+            });
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No histogram curve set found"));
+        }
+    });
+}
+
 module.exports = {
     createNewHistogram: createNewHistogram,
     getHistogram: getHistogram,
     editHistogram: editHistogram,
     deleteHistogram: deleteHistogram,
-    duplicateHistogram: duplicateHistogram
+    duplicateHistogram: duplicateHistogram,
+    editHistogramCurveSet: editHistogramCurveSet
 };

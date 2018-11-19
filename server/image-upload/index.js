@@ -13,7 +13,8 @@ let Finder = require('fs-finder');
 let asyncEach = require('async/each');
 
 let router = express.Router();
-let saveDir = path.join(__dirname, '../..', config.imageBasePath);
+// let saveDir = path.join(__dirname, '../..', config.imageBasePath);
+let saveDir = config.imageBasePath;
 
 
 router.use(cors());

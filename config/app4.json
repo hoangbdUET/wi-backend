@@ -1,19 +1,37 @@
 {
-  "Database":{
-    "dialect":"mysql",  // "postgres" for PostgreSql, "mysql" for MySql, "sqlite" for sqLite
-    "host":"localhost",
-    "port":3306,
-    "user":"root",
-    "password":"qwertyui",
-    "logging":false,     //Logging all database query if is set "true"
-    "storage":"/tmp/wi_backend.sqlite", //Path to database.sqlite (used for sqlite only)
-    "dbName":"wi_backend"
+  "Database": {
+    "dialect": "mysql",
+    "host": "localhost",
+    "port": 3306,
+    "user": "root",
+    "password": "qwertyui",
+    "logging": false,
+    "storage": "/tmp/wi_backend.sqlite",
+    "dbName": "wi_backend",
+    "prefix": "wi1004_"
   },
-  "Application":{
-    "port":3003
+  "Application": {
+    "port": 5004
+  },
+  "influx": {
+    "host": "localhost",
+    "port": 8086,
+    "username": "root",
+    "password": "root",
+    "database": "wi_backend"
+  },
+  "redis": {
+    "host": "127.0.0.1",
+    "port": 6379
+  },
+  "csvService": {
+    "host": "http://csv-transformer.dev.i2g.cloud"
+  },
+  "Service": {
+    "inventory": "http://13.250.197.210",
+    "authenticate": "https://admin.dev.i2g.cloud"
   },
   "curveBasePath": "../data",
-  "imageBasePath": "wi-images"
+  "imageBasePath": "/opt/wi-backend/wi-images",
+  "exportPath": "/opt/wi-backend/server/export/exported-files"
 }
-
-// should ignore from git

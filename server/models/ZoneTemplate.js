@@ -5,14 +5,10 @@ module.exports = function (sequelize, DataTypes) {
             primaryKey: true,
             autoIncrement: true
         },
-        template: {
-            type: DataTypes.STRING(200),
-            allowNull: false
-        },
         name: {
             type: DataTypes.STRING(100),
             allowNull: false,
-            unique: 'name-template'
+            unique: "name-idZoneSetTemplate"
         },
         background: {
             type: DataTypes.STRING(30),
@@ -27,6 +23,11 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING(30),
             allowNull: false,
             defaultValue: 'none'
+        },
+        orderNum: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: '0'
         }
     });
 };

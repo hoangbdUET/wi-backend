@@ -6,19 +6,95 @@ let request = require('request');
 let config = require('config');
 let models = require('../models');
 let openProject = require('../authenticate/opening-project');
+let dbMaster = require('../models-master');
+let async = require('async');
+
+function createDefaultZoneSetTemplate(zoneSetTemplates, idProject, dbConnection) {
+    return new Promise(resolve => {
+        async.each(zoneSetTemplates, (zoneSetTemplate, nextZst) => {
+            dbConnection.ZoneSetTemplate.create({
+                name: zoneSetTemplate.name,
+                idProject: idProject
+            }).then(zst => {
+                async.each(zoneSetTemplate.zone_templates, (zoneTemplate, nextZt) => {
+                    dbConnection.ZoneTemplate.create({
+                        idZoneSetTemplate: zst.idZoneSetTemplate,
+                        name: zoneTemplate.name,
+                        background: zoneTemplate.background,
+                        foreground: zoneTemplate.foreground,
+                        pattern: zoneTemplate.pattern,
+                        orderNum: zoneTemplate.orderNum
+                    }).then(() => {
+                        nextZt();
+                    }).catch(err => {
+                        console.log(err);
+                        nextZt();
+                    })
+                }, () => {
+                    nextZst();
+                })
+            })
+        }, function () {
+            resolve();
+        })
+    });
+}
+
+function createDefaultMarkerSetTemplate(markerSetTemplates, idProject, dbConnection) {
+    return new Promise(resolve => {
+        async.each(markerSetTemplates, (markerSetTemplate, nextZst) => {
+            dbConnection.MarkerSetTemplate.create({
+                name: markerSetTemplate.name,
+                idProject: idProject
+            }).then(zst => {
+                async.each(markerSetTemplate.marker_templates, (markerTemplate, nextZt) => {
+                    dbConnection.MarkerTemplate.create({
+                        idMarkerSetTemplate: zst.idMarkerSetTemplate,
+                        name: markerTemplate.name,
+                        color: markerTemplate.color,
+                        lineStyle: markerTemplate.lineStyle,
+                        lineWidth: markerTemplate.lineWidth,
+                        orderNum: markerTemplate.orderNum,
+                        description: markerTemplate.description
+                    }).then(() => {
+                        nextZt();
+                    }).catch(err => {
+                        console.log(err);
+                        nextZt();
+                    })
+                }, () => {
+                    nextZst();
+                })
+            })
+        }, function () {
+            resolve();
+        })
+    });
+}
 
 function createNewProject(projectInfo, done, dbConnection) {
     let Project = dbConnection.Project;
+    projectInfo.alias = projectInfo.alias || projectInfo.name;
     Project.sync()
         .then(function () {
             return Project.create(projectInfo);
         })
-        .then(function (project) {
+        .then(async function (project) {
+            let zsts = await dbConnection.ZoneSetTemplate.findAll({
+                where: {idProject: null},
+                include: {model: dbConnection.ZoneTemplate}
+            });
+            let msks = await dbConnection.MarkerSetTemplate.findAll({
+                where: {idProject: null},
+                include: {model: dbConnection.MarkerTemplate}
+            });
+            await createDefaultZoneSetTemplate(zsts, project.idProject, dbConnection);
+            await createDefaultMarkerSetTemplate(msks, project.idProject, dbConnection);
             done(ResponseJSON(ErrorCodes.SUCCESS, "Create new project success", project));
         })
         .catch(function (err) {
             if (err.name === "SequelizeUniqueConstraintError") {
-                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Project existed!"));
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Project's name already exists"));
             } else {
                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
             }
@@ -35,13 +111,14 @@ function editProject(projectInfo, done, dbConnection) {
             project.department = projectInfo.department;
             project.description = projectInfo.description;
             project.updatedBy = projectInfo.updatedBy;
+            project.alias = projectInfo.alias;
             project.save()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Project success", projectInfo));
                 })
                 .catch(function (err) {
                     if (err.name === "SequelizeUniqueConstraintError") {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Project existed!"));
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Project's name already exists"));
                     } else {
                         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     }
@@ -68,14 +145,15 @@ function getSharedProject(token, username) {
     return new Promise(function (resolve, reject) {
         let options = {
             method: 'POST',
-            url: 'http://' + config.Service.authenticate + '/shared-project/list',
+            url: config.Service.authenticate + '/shared-project/list',
             headers: {
                 'Cache-Control': 'no-cache',
                 'Authorization': token,
                 'Content-Type': 'application/json'
             },
             body: {username: username},
-            json: true
+            json: true,
+            strictSSL: false
         };
         request(options, function (error, response, body) {
             if (error) {
@@ -88,33 +166,53 @@ function getSharedProject(token, username) {
     });
 }
 
+async function getDatabases() {
+    const modelMaster = require('../models-master');
+    const sequelize = require('sequelize');
+    let result = [];
+    let dbs = await modelMaster.sequelize.query("SHOW DATABASES LIKE '" + config.Database.prefix + "%'", {type: sequelize.QueryTypes.SELECT});
+    dbs.forEach(db => {
+        result.push(db[Object.keys(db)]);
+    });
+    return result;
+}
+
 async function getProjectList(owner, done, dbConnection, username, realUser, token) {
-    dbConnection = models('wi_' + realUser);
+    let databasesList = await getDatabases();
+    dbConnection = models(config.Database.prefix + realUser);
     let response = [];
     let projectList = await getSharedProject(token, realUser);
     let Project = dbConnection.Project;
-    Project.all().then(function (projects) {
+    Project.all({
+        order: ['name']
+    }).then(function (projects) {
         asyncLoop(projects, function (project, next) {
             project = project.toJSON();
-            project.displayName = project.name;
+            project.displayName = project.alias || project.name;
             response.push(project);
             next();
         }, function () {
             if (projectList.length > 0) {
                 asyncLoop(projectList, function (prj, next) {
-                    let shareDbConnection = models('wi_' + prj.owner);
-                    shareDbConnection.Project.findOne({where: {name: prj.name}}).then(p => {
-                        if (!p) {
-                            next();
-                        } else {
-                            p = p.toJSON();
-                            p.displayName = p.name + '   || ' + prj.owner + ' || ' + prj.group;
-                            p.shared = true;
-                            p.owner = prj.owner;
-                            response.push(p);
-                            next();
-                        }
-                    });
+                    let dbName = config.Database.prefix + prj.owner;
+                    if (databasesList.indexOf(dbName) !== -1) {
+                        let shareDbConnection = models(dbName);
+                        shareDbConnection.Project.findOne({where: {name: prj.name}}).then(p => {
+                            if (!p) {
+                                next();
+                            } else {
+                                p = p.toJSON();
+                                let name = p.alias || p.name;
+                                p.displayName = name + '   || ' + prj.owner + ' || ' + prj.group;
+                                p.shared = true;
+                                p.owner = prj.owner;
+                                response.push(p);
+                                next();
+                            }
+                        });
+                    } else {
+                        next();
+                    }
                 }, function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Get List Project success", response));
                 });
@@ -130,27 +228,21 @@ async function getProjectList(owner, done, dbConnection, username, realUser, tok
 }
 
 function deleteProject(projectInfo, done, dbConnection) {
-    let Project = dbConnection.Project;
-    Project.findById(projectInfo.idProject)
-        .then(function (project) {
-            project.destroy()
-                .then(function () {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Deleted", project));
-                })
-                .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.message, err.message));
-                })
-
-        })
-        .catch(function () {
-            done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Project not found for delete"));
-        });
+    const sequelize = require('sequelize');
+    let dbName = config.Database.prefix + projectInfo.owner;
+    let query = "DELETE FROM " + dbName + ".project WHERE idProject = " + projectInfo.idProject;
+    console.log(query);
+    dbConnection.sequelize.query(query, {type: sequelize.QueryTypes.UPDATE}).then(rs => {
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
+    }).catch(err => {
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
+    });
 }
 
 function updatePermission(req, done) {
     let userPermission = require('../utils/permission/user-permission');
     userPermission.loadUserPermission(req.token, req.body.project_name, req.body.username).then(() => {
-        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull " + req.body.username));
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful " + req.body.username));
     });
 }
 
@@ -161,12 +253,12 @@ async function getProjectFullInfo(payload, done, req) {
         await userPermission.loadUserPermission(req.token, payload.name, req.decoded.realUser);
         await openProject.removeRow({username: req.decoded.realUser});
         await openProject.addRow({username: req.decoded.realUser, project: payload.name, owner: payload.owner});
-        req.dbConnection = models('wi_' + payload.owner.toLowerCase());
+        req.dbConnection = models(config.Database.prefix + payload.owner.toLowerCase());
     } else {
         // console.log("LOAD USER PROJECT");
         await userPermission.loadUserPermission(req.token, payload.name, req.decoded.realUser, true);
         await openProject.removeRow({username: req.decoded.realUser});
-        req.dbConnection = models(('wi_' + req.decoded.realUser));
+        req.dbConnection = models((config.Database.prefix + req.decoded.realUser));
     }
     let dbConnection = req.dbConnection;
     let project = await dbConnection.Project.findById(payload.idProject);
@@ -177,9 +269,17 @@ async function getProjectFullInfo(payload, done, req) {
     response.shared = payload.shared ? payload.shared : null;
     let wells = await dbConnection.Well.findAll({where: {idProject: project.idProject}});
     let groups = await dbConnection.Groups.findAll({where: {idProject: project.idProject}});
+    let plots = await dbConnection.Plot.findAll({where: {idProject: project.idProject}});
+    let crossplots = await dbConnection.CrossPlot.findAll({where: {idProject: project.idProject}});
+    let histograms = await dbConnection.Histogram.findAll({where: {idProject: project.idProject}});
+    let combined_boxes = await dbConnection.CombinedBox.findAll({where: {idProject: project.idProject}});
     response.wells = [];
     response.groups = groups;
-    if (wells.length === 0) {
+    response.plots = plots;
+    response.crossplots = crossplots;
+    response.histograms = histograms;
+    response.combined_boxes = combined_boxes;
+    if (wells.length == 0) {
         return done(ResponseJSON(ErrorCodes.SUCCESS, "Get full info Project success", response));
     }
     asyncLoop(wells, function (well, nextWell) {
@@ -235,44 +335,29 @@ async function getProjectFullInfo(payload, done, req) {
             function (cb) {
                 dbConnection.ZoneSet.findAll({
                     where: {idWell: well.idWell},
-                    include: {model: dbConnection.Zone}
+                    include: {model: dbConnection.Zone, include: {model: dbConnection.ZoneTemplate}}
                 }).then(zonesets => {
                     cb(null, zonesets);
-                });
-            },
-            function (cb) {
-                dbConnection.Plot.findAll({where: {idWell: well.idWell}}).then(plots => {
-                    cb(null, plots);
-                });
-            },
-            function (cb) {
-                dbConnection.Histogram.findAll({where: {idWell: well.idWell}}).then(histograms => {
-                    cb(null, histograms);
-                });
-            },
-            function (cb) {
-                dbConnection.CrossPlot.findAll({where: {idWell: well.idWell}}).then(crossplots => {
-                    cb(null, crossplots);
-                });
-            },
-            function (cb) {
-                dbConnection.CombinedBox.findAll({where: {idWell: well.idWell}}).then(combined_boxes => {
-                    cb(null, combined_boxes);
                 });
             },
             function (cb) {
                 dbConnection.WellHeader.findAll({where: {idWell: well.idWell}}).then(headers => {
                     cb(null, headers);
                 });
+            },
+            function (cb) {
+                dbConnection.MarkerSet.findAll({
+                    where: {idWell: well.idWell},
+                    include: {model: dbConnection.Marker, include: {model: dbConnection.MarkerTemplate}}
+                }).then(markersets => {
+                    cb(null, markersets);
+                });
             }
         ], function (err, result) {
             wellObj.datasets = result[0];
             wellObj.zonesets = result[1];
-            wellObj.plots = result[2];
-            wellObj.histograms = result[3];
-            wellObj.crossplots = result[4];
-            wellObj.combined_boxes = result[5];
-            wellObj.wellheaders = result[6];
+            wellObj.wellheaders = result[2];
+            wellObj.markersets = result[3];
             response.wells.push(wellObj);
             nextWell();
         });
@@ -288,8 +373,80 @@ function genLocationOfNewProject() {
 function closeProject(payload, done, dbConnection, username) {
     let openingProject = require('../authenticate/opening-project');
     openingProject.removeRow({username: username}).then(() => {
-        done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull"));
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful"));
     });
+}
+
+function getAllSharedProject(token) {
+    return new Promise(function (resolve, reject) {
+        let options = {
+            method: 'POST',
+            url: config.Service.authenticate + '/shared-project/all',
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            },
+            body: {},
+            json: true,
+            strictSSL: false
+        };
+        request(options, function (error, response, body) {
+            if (error) {
+                console.log(error);
+                resolve([]);
+            } else {
+                resolve(body.content);
+            }
+        });
+    });
+}
+
+async function listProjectOffAllUser(payload, done, dbConnection, token) {
+    let sharedProjectList = await getAllSharedProject(token);
+    let dbs = payload.users ? payload.users = payload.users.map(u => config.Database.prefix + u) : [];
+    const sequelize = require('sequelize');
+    getDatabases().then(databaseList => {
+        let response = [];
+        asyncLoop(databaseList, (db, next) => {
+            if (dbs.indexOf(db) !== -1) {
+                let query = "SELECT * FROM `" + db + "`.project";
+                dbConnection.sequelize.query(query, {type: sequelize.QueryTypes.SELECT}).then(projects => {
+                    projects.forEach(project => {
+                        if (!response.find(p => p.name === project.name && p.createdBy === project.createdBy)) {
+                            let shared = sharedProjectList.find(s => s.project_name === project.name && s.user.username === project.createdBy);
+                            if (shared) {
+                                project.groups = shared.groups;
+                                project.shareKey = shared.shareKey;
+                            }
+                            response.push(project);
+                        }
+                    });
+                    next();
+                }).catch(err => {
+                    console.log("LOI : ", query);
+                });
+            } else {
+                next();
+            }
+        }, function () {
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Done", response));
+        });
+    });
+}
+
+function deleteProjectOwner(payload, done, dbConnection) {
+    dbConnection.Project.findById(payload.idProject).then(p => {
+        if (p) {
+            p.destroy().then(() => {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Done", p));
+            }).catch(err => {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Error while delete project", err));
+            });
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No project found by id"));
+        }
+    })
 }
 
 module.exports = {
@@ -300,5 +457,7 @@ module.exports = {
     deleteProject: deleteProject,
     getProjectFullInfo: getProjectFullInfo,
     closeProject: closeProject,
-    updatePermission: updatePermission
+    updatePermission: updatePermission,
+    listProjectOffAllUser: listProjectOffAllUser,
+    deleteProjectOwner: deleteProjectOwner
 };

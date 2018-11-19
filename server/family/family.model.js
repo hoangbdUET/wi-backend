@@ -76,7 +76,7 @@ function getFamilyList(done, dbConnection) {
         include: {
             model: dbConnection.FamilySpec,
             'as': 'family_spec'
-        }
+        },
     })
         .then(function (families) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get List Family success", families));

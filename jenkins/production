@@ -1,0 +1,28 @@
+pipeline {
+    agent {
+        label 'master'
+    }
+
+    stages {
+        stage("Rsync dev") {
+            steps {
+                sh 'rsync --delete -azvv ./* -e ssh i2g-api-production-1:/opt/wi-backend'
+                sh 'rsync --delete -azvv ./* -e ssh i2g-api-production-2:/opt/wi-backend'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh 'ssh i2g-api-production-1 "cd /opt/wi-backend && npm install && npm i wi-import && npm i wi-export-test"'
+                sh 'ssh i2g-api-production-2 "cd /opt/wi-backend && npm install && npm i wi-import && npm i wi-export-test"'
+            }
+        }
+
+        stage('Deploy to dev') {
+            steps {
+                sh 'ssh i2g-api-production-1 "cd /opt/wi-backend && NODE_ENV=production pm2 restart ./pm2/production/pm2.config.js"'
+                sh 'ssh i2g-api-production-2 "cd /opt/wi-backend && NODE_ENV=production pm2 restart ./pm2/production/pm2.config.js"'
+            }
+        }
+    }
+}

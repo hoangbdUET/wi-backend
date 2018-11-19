@@ -3,7 +3,7 @@ let ErrorCodes = require('../../error-codes').CODES;
 
 function createNewZone(zoneInfo, done, dbConnection) {
     let Zone = dbConnection.Zone;
-    zoneInfo.fill = JSON.stringify(zoneInfo.fill);
+    // zoneInfo.fill = JSON.stringify(zoneInfo.fill);
     Zone.sync()
         .then(
             function () {
@@ -11,10 +11,7 @@ function createNewZone(zoneInfo, done, dbConnection) {
                 let zone = Zone.build(zoneInfo);
                 zone.save()
                     .then(function (zone) {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Zone success", {
-                            idZone: zone.idZone,
-                            orderNum: zone.orderNum
-                        }));
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Zone success", zone));
                     })
                     .catch(function (err) {
                         console.log(err);

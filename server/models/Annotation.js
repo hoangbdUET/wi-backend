@@ -25,9 +25,9 @@ module.exports = function (sequelize, DataTypes) {
             }
         },
         vAlign: {
-            type: DataTypes.ENUM('Top', 'Center', 'Bottom'),
+            type: DataTypes.ENUM('top', 'middle', 'bottom'),
             allowNull: false,
-            defaultValue: 'Center'
+            defaultValue: 'middle'
         },
         hAlign: {
             type: DataTypes.ENUM('Left', 'Center', 'Right'),

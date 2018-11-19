@@ -3,9 +3,12 @@ let async = require('async');
 let wixlsx = require('../utils/xlsx');
 let path = require('path');
 let userModel = require('../models');
+let ResponseJSON = require('../response');
+let ErrorCodes = require('../../error-codes').CODES;
+let config = require('config');
 
 let syncTaskSpec = function (username, callback) {
-    let userDbConnection = userModel("wi_" + username, function (err) {
+    let userDbConnection = userModel(config.Database.prefix + username, function (err) {
         if (err) {
             return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "ERROR", err));
         }
@@ -39,9 +42,10 @@ let createTaskSpec = function (callback) {
         masterTaskSpec.create({
             idTaskSpec: row[0],
             name: row[1],
-            content: row[2],
-            description: row[3],
-            type: row[4]
+            group: row[2],
+            content: row[3],
+            description: row[4],
+            type: row[5] === '' ? 0 : row[5]
         }).then(() => {
             nextRow();
         }).catch(err => {
@@ -52,7 +56,64 @@ let createTaskSpec = function (callback) {
         callback();
     });
 };
+
+function addTaskSpec(payload, done, dbConnection) {
+    dbConnection.TaskSpec.create(payload).then(r => {
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
+    }).catch(err => {
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
+    });
+}
+
+function infoTaskSpec(payload, done, dbConnection) {
+    dbConnection.TaskSpec.findById(payload.idTaskSpec).then(r => {
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
+    });
+}
+
+function listTaskSpec(payload, done, dbConnection) {
+    dbConnection.TaskSpec.findAll().then(r => {
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
+    }).catch(err => {
+        console.log(err);
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
+    });
+}
+
+function deleteTaskSpec(payload, done, dbConnection) {
+    dbConnection.TaskSpec.findById(payload.idTaskSpec).then(r => {
+        if (r) {
+            r.destroy().then(() => {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
+            }).catch(err => {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
+            })
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No taskspec found by id"));
+        }
+    });
+}
+
+function editTaskSpec(payload, done, dbConnection) {
+    dbConnection.TaskSpec.findById(payload.idTaskSpec).then(r => {
+        if (r) {
+            Object.assign(r, payload).save().then(() => {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
+            }).catch(err => {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
+            })
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No taskspec found by id"));
+        }
+    });
+}
+
 module.exports = {
     createTaskSpec: createTaskSpec,
-    syncTaskSpec: syncTaskSpec
+    syncTaskSpec: syncTaskSpec,
+    addTaskSpec: addTaskSpec,
+    infoTaskSpec: infoTaskSpec,
+    listTaskSpec: listTaskSpec,
+    deleteTaskSpec: deleteTaskSpec,
+    editTaskSpec: editTaskSpec
 };

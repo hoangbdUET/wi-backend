@@ -14,13 +14,13 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.TEXT,
             // type: DataTypes.TEXT('long'),
             allowNull: true,
-            set(value) {
-                this.setDataValue('content', typeof(value) === 'object' ? JSON.stringify(value) : value);
-            },
-            get() {
-                const value = this.getDataValue('content');
-                return JSON.parse(value);
-            }
+            // set(value) {
+            //     this.setDataValue('content', typeof(value) === 'object' ? JSON.stringify(value) : value);
+            // },
+            // get() {
+            //     const value = this.getDataValue('content');
+            //     return JSON.parse(value);
+            // }
         },
         description: {
             type: DataTypes.TEXT,

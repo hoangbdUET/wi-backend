@@ -7,15 +7,24 @@
     "password": "qwertyui",
     "logging": false,
     "storage": "/tmp/wi_backend.sqlite",
-    "dbName": "wi_backend"
+    "dbName": "wi_backend",
+    "prefix": "wi0710_"
   },
   "Application": {
     "port": 3000
   },
+  "influx": {
+    "host": "localhost",
+    "port": 8086,
+    "username": "root",
+    "password": "root",
+    "database": "wi_backend"
+  },
   "Service": {
     "inventory": "13.250.197.210",
-    "authenticate": "login.sflow.me"
+    "authenticate": "admin.dev.i2g.cloud"
   },
   "curveBasePath": "../data",
-  "imageBasePath": "wi-images"
+  "imageBasePath": "wi-images",
+  "exportPath": "./server/export/exported-files"
 }

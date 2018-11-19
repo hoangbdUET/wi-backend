@@ -24,6 +24,46 @@ function renameObjectForDustbin(object, callback, type) {
 
 }
 
+async function getWellTopDepth(idWell, dbConnection) {
+    let topDepth;
+    try {
+        let well = await dbConnection.Well.findById(idWell, {include: dbConnection.Dataset});
+        if (well.datasets.length === 0) {
+            return null;
+        } else {
+            topDepth = 999999999;
+            well.datasets.forEach(dataset => {
+                topDepth = dataset.top < topDepth ? dataset.top : topDepth;
+            });
+            return topDepth;
+        }
+    } catch (e) {
+        console.log(e);
+        return null;
+    }
+}
+
+async function getWellBottomDepth(idWell, dbConnection) {
+    let bottomDepth;
+    try {
+        let well = await dbConnection.Well.findById(idWell, {include: dbConnection.Dataset});
+        if (well.datasets.length === 0) {
+            return null;
+        } else {
+            bottomDepth = -999999999;
+            well.datasets.forEach(dataset => {
+                bottomDepth = dataset.bottom > bottomDepth ? dataset.top : bottomDepth;
+            });
+            return bottomDepth;
+        }
+    } catch (e) {
+        console.log(e);
+        return null;
+    }
+}
+
 module.exports = {
-    renameObjectForDustbin: renameObjectForDustbin
+    renameObjectForDustbin: renameObjectForDustbin,
+    getWellBottomDepth,
+    getWellTopDepth
 };

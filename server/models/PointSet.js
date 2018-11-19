@@ -48,15 +48,39 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: true//TODO has default???:9
         },
-        scaleMin: {
-            type: DataTypes.INTEGER,
+        scaleMin1: {
+            type: DataTypes.FLOAT,
             allowNull: true
         },
-        scaleMax: {
-            type: DataTypes.INTEGER,
+        scaleMin2: {
+            type: DataTypes.FLOAT,
+            allowNull: true
+        },
+        scaleMin3: {
+            type: DataTypes.FLOAT,
+            allowNull: true
+        },
+        scaleMax1: {
+            type: DataTypes.FLOAT,
+            allowNull: true
+        },
+        scaleMax2: {
+            type: DataTypes.FLOAT,
+            allowNull: true
+        },
+        scaleMax3: {
+            type: DataTypes.FLOAT,
             allowNull: true
         },
         numColor: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        numSize: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        numSymbol: {
             type: DataTypes.INTEGER,
             allowNull: true
         },
@@ -122,6 +146,7 @@ module.exports = function (sequelize, DataTypes) {
             defaultValue: "intervalDepth",
             allowNull: true
         },
+
         // referenceTopDepth: {
         //     type: DataTypes.DOUBLE,
         //     allowNull: false,

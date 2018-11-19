@@ -46,8 +46,11 @@ function editRegressionLine(regressionLineInfo, done, dbConnection) {
             regressionLineInfo.lineStyle = JSON.stringify(regressionLineInfo.lineStyle);
             Object.assign(regressionLine, regressionLineInfo)
                 .save()
-                .then(function (result) {
-                    done(ResponseJSON(ErrorCodes.SUCCESS, "Edit regressionLine success", result));
+                .then(async function (result) {
+                    await result.setPolygons(regressionLineInfo.polygons);
+                    RegressionLine.findById(result.idRegressinLine, {include: {all: true}}).then(rl => {
+                        done(ResponseJSON(ErrorCodes.SUCCESS, "Edit regressionLine success", rl));
+                    });
                 })
                 .catch(function (err) {
                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit regressionLine" + err));

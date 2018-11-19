@@ -10,12 +10,16 @@ module.exports = function (sequelize, DataTypes) {
             primaryKey: true
         },
         header: {
-            type: DataTypes.STRING,
-            primaryKey: true
+            type: DataTypes.STRING
         },
         value: {
             type: DataTypes.STRING,
             allowNull: false,
+            defaultValue: ''
+        },
+        unit: {
+            type: DataTypes.STRING,
+            allowNull: true,
             defaultValue: ''
         },
         description: {
@@ -26,14 +30,6 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: true
-        },
-        createdBy: {
-            type: DataTypes.STRING(50),
-            allowNull: false,
-        },
-        updatedBy: {
-            type: DataTypes.STRING(50),
-            allowNull: false
         }
     });
 };

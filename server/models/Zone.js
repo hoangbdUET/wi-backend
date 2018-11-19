@@ -7,32 +7,27 @@ module.exports = function (sequelize, DataTypes) {
             primaryKey: true
         },
         startDepth: {
-            type: DataTypes.FLOAT(15, 4),
+            type: DataTypes.DOUBLE,
             allowNull: false
         },
         endDepth: {
-            type: DataTypes.FLOAT(15, 4),
+            type: DataTypes.DOUBLE,
             allowNull: false
-        },
-        fill: {
-            type: DataTypes.TEXT,
-            allowNull: false,
-            set(value) {
-                this.setDataValue('fill', typeof(value) === 'object' ? JSON.stringify(value) : value);
-            },
-            get() {
-                const value = this.getDataValue('fill');
-                return JSON.parse(value);
-            }
         },
         showName: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: true
         },
-        name: {
-            type: DataTypes.STRING(100),
-            allowNull: false//TODO: has defaultValue????
+        showOnTrack: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true
+        },
+        orderNum: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: '0'
         },
         createdBy: {
             type: DataTypes.STRING(50),
@@ -42,7 +37,5 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING(50),
             allowNull: false
         }
-    }, {
-        paranoid: true
     });
 };

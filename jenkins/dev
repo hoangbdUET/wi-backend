@@ -1,0 +1,25 @@
+pipeline {
+    agent {
+        label 'master'
+    }
+
+    stages {
+        stage("Rsync dev") {
+            steps {
+                sh 'rsync --delete -azvv ./* -e ssh i2g-dev:/opt/wi-backend'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh 'ssh i2g-dev "cd /opt/wi-backend && npm install && npm i wi-import && npm i wi-export-test"'
+            }
+        }
+
+        stage('Deploy to dev') {
+            steps {
+                sh 'ssh i2g-dev "cd /opt/wi-backend && pm2 restart ./pm2/dev/pm2.config.js"'
+            }
+        }
+    }
+}

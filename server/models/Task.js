@@ -6,13 +6,13 @@ module.exports = function (sequelize, DataTypes) {
             primaryKey: true
         },
         name: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            unique: 'name-idProject'
+            type: DataTypes.STRING(100),
+            allowNull: true,
+            unique: 'name-idFlow'
         },
         content: {
-            type: DataTypes.TEXT,
-            // type: DataTypes.TEXT('long'),
+            // type: DataTypes.TEXT,
+            type: DataTypes.TEXT('medium'),
             allowNull: true,
             set(value) {
                 this.setDataValue('content', typeof(value) === 'object' ? JSON.stringify(value) : value);

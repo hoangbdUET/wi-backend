@@ -3,7 +3,6 @@ let projectModel = require('./project.model');
 let router = express.Router();
 let bodyParser = require('body-parser');
 let Project = require('../models').Project;
-let shareProject = require('./project.share');
 
 router.use(bodyParser.json());
 router.registerHooks = function (io) {
@@ -17,6 +16,13 @@ router.post('/project/list', function (req, res) {
         res.send(status);
     }, req.dbConnection, req.decoded.username, req.decoded.realUser, req.token);
 });
+
+router.post('/project/list-of-all-user', function (req, res) {
+    projectModel.listProjectOffAllUser(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection, req.token)
+});
+
 router.post('/project/info', function (req, res) {
     projectModel.getProjectInfo(req.body, function (status) {
         res.send(status);
@@ -39,16 +45,22 @@ router.post('/project/edit', function (req, res) {
         res.send(status);
     }, req.dbConnection)
 });
-router.delete('/project/delete', function (req, res) {
+router.post('/project/delete', function (req, res) {
     projectModel.deleteProject(req.body, function (status) {
         res.send(status);
     }, req.dbConnection)
 });
-router.post('/project/share', function (req, res) {
-    shareProject(req.body, function (status) {
+
+router.delete('/project/delete', function (req, res) {
+    projectModel.deleteProjectOwner(req.body, function (status) {
         res.send(status);
-    }, req.dbConnection, req.decoded.username)
+    }, req.dbConnection)
 });
+// router.post('/project/share', function (req, res) {
+//     shareProject(req.body, function (status) {
+//         res.send(status);
+//     }, req.dbConnection, req.decoded.username)
+// });
 router.post('/project/close', function (req, res) {
     projectModel.closeProject(req.body, function (status) {
         res.send(status);

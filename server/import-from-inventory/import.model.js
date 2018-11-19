@@ -6,11 +6,12 @@ let asyncQueue = require('async/queue');
 let wiImport = require('wi-import');
 let hashDir = wiImport.hashDir;
 let fs = require('fs-extra');
+let async = require('async');
 
 class Options {
     constructor(path, token, payload) {
         this.method = 'POST';
-        this.url = 'http://' + config.Service.inventory + path;
+        this.url = config.Service.inventory + path;
         this.headers = {
             'Cache-Control': 'no-cache',
             Authorization: token,
@@ -18,6 +19,7 @@ class Options {
         };
         this.body = payload;
         this.json = true;
+        this.strictSSL = false;
     }
 }
 
@@ -75,19 +77,19 @@ async function importWell(well, token, callback, dbConnection, username, created
                 let queue = asyncQueue(function (curve, cb) {
                     let options = {
                         method: 'POST',
-                        url: 'http://' + config.Service.inventory + '/user/well/dataset/curve/data',
+                        url: config.Service.inventory + '/user/well/dataset/curve/data',
                         headers:
                             {
                                 Authorization: token,
                                 'Content-Type': 'application/json'
                             },
                         body: {idCurve: curve.idCurve},
-                        json: true
+                        json: true,
+                        strictSSL: false
                     };
                     dbConnection.Curve.create({
                         name: curve.name,
                         unit: curve.curve_revisions[0].unit,
-                        initValue: "batch",
                         idDataset: wiDataset.idDataset,
                         createdBy: createdBy,
                         updatedBy: updatedBy
@@ -146,7 +148,7 @@ async function importWell(well, token, callback, dbConnection, username, created
     } catch (e) {
         if (e.name === "SequelizeUniqueConstraintError") {
             console.log(e);
-            callback({idProject: wiProject.idProject, reason: "Well existed!"}, null);
+            callback({idProject: wiProject.idProject, reason: "Well's name already exists"}, null);
         } else {
             console.log(e);
             callback({idProject: wiProject.idProject, reason: e}, null);
@@ -174,10 +176,17 @@ function importCurves(curves, token, callback, dbConnection, username) {
 }
 
 function importDataset(datasets, token, callback, dbConnection, username, createdBy, updatedBy) {
-    let response = [];
+    let response = {
+        curves: [],
+        datasets: []
+    };
     asyncEach(datasets, function (dataset, next) {
         let newDataset = {};
         newDataset.name = dataset.name;
+        newDataset.step = dataset.step;
+        newDataset.top = dataset.top;
+        newDataset.bottom = dataset.bottom;
+        newDataset.unit = dataset.unit;
         newDataset.datasetKey = dataset.name;
         newDataset.datasetLabel = dataset.name;
         newDataset.idWell = dataset.idDesWell;
@@ -185,35 +194,59 @@ function importDataset(datasets, token, callback, dbConnection, username, create
         newDataset.updatedBy = updatedBy;
         dbConnection.Dataset.findOrCreate({
             where: {name: newDataset.name, idWell: newDataset.idWell},
-            defaults: {
-                name: newDataset.name,
-                idWell: newDataset.idWell,
-                datasetKey: newDataset.datasetKey,
-                datasetLabel: newDataset.datasetLabel,
-                createdBy: createdBy,
-                updatedBy: updatedBy
-            }
+            defaults: newDataset
         }).then(rs => {
             let _dataset = rs[0];
-            asyncEach(dataset.curves, function (curve, nextCurve) {
-                setTimeout(function () {
+            if (rs[1]) {
+                //created
+                response.datasets.push(_dataset);
+                async.eachSeries(dataset.curves, function (curve, nextCurve) {
                     curve.idDesDataset = _dataset.idDataset;
-                    curveModels.getCurveDataFromInventory(curve, token, function (err, result) {
-                        if (err) {
-                            response.push(err);
+                    curveModels.getCurveDataFromInventoryPromise(curve, token, dbConnection, username, createdBy, updatedBy).then(curve => {
+                        response.curves.push(curve);
+                        nextCurve();
+                    }).catch(err => {
+                        response.curves.push(err);
+                        nextCurve();
+                    });
+                }, function () {
+                    next();
+                });
+            } else {
+                //found
+                let newDataset = _dataset.toJSON();
+                newDataset.name = newDataset.name + "_CP" + newDataset.duplicated;
+                _dataset.duplicated++;
+                _dataset.save();
+                delete newDataset.idDataset;
+                newDataset.step = dataset.step;
+                newDataset.top = dataset.top;
+                newDataset.bottom = dataset.bottom;
+                newDataset.unit = dataset.unit;
+                newDataset.datasetKey = dataset.name;
+                newDataset.datasetLabel = dataset.name;
+                dbConnection.Dataset.create(newDataset).then(d => {
+                    response.datasets.push(d);
+                    async.eachSeries(dataset.curves, function (curve, nextCurve) {
+                        curve.idDesDataset = d.idDataset;
+                        curveModels.getCurveDataFromInventoryPromise(curve, token, dbConnection, username, createdBy, updatedBy).then(curve => {
+                            response.curves.push(curve);
                             nextCurve();
-                        } else {
-                            response.push(result);
+                        }).catch(err => {
+                            response.curves.push(err);
                             nextCurve();
-                        }
-                    }, dbConnection, username, createdBy, updatedBy);
-                }, 100);
-            }, function () {
-                next();
-            });
+                        });
+                    }, function () {
+                        next();
+                    });
+                }).catch(err => {
+                    console.log(err);
+                    next();
+                });
+            }
         }).catch(err => {
             console.log(err);
-            response.push(err);
+            response.curves.push(err);
             next();
         });
     }, function () {

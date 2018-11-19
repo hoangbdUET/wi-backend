@@ -3,10 +3,10 @@ let async = require('async');
 
 let wfs = [
     {
-        name: "Clastic",
-        type: 0,
-        description: "",
-        content: {
+        "name": "Clastic",
+        "type": 0,
+        "description": "",
+        "content": {
             "name": "Clastic",
             "steps": [
                 {
@@ -215,118 +215,196 @@ let wfs = [
                     "function": "calCutoffSummation"
                 }
             ]
-        }
+        },
+        "idWorkflowSpec": 1
     },
     {
-        name: "Regression",
-        type: 1,
-        description: "[ML] Regression",
-        content: {
-            'name': 'CURVE_PREDICTION',
-            'model': {
-                'type': 'curve',
-                'inputs': [{class: 'curve input'}, {class: 'curve input'}, {class: 'curve output'}]
-            },
-            'steps': [
-                {
-                    'name': 'Train'
-                },
-                {
-                    'name': 'Verify'
-                },
-                {
-                    'name': 'Predict'
-                }
-            ]
-        }
-    },
-    {
-        name: "Classification",
-        type: 1,
-        description: "[ML] Classification",
-        content: {
-            'name': 'CURVE_PREDICTION_CLASSIFIICATION',
-            'model': {
-                'type': 'classification',
-                'inputs': [{class: 'curve input'}, {class: 'curve input'}, {class: 'curve output'}]
-            },
-            'steps': [
-                {
-                    'name': 'Train'
-                },
-                {
-                    'name': 'Verify'
-                },
-                {
-                    'name': 'Predict'
-                }
-            ]
-        }
-    },
-    {
-        name: "Permeability AI",
-        type: 1,
-        description: "[ML] Perm Dual Model",
-        content: {
-            'name': 'PERM_DUAL_MODEL',
-            'model': {
-                'type': 'anfis',
-                'inputs': [{class: 'GR'}, {class: 'NPHI'}, {class: 'RHOB'}, {class: 'DT'}, {class: 'VCL'}, {class: 'PHIE'}, {class: 'PERM_CORE'}]
-            },
-            'steps': [
-                {
-                    'name': 'Verify'
-                },
-                {
-                    'name': 'Predict'
-                }
-            ]
-        }
-    },
-    {
-        name: "Facies AI",
-        type: 1,
-        description: "[ML] Facies Single Model",
-        content: {
-            'name': 'FACIES_SINGLE_MODEL',
-            'model': {
-                'type': 'facies',
-                'inputs': [{class: 'GR'}, {class: 'NPHI'}, {class: 'RHOZ'}, {class: 'DT'}, {class: 'VCL'}, {class: 'PHIE'}, {class: 'DELTAIC_FACIES'}]
-            },
-            'steps': [
-                {
-                    'name': 'Verify'
-                },
-                {
-                    'name': 'Predict'
-                }
-            ]
-        }
-    },
-    {
-        name: "Cross Recurrence Plot",
-        type: 1,
-        description: "[ML] Cross Recurrence Plot",
-        content: {
-
-            "name": 'CROSS_RECURRENCE_PLOT',
+        "name": "Regression",
+        "type": 1,
+        "description": "[ML] Regression",
+        "content": {
+            "name": "CURVE_PREDICTION",
             "model": {
-                "type": 'crp',
-                "inputs": [{class: 'curve input'}, {class: 'curve input'}, {class: 'curve output'}]
+                "type": "curve",
+                "inputs": [
+                    {
+                        "class": "Input Curve"
+                    },
+                    {
+                        "class": "Input Curve"
+                    },
+                    {
+                        "class": "Target Output"
+                    }
+                ]
             },
             "steps": [
                 {
-                    "name": 'Train'
+                    "name": "Train"
                 },
                 {
-                    "name": 'Verify'
+                    "name": "Verify"
                 },
                 {
-                    "name": 'Predict'
+                    "name": "Predict"
                 }
             ]
-
-        }
+        },
+        "idWorkflowSpec": 2
+    },
+    {
+        "name": "Classification",
+        "type": 1,
+        "description": "[ML] Classification",
+        "content": {
+            "name": "CURVE_PREDICTION_CLASSIFIICATION",
+            "model": {
+                "type": "classification",
+                "inputs": [
+                    {
+                        "class": "Input Curve"
+                    },
+                    {
+                        "class": "Input Curve"
+                    },
+                    {
+                        "class": "Target Output"
+                    }
+                ]
+            },
+            "steps": [
+                {
+                    "name": "Train"
+                },
+                {
+                    "name": "Verify"
+                },
+                {
+                    "name": "Predict"
+                }
+            ]
+        },
+        "idWorkflowSpec": 3
+    },
+    {
+        "name": "Permeability AI",
+        "type": 1,
+        "description": "[ML] Perm Dual Model",
+        "content": {
+            "name": "PERM_DUAL_MODEL",
+            "model": {
+                "type": "anfis",
+                "inputs": [
+                    {
+                        "class": "GR"
+                    },
+                    {
+                        "class": "NPHI"
+                    },
+                    {
+                        "class": "RHOB"
+                    },
+                    {
+                        "class": "DT"
+                    },
+                    {
+                        "class": "VCL"
+                    },
+                    {
+                        "class": "PHIE"
+                    },
+                    {
+                        "class": "PERM_CORE"
+                    }
+                ]
+            },
+            "steps": [
+                {
+                    "name": "Verify"
+                },
+                {
+                    "name": "Predict"
+                }
+            ]
+        },
+        "idWorkflowSpec": 4
+    },
+    {
+        "name": "Cross Recurrence Plot",
+        "type": 1,
+        "description": "[ML] Cross Recurrence Plot",
+        "content": {
+            "name": "CROSS_RECURRENCE_PLOT",
+            "model": {
+                "type": "crp",
+                "inputs": [
+                    {
+                        "class": "Input Curve"
+                    },
+                    {
+                        "class": "Input Curve"
+                    },
+                    {
+                        "class": "Target Output"
+                    }
+                ]
+            },
+            "steps": [
+                {
+                    "name": "Train"
+                },
+                {
+                    "name": "Verify"
+                },
+                {
+                    "name": "Predict"
+                }
+            ]
+        },
+        "idWorkflowSpec": 5
+    },
+    {
+        "name": "Himpe",
+        "type": 1,
+        "description": "[ML] Himepe Model",
+        "content": {
+            "name": "HIMPE_MODEL",
+            "model": {
+                "type": "himpe",
+                "inputs": [
+                    {
+                        "class": "GR"
+                    },
+                    {
+                        "class": "NPHI"
+                    },
+                    {
+                        "class": "RHOB"
+                    },
+                    {
+                        "class": "DT"
+                    },
+                    {
+                        "class": "VCL"
+                    },
+                    {
+                        "class": "PHIE"
+                    },
+                    {
+                        "class": "PERM_CORE"
+                    }
+                ]
+            },
+            "steps": [
+                {
+                    "name": "Verify"
+                },
+                {
+                    "name": "Predict"
+                }
+            ]
+        },
+        "idWorkflowSpec": 6
     }
 ];
 module.exports = function (callback) {

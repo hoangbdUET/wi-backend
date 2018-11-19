@@ -15,7 +15,6 @@ function getDustbin(payload, callback, dbConnection) {
     let Crossplots = [];
     let Zonesets = [];
     let Zones = [];
-    let Plots = [];
     dbConnection.Well.findAll({
         where: {
             idProject: payload.idProject
@@ -57,21 +56,10 @@ function getDustbin(payload, callback, dbConnection) {
                     });
                 },
                 function (cb) {
-                    dbConnection.Plot.findAll({where: {idWell: well.idWell}, paranoid: false}).then(plots => {
-                        asyncEach(plots, function (plot, nextPlot) {
-                            if (plot.deletedAt) {
-                                let _plot = plot.toJSON();
-                                _plot.name = _plot.name.substring(1);
-                                Plots.push(_plot);
-                            }
-                            nextPlot();
-                        }, function () {
-                            cb();
-                        });
-                    });
-                },
-                function (cb) {
-                    dbConnection.Histogram.findAll({where: {idWell: well.idWell}, paranoid: false}).then(histograms => {
+                    dbConnection.Histogram.findAll({
+                        where: {idProject: payload.idProject},
+                        paranoid: false
+                    }).then(histograms => {
                         asyncEach(histograms, function (histogram, nextHistogram) {
                             if (histogram.deletedAt) {
                                 let _histogram = histogram.toJSON();
@@ -85,7 +73,10 @@ function getDustbin(payload, callback, dbConnection) {
                     });
                 },
                 function (cb) {
-                    dbConnection.CrossPlot.findAll({where: {idWell: well.idWell}, paranoid: false}).then(crossplots => {
+                    dbConnection.CrossPlot.findAll({
+                        where: {idProject: payload.idProject},
+                        paranoid: false
+                    }).then(crossplots => {
                         asyncEach(crossplots, function (crossplot, nextCrossplot) {
                             if (crossplot.deletedAt) {
                                 let _crossplot = crossplot.toJSON();
@@ -106,21 +97,7 @@ function getDustbin(payload, callback, dbConnection) {
                                 _zoneset.name = _zoneset.name.substring(1);
                                 Zonesets.push(_zoneset);
                             }
-                            dbConnection.Zone.findAll({
-                                where: {idZoneSet: zoneset.idZoneSet},
-                                paranoid: false
-                            }).then(zones => {
-                                asyncEach(zones, function (zone, nextZone) {
-                                    if (zone.deletedAt) {
-                                        let _zone = zone.toJSON();
-                                        _zone.name = _zone.name.substring(1);
-                                        Zones.push(_zone);
-                                    }
-                                    nextZone();
-                                }, function () {
-                                    nextZoneset();
-                                });
-                            })
+                            nextZoneset();
                         }, function () {
                             cb();
                         });
@@ -130,16 +107,28 @@ function getDustbin(payload, callback, dbConnection) {
                 nextWell();
             });
         }, function () {
-            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", {
-                crossplots: Crossplots,
-                wells: Wells,
-                datasets: Datasets,
-                curves: Curves,
-                zonesets: Zonesets,
-                zones: Zones,
-                histograms: Histograms,
-                plots: Plots
-            }))
+            let Plots = [];
+            dbConnection.Plot.findAll({where: {idProject: payload.idProject}, paranoid: false}).then(plots => {
+                asyncEach(plots, function (plot, nextPlot) {
+                    if (plot.deletedAt) {
+                        let _plot = plot.toJSON();
+                        _plot.name = _plot.name.substring(1);
+                        Plots.push(_plot);
+                    }
+                    nextPlot();
+                }, function () {
+                    callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", {
+                        crossplots: Crossplots,
+                        wells: Wells,
+                        datasets: Datasets,
+                        curves: Curves,
+                        zonesets: Zonesets,
+                        zones: Zones,
+                        histograms: Histograms,
+                        plots: Plots
+                    }));
+                });
+            });
         });
     });
 }
@@ -161,7 +150,7 @@ function deleteObject(payload, callback, dbConnection) {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
                     rs.destroy({permanently: true, force: true}).then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     })
@@ -176,7 +165,7 @@ function deleteObject(payload, callback, dbConnection) {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
                     rs.destroy({permanently: true, force: true}).then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     })
@@ -191,7 +180,7 @@ function deleteObject(payload, callback, dbConnection) {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
                     rs.destroy({permanently: true, force: true}).then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     })
@@ -206,7 +195,7 @@ function deleteObject(payload, callback, dbConnection) {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
                     rs.destroy({permanently: true, force: true}).then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     })
@@ -221,7 +210,7 @@ function deleteObject(payload, callback, dbConnection) {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
                     rs.destroy({permanently: true, force: true}).then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     })
@@ -236,7 +225,7 @@ function deleteObject(payload, callback, dbConnection) {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
                     rs.destroy({permanently: true, force: true}).then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     })
@@ -251,22 +240,7 @@ function deleteObject(payload, callback, dbConnection) {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
                     rs.destroy({permanently: true, force: true}).then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
-                    }).catch((err) => {
-                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
-                    })
-                } else {
-                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Plot"));
-                }
-            });
-            break;
-        }
-        case 'zone' : {
-            Zone.findById(payload.idObject, {paranoid: false}).then(rs => {
-                if (rs) {
-                    rs.setDataValue('updatedBy', payload.updatedBy);
-                    rs.destroy({permanently: true, force: true}).then(() => {
-                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", rs));
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     })
@@ -293,7 +267,6 @@ function restoreObject(payload, callback, dbConnection, username) {
     let Histogram = dbConnection.Histogram;
     let ZoneSet = dbConnection.ZoneSet;
     let objectType = payload.type;
-    let Zone = dbConnection.Zone;
     switch (objectType) {
         case 'well': {
             Well.findById(payload.idObject, {
@@ -485,23 +458,6 @@ function restoreObject(payload, callback, dbConnection, username) {
             });
             break;
         }
-        case 'zone' : {
-            Zone.findById(payload.idObject, {
-                paranoid: false
-            }).then(rs => {
-                rs.name = rs.name.substring(1);
-                rename(rs, function (err, success) {
-                    if (!err) {
-                        rs.restore().then(() => {
-                            callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", success));
-                        });
-                    } else {
-                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
-                    }
-                }, 'restore');
-            });
-            break;
-        }
         default: {
             callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "WRONG_TYPE"));
             break;
@@ -513,4 +469,4 @@ module.exports = {
     getDustbin: getDustbin,
     deleteObject: deleteObject,
     restoreObject: restoreObject
-}
+};

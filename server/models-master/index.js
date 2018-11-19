@@ -3,6 +3,7 @@ let config = require('config').Database;
 
 
 const sequelize = new Sequelize(config.dbName, config.user, config.password, {
+    host: config.host,
     define: {
         freezeTableName: true
     },
@@ -26,12 +27,15 @@ let models = [
     'FamilyCondition',
     'FamilySpec',
     'FamilyUnit',
+    'MarkerSetTemplate',
+    'MarkerTemplate',
     'OpenSharedProject',
     'OverlayLine',
     'TaskSpec',
     'UnitGroup',
     'WorkflowSpec',
-    'ZoneTemplate'
+    'ZoneTemplate',
+    'ZoneSetTemplate'
 ];
 models.forEach(function (model) {
     module.exports[model] = sequelize.import(__dirname + '/' + model);
@@ -42,5 +46,7 @@ models.forEach(function (model) {
     m.Family.hasMany(m.FamilySpec, {foreignKey: 'idFamily'});
     m.FamilySpec.belongsTo(m.UnitGroup, {foreignKey: 'idUnitGroup'});
     m.UnitGroup.hasMany(m.FamilyUnit, {foreignKey: 'idUnitGroup'});
+    m.ZoneSetTemplate.hasMany(m.ZoneTemplate, {foreignKey: 'idZoneSetTemplate'});
+    m.MarkerSetTemplate.hasMany(m.MarkerTemplate, {foreignKey: 'idMarkerSetTemplate'});
 })(module.exports);
 module.exports.sequelize = sequelize;

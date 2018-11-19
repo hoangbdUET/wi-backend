@@ -63,6 +63,7 @@ function deleteShading(shadingInfo, done, dbConnection) {
     let Shading = dbConnection.Shading;
     Shading.findById(shadingInfo.idShading)
         .then(function (shading) {
+            shading.setDataValue('updatedBy', shadingInfo.updatedBy);
             shading.destroy()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Shading is deleted", shading));

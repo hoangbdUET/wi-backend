@@ -6,6 +6,7 @@ let wellModel = require('./well.model');
 let bodyParser = require('body-parser');
 let wellTopUpdate = require('./well-top-update');
 let duplicateWell = require('./duplicate-well');
+require('./wellEventListerner');
 
 router.use(bodyParser.json());
 
@@ -15,6 +16,17 @@ router.post('/well/info', function (req, res) {
     }, req.dbConnection);
 });
 
+router.post('/well/full-info', function (req, res) {
+    wellModel.getWellFullInfo(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection);
+});
+
+router.post('/well/info-by-name', function (req, res) {
+    wellModel.getWellInfoByName(req.body, function (status) {
+        res.send(status);
+    }, req.dbConnection);
+});
 router.post('/well/new', function (req, res) {
     wellModel.createNewWell(req.body, function (status) {
         res.send(status);

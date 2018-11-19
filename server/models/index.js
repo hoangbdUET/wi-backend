@@ -68,6 +68,7 @@ module.exports = function (dbName, callback, isDelete) {
 function newDbInstance(dbName, callback) {
     let object = new Object();
     const sequelize = new Sequelize(dbName, config.user, config.password, {
+        host: config.host,
         define: {
             freezeTableName: true
         },
@@ -79,9 +80,9 @@ function newDbInstance(dbName, callback) {
         },
         paranoid: true,
         pool: {
-            max: 2,
+            max: 20,
             min: 0,
-            idle: 200
+            idle: 1000 * 60 * 15
         },
         operatorsAliases: Sequelize.Op,
         storage: config.storage
@@ -98,7 +99,9 @@ function newDbInstance(dbName, callback) {
         'CombinedBoxTool',
         'CrossPlot',
         'Curve',
+        'CustomFill',
         'Dataset',
+        'DatasetParams',
         'DepthAxis',
         'Family',
         'FamilyCondition',
@@ -107,14 +110,19 @@ function newDbInstance(dbName, callback) {
         'Flow',
         'Groups',
         'Histogram',
+        'HistogramCurveSet',
         'Image',
         'ImageOfTrack',
         'ImageTrack',
         'Line',
         'Marker',
+        'MarkerSet',
+        'MarkerSetTemplate',
+        'MarkerTemplate',
         'ObjectOfTrack',
         'ObjectTrack',
         'OverlayLine',
+        'ParameterSet',
         'Plot',
         'PointSet',
         'Polygon',
@@ -135,6 +143,7 @@ function newDbInstance(dbName, callback) {
         'WorkflowSpec',
         'Zone',
         'ZoneSet',
+        'ZoneSetTemplate',
         'ZoneTemplate',
         'ZoneTrack'
     ];
@@ -178,37 +187,55 @@ function newDbInstance(dbName, callback) {
                 unique: "name-idWell"
             }, onDelete: 'CASCADE', hooks: true
         });
-        m.Well.hasMany(m.Plot, {
-            foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
+        // m.Well.hasMany(m.Plot, {
+        //     foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
+        //     onDelete: 'CASCADE'
+        // });
+        m.Project.hasMany(m.Plot, {
+            foreignKey: {name: "idProject", allowNull: false, unique: "name-idProject"},
             onDelete: 'CASCADE'
         });
         m.Well.hasMany(m.ZoneSet, {
             foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
             onDelete: 'CASCADE'
         });
-        m.Well.hasMany(m.CrossPlot, {
+        m.ZoneSet.belongsTo(m.Well, {
             foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
             onDelete: 'CASCADE'
-        });
-        m.Well.hasMany(m.Histogram, {
-            foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
+        })
+
+        m.Project.hasMany(m.CrossPlot, {
+            foreignKey: {name: "idProject", allowNull: false, unique: "name-idProject"},
             onDelete: 'CASCADE'
         });
-        m.Well.hasMany(m.CombinedBox, {
-            foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"},
+        m.Project.hasMany(m.Histogram, {
+            foreignKey: {name: "idProject", allowNull: false, unique: "name-idProject"},
+            onDelete: 'CASCADE'
+        });
+        m.Project.hasMany(m.CombinedBox, {
+            foreignKey: {name: "idProject", allowNull: false, unique: "name-idProject"},
+            onDelete: 'CASCADE'
+        });
+        m.CombinedBox.belongsTo(m.Project, {
+            foreignKey: {name: "idProject", allowNull: false, unique: "name-idProject"},
             onDelete: 'CASCADE'
         });
         m.Well.hasMany(m.WellHeader, {
             foreignKey: {name: "idWell", allowNull: false},
             onDelete: 'CASCADE'
         });
-
         m.Dataset.hasMany(m.Curve, {
             foreignKey: {
                 name: "idDataset",
                 allowNull: false,
                 unique: "name-idDataset"
             }, onDelete: 'CASCADE', hooks: true
+        });
+        m.Dataset.hasMany(m.DatasetParams, {
+            foreignKey: {
+                name: "idDataset",
+                allowNull: false
+            }, onDelete: 'CASCADE'
         });
         m.Plot.hasMany(m.Track, {foreignKey: {name: "idPlot", allowNull: false}, onDelete: 'CASCADE'});
         m.Plot.hasMany(m.DepthAxis, {
@@ -227,13 +254,37 @@ function newDbInstance(dbName, callback) {
         });
         m.Plot.hasMany(m.ZoneTrack, {foreignKey: {name: "idPlot", allowNull: false}, onDelete: 'CASCADE'});
         m.ZoneTrack.belongsTo(m.ZoneSet, {foreignKey: {name: "idZoneSet", allowNull: true}});//TODO allowNull??
+
+
+        m.Project.hasMany(m.ZoneSetTemplate, {
+            foreignKey: {
+                name: "idProject",
+                allowNull: true,
+                unique: "name-idProject"
+            },
+            onDelete: "CASCADE"
+        });
+        m.ZoneSetTemplate.hasMany(m.ZoneTemplate, {
+            foreignKey: {name: "idZoneSetTemplate", allowNull: false, unique: "name-idZoneSetTemplate"},
+            onDelete: 'CASCADE'
+        });
+        m.ZoneSetTemplate.hasMany(m.ZoneSet, {
+            foreignKey: {name: "idZoneSetTemplate", allowNull: false},
+            onDelete: 'CASCADE'
+        });
+        m.Zone.belongsTo(m.ZoneTemplate, {foreignKey: {name: "idZoneTemplate", allowNull: false}, onDelete: 'CASCADE'});
         m.ZoneSet.hasMany(m.Zone, {foreignKey: {name: "idZoneSet", allowNull: false}, onDelete: 'CASCADE'});
+
+
+        // m.ZoneSet.hasMany(m.Zone, {foreignKey: {name: "idZoneSet", allowNull: false}, onDelete: 'CASCADE'});
+        // m.Zone.belongsTo(m.ZoneTemplate, {foreignKey: {name: "idZoneTemplate", allowNull: true}, onDelete: 'CASCADE'});
+        // m.ZoneTemplate.hasMany(m.Zone, {foreignKey: {name: "idZoneTemplate", allowNull: true}, onDelete: 'CASCADE'});
         m.Plot.belongsTo(m.Curve, {foreignKey: 'referenceCurve'});
 
         m.Track.hasMany(m.Line, {foreignKey: {name: "idTrack", allowNull: false}, onDelete: 'CASCADE'});
         m.Track.hasMany(m.Shading, {foreignKey: {name: "idTrack", allowNull: false}, onDelete: 'CASCADE'});
-        m.Track.hasMany(m.Image, {foreignKey: {name: "idTrack", allowNull: false}, onDelete: 'CASCADE'});
-        m.Track.hasMany(m.Marker, {foreignKey: {name: 'idTrack', allowNull: false}, onDelete: 'CASCADE'});
+        // m.Track.hasMany(m.Image, {foreignKey: {name: "idTrack", allowNull: false}, onDelete: 'CASCADE'});
+        // m.Track.hasMany(m.Marker, {foreignKey: {name: 'idTrack', allowNull: false}, onDelete: 'CASCADE'});
         m.Track.hasMany(m.Annotation, {foreignKey: {name: 'idTrack', allowNull: false}, onDelete: 'CASCADE'});
         m.Line.belongsTo(m.Curve, {foreignKey: {name: "idCurve", allowNull: false}, onDelete: 'CASCADE'});
 
@@ -269,12 +320,22 @@ function newDbInstance(dbName, callback) {
         m.PointSet.belongsTo(m.Curve, {foreignKey: {name: 'idCurveX', allowNull: true}});
         m.PointSet.belongsTo(m.Curve, {foreignKey: {name: 'idCurveY', allowNull: true}});
         m.PointSet.belongsTo(m.Curve, {foreignKey: {name: 'idCurveZ', allowNull: true}});
-        m.PointSet.belongsTo(m.Well, {foreignKey: {name: 'idWell', allowNull: false}, onDelete: 'CASCADE'});
+        m.PointSet.belongsTo(m.Curve, {foreignKey: {name: 'idCurveZ1', allowNull: true}});
+        m.PointSet.belongsTo(m.Curve, {foreignKey: {name: 'idCurveZ2', allowNull: true}});
+        m.PointSet.belongsTo(m.Curve, {foreignKey: {name: 'idCurveZ3', allowNull: true}});
         m.PointSet.belongsTo(m.ZoneSet, {foreignKey: {name: 'idZoneSet', allowNull: true}});
         m.PointSet.belongsTo(m.OverlayLine, {foreignKey: {name: 'idOverlayLine', allowNull: true}});
 
 
-        m.Histogram.belongsTo(m.Curve, {foreignKey: 'idCurve'});
+        // m.Histogram.belongsTo(m.Curve, {foreignKey: 'idCurve'});
+        m.Histogram.belongsToMany(m.Curve, {
+            through: 'histogram_curve_set',
+            foreignKey: 'idHistogram'
+        });
+        m.Curve.belongsToMany(m.Histogram, {
+            through: 'histogram_curve_set',
+            foreignKey: 'idCurve'
+        });
         m.Histogram.belongsTo(m.ZoneSet, {foreignKey: {name: 'idZoneSet', allowNull: true}});
         m.Histogram.hasMany(m.ReferenceCurve, {
             foreignKey: {name: 'idHistogram', allowNull: true},
@@ -342,9 +403,17 @@ function newDbInstance(dbName, callback) {
             foreignKey: {name: 'idProject', allowNull: false, unique: 'name-idProject'},
             onDelete: 'CASCADE'
         });
+        m.Project.hasMany(m.ParameterSet, {
+            foreignKey: {name: 'idProject', allowNull: false, unique: 'name-idProject'},
+            onDelete: 'CASCADE'
+        });
         m.Plot.hasOne(m.Workflow, {
             foreignKey: {name: 'idPlot', allowNull: true}
         });
+        m.Track.belongsTo(m.ZoneSet, {foreignKey: {name: 'idZoneSet', allowNull: true}});
+        m.ZoneSet.hasMany(m.Track, {foreignKey: {name: 'idZoneSet', allowNull: true}});
+        m.Track.belongsTo(m.MarkerSet, {foreignKey: {name: 'idMarkerSet', allowNull: true}});
+        m.MarkerSet.hasMany(m.Track, {foreignKey: {name: 'idMarkerSet', allowNull: true}});
         m.WorkflowSpec.hasMany(m.Workflow, {
             foreignKey: {name: 'idWorkflowSpec', allowNull: true},
             onDelete: 'CASCADE'
@@ -360,6 +429,53 @@ function newDbInstance(dbName, callback) {
         m.TaskSpec.hasMany(m.Task, {
             foreignKey: {name: 'idTaskSpec', allowNull: true},
             onDelete: 'CASCADE'
+        });
+        m.TaskSpec.hasMany(m.ParameterSet, {
+            foreignKey: {name: 'idTaskSpec', allowNull: true},
+            onDelete: 'CASCADE'
+        });
+        m.ParameterSet.belongsTo(m.TaskSpec, {
+            foreignKey: {name: 'idTaskSpec', allowNull: true},
+            onDelete: 'CASCADE'
+        });
+
+
+        //marker set
+        m.Well.hasMany(m.MarkerSet, {
+            foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"}
+        });
+        m.MarkerSet.belongsTo(m.Well, {
+            foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"}
+        })
+        m.Well.hasMany(m.DepthAxis, {
+            foreignKey: {name: "idWell", allowNull: true}
+        });
+        m.Project.hasMany(m.MarkerSetTemplate, {
+            foreignKey: {
+                name: "idProject",
+                allowNull: true,
+                unique: "name-idProject"
+            }, onDelete: 'CASCADE'
+        });
+        m.MarkerSetTemplate.hasMany(m.MarkerTemplate, {
+            foreignKey: {name: "idMarkerSetTemplate", allowNull: false, unique: "name-idMarkerSetTemplate"},
+            onDelete: "CASCADE"
+        });
+        m.MarkerSetTemplate.hasMany(m.MarkerSet, {
+            foreignKey: {name: "idMarkerSetTemplate", allowNull: false},
+            onDelete: "CASCADE"
+        });
+        m.Marker.belongsTo(m.MarkerTemplate, {
+            foreignKey: {name: "idMarkerTemplate", allowNull: false}, onDelete: "CASCADE"
+        });
+        m.MarkerSet.hasMany(m.Marker, {
+            foreignKey: {name: "idMarkerSet", allowNull: false}
+        });
+        m.DepthAxis.belongsTo(m.Curve, {
+            foreignKey: {name: "idCurve", allowNull: true},
+        });
+        m.Curve.hasMany(m.DepthAxis, {
+            foreignKey: {name: "idCurve", allowNull: true}
         });
     })(object);
 
@@ -377,6 +493,7 @@ function newDbInstance(dbName, callback) {
     let Plot = object.Plot;
     let ZoneSet = object.ZoneSet;
     let Zone = object.Zone;
+    let Project = object.Project;
     let username = dbName.substring(dbName.indexOf("_") + 1);
     let async = require('async');
     let rename = require('../utils/function').renameObjectForDustbin;
@@ -407,7 +524,7 @@ function newDbInstance(dbName, callback) {
             })(curve.name, curve.unit);
         } else {
             Family.findById(curve.idFamily, {include: {model: FamilySpec, as: 'family_spec'}}).then(family => {
-                curve.unit = family.family_spec[0].unit;
+                curve.unit = curve.unit || family.family_spec[0].unit;
                 curve.save();
             }).catch(err => {
                 console.log("err while update curve unit ", err);
@@ -457,54 +574,10 @@ function newDbInstance(dbName, callback) {
         });
     });
 
-
-    Well.hook('afterCreate', function (well) {
-        console.log("Hook after create well");
-        let headers = {
-            STRT: well.topDepth,
-            STOP: well.bottomDepth,
-            STEP: well.step,
-            TOP: well.topDepth,
-        };
-        for (let header in headers) {
-            WellHeader.create({
-                idWell: well.idWell,
-                header: header,
-                createdBy: well.createdBy,
-                updatedBy: well.updatedBy,
-                value: headers[header]
-            });
-        }
-    });
-
-    Well.hook('beforeUpdate', async function (well, options) {
-        console.log("Hook before update well");
-        let headers = {
-            STRT: well.topDepth,
-            STOP: well.bottomDepth,
-            STEP: well.step,
-            TOP: well.topDepth,
-        };
-        for (let header in headers) {
-            let h = await WellHeader.findOne({where: {idWell: well.idWell, header: header}});
-            if (h) {
-                await h.update({value: headers[header]});
-            } else {
-                await WellHeader.create({
-                    header: header,
-                    value: headers[header],
-                    idWell: well.idWell,
-                    createdBy: well.createdBy,
-                    updatedBy: well.updatedBy
-                })
-            }
-        }
-    });
-
     Well.hook('beforeDestroy', function (well, options) {
         console.log("Hooks delete well");
         return new Promise(function (resolve) {
-            if (well.permanently) {
+            if (options.permanently) {
                 resolve(well, options);
             } else {
                 let oldName = well.name;
@@ -523,7 +596,25 @@ function newDbInstance(dbName, callback) {
                                             curve: curveParents.curve
                                         };
                                         curveFunction.moveCurveData(srcCurve, curveParents, function () {
-                                            nextCurve();
+                                            object.Line.findAll({where: {idCurve: curve.idCurve}}).then(lines => {
+                                                async.each(lines, function (line, nextLine) {
+                                                    line.destroy({hooks: false}).then(() => {
+                                                        nextLine();
+                                                    });
+                                                }, function () {
+                                                    object.ReferenceCurve.findAll({where: {idCurve: curve.idCurve}}).then(refs => {
+                                                        async.each(refs, function (ref, nextRef) {
+                                                            ref.destroy({hooks: false}).then(() => {
+                                                                nextRef();
+                                                            }).catch(() => {
+                                                                nextRef();
+                                                            })
+                                                        }, function () {
+                                                            nextCurve();
+                                                        })
+                                                    });
+                                                });
+                                            });
                                         });
                                     })
                                 }, function () {
@@ -542,7 +633,7 @@ function newDbInstance(dbName, callback) {
     Dataset.hook('beforeDestroy', function (dataset, options) {
         console.log("Hooks delete dataset");
         return new Promise(function (resolve, reject) {
-            if (dataset.permanently) {
+            if (options.permanently) {
                 resolve(dataset, options);
             } else {
                 let oldName = dataset.name;
@@ -589,6 +680,24 @@ function newDbInstance(dbName, callback) {
 
     });
 
+    Dataset.hook('afterCreate', function (dataset) {
+        console.log("Hooks after create dataset");
+        Well.findById(dataset.idWell).then(w => {
+            Project.findById(w.idProject).then(p => {
+                let createMD = require('../dataset/create-md-curve');
+                let parents = {
+                    username: username,
+                    project: p.name,
+                    well: w.name,
+                    dataset: dataset.name
+                };
+                createMD(parents, dataset, object).then(c => {
+                    console.log("Create MD for dataset " + dataset.name + " successful");
+                });
+            });
+        });
+    });
+
     Histogram.hook('beforeDestroy', function (histogram, options) {
         console.log("Hooks delete histogram");
         if (histogram.deletedAt) {
@@ -628,15 +737,6 @@ function newDbInstance(dbName, callback) {
 
         } else {
             rename(zoneset, null, 'delete');
-        }
-    });
-
-    Zone.hook('beforeDestroy', function (zone, options) {
-        console.log("Hooks delete zone");
-        if (zone.deletedAt) {
-
-        } else {
-            rename(zone, null, 'delete');
         }
     });
     //End register hook

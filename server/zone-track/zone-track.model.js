@@ -64,7 +64,12 @@ function deleteZoneTrack(zoneTrackInfo, done, dbConnection) {
 
 function getZoneTrackInfo(zoneTrack, done, dbConnection) {
     let ZoneTrack = dbConnection.ZoneTrack;
-    ZoneTrack.findById(zoneTrack.idZoneTrack, {include: [{all: true}]})
+    ZoneTrack.findById(zoneTrack.idZoneTrack, {
+        include: {
+            model: dbConnection.ZoneSet,
+            include: {model: dbConnection.Zone, include: {model: dbConnection.ZoneTemplate}}
+        }
+    })
         .then(function (zoneTrack) {
             if (!zoneTrack) throw "not exits";
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get info ZoneTrack success", zoneTrack));
