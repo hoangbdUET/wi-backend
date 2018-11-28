@@ -6,6 +6,8 @@ const exporter = require('./plot.exporter');
 const fs = require('fs');
 const path = require('path');
 const lineModel = require('../line/line.model');
+const wiFunctions = require('../utils/function');
+
 let findFamilyIdByName = function (familyName, dbConnection, callback) {
     dbConnection.Family.findOne({where: {name: familyName}}).then(family => {
         if (family) {
@@ -175,7 +177,6 @@ function findCurveForTemplate(families, idProject, dbConnection, callback, idDat
 let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
     let familyWithErr = [];
     dbConnection.Plot.create({
-        idWell: myPlot.idWell,
         name: myPlot.name,
         option: myPlot.option,
         idProject: myPlot.idProject,
@@ -185,14 +186,17 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
     }).then(plot => {
         let idPlot = plot.idPlot;
         asyncLoop(myPlot.depth_axes, function (depth_axis, next) {
-            depth_axis.idPlot = idPlot;
-            depth_axis.createdBy = myPlot.createdBy;
-            depth_axis.updatedBy = myPlot.updatedBy;
-            dbConnection.DepthAxis.create(depth_axis).then(() => {
-                next();
-            }).catch(err => {
-                console.log(err);
-                next(err);
+            wiFunctions.getWellByDataset(myPlot.idDataset).then((well)=>{
+                depth_axis.idWell = well.idWell;
+                depth_axis.idPlot = idPlot;
+                depth_axis.createdBy = myPlot.createdBy;
+                depth_axis.updatedBy = myPlot.updatedBy;
+                dbConnection.DepthAxis.create(depth_axis).then(() => {
+                    next();
+                }).catch(err => {
+                    console.log(err);
+                    next(err);
+                });
             });
         }, function (err) {
             asyncLoop(myPlot.tracks, function (track, nextTrack) {

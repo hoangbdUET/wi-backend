@@ -62,8 +62,23 @@ async function getWellBottomDepth(idWell, dbConnection) {
     }
 }
 
+async function getWellByDataset(idDataset, dbConnection) {
+    try {
+        let dataset = idDataset ? await dbConnection.Dataset.findById(idDataset) : null;
+        if (dataset) {
+            let well = await dbConnection.Well.findById(dataset.idWell);
+            return well;
+        } else {
+            return null;
+        }
+    } catch (e) {
+        return null;
+    }
+}
+
 module.exports = {
     renameObjectForDustbin: renameObjectForDustbin,
     getWellBottomDepth,
-    getWellTopDepth
+    getWellTopDepth,
+    getWellByDataset
 };
