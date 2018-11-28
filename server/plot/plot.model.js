@@ -186,8 +186,8 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
     }).then(plot => {
         let idPlot = plot.idPlot;
         asyncLoop(myPlot.depth_axes, function (depth_axis, next) {
-            wiFunctions.getWellByDataset(myPlot.idDataset).then((well)=>{
-                depth_axis.idWell = well.idWell;
+            wiFunctions.getWellByDataset(myPlot.idDataset).then((well) => {
+                depth_axis.idWell = well ? well.idWell : null;
                 depth_axis.idPlot = idPlot;
                 depth_axis.createdBy = myPlot.createdBy;
                 depth_axis.updatedBy = myPlot.updatedBy;
