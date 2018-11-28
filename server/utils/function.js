@@ -66,8 +66,7 @@ async function getWellByDataset(idDataset, dbConnection) {
     try {
         let dataset = idDataset ? await dbConnection.Dataset.findById(idDataset) : null;
         if (dataset) {
-            let well = await dbConnection.Well.findById(dataset.idWell);
-            return well;
+            return await dbConnection.Well.findById(dataset.idWell);
         } else {
             return null;
         }
