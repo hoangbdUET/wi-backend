@@ -62,7 +62,7 @@ router.post('/plot/import', upload.single('file'), function (req, res) {
     let importer = require('./plot.importer');
     importer(req, function (status) {
         res.send(status);
-    }, req.dbConnection);
+    }, req.dbConnection, req.decoded.username);
 });
 
 router.post('/plot/save-as', function (req, res) {

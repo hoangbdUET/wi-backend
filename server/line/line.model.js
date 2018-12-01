@@ -21,112 +21,99 @@ function getWellIdByTrack(idTrack, dbConnection, callback) {
     });
 }
 
-//TODO: GIU CAI NAY LAI DE SAU NAY DUNG :D
-// function createNewLine_(lineInfo, done, dbConnection) {
-//     let Line = dbConnection.Line;
-//     let Curve = dbConnection.Curve;
-//     let Dataset = dbConnection.Dataset;
-//     Line.sync()
-//         .then(
-//             function () {
-//                 Curve.findById(lineInfo.idCurve)
-//                     .then(function (curve) {
-//                         Dataset.findById(curve.idDataset).then(dataset => {
-//                             getWellIdByTrack(lineInfo.idTrack, dbConnection, function (err, idWell) {
-//                                 if (idWell == dataset.idWell) {
-//                                     curve.getLineProperty()
-//                                         .then(function (family) {
-//                                             Line.build({
-//                                                 idTrack: lineInfo.idTrack,
-//                                                 idCurve: curve.idCurve,
-//                                                 alias: curve.name,
-//                                                 minValue: family.minScale,
-//                                                 maxValue: family.maxScale,
-//                                                 displayMode: family.displayMode,
-//                                                 blockPosition: family.blockPosition,
-//                                                 displayType: family.displayType,
-//                                                 lineStyle: family.lineStyle,
-//                                                 lineWidth: family.lineWidth,
-//                                                 lineColor: family.lineColor
-//                                             }).save()
-//                                                 .then(function (line) {
-//                                                     done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", line));
-//                                                 })
-//                                                 .catch(function (err) {
-//                                                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name + " idTrack not exist"));
-//                                                 });
-//                                         })
-//                                         .catch(function (err) {
-//                                             //console.log(err);
-//                                             //console.log("No family " + lineInfo.idTrack);
-//                                             //fix create new line error without family
-//                                             Line.build({
-//                                                 idTrack: lineInfo.idTrack,
-//                                                 idCurve: curve.idCurve,
-//                                                 alias: curve.name
-//                                             }).save()
-//                                                 .then(function (line) {
-//                                                     done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", line.toJSON()));
-//                                                 })
-//                                                 .catch(function (err) {
-//                                                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name + err.message));
-//                                                 });
-//                                         });
-//                                 } else {
-//                                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Can't create line out of its WELL", "HAHA"));
-//                                 }
-//                             });
-//                         });
-//                     })
-//                     .catch(function () {
-//                         done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found for Create New Line"));
-//                     })
-//             },
-//             function () {
-//                 done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
-//             }
-//         )
-//
-// }
-function createNewLineWithoutResponse(lineInfo, dbConnection, username, callback) {
-    let Line = dbConnection.Line;
-    let Curve = dbConnection.Curve;
-    Curve.findById(lineInfo.idCurve, {
-        include: {
-            model: dbConnection.Family,
-            as: 'LineProperty',
-            include: {
-                model: dbConnection.FamilySpec,
-                as: 'family_spec',
-                // where: {isDefault: true}
+function createNewLineWithoutResponse(lineInfo, dbConnection, username) {
+    return new Promise(resolve => {
+        let convertUnit = require('../family-unit/family-unit.model');
+        if (!lineInfo.idCurve) return resolve();
+        dbConnection.Curve.findById(lineInfo.idCurve).then(curve => {
+            if (!curve) {
+                resolve();
+            } else {
+                curveModel.calculateScale(curve.idCurve, username, dbConnection, function (err, result) {
+                    let curveMinScale = result.minScale;
+                    let curveMaxScale = result.maxScale;
+                    curve.getLineProperty({
+                        include: {
+                            model: dbConnection.FamilySpec,
+                            as: 'family_spec',
+                            // where: {isDefault: true}
+                        }
+                    }).then(family => {
+                        if (family) {
+                            convertUnit.getListUnitByIdFamily(family.idFamily, dbConnection).then(units => {
+                                let unitConvertData = {};
+                                let _line = {};
+                                unitConvertData.srcUnit = units.find(u => u.name === curve.unit);
+                                unitConvertData.desUnit = units.find(u => u.name === family.family_spec[0].unit);
+                                if (!unitConvertData.srcUnit || !unitConvertData.desUnit) {
+                                    _line.minValue = lineInfo.minValue || family.family_spec[0].minScale;
+                                    _line.maxValue = lineInfo.maxValue || family.family_spec[0].maxScale;
+                                } else {
+                                    let s1 = JSON.parse(unitConvertData.desUnit.rate);
+                                    let s2 = JSON.parse(unitConvertData.srcUnit.rate);
+                                    _line.minValue = lineInfo.minValue || (parseFloat(family.family_spec[0].minScale) - s1[1]) * (s2[0] / s1[0]) + s2[1];
+                                    _line.maxValue = lineInfo.maxValue || (parseFloat(family.family_spec[0].maxScale) - s1[1]) * (s2[0] / s1[0]) + s2[1];
+                                }
+                                let _ = require('lodash');
+                                if (!_.isFinite(_line.minValue) || !_.isFinite(_line.maxValue) || !family.family_spec[0]) {
+                                    console.log("CHANGE VALUE");
+                                    _line.minValue = curveMinScale;
+                                    _line.maxValue = curveMaxScale;
+                                }
+                                _line.idTrack = lineInfo.idTrack;
+                                _line.idCurve = curve.idCurve;
+                                _line.alias = lineInfo.name || curve.name;
+                                _line.unit = lineInfo.unit || curve.unit;
+                                _line.displayMode = lineInfo.displayMode || family.family_spec[0].displayMode;
+                                _line.displayAs = lineInfo.displayAs;
+                                _line.blockPosition = lineInfo.blockPosition || family.family_spec[0].blockPosition;
+                                _line.displayType = lineInfo.displayType || family.family_spec[0].displayType;
+                                _line.lineStyle = lineInfo.lineStyle || family.family_spec[0].lineStyle;
+                                _line.lineWidth = lineInfo.lineWidth || family.family_spec[0].lineWidth;
+                                _line.lineColor = lineInfo.lineColor || family.family_spec[0].lineColor;
+                                _line.symbolFillStyle = lineInfo.lineColor || family.family_spec[0].lineColor;
+                                _line.symbolStrokeStyle = lineInfo.lineColor || family.family_spec[0].lineColor;
+                                _line.orderNum = lineInfo.orderNum;
+                                _line.createdBy = lineInfo.createdBy;
+                                _line.updatedBy = lineInfo.updatedBy;
+                                dbConnection.Line.create(_line).then(l => {
+                                    resolve();
+                                }).catch(err => {
+                                    console.log(err);
+                                    resolve();
+                                })
+                            });
+                        } else {
+                            dbConnection.Line.create({
+                                idTrack: lineInfo.idTrack,
+                                idCurve: curve.idCurve,
+                                alias: lineInfo.name || curve.name,
+                                minValue: lineInfo.minValue || curveMinScale,
+                                maxValue: lineInfo.maxValue || curveMaxScale,
+                                orderNum: lineInfo.orderNum,
+                                createdBy: lineInfo.createdBy,
+                                updatedBy: lineInfo.updatedBy,
+                                unit: lineInfo.unit || curve.unit || 'N/A',
+                                displayMode: lineInfo.displayMode,
+                                blockPosition: lineInfo.blockPosition,
+                                displayType: lineInfo.displayType,
+                                lineStyle: lineInfo.lineStyle,
+                                lineWidth: lineInfo.lineWidth,
+                                lineColor: lineInfo.lineColor,
+                                symbolFillStyle: lineInfo.lineColor,
+                                symbolStrokeStyle: lineInfo.lineColor,
+                                displayAs: lineInfo.displayAs
+                            }).then(l => {
+                                resolve();
+                            }).catch(function (err) {
+                                resolve();
+                            });
+                        }
+                    });
+                });
             }
-        }
-    }).then(curve => {
-        Line.build({
-            idTrack: lineInfo.idTrack,
-            idCurve: curve.idCurve,
-            alias: curve.name,
-            unit: curve.LineProperty.family_spec[0].unit,
-            minValue: curve.LineProperty.family_spec[0].minScale,
-            maxValue: curve.LineProperty.family_spec[0].maxScale,
-            displayMode: curve.LineProperty.family_spec[0].displayMode,
-            blockPosition: curve.LineProperty.family_spec[0].blockPosition,
-            displayType: curve.LineProperty.family_spec[0].displayType,
-            lineStyle: curve.LineProperty.family_spec[0].lineStyle,
-            lineWidth: curve.LineProperty.family_spec[0].lineWidth,
-            lineColor: curve.LineProperty.family_spec[0].lineColor,
-            symbolFillStyle: curve.LineProperty.family_spec[0].lineColor,
-            symbolStrokeStyle: curve.LineProperty.family_spec[0].lineColor,
-            createdBy: lineInfo.createdBy,
-            updatedBy: lineInfo.updatedBy
-        }).save()
-            .then(function (line) {
-                callback(line);
-            })
-            .catch(function (err) {
-                callback(null);
-            });
-    });
+        });
+    })
 }
 
 function createNewLine(lineInfo, done, dbConnection, username) {
@@ -211,7 +198,7 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                             lineColor: lineInfo.lineColor,
                             symbolFillStyle: lineInfo.lineColor,
                             symbolStrokeStyle: lineInfo.lineColor,
-                            displayAs : lineInfo.displayAs
+                            displayAs: lineInfo.displayAs
                         }).then(l => {
                             done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", l.toJSON()));
                         }).catch(function (err) {
