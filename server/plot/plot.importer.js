@@ -219,7 +219,6 @@ function createTrack(track, dbConnection, idProject, idPlot, username, well) {
 module.exports = function (req, done, dbConnection, username) {
     createdBy = req.createdBy;
     updatedBy = req.updatedBy;
-    let idProject = req.body.idProject;
     let filePath = path.join(__dirname + '/../..', req.file.path);
     let list = req.file.filename.split('.');
     let fileType = list[list.length - 1];
@@ -232,6 +231,7 @@ module.exports = function (req, done, dbConnection, username) {
         let myPlot = JSON.parse(data);
         let well = await dbConnection.Well.findById(req.body.idWell);
         if (!well) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No well found by id"));
+        let idProject = req.body.idProject || well.idProject;
         myPlot.name = req.body.plotName + "-" + well.name;
         createPlot(myPlot, dbConnection, idProject).then(pl => {
             async.series([
