@@ -2,7 +2,7 @@ let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
 
 function createNewZoneSetTemplate(payload, done, dbConnection) {
-    if(!payload.idProject) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Need idProject", "Need idProject"));
+    if (!payload.idProject) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Need idProject", "Need idProject"));
     dbConnection.ZoneSetTemplate.create(payload).then(rs => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
     }).catch(err => {
@@ -50,7 +50,9 @@ function editZoneSetTemplate(payload, done, dbConnection) {
     dbConnection.ZoneSetTemplate.findById(payload.idZoneSetTemplate).then(zst => {
         if (zst) {
             Object.assign(zst, payload).save().then((zst_) => {
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Done", zst_));
+                dbConnection.ZoneSetTemplate.findById(zst_.idZoneSetTemplate, {include: {model: dbConnection.ZoneSet}}).then((r) => {
+                    done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
+                });
             }).catch(err => {
                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
             })
