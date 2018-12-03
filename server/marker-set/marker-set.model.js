@@ -37,7 +37,7 @@ function createNew(payload, done, dbConnection) {
             }
         }).catch(err => {
             if (err.name === "SequelizeUniqueConstraintError") {
-                dbConnection.MarkerSet.findOne({where: {name: payload.name, idWell: payload.idWell}}).then(zs => {
+                dbConnection.MarkerSet.findOne({where: {name: payload.name, idWell: payload.idWell}, include: {model: dbConnection.MarkerSetTemplate}}).then(zs => {
                     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Marker set's name already exists", zs));
                 });
             } else {
@@ -80,7 +80,7 @@ function del(payload, done, dbConnection) {
 function list(payload, done, dbConnection) {
     dbConnection.MarkerSet.findAll({
         where: {idWell: payload.idWell},
-        include: {model: dbConnection.Marker, include: {model: dbConnection.MarkerTemplate}}
+        include: {model: dbConnection.MarkerSetTemplate}
     }).then(r => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
     }).catch(err => {

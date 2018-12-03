@@ -272,6 +272,14 @@ function newDbInstance(dbName, callback) {
             foreignKey: {name: "idZoneSetTemplate", allowNull: false},
             onDelete: 'CASCADE'
         });
+        m.ZoneSet.belongsTo(m.ZoneSetTemplate, {
+            foreignKey: {name: "idZoneSetTemplate", allowNull: false},
+            onDelete: 'CASCADE'
+        });
+        m.MarkerSet.belongsTo(m.MarkerSetTemplate, {
+            foreignKey: {name: "idMarkerSetTemplate", allowNull: false},
+            onDelete: 'CASCADE'
+        });
         m.Zone.belongsTo(m.ZoneTemplate, {foreignKey: {name: "idZoneTemplate", allowNull: false}, onDelete: 'CASCADE'});
         m.ZoneSet.hasMany(m.Zone, {foreignKey: {name: "idZoneSet", allowNull: false}, onDelete: 'CASCADE'});
 
