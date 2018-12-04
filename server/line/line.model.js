@@ -62,7 +62,7 @@ function createNewLineWithoutResponse(lineInfo, dbConnection, username) {
                                 }
                                 _line.idTrack = lineInfo.idTrack;
                                 _line.idCurve = curve.idCurve;
-                                _line.alias = lineInfo.name || curve.name;
+                                _line.alias = lineInfo.alias || curve.name;
                                 _line.unit = lineInfo.unit || curve.unit;
                                 _line.displayMode = lineInfo.displayMode || family.family_spec[0].displayMode;
                                 _line.ignoreMissingValues = lineInfo.ignoreMissingValues;
@@ -72,8 +72,8 @@ function createNewLineWithoutResponse(lineInfo, dbConnection, username) {
                                 _line.lineStyle = lineInfo.lineStyle || family.family_spec[0].lineStyle;
                                 _line.lineWidth = lineInfo.lineWidth || family.family_spec[0].lineWidth;
                                 _line.lineColor = lineInfo.lineColor || family.family_spec[0].lineColor;
-                                _line.symbolFillStyle = lineInfo.lineColor || family.family_spec[0].lineColor;
-                                _line.symbolStrokeStyle = lineInfo.lineColor || family.family_spec[0].lineColor;
+                                _line.symbolFillStyle = lineInfo.symbolFillStyle || lineInfo.lineColor || family.family_spec[0].lineColor;
+                                _line.symbolStrokeStyle = lineInfo.symbolStrokeStyle || lineInfo.lineColor || family.family_spec[0].lineColor;
                                 _line.symbolSize = lineInfo.symbolSize;
                                 _line.autoValueScale = lineInfo.autoValueScale;
                                 _line.orderNum = lineInfo.orderNum;
@@ -96,7 +96,7 @@ function createNewLineWithoutResponse(lineInfo, dbConnection, username) {
                             dbConnection.Line.create({
                                 idTrack: lineInfo.idTrack,
                                 idCurve: curve.idCurve,
-                                alias: lineInfo.name || curve.name,
+                                alias: lineInfo.alias || curve.name,
                                 minValue: _.isFinite(lineInfo.minValue) ? lineInfo.minValue : curveMinScale,
                                 maxValue: _.isFinite(lineInfo.maxValue) ? lineInfo.maxValue : curveMaxScale,
                                 ignoreMissingValues: lineInfo.ignoreMissingValues,
@@ -110,8 +110,8 @@ function createNewLineWithoutResponse(lineInfo, dbConnection, username) {
                                 lineStyle: lineInfo.lineStyle,
                                 lineWidth: lineInfo.lineWidth,
                                 lineColor: lineInfo.lineColor,
-                                symbolFillStyle: lineInfo.symbolFillStyle,
-                                symbolStrokeStyle: lineInfo.lineColor,
+                                symbolFillStyle: lineInfo.symbolFillStyle || lineInfo.lineColor,
+                                symbolStrokeStyle: lineInfo.symbolStrokeStyle || lineInfo.lineColor,
                                 showDataset: lineInfo.showDataset,
                                 symbolSize: lineInfo.symbolSize,
                                 displayAs: lineInfo.displayAs,
@@ -175,7 +175,7 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                             }
                             _line.idTrack = lineInfo.idTrack;
                             _line.idCurve = curve.idCurve;
-                            _line.alias = lineInfo.name || curve.name;
+                            _line.alias = lineInfo.alias || curve.name;
                             _line.unit = lineInfo.unit || curve.unit;
                             _line.displayMode = lineInfo.displayMode || family.family_spec[0].displayMode;
                             _line.ignoreMissingValues = lineInfo.ignoreMissingValues;
@@ -185,8 +185,8 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                             _line.lineStyle = lineInfo.lineStyle || family.family_spec[0].lineStyle;
                             _line.lineWidth = lineInfo.lineWidth || family.family_spec[0].lineWidth;
                             _line.lineColor = lineInfo.lineColor || family.family_spec[0].lineColor;
-                            _line.symbolFillStyle = lineInfo.lineColor || family.family_spec[0].lineColor;
-                            _line.symbolStrokeStyle = lineInfo.lineColor || family.family_spec[0].lineColor;
+                            _line.symbolFillStyle = lineInfo.symbolFillStyle || ineInfo.lineColor || family.family_spec[0].lineColor;
+                            _line.symbolStrokeStyle = lineInfo.symbolStrokeStyle || lineInfo.lineColor || family.family_spec[0].lineColor;
                             _line.symbolSize = lineInfo.symbolSize;
                             _line.autoValueScale = lineInfo.autoValueScale;
                             _line.orderNum = lineInfo.orderNum;
@@ -209,7 +209,7 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                         dbConnection.Line.create({
                             idTrack: lineInfo.idTrack,
                             idCurve: curve.idCurve,
-                            alias: lineInfo.name || curve.name,
+                            alias: lineInfo.alias || curve.name,
                             minValue: _.isFinite(lineInfo.minValue) ? lineInfo.minValue : curveMinScale,
                             maxValue: _.isFinite(lineInfo.maxValue) ? lineInfo.maxValue : curveMaxScale,
                             ignoreMissingValues: lineInfo.ignoreMissingValues,
@@ -223,8 +223,8 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                             lineStyle: lineInfo.lineStyle,
                             lineWidth: lineInfo.lineWidth,
                             lineColor: lineInfo.lineColor,
-                            symbolFillStyle: lineInfo.symbolFillStyle,
-                            symbolStrokeStyle: lineInfo.lineColor,
+                            symbolFillStyle: lineInfo.symbolFillStyle || lineInfo.lineColor,
+                            symbolStrokeStyle: lineInfo.symbolStrokeStyle || lineInfo.lineColor,
                             showDataset: lineInfo.showDataset,
                             symbolSize: lineInfo.symbolSize,
                             displayAs: lineInfo.displayAs,
