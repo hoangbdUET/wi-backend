@@ -158,8 +158,8 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                             unitConvertData.srcUnit = units.find(u => u.name === curve.unit);
                             unitConvertData.desUnit = units.find(u => u.name === family.family_spec[0].unit);
                             if (!unitConvertData.srcUnit || !unitConvertData.desUnit) {
-                                _line.minValue = lineInfo.minValue || family.family_spec[0].minScale;
-                                _line.maxValue = lineInfo.maxValue || family.family_spec[0].maxScale;
+                                _line.minValue = _.isFinite(lineInfo.minValue) ? lineInfo.minValue : family.family_spec[0].minScale;
+                                _line.maxValue = _.isFinite(lineInfo.maxValue) ? lineInfo.maxValue : family.family_spec[0].maxScale;
                             } else {
                                 let s1 = JSON.parse(unitConvertData.desUnit.rate);
                                 let s2 = JSON.parse(unitConvertData.srcUnit.rate);
