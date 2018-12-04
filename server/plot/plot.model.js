@@ -220,7 +220,7 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
                                     updatedBy: myPlot.updatedBy
                                 }, dbConnection, "", function () {
                                     nextLine();
-                                });
+                                }, username);
                             } else {
                                 nextLine();
                             }
