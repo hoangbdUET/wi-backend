@@ -84,7 +84,7 @@ function createNewLineWithoutResponse(lineInfo, dbConnection, username) {
                                 _line.symbolLineDash = lineInfo.symbolLineDash;
                                 _line.symbolLineWidth = lineInfo.symbolLineWidth;
                                 _line.wrapMode = lineInfo.wrapMode;
-                                _line.symbolName = lineInfo.symbolName
+                                _line.symbolName = lineInfo.symbolName;
                                 dbConnection.Line.create(_line).then(l => {
                                     resolve();
                                 }).catch(err => {
@@ -119,8 +119,8 @@ function createNewLineWithoutResponse(lineInfo, dbConnection, username) {
                                 showHeader: lineInfo.showHeader,
                                 symbolLineDash: lineInfo.symbolLineDash,
                                 symbolLineWidth: lineInfo.symbolLineWidth,
-                                wrapMode: wrapMode,
-                                symbolName: symbolName
+                                wrapMode: lineInfo.wrapMode,
+                                symbolName: lineInfo.symbolName
                             }).then(l => {
                                 resolve();
                             }).catch(function (err) {
@@ -185,7 +185,7 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                             _line.lineStyle = lineInfo.lineStyle || family.family_spec[0].lineStyle;
                             _line.lineWidth = lineInfo.lineWidth || family.family_spec[0].lineWidth;
                             _line.lineColor = lineInfo.lineColor || family.family_spec[0].lineColor;
-                            _line.symbolFillStyle = lineInfo.symbolFillStyle || ineInfo.lineColor || family.family_spec[0].lineColor;
+                            _line.symbolFillStyle = lineInfo.symbolFillStyle || lineInfo.lineColor || family.family_spec[0].lineColor;
                             _line.symbolStrokeStyle = lineInfo.symbolStrokeStyle || lineInfo.lineColor || family.family_spec[0].lineColor;
                             _line.symbolSize = lineInfo.symbolSize;
                             _line.autoValueScale = lineInfo.autoValueScale;
@@ -232,8 +232,8 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                             showHeader: lineInfo.showHeader,
                             symbolLineDash: lineInfo.symbolLineDash,
                             symbolLineWidth: lineInfo.symbolLineWidth,
-                            wrapMode: wrapMode,
-                            symbolName: symbolName
+                            wrapMode: lineInfo.wrapMode,
+                            symbolName: lineInfo.symbolName
                         }).then(l => {
                             done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", l.toJSON()));
                         }).catch(function (err) {
