@@ -218,7 +218,7 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
                                     idTrack: idTrack,
                                     createdBy: myPlot.createdBy,
                                     updatedBy: myPlot.updatedBy
-                                }, dbConnection, username, function () {
+                                }, dbConnection, username).then(() => {
                                     nextLine();
                                 });
                             } else {
