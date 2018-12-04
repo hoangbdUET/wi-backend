@@ -163,8 +163,8 @@ function createNewLine(lineInfo, done, dbConnection, username) {
                             } else {
                                 let s1 = JSON.parse(unitConvertData.desUnit.rate);
                                 let s2 = JSON.parse(unitConvertData.srcUnit.rate);
-                                _line.minValue = lineInfo.minValue || (parseFloat(family.family_spec[0].minScale) - s1[1]) * (s2[0] / s1[0]) + s2[1];
-                                _line.maxValue = lineInfo.maxValue || (parseFloat(family.family_spec[0].maxScale) - s1[1]) * (s2[0] / s1[0]) + s2[1];
+                                _line.minValue = _.isFinite(lineInfo.minValue) ? lineInfo.minValue : (parseFloat(family.family_spec[0].minScale) - s1[1]) * (s2[0] / s1[0]) + s2[1];
+                                _line.maxValue = _.isFinite(lineInfo.maxValue) ? lineInfo.maxValue: (parseFloat(family.family_spec[0].maxScale) - s1[1]) * (s2[0] / s1[0]) + s2[1];
                             }
                             console.log(family.family_spec[0].minScale);
                             console.log(family.family_spec[0].maxScale);
