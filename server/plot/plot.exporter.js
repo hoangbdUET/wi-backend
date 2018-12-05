@@ -108,7 +108,8 @@ module.exports = function (body, done, error, dbConnection, username) {
                             zoomFactor: track.zoomFactor,
                             zoneAboveCurve: track.zoneAboveCurve,
                             zoneOpacity: track.zoneOpacity,
-                            trackOffset: track.trackOffset
+                            trackOffset: track.trackOffset,
+	                        showValueGrid: track.showValueGrid
                         };
                         getFullZoneParents({idZoneSet: track.idZoneSet}, dbConnection).then(zone_set => {
                             newTrack.zone_set = zone_set;
