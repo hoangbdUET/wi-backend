@@ -33,7 +33,7 @@ function createNewZoneSet(zoneSetInfo, done, dbConnection) {
 						nextZone();
 					})
 				}, function () {
-					dbConnection.ZoneSet.findBYId(zs.idZoneSet, {
+					dbConnection.ZoneSet.findById(zs.idZoneSet, {
 						include: [{model: dbConnection.ZoneSetTemplate}, {
 							model: dbConnection.Zone,
 							include: {model: dbConnection.ZoneTemplate}
@@ -68,7 +68,7 @@ function editZoneSet(zoneSetInfo, done, dbConnection) {
 			zoneSet = Object.assign(zoneSet, zoneSetInfo);
 			zoneSet.save()
 				.then(function () {
-					dbConnection.ZoneSet.findBYId(zoneSetInfo.idZoneSet, {
+					dbConnection.ZoneSet.findById(zoneSetInfo.idZoneSet, {
 						include: [{model: dbConnection.ZoneSetTemplate}, {
 							model: dbConnection.Zone,
 							include: {model: dbConnection.ZoneTemplate}
