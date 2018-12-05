@@ -23,7 +23,7 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: 1
         },
-        orderNul: {
+        orderNum: {
             type: DataTypes.STRING,
             allowNull: true,
             defaultValue: '0'
