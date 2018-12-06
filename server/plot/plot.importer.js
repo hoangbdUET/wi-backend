@@ -233,6 +233,7 @@ module.exports = function (req, done, dbConnection, username) {
 		if (!param) {
 			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No template found"));
 		} else {
+			if(req.body.idDataset) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Not support"));
 			let myPlot = param.content;
 			let well = await dbConnection.Well.findById(req.body.idWell);
 			if (!well) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No well found by id"));
