@@ -131,19 +131,20 @@ function createImageTrack(image_track, dbConnection, idProject, idPlot) {
 		image_track.createdBy = createdBy;
 		image_track.updatedBy = updatedBy;
 		dbConnection.ImageTrack.create(image_track).then(imt => {
-			async.each(image_track.image_of_tracks, (image, nextImg) => {
-				image.idImageTrack = imt.idImageTrack;
-				image.createdBy = createdBy;
-				image.updatedBy = updatedBy;
-				dbConnection.ImageOfTrack.create(image).then(() => {
-					nextImg();
-				}).catch(err => {
-					console.log(err);
-					nextImg();
-				});
-			}, () => {
-				resolve();
-			});
+			// async.each(image_track.image_of_tracks, (image, nextImg) => {
+			// 	image.idImageTrack = imt.idImageTrack;
+			// 	image.createdBy = createdBy;
+			// 	image.updatedBy = updatedBy;
+			// 	dbConnection.ImageOfTrack.create(image).then(() => {
+			// 		nextImg();
+			// 	}).catch(err => {
+			// 		console.log(err);
+			// 		nextImg();
+			// 	});
+			// }, () => {
+			// 	resolve();
+			// });
+			resolve();
 		});
 	})
 }
