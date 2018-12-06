@@ -108,6 +108,7 @@ async function createDepthAxis(depth_axis, dbConnection, idProject, idPlot, well
 	depth_axis.idPlot = idPlot;
 	depth_axis.createdBy = createdBy;
 	depth_axis.updatedBy = updatedBy;
+	depth_axis.unitType = well.unitType;
 	// let well = await findWell(depth_axis.well, dbConnection, idProject);
 	let curve = await findCurve(depth_axis.curve, dbConnection, idProject, well);
 	depth_axis.idWell = well ? well.idWell : null;
