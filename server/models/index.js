@@ -427,7 +427,7 @@ function newDbInstance(dbName, callback) {
             onDelete: 'CASCADE'
         });
         m.Project.hasMany(m.Flow, {
-            foreignKey: {name: 'idProject', allowNull: false, unique: 'name-idProject'},
+            foreignKey: {name: 'idProject', allowNull: true, unique: 'name-idProject'},
             onDelete: 'CASCADE'
         });
         m.Flow.hasMany(m.Task, {
