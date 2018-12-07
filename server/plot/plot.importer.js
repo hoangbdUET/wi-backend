@@ -6,24 +6,42 @@ let ErrorCodes = require('../../error-codes').CODES;
 let createdBy;
 let updatedBy;
 
-function findCurve(curve, dbConnection, idProject, well) {
+function findCurve(curve, dbConnection, idProject, well, dataset) {
 	return new Promise((resolve => {
 		if (!curve) return resolve(null);
-		dbConnection.Well.findOne({where: {name: well.name, idProject: idProject}}).then(w => {
-			if (!w) return resolve(null);
-			dbConnection.Dataset.findOne({where: {name: curve.dataset, idWell: w.idWell}}).then(d => {
-				if (!d) return resolve(null);
-				dbConnection.Curve.findOne({where: {name: curve.curve, idDataset: d.idDataset}}).then(c => {
-					if (!c) {
-						return resolve(null);
-					} else {
-						return resolve(c);
-					}
+		if (dataset) {
+			dbConnection.Well.findOne({where: {name: well.name, idProject: idProject}}).then(w => {
+				if (!w) return resolve(null);
+				dbConnection.Dataset.findOne({where: {name: dataset.name, idWell: w.idWell}}).then(d => {
+					if (!d) return resolve(null);
+					dbConnection.Curve.findOne({where: {name: curve.curve, idDataset: d.idDataset}}).then(c => {
+						if (!c) {
+							return resolve(null);
+						} else {
+							return resolve(c);
+						}
+					});
 				});
+			}).catch(err => {
+				return resolve(null);
 			});
-		}).catch(err => {
-			return resolve(null);
-		});
+		} else {
+			dbConnection.Well.findOne({where: {name: well.name, idProject: idProject}}).then(w => {
+				if (!w) return resolve(null);
+				dbConnection.Dataset.findOne({where: {name: curve.dataset, idWell: w.idWell}}).then(d => {
+					if (!d) return resolve(null);
+					dbConnection.Curve.findOne({where: {name: curve.curve, idDataset: d.idDataset}}).then(c => {
+						if (!c) {
+							return resolve(null);
+						} else {
+							return resolve(c);
+						}
+					});
+				});
+			}).catch(err => {
+				return resolve(null);
+			});
+		}
 	}));
 }
 
@@ -104,13 +122,13 @@ function createPlot(plot, dbConnection, idProject) {
 	return dbConnection.Plot.create(plot);
 }
 
-async function createDepthAxis(depth_axis, dbConnection, idProject, idPlot, well) {
+async function createDepthAxis(depth_axis, dbConnection, idProject, idPlot, well, dataset) {
 	depth_axis.idPlot = idPlot;
 	depth_axis.createdBy = createdBy;
 	depth_axis.updatedBy = updatedBy;
 	depth_axis.unitType = well.unit;
 	// let well = await findWell(depth_axis.well, dbConnection, idProject);
-	let curve = await findCurve(depth_axis.curve, dbConnection, idProject, well);
+	let curve = await findCurve(depth_axis.curve, dbConnection, idProject, well, dataset);
 	depth_axis.idWell = well ? well.idWell : null;
 	depth_axis.idCurve = curve ? curve.idCurve : null;
 	return dbConnection.DepthAxis.create(depth_axis);
@@ -149,7 +167,7 @@ function createImageTrack(image_track, dbConnection, idProject, idPlot) {
 	})
 }
 
-function createTrack(track, dbConnection, idProject, idPlot, username, well) {
+function createTrack(track, dbConnection, idProject, idPlot, username, well, dataset) {
 	return new Promise(async resolve => {
 		track.idPlot = idPlot;
 		track.createdBy = createdBy;
@@ -175,7 +193,7 @@ function createTrack(track, dbConnection, idProject, idPlot, username, well) {
 						line.idTrack = _track.idTrack;
 						line.createdBy = _track.createdBy;
 						line.updatedBy = _track.updatedBy;
-						findCurve(line.curve, dbConnection, idProject, well).then(curve => {
+						findCurve(line.curve, dbConnection, idProject, well, dataset).then(curve => {
 							if (!curve) {
 								resolve();
 							} else {
@@ -193,7 +211,7 @@ function createTrack(track, dbConnection, idProject, idPlot, username, well) {
 						shading.idTrack = _track.idTrack;
 						shading.createdBy = createdBy;
 						shading.updatedBy = updatedBy;
-						findCurve(shading.controle_curve, dbConnection, idProject, well).then(async crtlCurve => {
+						findCurve(shading.controle_curve, dbConnection, idProject, well, dataset).then(async crtlCurve => {
 							shading.idControlCurve = crtlCurve ? crtlCurve.idCurve : null;
 							let left_line = await findLine(shading.left_line, dbConnection, _track.idTrack);
 							let right_line = await findLine(shading.right_line, dbConnection, _track.idTrack);
@@ -234,38 +252,44 @@ module.exports = function (req, done, dbConnection, username) {
 		if (!param) {
 			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No template found"));
 		} else {
-			if(req.body.idDataset) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Not support"));
+			// if (req.body.idDataset) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Not support"));
 			let myPlot = param.content;
-			let well = await dbConnection.Well.findById(req.body.idWell);
+			let well, dataset;
+			if (req.body.idDataset) {
+				dataset = await dbConnection.Dataset.findById(req.body.idDataset);
+				well = dataset ? await dbConnection.Well.findById(dataset.idWell) : null;
+			} else {
+				well = await dbConnection.Well.findById(req.body.idWell);
+			}
 			if (!well) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No well found by id"));
 			let idProject = req.body.idProject || well.idProject;
-			myPlot.name = req.body.plotName + "-" + well.name;
+			myPlot.name = dataset ? req.body.plotName + "-" + well.name + "/" + dataset.name : req.body.plotName + "-" + well.name;
 			createPlot(myPlot, dbConnection, idProject).then(pl => {
 				async.series([
 					function (cb) {
 						async.each(myPlot.tracks, (track, nextTrack) => {
-							createTrack(track, dbConnection, idProject, pl.idPlot, username, well).then(() => {
+							createTrack(track, dbConnection, idProject, pl.idPlot, username, well, dataset).then(() => {
 								nextTrack();
 							});
 						}, cb);
 					},
 					function (cb) {
 						async.each(myPlot.depth_axes, (depth_axis, nextDepth) => {
-							createDepthAxis(depth_axis, dbConnection, idProject, pl.idPlot, well).then(() => {
+							createDepthAxis(depth_axis, dbConnection, idProject, pl.idPlot, well, dataset).then(() => {
 								nextDepth();
 							});
 						}, cb());
 					},
 					function (cb) {
 						async.each(myPlot.zone_tracks, (zone_track, nextZoneTrack) => {
-							createZoneTrack(zone_track, dbConnection, idProject, pl.idPlot, well).then(() => {
+							createZoneTrack(zone_track, dbConnection, idProject, pl.idPlot, well, dataset).then(() => {
 								nextZoneTrack();
 							});
 						}, cb)
 					},
 					function (cb) {
 						async.each(myPlot.image_tracks, (image_track, nextImageTrack) => {
-							createImageTrack(image_track, dbConnection, idProject, pl.idPlot, well).then(() => {
+							createImageTrack(image_track, dbConnection, idProject, pl.idPlot, well, dataset).then(() => {
 								nextImageTrack();
 							});
 						}, cb)
