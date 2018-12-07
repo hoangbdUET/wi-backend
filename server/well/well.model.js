@@ -84,7 +84,8 @@ function getWellList(payload, done, dbConnection) {
         },
             options.order = [['idWell', 'DESC']]
     }
-    dbConnection.Well.findAll(options).then(wells => {
+    // dbConnection.Well.findAll(options).then(wells => {
+    dbConnection.Well.findAll().then(wells => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", wells));
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
