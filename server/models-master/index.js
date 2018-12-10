@@ -27,10 +27,12 @@ let models = [
     'FamilyCondition',
     'FamilySpec',
     'FamilyUnit',
+    'Flow',
     'MarkerSetTemplate',
     'MarkerTemplate',
     'OpenSharedProject',
     'OverlayLine',
+    'Task',
     'TaskSpec',
     'UnitGroup',
     'WorkflowSpec',
@@ -48,5 +50,6 @@ models.forEach(function (model) {
     m.UnitGroup.hasMany(m.FamilyUnit, {foreignKey: 'idUnitGroup'});
     m.ZoneSetTemplate.hasMany(m.ZoneTemplate, {foreignKey: 'idZoneSetTemplate'});
     m.MarkerSetTemplate.hasMany(m.MarkerTemplate, {foreignKey: 'idMarkerSetTemplate'});
+    m.Flow.hasMany(m.Task, {foreignKey: 'idFlow'});
 })(module.exports);
 module.exports.sequelize = sequelize;
