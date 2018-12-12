@@ -103,6 +103,7 @@ function createNewFlowTemplate(flows, idProject, dbConnection, createdBy) {
 				idProject: idProject,
 				content: flow.content,
 				description: "Create from system",
+				isTemplate: true,
 				createdBy: createdBy,
 				updatedBy: createdBy
 			}).then(fl => {

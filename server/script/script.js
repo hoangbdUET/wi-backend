@@ -262,7 +262,8 @@ router.post('/migrate/add-flow-to-existed-project', (req, res) => {
 						description: flow.description,
 						createdBy: flow.createdBy,
 						updatedBy: flow.updatedBy,
-						idProject: project.idProject
+						idProject: project.idProject,
+						isTemplate: true
 					}).then(fl => {
 						async.each(flow.tasks, (task, nextTask) => {
 							dbConnection.Task.create({
