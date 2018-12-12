@@ -154,10 +154,10 @@ function createNewProject(projectInfo, done, dbConnection, username, company) {
 				where: {idProject: null},
 				include: {model: dbConnection.MarkerTemplate}
 			});
-			let flows = await dbConnection.Flow.findAll({
-				where: {idProject: null},
-				include: {model: dbConnection.Task}
-			});
+			// let flows = await dbConnection.Flow.findAll({
+			// 	where: {idProject: null},
+			// 	include: {model: dbConnection.Task}
+			// });
 			await createDefaultZoneSetTemplate(zsts, project.idProject, dbConnection);
 			await createDefaultMarkerSetTemplate(msks, project.idProject, dbConnection);
 			// await createNewFlowTemplate(flows, project.idProject, dbConnection, username);
