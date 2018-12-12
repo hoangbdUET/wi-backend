@@ -8,6 +8,7 @@ let models = require('../models');
 let openProject = require('../authenticate/opening-project');
 let dbMaster = require('../models-master');
 let async = require('async');
+const crypto = require('crypto');
 
 function createDefaultZoneSetTemplate(zoneSetTemplates, idProject, dbConnection) {
 	return new Promise(resolve => {
@@ -246,7 +247,38 @@ async function getDatabases() {
 	return result;
 }
 
-async function getProjectList(owner, done, dbConnection, username, realUser, token) {
+function getRandomHash() {
+	const current_date = (new Date()).valueOf().toString();
+	const random = Math.random().toString();
+	return (crypto.createHash('sha1').update(current_date + random).digest('hex'));
+}
+
+function createStorageIfNotExsited(idProject, dbConnection, username, company) {
+	return new Promise(resolve => {
+		dbConnection.StorageDatabase.findAll({where: {idProject: idProject}}).then(sd => {
+			if (!sd || sd.length === 0) {
+				dbConnection.StorageDatabase.create({
+					idProject: idProject,
+					name: company + "-" + username,
+					company: company,
+					input_directory: getRandomHash(),
+					output_directory: getRandomHash(),
+					createdBy: username,
+					updatedBy: username
+				}).then(() => {
+					resolve();
+				}).catch(err => {
+					console.log(err);
+					resolve();
+				})
+			} else {
+				resolve();
+			}
+		})
+	});
+}
+
+async function getProjectList(owner, done, dbConnection, username, realUser, token, company) {
 	let databasesList = await getDatabases();
 	dbConnection = models(config.Database.prefix + realUser);
 	let response = [];
@@ -259,7 +291,9 @@ async function getProjectList(owner, done, dbConnection, username, realUser, tok
 			project = project.toJSON();
 			project.displayName = project.alias || project.name;
 			response.push(project);
-			next();
+			createStorageIfNotExsited(project.idProject, dbConnection, username, company).then(() => {
+				next();
+			});
 		}, function () {
 			if (projectList.length > 0) {
 				asyncLoop(projectList, function (prj, next) {
@@ -342,12 +376,14 @@ async function getProjectFullInfo(payload, done, req) {
 	let crossplots = await dbConnection.CrossPlot.findAll({where: {idProject: project.idProject}});
 	let histograms = await dbConnection.Histogram.findAll({where: {idProject: project.idProject}});
 	let combined_boxes = await dbConnection.CombinedBox.findAll({where: {idProject: project.idProject}});
+	let storage_databases = await dbConnection.StorageDatabase.findAll({where: {idProject: project.idProject}});
 	response.wells = [];
 	response.groups = groups;
 	response.plots = plots;
 	response.crossplots = crossplots;
 	response.histograms = histograms;
 	response.combined_boxes = combined_boxes;
+	response.storage_databases = storage_databases;
 	if (wells.length == 0) {
 		return done(ResponseJSON(ErrorCodes.SUCCESS, "Get full info Project success", response));
 	}

@@ -14,7 +14,7 @@ router.registerHooks = function (io) {
 router.post('/project/list', function (req, res) {
     projectModel.getProjectList(req.body, function (status) {
         res.send(status);
-    }, req.dbConnection, req.decoded.username, req.decoded.realUser, req.token);
+    }, req.dbConnection, req.decoded.username, req.decoded.realUser, req.token, req.decoded.company);
 });
 
 router.post('/project/list-of-all-user', function (req, res) {

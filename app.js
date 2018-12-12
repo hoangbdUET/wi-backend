@@ -132,6 +132,7 @@ function main() {
 	let markerSetTemplateRouter = require('./server/marker-set-template/marker-set-template.router');
 	let resetDefaulParameters = require('./server/reset-parameter/reset-pamameter.router');
 	let permissionRouter = require('./server/permission/permission.router');
+	let storageDatabseRouter = require('./server/storage-database/storage-database.router');
 	let queue = {};
 	let http = require('http').Server(app);
 	let bodyParser = require('body-parser');
@@ -250,6 +251,7 @@ function main() {
 	app.use('/', markerTemplateRouter);
 	app.use('/', taskSpecRouter);
 	app.use('/project', parameterSetRouter);
+	app.use('/project', storageDatabseRouter);
 	app.use('/permission', permissionRouter);
 	app.use('/reset-parameter', resetDefaulParameters);
 	app.use('/pal', palRouter);
