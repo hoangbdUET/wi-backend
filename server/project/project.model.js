@@ -138,7 +138,7 @@ function createNewFlowTemplate(flows, idProject, dbConnection, createdBy) {
 	});
 }
 
-function createNewProject(projectInfo, done, dbConnection, username) {
+function createNewProject(projectInfo, done, dbConnection, username, company) {
 	let Project = dbConnection.Project;
 	projectInfo.alias = projectInfo.alias || projectInfo.name;
 	Project.sync()
@@ -160,7 +160,8 @@ function createNewProject(projectInfo, done, dbConnection, username) {
 			});
 			await createDefaultZoneSetTemplate(zsts, project.idProject, dbConnection);
 			await createDefaultMarkerSetTemplate(msks, project.idProject, dbConnection);
-			await createNewFlowTemplate(flows, project.idProject, dbConnection, username);
+			// await createNewFlowTemplate(flows, project.idProject, dbConnection, username);
+			await createStorageIfNotExsited(project.idProject, dbConnection, username, company);
 			done(ResponseJSON(ErrorCodes.SUCCESS, "Create new project success", project));
 		})
 		.catch(function (err) {
@@ -566,5 +567,5 @@ module.exports = {
 	updatePermission: updatePermission,
 	listProjectOffAllUser: listProjectOffAllUser,
 	deleteProjectOwner: deleteProjectOwner,
-	validationFlow
+	validationFlow: validationFlow
 };
