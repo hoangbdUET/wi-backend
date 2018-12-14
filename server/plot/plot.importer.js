@@ -239,20 +239,10 @@ function createTrack(track, dbConnection, idProject, idPlot, username, well, dat
 module.exports = function (req, done, dbConnection, username) {
 	createdBy = req.createdBy;
 	updatedBy = req.updatedBy;
-	// let filePath = path.join(__dirname + '/../..', req.file.path);
-	// let list = req.file.filename.split('.');
-	// let fileType = list[list.length - 1];
-	// if (fileType !== 'plot') {
-	//     fs.unlinkSync(filePath);
-	//     return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Only .plot files allowed!"));
-	// }
-	// fs.readFile(filePath, 'utf8', async function (err, data) {
-	//     if (err) console.log(err);
 	dbConnection.ParameterSet.findById(req.body.idParameterSet).then(async param => {
 		if (!param) {
 			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No template found"));
 		} else {
-			// if (req.body.idDataset) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Not support"));
 			let myPlot = param.content;
 			let well, dataset;
 			if (req.body.idDataset) {
@@ -275,7 +265,7 @@ module.exports = function (req, done, dbConnection, username) {
 					},
 					function (cb) {
 						async.each(myPlot.depth_axes, (depth_axis, nextDepth) => {
-							createDepthAxis(depth_axis, dbConnection, idProject, pl.idPlot, well, dataset).then(() => {
+							createDepthAxis(depth_axis, dbConnection, idProject, pl.idPlot, well, {name: 'INDEX'}).then(() => {
 								nextDepth();
 							});
 						}, cb());
@@ -306,5 +296,4 @@ module.exports = function (req, done, dbConnection, username) {
 			});
 		}
 	});
-	// });
 };
