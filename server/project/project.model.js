@@ -442,7 +442,7 @@ async function getProjectFullInfo(payload, done, req) {
 			function (cb) {
 				dbConnection.ZoneSet.findAll({
 					where: {idWell: well.idWell},
-					include: {model: dbConnection.Zone, include: {model: dbConnection.ZoneTemplate}}
+					include: [{model: dbConnection.Zone, include: {model: dbConnection.ZoneTemplate}}, {model: dbConnection.ZoneSetTemplate}]
 				}).then(zonesets => {
 					cb(null, zonesets);
 				});
@@ -455,7 +455,7 @@ async function getProjectFullInfo(payload, done, req) {
 			function (cb) {
 				dbConnection.MarkerSet.findAll({
 					where: {idWell: well.idWell},
-					include: {model: dbConnection.Marker, include: {model: dbConnection.MarkerTemplate}}
+					include: [{model: dbConnection.Marker, include: {model: dbConnection.MarkerTemplate}}, {model: dbConnection.MarkerSetTemplate}]
 				}).then(markersets => {
 					cb(null, markersets);
 				});
