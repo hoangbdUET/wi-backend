@@ -22,6 +22,10 @@ const flows = [
     <bpmn2:sequenceFlow id="SequenceFlow_0h5c864" sourceRef="ServiceTask_0vxw1ma" targetRef="ServiceTask_0dykd53" />
     <bpmn2:sequenceFlow id="SequenceFlow_14dkr4d" sourceRef="ServiceTask_0dykd53" targetRef="ServiceTask_1gvf4ef" />
     <bpmn2:sequenceFlow id="SequenceFlow_13ak42j" sourceRef="ServiceTask_1gvf4ef" targetRef="ServiceTask_1oibj3q" />
+    <bpmn2:serviceTask id="ServiceTask_0aapdc1" name="Shale Volume - Neutron-Density" wi:expression="execute" wi:idTask="10004" wi:disabled="true" />
+    <bpmn2:serviceTask id="ServiceTask_056cgfg" name="Porosity - Neutron" wi:expression="execute" wi:idTask="10005" wi:disabled="true" />
+    <bpmn2:serviceTask id="ServiceTask_0pe69xt" name="Porosity - Sonic" wi:expression="execute" wi:idTask="10006" wi:disabled="true" />
+    <bpmn2:serviceTask id="ServiceTask_1xn5zcb" name="Water Saturation - Quick Look Sw" wi:expression="execute" wi:idTask="10007" wi:disabled="true" />
   </bpmn2:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
@@ -58,9 +62,22 @@ const flows = [
           <dc:Bounds x="477.5" y="210" width="0" height="12" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_0aapdc1_di" bpmnElement="ServiceTask_0aapdc1">
+        <dc:Bounds x="66" y="324" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_056cgfg_di" bpmnElement="ServiceTask_056cgfg">
+        <dc:Bounds x="208" y="324" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_0pe69xt_di" bpmnElement="ServiceTask_0pe69xt">
+        <dc:Bounds x="208" y="445" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_1xn5zcb_di" bpmnElement="ServiceTask_1xn5zcb">
+        <dc:Bounds x="353" y="324" width="100" height="80" />
+      </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
-</bpmn2:definitions>`,
+</bpmn2:definitions>
+`,
 		description: null,
 		idFlow: 10000,
 		name: "Quick Look Analysis",
@@ -94,6 +111,34 @@ const tasks = [
 		idTask: 10003,
 		idTaskSpec: 27,
 		name: "Clastic - Summaries"
+	},
+	{
+		content: `{"icon":"clay-volume-16x16","function":"calVSHfromND","overlay_line":"Schlumberger Den/Neut Corr. Rhof 1.0","inputs":[{"name":"Neutron Porosity","unit":"v/v","family":"Neutron Porosity","type":"2","value":"Neutron Porosity"},{"name":"Bulk Density","unit":"g/cm3","family":"Bulk Density","type":"2","value":"Bulk Density"}],"parameters":[{"name":"NPHI_clean_2","type":"number","value":0.25,"unit":"v/v"},{"name":"NPHI_shale","type":"number","value":0.4,"unit":"v/v","color":"green"},{"name":"NPHI_clean_1","type":"number","value":-0.01,"unit":"v/v"},{"name":"RHOB_clean_2","type":"number","value":2.2,"unit":"g/cm3"},{"name":"RHOB_shale","type":"number","value":2.4,"unit":"g/cm3","color":"red"},{"name":"RHOB_clean_1","type":"number","value":2.65,"unit":"g/cm3"}],"outputs":[{"name":"VSH_ND","family":"Shale Volume","unit":"v/v","use":true,"idFamily":1019,"defaultUnit":"v/v"}],"scaleLeft":-0.15,"scaleRight":0.45,"scaleBottom":3,"scaleTop":2,"inputData":[],"paramData":[],"zonation":{"name":"Zonation_all","children":["All"]},"save_option":"2","expression":"calVSHfromND"}`,
+		idFlow: 10000,
+		idTask: 10004,
+		idTaskSpec: 2,
+		name: "Shale Volume - Neutron-Density"
+	},
+	{
+		content: `{"icon":"calculate-open-porosity-16x16","function":"calPorosityFromNeutron","inputs":[{"name":"Neutron","family":"Neutron Porosity","unit":"v/v","type":"2","value":"Neutron Porosity"},{"name":"Shale Volume","family":"Shale Volume","unit":"v/v","type":"2","value":"Shale Volume"}],"parameters":[{"name":"Neutron Matrix","type":"number","value":-0.01,"unit":"v/v","color":"red"},{"name":"Neutron Fluid","type":"number","value":0.991,"unit":"v/v"},{"name":"Neutron Shale","type":"number","value":0.4,"unit":"v/v","color":"green"}],"outputs":[{"name":"PHIT_N","family":"Total Porosity","unit":"v/v","use":true,"idFamily":628,"defaultUnit":"v/v"},{"name":"PHIE_N","family":"Effective Porosity","unit":"v/v","use":true,"idFamily":597,"defaultUnit":"v/v"}],"inputData":[],"paramData":[],"zonation":{"name":"Zonation_all","children":["All"]},"save_option":"2","expression":"calPorosityFromNeutron"}`,
+		idFlow: 10000,
+		idTask: 10005,
+		idTaskSpec: 12,
+		name: "Porosity - Neutron"
+	},
+	{
+		content: `{"icon":"calculate-open-porosity-16x16","function":"calPorosityFromSonic","inputs":[{"name":"Compressional Slowness","family":"Compressional Slowness","unit":"us/ft","type":"2","value":"Compressional Slowness"},{"name":"Shale Volume","family":"Shale Volume","unit":"v/v","type":"2","value":"Shale Volume"}],"parameters":[{"name":"Sonic Matrix","type":"number","value":55,"unit":"us/ft","color":"#F0F"},{"name":"Sonic Fluid","type":"number","value":189,"unit":"us/ft"},{"name":"Sonic Shale","type":"number","value":110,"unit":"us/ft","color":"green"},{"name":"Sonic Method","type":"select","value":"Wyliie","choices":["Wyliie","Raymer-Hunt-Gardner"]},{"name":"Cp","type":"number","value":1}],"outputs":[{"name":"PHIT_S","family":"Total Porosity","unit":"v/v","use":true,"idFamily":628,"defaultUnit":"v/v"},{"name":"PHIE_S","family":"Effective Porosity","unit":"v/v","use":true,"idFamily":597,"defaultUnit":"v/v"}],"inputData":[],"paramData":[],"zonation":{"name":"Zonation_all","children":["All"]},"save_option":"2","expression":"calPorosityFromSonic"}`,
+		idFlow: 10000,
+		idTask: 10006,
+		idTaskSpec: 13,
+		name: "Porosity - Sonic"
+	},
+	{
+		content: `{"icon":"water-saturation-16x16","function":"calSaturationQuickLook","inputs":[{"name":"Micro Resistivity","family":"Micro Resistivity","unit":"ohm.m","type":"2","value":"Micro Resistivity"},{"name":"Resistivity","family":"Resistivity","unit":"ohm.m","type":"2","value":"Resistivity"}],"parameters":[{"name":"Rw","type":"number","value":0.03},{"name":"Rmf","type":"number","value":0.1}],"outputs":[{"name":"Sw_QL","family":"Water Saturation","unit":"v/v","use":true,"idFamily":885,"defaultUnit":"v/v"}],"inputData":[],"paramData":[],"zonation":{"name":"Zonation_all","children":["All"]},"save_option":"2","expression":"calSaturationQuickLook"}`,
+		idFlow: 10000,
+		idTask: 10007,
+		idTaskSpec: 67,
+		name: "Water Saturation - Quick Look Sw"
 	}
 ];
 
