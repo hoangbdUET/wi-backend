@@ -23,7 +23,7 @@ function getFullCurveParents(curve, dbConnection) {
                     curve: c.name
                 });
             } else {
-                console.log("No Curve found when get full curve's parents");
+                console.log("No Curve found when get full curve's parents", curve);
                 resolve(null);
             }
         }).catch(err => {

@@ -4,37 +4,38 @@ let ErrorCodes = require('../../error-codes').CODES;
 
 function createNewDepthAxis(depthAxisInfo, done, dbConnection) {
     let DepthAxis = dbConnection.DepthAxis;
-    DepthAxis.sync()
-        .then(function () {
-                let depthAxis = DepthAxis.build({
-                    idPlot: depthAxisInfo.idPlot,
-                    orderNum: depthAxisInfo.orderNum,
-                    showTitle: depthAxisInfo.showTitle,
-                    trackBackground: depthAxisInfo.trackBackground,
-                    title: depthAxisInfo.title,
-                    justification: depthAxisInfo.justification,
-                    depthType: depthAxisInfo.depthType,
-                    unitType: depthAxisInfo.unitType,
-                    decimals: depthAxisInfo.decimals,
-                    geometryWidth: depthAxisInfo.geometryWidth,
-                    width: depthAxisInfo.width || 0.5,
-                    createdBy: depthAxisInfo.createdBy,
-                    updatedBy: depthAxisInfo.updatedBy,
-                    idWell: depthAxisInfo.idWell
-                });
-                depthAxis.save()
-                    .then(function (depthAxis) {
-                        done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Depth-Axis success", depthAxis));
-                    })
-                    .catch(function (err) {
-                        //console.log(err);
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message));
-                    })
-            },
-            function () {
-                done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
-            }
-        )
+    depthAxisInfo.width = depthAxisInfo.width || 0.5;
+    DepthAxis.create(depthAxisInfo)
+        .then(function (depthAxis) {
+            done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Depth-Axis success", depthAxis));
+        })
+        .catch(function (err) {
+            //console.log(err);
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message));
+        })
+    // DepthAxis.sync()
+    //     .then(function () {
+    //             // let depthAxis = DepthAxis.build({
+    //             //     idPlot: depthAxisInfo.idPlot,
+    //             //     orderNum: depthAxisInfo.orderNum,
+    //             //     showTitle: depthAxisInfo.showTitle,
+    //             //     trackBackground: depthAxisInfo.trackBackground,
+    //             //     title: depthAxisInfo.title,
+    //             //     justification: depthAxisInfo.justification,
+    //             //     depthType: depthAxisInfo.depthType,
+    //             //     unitType: depthAxisInfo.unitType,
+    //             //     decimals: depthAxisInfo.decimals,
+    //             //     geometryWidth: depthAxisInfo.geometryWidth,
+    //             //     width: depthAxisInfo.width || 0.5,
+    //             //     createdBy: depthAxisInfo.createdBy,
+    //             //     updatedBy: depthAxisInfo.updatedBy,
+    //             //     idWell: depthAxisInfo.idWell
+    //             // });
+    //         },
+    //         function () {
+    //             done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
+    //         }
+    //     )
 }
 
 function editDepthAxis(depthAxisInfo, done, dbConnection) {

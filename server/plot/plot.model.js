@@ -6,6 +6,8 @@ const exporter = require('./plot.exporter');
 const fs = require('fs');
 const path = require('path');
 const lineModel = require('../line/line.model');
+const wiFunctions = require('../utils/function');
+
 let findFamilyIdByName = function (familyName, dbConnection, callback) {
     dbConnection.Family.findOne({where: {name: familyName}}).then(family => {
         if (family) {
@@ -175,7 +177,6 @@ function findCurveForTemplate(families, idProject, dbConnection, callback, idDat
 let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
     let familyWithErr = [];
     dbConnection.Plot.create({
-        idWell: myPlot.idWell,
         name: myPlot.name,
         option: myPlot.option,
         idProject: myPlot.idProject,
@@ -185,14 +186,17 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
     }).then(plot => {
         let idPlot = plot.idPlot;
         asyncLoop(myPlot.depth_axes, function (depth_axis, next) {
-            depth_axis.idPlot = idPlot;
-            depth_axis.createdBy = myPlot.createdBy;
-            depth_axis.updatedBy = myPlot.updatedBy;
-            dbConnection.DepthAxis.create(depth_axis).then(() => {
-                next();
-            }).catch(err => {
-                console.log(err);
-                next(err);
+            wiFunctions.getWellByDataset(myPlot.idDataset, dbConnection).then((well) => {
+                depth_axis.idWell = well ? well.idWell : null;
+                depth_axis.idPlot = idPlot;
+                depth_axis.createdBy = myPlot.createdBy;
+                depth_axis.updatedBy = myPlot.updatedBy;
+                dbConnection.DepthAxis.create(depth_axis).then(() => {
+                    next();
+                }).catch(err => {
+                    console.log(err);
+                    next(err);
+                });
             });
         }, function (err) {
             asyncLoop(myPlot.tracks, function (track, nextTrack) {
@@ -214,7 +218,7 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
                                     idTrack: idTrack,
                                     createdBy: myPlot.createdBy,
                                     updatedBy: myPlot.updatedBy
-                                }, dbConnection, "", function () {
+                                }, dbConnection, username).then(() => {
                                     nextLine();
                                 });
                             } else {
@@ -634,331 +638,6 @@ let duplicatePlot = function (payload, done, dbConnection, isSave) {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
     });
 };
-
-// let importPlotTemplate = async function (req, done, dbConnection) {
-//     let filePath = path.join(__dirname + '/../..', req.file.path);
-//     let list = req.file.filename.split('.');
-//     let fileType = list[list.length - 1];
-//     if (fileType != 'plot') {
-//         fs.unlinkSync(filePath);
-//         return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Only .plot files allowed!"));
-//     }
-//     fs.readFile(filePath, 'utf8', async function (err, data) {
-//         if (err) console.log(err);
-//         let myPlot = JSON.parse(data);
-//         let plot = new Object();
-//         plot.name = req.body.plotName ? req.body.plotName : myPlot.name;
-//         plot.option = myPlot.option;
-//         plot.idWell = req.body.idWell;
-//         plot.createdBy = req.createdBy;
-//         plot.updatedBy = req.updatedBy;
-//         let well = await dbConnection.Well.findById(plot.idWell);
-//         searchReferenceCurve(req.body.idWell, dbConnection, function (err, idRefCurve) {
-//             plot.referenceCurve = idRefCurve ? idRefCurve : null;
-//             dbConnection.Plot.create(plot).then(rs => {
-//                 let idPlot = rs.idPlot;
-//                 asyncSeries([
-//                     function (cb) {
-//                         asyncLoop(myPlot.tracks, function (track, next) {
-//                             track.idPlot = idPlot;
-//                             track.createdBy = req.createdBy;
-//                             track.updatedBy = req.updatedBy;
-//                             dbConnection.Track.create(track).then(tr => {
-//                                 let idTrack = tr.idTrack;
-//                                 asyncSeries([
-//                                     function (cb) {
-//                                         asyncLoop(track.lines, function (line, next) {
-//                                             line.idTrack = idTrack;
-//                                             line.createdBy = req.createdBy;
-//                                             line.updatedBy = req.updatedBy;
-//                                             dbConnection.Dataset.findOne({
-//                                                 where: {idWell: rs.idWell, name: line.curve.datasetName}
-//                                             }).then(dataset => {
-//                                                 if (dataset) {
-//                                                     dbConnection.Curve.findOne({
-//                                                         where: {
-//                                                             idDataset: dataset.idDataset,
-//                                                             name: line.curve.curveName
-//                                                         }
-//                                                     }).then(curve => {
-//                                                         if (curve) {
-//                                                             line.idCurve = curve.idCurve;
-//                                                             line.createdBy = req.createdBy;
-//                                                             line.updatedBy = req.updatedBy;
-//                                                             dbConnection.Line.create(line).then(l => {
-//                                                                 next();
-//                                                             }).catch(err => {
-//                                                                 next();
-//                                                             })
-//                                                         } else {
-//                                                             next();
-//                                                         }
-//                                                     }).catch(err => {
-//                                                         next();
-//                                                     })
-//                                                 } else {
-//                                                     console.log("No dataset");
-//                                                     next();
-//                                                 }
-//                                             }).catch(err => {
-//                                                 next();
-//                                             });
-//                                         }, function () {
-//                                             cb();
-//                                         });
-//                                     },
-//                                     function (cb) {
-//                                         asyncLoop(track.shadings, function (shading, next) {
-//                                             shading.idTrack = idTrack;
-//                                             asyncSeries([
-//                                                 function (c) {
-//                                                     if (shading.leftLine) {
-//                                                         dbConnection.Line.findOne({
-//                                                             where: {
-//                                                                 idTrack: idTrack,
-//                                                                 alias: shading.leftLine
-//                                                             }
-//                                                         }).then(line => {
-//                                                             if (line) {
-//                                                                 shading.idLeftLine = line.idLine;
-//                                                                 c();
-//                                                                 // dbConnection.Shading.create(shading).then(() => {
-//                                                                 //     c();
-//                                                                 // }).catch(err => {
-//                                                                 //     c();
-//                                                                 // });
-//                                                             } else {
-//                                                                 c();
-//                                                             }
-//                                                         }).catch(err => {
-//                                                             c();
-//                                                         });
-//                                                     } else {
-//                                                         c();
-//                                                     }
-//                                                 },
-//                                                 function (c) {
-//                                                     if (shading.rightLine) {
-//                                                         dbConnection.Line.findOne({
-//                                                             where: {
-//                                                                 idTrack: idTrack,
-//                                                                 alias: shading.rightLine
-//                                                             }
-//                                                         }).then(line => {
-//                                                             if (line) {
-//                                                                 shading.idRightLine = line.idLine;
-//                                                                 c();
-//                                                                 // dbConnection.Shading.create(shading).then(() => {
-//                                                                 //     c();
-//                                                                 // }).catch(err => {
-//                                                                 //     c();
-//                                                                 // });
-//                                                             } else {
-//                                                                 c();
-//                                                             }
-//                                                         }).catch(err => {
-//                                                             c();
-//                                                         });
-//                                                     } else {
-//                                                         c();
-//                                                     }
-//                                                 },
-//                                                 function (c) {
-//                                                     if (shading.controlCurve) {
-//                                                         if (shading.controlCurve.datasetName && shading.controlCurve.curveName) {
-//                                                             dbConnection.Dataset.findOne({
-//                                                                 where: {
-//                                                                     idWell: plot.idWell,
-//                                                                     name: shading.controlCurve.datasetName
-//                                                                 }
-//                                                             }).then(dataset => {
-//                                                                 if (dataset) {
-//                                                                     dbConnection.Curve.findOne({
-//                                                                         where: {
-//                                                                             idDataset: dataset.idDataset,
-//                                                                             name: shading.controlCurve.curveName
-//                                                                         }
-//                                                                     }).then(curve => {
-//                                                                         if (curve) {
-//                                                                             shading.idControlCurve = curve.idCurve;
-//                                                                             c();
-//                                                                         } else {
-//                                                                             c();
-//                                                                         }
-//                                                                     });
-//                                                                 } else {
-//                                                                     c();
-//                                                                 }
-//                                                             });
-//                                                         } else {
-//                                                             c();
-//                                                         }
-//                                                     } else {
-//                                                         c();
-//                                                     }
-//                                                 }
-//                                             ], function () {
-//                                                 shading.createdBy = req.createdBy;
-//                                                 shading.updatedBy = req.updatedBy;
-//                                                 console.log("CREATE SHADING ...", shading);
-//                                                 dbConnection.Shading.create(shading).then(() => {
-//                                                     next();
-//                                                 }).catch(err => {
-//                                                     console.log("====", err);
-//                                                     next();
-//                                                 });
-//                                             });
-//                                         }, function () {
-//                                             cb(null, true);
-//                                         })
-//                                     },
-//                                     function (cb) {
-//                                         asyncLoop(track.markers, function (marker, next) {
-//                                             marker.idTrack = idTrack;
-//                                             if (marker.depth < well.topDepth || marker.depth > well.bottomDepth) {
-//                                                 next();
-//                                             } else {
-//                                                 marker.createdBy = req.createdBy;
-//                                                 marker.updatedBy = req.updatedBy;
-//                                                 dbConnection.Marker.create(marker).then(() => {
-//                                                     next();
-//                                                 }).catch(err => {
-//                                                     next();
-//                                                     console.log(err);
-//                                                 });
-//                                             }
-//                                         }, function () {
-//                                             cb(null, true);
-//                                         });
-//                                     },
-//                                     function (cb) {
-//                                         asyncLoop(track.annotations, function (annotation, next) {
-//                                             annotation.idTrack = idTrack;
-//                                             annotation.createdBy = req.createdBy;
-//                                             annotation.updatedBy = req.updatedBy;
-//                                             if (annotation.top <= parseFloat(well.topDepth)) annotation.top = well.topDepth;
-//                                             if (annotation.bottom >= parseFloat(well.bottomDepth)) annotation.bottom = well.bottomDepth;
-//                                             dbConnection.Annotation.create(annotation).then(() => {
-//                                                 next();
-//                                             }).catch(err => {
-//                                                 console.log(err);
-//                                             })
-//                                         }, function () {
-//                                             cb(null, true);
-//                                         });
-//                                     }
-//                                 ], function (err, result) {
-//                                     next();
-//                                 });
-//                             }).catch(err => {
-//                                 console.log(err);
-//                                 next();
-//                             });
-//                         }, function () {
-//                             cb(null, true);
-//                         });
-//                     },
-//                     function (cb) {
-//                         asyncLoop(myPlot.depth_axes, function (depth_axis, next) {
-//                             depth_axis.idPlot = idPlot;
-//                             depth_axis.createdBy = req.createdBy;
-//                             depth_axis.updatedBy = req.updatedBy;
-//                             dbConnection.DepthAxis.create(depth_axis).then(depth => {
-//                                 next();
-//                             }).catch(err => {
-//                                 console.log(err);
-//                                 next();
-//                             })
-//                         }, function () {
-//                             cb(null, true);
-//                         });
-//                     },
-//                     function (cb) {
-//                         asyncLoop(myPlot.image_tracks, function (image_track, next) {
-//                             image_track.idPlot = idPlot;
-//                             image_track.createdBy = req.createdBy;
-//                             image_track.updatedBy = req.updatedBy;
-//                             dbConnection.ImageTrack.create(image_track).then(img => {
-//                                 let idImageTrack = img.idImageTrack;
-//                                 asyncLoop(image_track.image_of_tracks, function (image_of_track, next) {
-//                                     image_of_track.idImageTrack = idImageTrack;
-//                                     image_of_track.createdBy = req.createdBy;
-//                                     image_of_track.updatedBy = req.updatedBy;
-//                                     dbConnection.ImageOfTrack.create(image_of_track).then(() => {
-//                                         next();
-//                                     }).catch(() => {
-//                                         next();
-//                                     });
-//                                 }, function () {
-//                                     next();
-//                                 });
-//                             }).catch(err => {
-//                                 console.log(err);
-//                                 next();
-//                             })
-//                         }, function () {
-//                             cb(null, true);
-//                         });
-//                     },
-//                     function (cb) {
-//                         asyncLoop(myPlot.object_tracks, function (object_track, next) {
-//                             object_track.idPlot = idPlot;
-//                             object_track.createdBy = req.createdBy;
-//                             object_track.updatedBy = req.updatedBy;
-//                             dbConnection.ObjectTrack.create(object_track).then(obj => {
-//                                 next();
-//                             }).catch(err => {
-//                                 console.log(err);
-//                                 next();
-//                             })
-//                         }, function () {
-//                             cb(null, true);
-//                         });
-//                     },
-//                     function (cb) {
-//                         asyncLoop(myPlot.zone_tracks, function (zone_track, next) {
-//                             zone_track.idPlot = idPlot;
-//                             zone_track.createdBy = req.createdBy;
-//                             zone_track.updatedBy = req.updatedBy;
-//                             dbConnection.ZoneTrack.create(zone_track).then(zo => {
-//                                 dbConnection.ZoneSet.findOne({
-//                                     where: {
-//                                         idWell: plot.idWell,
-//                                         name: zone_track.zone_set.name
-//                                     }
-//                                 }).then(zs => {
-//                                     if (zs) {
-//                                         zo.idZoneSet = zs.idZoneSet;
-//                                         zo.save().then(() => {
-//                                             next();
-//                                         }).catch(() => {
-//                                             next();
-//                                         })
-//                                     } else {
-//                                         next();
-//                                     }
-//                                 });
-//                             }).catch(err => {
-//                                 console.log(err);
-//                                 next();
-//                             })
-//                         }, function () {
-//                             cb(null, true);
-//                         });
-//                     }
-//                 ], function (err, result) {
-//                     fs.unlinkSync(filePath);
-//                     done(ResponseJSON(ErrorCodes.SUCCESS, "Successsful", {idPlot: rs.idPlot}));
-//                 });
-//             }).catch(err => {
-//                 fs.unlinkSync(filePath);
-//                 console.log(err);
-//                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot name existed!", err.message));
-//             });
-//         });
-//
-//     });
-// };
 module.exports = {
     duplicatePlot: duplicatePlot,
     createNewPlot: createNewPlot,
