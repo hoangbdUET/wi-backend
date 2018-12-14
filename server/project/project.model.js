@@ -80,7 +80,7 @@ function validationFlow(idFlow, dbConnection) {
 			async.each(flow.tasks, (task, next) => {
 				let name = task.name;
 				let newId = task.idTask;
-				let regex = new RegExp(`(name="${name}".+?idTask=")\\d+?(">)`);
+				let regex = new RegExp(`(name="${name}".+?idTask=")\\d+?(")`);
 				content = content.replace(regex, '$1' + newId + '$2');
 				next();
 			}, () => {
