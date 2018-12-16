@@ -264,7 +264,6 @@ function createStorageIfNotExsited(idProject, dbConnection, username, company) {
 					name: company + "-" + username,
 					company: company,
 					input_directory: getRandomHash(),
-					output_directory: getRandomHash(),
 					createdBy: username,
 					updatedBy: username
 				}).then(() => {
