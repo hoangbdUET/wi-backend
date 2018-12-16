@@ -14,14 +14,15 @@ module.exports = function (sequelize, DataTypes) {
 			type: DataTypes.STRING(250),
 			allowNull: true
 		},
-		output_directory: {
-			type: DataTypes.STRING(250),
-			allowNull: true
-		},
 		company: {
 			type: DataTypes.STRING(250),
 			allowNull: true,
 			defaultValue: 'I2G'
+		},
+		type: {
+			type: DataTypes.STRING(250),
+			allowNull: true,
+			defaultValue: "INPUT"
 		},
 		createdBy: {
 			type: DataTypes.STRING(50),
