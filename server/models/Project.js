@@ -41,5 +41,8 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING(50),
             allowNull: false
         }
+    }, {
+	    charset: 'utf8',
+	    collate: 'utf8_general_ci'
     });
 };
