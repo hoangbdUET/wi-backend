@@ -568,6 +568,7 @@ function listProjectByUser(payload, done, dbConnection) {
 		done(ResponseJSON(ErrorCodes.SUCCESS, "Done", projects));
 	}).catch(err => {
 		console.log("LOI : ", query);
+		done(ResponseJSON(ErrorCodes.SUCCESS, "Error", []));
 	});
 }
 

@@ -51,7 +51,7 @@ function listStorageDatabaseByUser(payload, dbConnection, done) {
 		done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
 	}).catch(err => {
 		console.log("LOI : ", query);
-		done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
+		done(ResponseJSON(ErrorCodes.SUCCESS, "Error", []));
 	});
 }
 
