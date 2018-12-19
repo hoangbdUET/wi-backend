@@ -46,7 +46,7 @@ function editDataset(datasetInfo, done, dbConnection, username) {
     delete datasetInfo.createdBy;
     dbConnection.Dataset.findById(datasetInfo.idDataset).then(dataset => {
         if (dataset) {
-            if (dataset.name != datasetInfo.name) {
+            if (datasetInfo.name && dataset.name != datasetInfo.name) {
                 let datasetname = dataset.name;
                 dataset.name = datasetInfo.name;
                 dataset.datasetKey = datasetInfo.datasetKey;
