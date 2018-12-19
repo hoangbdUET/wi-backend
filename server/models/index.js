@@ -70,7 +70,9 @@ function newDbInstance(dbName, callback) {
 	const sequelize = new Sequelize(dbName, config.user, config.password, {
 		host: config.host,
 		define: {
-			freezeTableName: true
+			freezeTableName: true,
+			charset: 'utf8',
+			collate: 'utf8_general_ci',
 		},
 		dialect: config.dialect,
 		port: config.port,
