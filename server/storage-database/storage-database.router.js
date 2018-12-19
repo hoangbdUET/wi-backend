@@ -26,4 +26,10 @@ router.post('/storage-database/list', (req, res) => {
 	});
 });
 
+router.post('/storage-database/list-by-user-project', (req, res) => {
+	Model.listStorageDatabaseByUser(req.body, req.dbConnection, status => {
+		res.send(status);
+	});
+});
+
 module.exports = router;
