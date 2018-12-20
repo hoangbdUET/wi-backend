@@ -5,74 +5,74 @@ const flows = [
 		content: `<?xml version="1.0" encoding="UTF-8"?>
 <bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:wi="http://wi.i2g.cloud" id="diagram" targetNamespace="http://bpmn.io/schema/bpmn" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
   <bpmn2:process id="Process_1" isExecutable="true">
-    <bpmn2:serviceTask id="ServiceTask_0vxw1ma" name="Shale Volume - Gamma Ray" wi:expression="execute" wi:idTask="10000">
-      <bpmn2:outgoing>SequenceFlow_0h5c864</bpmn2:outgoing>
+    <bpmn2:serviceTask id="ServiceTask_15kkqdy" name="Shale Volume - Gamma Ray" wi:expression="execute" wi:idTask="10032">
+      <bpmn2:outgoing>SequenceFlow_0pfl7zx</bpmn2:outgoing>
     </bpmn2:serviceTask>
-    <bpmn2:serviceTask id="ServiceTask_0dykd53" name="Porosity - Density" wi:expression="execute" wi:idTask="10001">
-      <bpmn2:incoming>SequenceFlow_0h5c864</bpmn2:incoming>
-      <bpmn2:outgoing>SequenceFlow_14dkr4d</bpmn2:outgoing>
+    <bpmn2:serviceTask id="ServiceTask_1jgh6oq" name="Porosity - Density" wi:expression="execute" wi:idTask="10034">
+      <bpmn2:incoming>SequenceFlow_0pfl7zx</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_0bvrmro</bpmn2:outgoing>
     </bpmn2:serviceTask>
-    <bpmn2:serviceTask id="ServiceTask_1gvf4ef" name="Water Saturation - Archie" wi:expression="execute" wi:idTask="10002">
-      <bpmn2:incoming>SequenceFlow_14dkr4d</bpmn2:incoming>
-      <bpmn2:outgoing>SequenceFlow_13ak42j</bpmn2:outgoing>
+    <bpmn2:serviceTask id="ServiceTask_0mchu7t" name="Water Saturation - Archie" wi:expression="execute" wi:idTask="10035">
+      <bpmn2:incoming>SequenceFlow_0bvrmro</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_07j0gv7</bpmn2:outgoing>
     </bpmn2:serviceTask>
-    <bpmn2:serviceTask id="ServiceTask_1oibj3q" name="Clastic - Summaries" wi:expression="execute" wi:idTask="10003">
-      <bpmn2:incoming>SequenceFlow_13ak42j</bpmn2:incoming>
+    <bpmn2:serviceTask id="ServiceTask_05cx4yn" name="Clastic - Summaries" wi:expression="execute" wi:idTask="10036">
+      <bpmn2:incoming>SequenceFlow_07j0gv7</bpmn2:incoming>
     </bpmn2:serviceTask>
-    <bpmn2:sequenceFlow id="SequenceFlow_0h5c864" sourceRef="ServiceTask_0vxw1ma" targetRef="ServiceTask_0dykd53" />
-    <bpmn2:sequenceFlow id="SequenceFlow_14dkr4d" sourceRef="ServiceTask_0dykd53" targetRef="ServiceTask_1gvf4ef" />
-    <bpmn2:sequenceFlow id="SequenceFlow_13ak42j" sourceRef="ServiceTask_1gvf4ef" targetRef="ServiceTask_1oibj3q" />
-    <bpmn2:serviceTask id="ServiceTask_0aapdc1" name="Shale Volume - Neutron-Density" wi:expression="execute" wi:idTask="10004" wi:disabled="true" />
-    <bpmn2:serviceTask id="ServiceTask_056cgfg" name="Porosity - Neutron" wi:expression="execute" wi:idTask="10005" wi:disabled="true" />
-    <bpmn2:serviceTask id="ServiceTask_0pe69xt" name="Porosity - Sonic" wi:expression="execute" wi:idTask="10006" wi:disabled="true" />
-    <bpmn2:serviceTask id="ServiceTask_1xn5zcb" name="Water Saturation - Quick Look Sw" wi:expression="execute" wi:idTask="10007" wi:disabled="true" />
+    <bpmn2:sequenceFlow id="SequenceFlow_0pfl7zx" sourceRef="ServiceTask_15kkqdy" targetRef="ServiceTask_1jgh6oq" />
+    <bpmn2:sequenceFlow id="SequenceFlow_0bvrmro" sourceRef="ServiceTask_1jgh6oq" targetRef="ServiceTask_0mchu7t" />
+    <bpmn2:sequenceFlow id="SequenceFlow_07j0gv7" sourceRef="ServiceTask_0mchu7t" targetRef="ServiceTask_05cx4yn" />
+    <bpmn2:serviceTask id="ServiceTask_10b67pf" name="Shale Volume - Neutron-Density" wi:expression="execute" wi:idTask="10040" wi:disabled="true" />
+    <bpmn2:serviceTask id="ServiceTask_0dg741i" name="Porosity - Neutron" wi:expression="execute" wi:idTask="10041" wi:disabled="true" />
+    <bpmn2:serviceTask id="ServiceTask_00y1u9j" name="Porosity - Sonic" wi:expression="execute" wi:idTask="10042" wi:disabled="true" />
+    <bpmn2:serviceTask id="ServiceTask_1v83e12" name="Water Saturation - Non-poro Sw" wi:expression="execute" wi:idTask="10043" wi:disabled="true" />
   </bpmn2:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
-      <bpmndi:BPMNShape id="ServiceTask_0vxw1ma_di" bpmnElement="ServiceTask_0vxw1ma">
-        <dc:Bounds x="66" y="191" width="100" height="80" />
+      <bpmndi:BPMNShape id="ServiceTask_15kkqdy_di" bpmnElement="ServiceTask_15kkqdy">
+        <dc:Bounds x="98" y="148" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ServiceTask_0dykd53_di" bpmnElement="ServiceTask_0dykd53">
-        <dc:Bounds x="208" y="191" width="100" height="80" />
+      <bpmndi:BPMNShape id="ServiceTask_1jgh6oq_di" bpmnElement="ServiceTask_1jgh6oq">
+        <dc:Bounds x="243" y="148" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ServiceTask_1gvf4ef_di" bpmnElement="ServiceTask_1gvf4ef">
-        <dc:Bounds x="353" y="191" width="100" height="80" />
+      <bpmndi:BPMNShape id="ServiceTask_0mchu7t_di" bpmnElement="ServiceTask_0mchu7t">
+        <dc:Bounds x="384" y="148" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ServiceTask_1oibj3q_di" bpmnElement="ServiceTask_1oibj3q">
-        <dc:Bounds x="502" y="191" width="100" height="80" />
+      <bpmndi:BPMNShape id="ServiceTask_05cx4yn_di" bpmnElement="ServiceTask_05cx4yn">
+        <dc:Bounds x="530" y="148" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_0h5c864_di" bpmnElement="SequenceFlow_0h5c864">
-        <di:waypoint x="166" y="231" />
-        <di:waypoint x="208" y="231" />
+      <bpmndi:BPMNEdge id="SequenceFlow_0pfl7zx_di" bpmnElement="SequenceFlow_0pfl7zx">
+        <di:waypoint x="198" y="188" />
+        <di:waypoint x="243" y="188" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="187" y="210" width="0" height="12" />
+          <dc:Bounds x="220.5" y="167" width="0" height="12" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_14dkr4d_di" bpmnElement="SequenceFlow_14dkr4d">
-        <di:waypoint x="308" y="231" />
-        <di:waypoint x="353" y="231" />
+      <bpmndi:BPMNEdge id="SequenceFlow_0bvrmro_di" bpmnElement="SequenceFlow_0bvrmro">
+        <di:waypoint x="343" y="188" />
+        <di:waypoint x="384" y="188" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="330.5" y="210" width="0" height="12" />
+          <dc:Bounds x="363.5" y="167" width="0" height="12" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_13ak42j_di" bpmnElement="SequenceFlow_13ak42j">
-        <di:waypoint x="453" y="231" />
-        <di:waypoint x="502" y="231" />
+      <bpmndi:BPMNEdge id="SequenceFlow_07j0gv7_di" bpmnElement="SequenceFlow_07j0gv7">
+        <di:waypoint x="484" y="188" />
+        <di:waypoint x="530" y="188" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="477.5" y="210" width="0" height="12" />
+          <dc:Bounds x="507" y="167" width="0" height="12" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="ServiceTask_0aapdc1_di" bpmnElement="ServiceTask_0aapdc1">
-        <dc:Bounds x="66" y="324" width="100" height="80" />
+      <bpmndi:BPMNShape id="ServiceTask_10b67pf_di" bpmnElement="ServiceTask_10b67pf">
+        <dc:Bounds x="98" y="275" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ServiceTask_056cgfg_di" bpmnElement="ServiceTask_056cgfg">
-        <dc:Bounds x="208" y="324" width="100" height="80" />
+      <bpmndi:BPMNShape id="ServiceTask_0dg741i_di" bpmnElement="ServiceTask_0dg741i">
+        <dc:Bounds x="243" y="275" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ServiceTask_0pe69xt_di" bpmnElement="ServiceTask_0pe69xt">
-        <dc:Bounds x="208" y="445" width="100" height="80" />
+      <bpmndi:BPMNShape id="ServiceTask_00y1u9j_di" bpmnElement="ServiceTask_00y1u9j">
+        <dc:Bounds x="243" y="392" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ServiceTask_1xn5zcb_di" bpmnElement="ServiceTask_1xn5zcb">
-        <dc:Bounds x="353" y="324" width="100" height="80" />
+      <bpmndi:BPMNShape id="ServiceTask_1v83e12_di" bpmnElement="ServiceTask_1v83e12">
+        <dc:Bounds x="384" y="275" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
@@ -134,11 +134,11 @@ const tasks = [
 		name: "Porosity - Sonic"
 	},
 	{
-		content: `{"icon":"water-saturation-16x16","function":"calSaturationQuickLook","inputs":[{"name":"Micro Resistivity","family":"Micro Resistivity","unit":"ohm.m","type":"2","value":"Micro Resistivity"},{"name":"Resistivity","family":"Resistivity","unit":"ohm.m","type":"2","value":"Resistivity"}],"parameters":[{"name":"Rw","type":"number","value":0.03},{"name":"Rmf","type":"number","value":0.1}],"outputs":[{"name":"Sw_QL","family":"Water Saturation","unit":"v/v","use":true,"idFamily":885,"defaultUnit":"v/v"}],"inputData":[],"paramData":[],"zonation":{"name":"Zonation_all","children":["All"]},"save_option":"2","expression":"calSaturationQuickLook"}`,
+		content: `{"icon":"water-saturation-16x16","function":"calSaturationNonPoro","inputs":[{"name":"Micro Resistivity","family":"Micro Resistivity","unit":"ohm.m"},{"name":"Resistivity","family":"Resistivity","unit":"ohm.m"}],"parameters":[{"name":"Rw","type":"number","value":0.03},{"name":"Rmf","type":"number","value":0.1}],"outputs":[{"name":"Sw_QL","family":"Water Saturation","unit":"v/v","use":true,"idFamily":885,"defaultUnit":"v/v"}],"inputData":[],"paramData":[],"zonation":{"name":"Zonation_all","children":["All"]},"save_option":"2","expression":"calSaturationNonPoro"}`,
 		idFlow: 10000,
 		idTask: 10007,
 		idTaskSpec: 67,
-		name: "Water Saturation - Quick Look Sw"
+		name: "Water Saturation - Non-poro Sw"
 	}
 ];
 
