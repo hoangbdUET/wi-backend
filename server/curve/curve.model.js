@@ -620,8 +620,8 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy) {
                                             }
                                             console.log("Copy file success!");
                                             fs.unlink(filePath);
-                                            Object.assign(curve, overwriteInfo).save().then(() => {
-                                                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
+                                            Object.assign(curve, overwriteInfo).save().then((c) => {
+                                                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", c));
                                             }).catch(err => {
                                                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
                                             })

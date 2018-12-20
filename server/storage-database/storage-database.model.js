@@ -1,5 +1,6 @@
 const ResponseJSON = require('../response');
 const ErrorCodes = require('../../error-codes').CODES;
+const config = require('config');
 
 function createNewStorageDatabase(payload, dbConnection, done) {
 	dbConnection.StorageDatabase.create(payload).then(rs => {
@@ -43,9 +44,21 @@ function listStorageDatabase(payload, dbConnection, done) {
 	});
 }
 
+function listStorageDatabaseByUser(payload, dbConnection, done) {
+	const sequelize = require('sequelize');
+	let query = "SELECT * FROM `" + config.Database.prefix + payload.username + "`.storage_database WHERE idProject = " + payload.idProject;
+	dbConnection.sequelize.query(query, {type: sequelize.QueryTypes.SELECT}).then(rs => {
+		done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
+	}).catch(err => {
+		console.log("LOI : ", query);
+		done(ResponseJSON(ErrorCodes.SUCCESS, "Error", []));
+	});
+}
+
 module.exports = {
 	createNewStorageDatabase: createNewStorageDatabase,
 	infoStorageDatabase: infoStorageDatabase,
 	listStorageDatabase: listStorageDatabase,
-	deleteStorageDatabase: deleteStorageDatabase
+	deleteStorageDatabase: deleteStorageDatabase,
+	listStorageDatabaseByUser: listStorageDatabaseByUser
 };

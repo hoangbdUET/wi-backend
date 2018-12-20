@@ -441,7 +441,10 @@ async function getProjectFullInfo(payload, done, req) {
 			function (cb) {
 				dbConnection.ZoneSet.findAll({
 					where: {idWell: well.idWell},
-					include: [{model: dbConnection.Zone, include: {model: dbConnection.ZoneTemplate}}, {model: dbConnection.ZoneSetTemplate}]
+					include: [{
+						model: dbConnection.Zone,
+						include: {model: dbConnection.ZoneTemplate}
+					}, {model: dbConnection.ZoneSetTemplate}]
 				}).then(zonesets => {
 					cb(null, zonesets);
 				});
@@ -454,7 +457,10 @@ async function getProjectFullInfo(payload, done, req) {
 			function (cb) {
 				dbConnection.MarkerSet.findAll({
 					where: {idWell: well.idWell},
-					include: [{model: dbConnection.Marker, include: {model: dbConnection.MarkerTemplate}}, {model: dbConnection.MarkerSetTemplate}]
+					include: [{
+						model: dbConnection.Marker,
+						include: {model: dbConnection.MarkerTemplate}
+					}, {model: dbConnection.MarkerSetTemplate}]
 				}).then(markersets => {
 					cb(null, markersets);
 				});
@@ -555,6 +561,17 @@ function deleteProjectOwner(payload, done, dbConnection) {
 	})
 }
 
+function listProjectByUser(payload, done, dbConnection) {
+	const sequelize = require('sequelize');
+	let query = "SELECT * FROM `" + config.Database.prefix + payload.username + "`.project";
+	dbConnection.sequelize.query(query, {type: sequelize.QueryTypes.SELECT}).then(projects => {
+		done(ResponseJSON(ErrorCodes.SUCCESS, "Done", projects));
+	}).catch(err => {
+		console.log("LOI : ", query);
+		done(ResponseJSON(ErrorCodes.SUCCESS, "Error", []));
+	});
+}
+
 module.exports = {
 	createNewProject: createNewProject,
 	editProject: editProject,
@@ -566,5 +583,6 @@ module.exports = {
 	updatePermission: updatePermission,
 	listProjectOffAllUser: listProjectOffAllUser,
 	deleteProjectOwner: deleteProjectOwner,
-	validationFlow: validationFlow
+	validationFlow: validationFlow,
+	listProjectByUser: listProjectByUser
 };
