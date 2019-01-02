@@ -115,7 +115,11 @@ function info(payload, done, dbConnection) {
 			include: {model: dbConnection.MarkerTemplate}
 		}
 	}).then(r => {
-		done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
+		if (r) {
+			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No marker set found by id"));
+		} else {
+			done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
+		}
 	}).catch(err => {
 		done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
 	});
