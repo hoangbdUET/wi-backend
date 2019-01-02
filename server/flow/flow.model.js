@@ -97,10 +97,21 @@ let deleteFlow = function (flow, done, dbConnection) {
 	});
 };
 
+
+let duplicateFlow = function (flow, done, dbConnection) {
+	done(ResponseJSON(200, "Done"));
+};
+
+let saveAsTemplate = function (flow, done, dbConnection) {
+	done(ResponseJSON(200, "Done"));
+};
+
 module.exports = {
 	createNewFlow: createNewFlow,
 	infoFlow: infoFlow,
 	deleteFlow: deleteFlow,
 	listFlow: listFlow,
-	editFlow: editFlow
-}
+	editFlow: editFlow,
+	duplicateFlow: duplicateFlow,
+	saveAsTemplate: saveAsTemplate
+};
