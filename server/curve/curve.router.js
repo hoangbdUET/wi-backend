@@ -145,13 +145,16 @@ router.post('/curve/scale', function (req, res) {
     }, req.dbConnection);
 });
 
-router.post('/curve/processing', upload.single('file'), function (req, res) {
-    writeToTmpFile(req.body.data, function (tmpPath) {
-        req.tmpPath = tmpPath;
-        curveModel.processingCurve(req, function (result) {
-            res.send(result);
-        }, req.dbConnection, req.createdBy, req.updatedBy);
-    });
+router.post('/curve/processing', upload.single('data'), function (req, res) {
+    fs.readFile(req.file.path, function (err, data) {
+        if (err) return res.send(err);
+        writeToTmpFile(JSON.parse(data.toString()), function (tmpPath) {
+            req.tmpPath = tmpPath;
+            curveModel.processingCurve(req, function (result) {
+                res.send(result);
+            }, req.dbConnection, req.createdBy, req.updatedBy);
+        });
+    })
 });
 
 router.post('/curve/import-from-inventory', function (req, res) {
