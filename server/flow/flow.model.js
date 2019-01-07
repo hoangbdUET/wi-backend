@@ -175,7 +175,7 @@ let duplicateFlow = function (flow, done, dbConnection) {
 					});
 				}).catch(err => {
 					if (err.name === "SequelizeUniqueConstraintError") {
-						done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Flow's name already exists!"));
+						done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Workflow's name already exists!"));
 					} else {
 						done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
 					}
@@ -209,6 +209,12 @@ let saveAsTemplate = function (flow, done, dbConnection) {
 				type: "FT"
 			}).then(() => {
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Done"));
+			}).catch(err=>{
+				if (err.name === "SequelizeUniqueConstraintError") {
+					done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Workflow template's name already exists!"));
+				} else {
+					done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+				}
 			});
 		} else {
 			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No workflow found"));
