@@ -115,10 +115,12 @@ function findLine(line, dbConnection, idTrack) {
 	}));
 }
 
-function createPlot(plot, dbConnection, idProject) {
+async function createPlot(plot, dbConnection, idProject, well, dataset) {
 	plot.createdBy = createdBy;
 	plot.updatedBy = updatedBy;
 	plot.idProject = idProject;
+	let curve = await findCurve(plot.reference_curve, dbConnection, idProject, well, dataset);
+	if (curve) plot.referenceCurve = curve.idCurve;
 	return dbConnection.Plot.create(plot);
 }
 
@@ -254,7 +256,7 @@ module.exports = function (req, done, dbConnection, username) {
 			if (!well) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No well found by id"));
 			let idProject = req.body.idProject || well.idProject;
 			myPlot.name = dataset ? req.body.plotName + "-" + well.name + "/" + dataset.name : req.body.plotName + "-" + well.name;
-			createPlot(myPlot, dbConnection, idProject).then(pl => {
+			createPlot(myPlot, dbConnection, idProject, well, dataset).then(pl => {
 				async.series([
 					function (cb) {
 						async.each(myPlot.tracks, (track, nextTrack) => {
