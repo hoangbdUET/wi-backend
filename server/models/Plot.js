@@ -45,7 +45,7 @@ module.exports = function (sequelize, DataTypes) {
 		notShowPatterns: {
 			type: DataTypes.BOOLEAN,
 			allowNull: true,
-			defaultValue: 1
+			defaultValue: 0
 		},
 		separationWidth: {
 			type: DataTypes.FLOAT,
