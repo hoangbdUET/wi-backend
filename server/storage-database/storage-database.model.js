@@ -1,9 +1,15 @@
 const ResponseJSON = require('../response');
 const ErrorCodes = require('../../error-codes').CODES;
 const config = require('config');
+const utils = require('../utils');
 
 function createNewStorageDatabase(payload, dbConnection, done) {
-	dbConnection.StorageDatabase.create(payload).then(rs => {
+	dbConnection.StorageDatabase.create({
+		name: payload.name,
+		company: payload.company,
+		idProject: payload.idProject,
+		input_directory: utils.getRandomHash()
+	}).then(rs => {
 		done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
 	}).catch(err => {
 		done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
