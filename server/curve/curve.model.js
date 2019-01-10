@@ -166,10 +166,10 @@ function getCurveInfo(curve, done, dbConnection, username) {
             if (!curve) throw "not exits";
             calculateScale(curve.idCurve, username, dbConnection, function (err, result) {
                 if (!result) result = {
-                    minScale: -1,
-                    maxScale: -1,
-                    meanValue: -1,
-                    medianValue: -1
+                    minScale: NaN,
+                    maxScale: NaN,
+                    meanValue: NaN,
+                    medianValue: NaN
                 };
                 // console.log(result);
                 if (!curve.idFamily) {
