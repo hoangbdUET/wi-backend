@@ -175,10 +175,10 @@ function getCurveInfo(curve, done, dbConnection, username) {
                 if (!curve.idFamily) {
                     curve = curve.toJSON();
                     curve.DataStatistic = {
-                        minValue: 0,
-                        maxValue: 0,
-                        meanValue: 0,
-                        medianValue: 0
+                        minValue: NaN,
+                        maxValue: NaN,
+                        meanValue: NaN,
+                        medianValue: NaN
                     };
                     if (err) {
                         curve.LineProperty = {
@@ -201,10 +201,10 @@ function getCurveInfo(curve, done, dbConnection, username) {
                             "lineWidth": 1,
                             "lineColor": "red",
                         };
-                        curve.DataStatistic.minValue = result.minScale ? parseFloat(result.minScale) : 0;
-                        curve.DataStatistic.maxValue = result.maxScale ? parseFloat(result.maxScale) : 0;
-                        curve.DataStatistic.meanValue = result.meanValue ? parseFloat(result.meanValue) : 0;
-                        curve.DataStatistic.medianValue = result.medianValue ? parseFloat(result.medianValue) : 0;
+                        curve.DataStatistic.minValue = result.minScale ? parseFloat(result.minScale) : NaN;
+                        curve.DataStatistic.maxValue = result.maxScale ? parseFloat(result.maxScale) : NaN;
+                        curve.DataStatistic.meanValue = result.meanValue ? parseFloat(result.meanValue) : NaN;
+                        curve.DataStatistic.medianValue = result.medianValue ? parseFloat(result.medianValue) : NaN;
                     }
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Curve success", curve));
                 } else {
@@ -224,10 +224,10 @@ function getCurveInfo(curve, done, dbConnection, username) {
                     curveObj.LineProperty.maxScale = curveObj.LineProperty.family_spec[0].maxScale;
                     curveObj.LineProperty.minScale = curveObj.LineProperty.family_spec[0].minScale;
                     curveObj.LineProperty.unit = curveObj.LineProperty.family_spec[0].unit;
-                    curveObj.DataStatistic.minValue = result.minScale ? parseFloat(result.minScale) : 0;
-                    curveObj.DataStatistic.maxValue = result.maxScale ? parseFloat(result.maxScale) : 0;
-                    curveObj.DataStatistic.meanValue = result.meanValue ? parseFloat(result.meanValue) : 0;
-                    curveObj.DataStatistic.medianValue = result.medianValue ? parseFloat(result.medianValue) : 0;
+                    curveObj.DataStatistic.minValue = result.minScale ? parseFloat(result.minScale) : NaN;
+                    curveObj.DataStatistic.maxValue = result.maxScale ? parseFloat(result.maxScale) : NaN;
+                    curveObj.DataStatistic.meanValue = result.meanValue ? parseFloat(result.meanValue) : NaN;
+                    curveObj.DataStatistic.medianValue = result.medianValue ? parseFloat(result.medianValue) : NaN;
                     delete curveObj.LineProperty.family_spec;
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Curve success", curveObj));
                 }
