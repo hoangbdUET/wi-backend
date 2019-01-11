@@ -113,9 +113,11 @@ function newDbInstance(dbName, callback) {
 		'Groups',
 		'Histogram',
 		'HistogramCurveSet',
-		// 'Image',
-		// 'ImageSet',
+		'Image',
 		'ImageOfTrack',
+		'ImageSet',
+		'ImageSetTemplate',
+		'ImageTemplate',
 		'ImageTrack',
 		'Line',
 		'Marker',
@@ -449,8 +451,38 @@ function newDbInstance(dbName, callback) {
 			onDelete: 'CASCADE'
 		});
 
-
-		//marker set
+		//image Template
+		m.Well.hasMany(m.ImageSet, {
+			foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"}
+		});
+		m.ImageSet.belongsTo(m.Well, {
+			foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"}
+		});
+		m.Project.hasMany(m.ImageSetTemplate, {
+			foreignKey: {
+				name: "idProject",
+				allowNull: true,
+				unique: "name-idProject"
+			}, onDelete: 'CASCADE'
+		});
+		m.ImageSetTemplate.hasMany(m.ImageSet, {
+			foreignKey: {name: "idImageSetTemplate", allowNull: false, unique: "name-idMarkerSetTemplate"},
+			onDelete: "CASCADE"
+		});
+		m.ImageSetTemplate.hasMany(m.ImageSet, {
+			foreignKey: {name: "idImageSetTemplate", allowNull: false}, onDelete: 'CASCADE'
+		});
+		m.ImageSet.belongsTo(m.ImageSetTemplate, {
+			foreignKey: {name: "idImageSetTemplate", allowNull: false}, onDelete: 'CASCADE'
+		});
+		m.Image.belongsTo(m.ImageSet, {
+			foreignKey: {name: "idImageTemplate", allowNull: false}, onDelete: "CASCADE"
+		});
+		m.ImageTemplate.hasMany(m.Image, {
+			foreignKey: {name: "idImageSet", allowNull: false}
+		});
+		m.ImageTrack.belongsTo(m.ImageSet, {foreignKey: {name: "idImageSet", allowNull: true}});
+		//marker Template
 		m.Well.hasMany(m.MarkerSet, {
 			foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"}
 		});
