@@ -113,7 +113,7 @@ function newDbInstance(dbName, callback) {
 		'Groups',
 		'Histogram',
 		'HistogramCurveSet',
-		'Image',
+		// 'Image',
 		// 'ImageSet',
 		'ImageOfTrack',
 		'ImageTrack',
