@@ -481,7 +481,7 @@ function newDbInstance(dbName, callback) {
 		m.ImageTemplate.hasMany(m.Image, {
 			foreignKey: {name: "idImageSet", allowNull: false}
 		});
-		m.ImageTrack.belongsTo(m.ImageSet, {foreignKey: {name: "idImageSet", allowNull: true}});
+		// m.ImageTrack.belongsTo(m.ImageSet, {foreignKey: {name: "idImageSet", allowNull: true}});
 		//marker Template
 		m.Well.hasMany(m.MarkerSet, {
 			foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"}
