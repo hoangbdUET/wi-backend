@@ -23,7 +23,8 @@ module.exports = function (sequelize, DataTypes) {
         },
         description: {
             type: DataTypes.STRING(250),
-            allowNull: true
+            allowNull: true,
+            defaultValue: ''
         },
         duplicated: {
             type: DataTypes.INTEGER,
@@ -32,7 +33,8 @@ module.exports = function (sequelize, DataTypes) {
         },
         note: {
             type: DataTypes.STRING(255),
-            allowNull: true
+            allowNull: true,
+            defaultValue: ''
         },
         createdBy: {
             type: DataTypes.STRING(50),
