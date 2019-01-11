@@ -335,22 +335,22 @@ function deleteHistogram(histogramInfo, done, dbConnection) {
 
 function duplicateHistogram(payload, done, dbConnection) {
     let Histogram = dbConnection.Histogram;
-    Histogram.findById(payload.idHistogram, {include: {all: true}}).then(hisogram => {
+    Histogram.findById(payload.idHistogram, {include: {all: true}}).then(histogram => {
         let newHistogram;
-        if (hisogram) {
-            newHistogram = hisogram.toJSON();
+        if (histogram) {
+            newHistogram = histogram.toJSON();
             delete newHistogram.idHistogram;
             delete newHistogram.createdAt;
             delete newHistogram.updatedAt;
             newHistogram.duplicated = 1;
-            newHistogram.name = newHistogram.name + "_COPY_" + hisogram.duplicated;
+            newHistogram.name = newHistogram.name + "_COPY_" + histogram.duplicated;
             newHistogram.createdBy = payload.createdBy;
             newHistogram.updatedBy = payload.updatedBy;
-            hisogram.duplicated++;
-            let curves = hisogram.curves.map(c => c.idCurve);
-            hisogram.save();
+            histogram.duplicated++;
+            let curves = histogram.curves.map(c => c.idCurve);
+            histogram.save();
             Histogram.create(newHistogram).then(rs => {
-                asyncLoop(hisogram.curves, function (curve) {
+                asyncLoop(histogram.curves, function (curve) {
                     rs.addCurve(curve).then(c => {
                         let curve_set = c[0][0];
                         curve_set.intervalDepthTop = curve.histogram_curve_set.intervalDepthTop;
@@ -364,10 +364,10 @@ function duplicateHistogram(payload, done, dbConnection) {
                         curve_set.save();
                     })
                 });
-                // rs.setCurves(hisogram.curves).then(r => {
+                // rs.setCurves(histogram.curves).then(r => {
                 //     console.log(r);
                 // });
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", hisogram));
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", histogram));
             }).catch(err => {
                 done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
             });
