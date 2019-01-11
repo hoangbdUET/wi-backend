@@ -86,7 +86,6 @@ function main() {
 	let zoneSetRouter = require('./server/zone-set/zone-set.router');
 	let zoneRouter = require('./server/zone/zone.router');
 	let imageUpload = require('./server/image-upload');
-	let imageRouter = require('./server/image/image.router');
 	let crossPlotRouter = require('./server/cross-plot/cross-plot.router');
 	let pointSetRouter = require('./server/pointset/pointset.router');
 	let polygonRouter = require('./server/polygon/polygon.router');
@@ -133,6 +132,7 @@ function main() {
 	let resetDefaulParameters = require('./server/reset-parameter/reset-pamameter.router');
 	let permissionRouter = require('./server/permission/permission.router');
 	let storageDatabseRouter = require('./server/storage-database/storage-database.router');
+	// let projectLogRouter = require('./server/project-log/project-log.router');
 	let queue = {};
 	let http = require('http').Server(app);
 	let bodyParser = require('body-parser');
@@ -268,6 +268,7 @@ function main() {
 	app.use('/project/well', markerSetRouter);
 	app.use('/project', flowRouter);
 	app.use('/project/flow', taskRouter);
+	// app.use('/project', projectLogRouter);
 	//middleware for all curve router to block spam request
 	app.use('/project/well/dataset/curve', function (req, res, next) {
 		if (!queue[req.decoded.username]) {
@@ -292,7 +293,6 @@ function main() {
 	app.use('/project/well/marker-set', markerRouter);
 	app.use('/project/plot/track', shadingRouter);
 	app.use('/project/plot/track', lineRouter);
-	app.use('/project/plot/track', imageRouter);
 	app.use('/project/plot/track', annotationRouter);
 	app.use('/project/well/dataset', curveRouter);//change
 	app.use('/project/well/zone-set', zoneRouter);

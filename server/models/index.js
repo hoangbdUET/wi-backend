@@ -114,6 +114,7 @@ function newDbInstance(dbName, callback) {
 		'Histogram',
 		'HistogramCurveSet',
 		'Image',
+		// 'ImageSet',
 		'ImageOfTrack',
 		'ImageTrack',
 		'Line',
@@ -294,15 +295,10 @@ function newDbInstance(dbName, callback) {
 		m.ZoneSet.hasMany(m.Zone, {foreignKey: {name: "idZoneSet", allowNull: false}, onDelete: 'CASCADE'});
 
 
-		// m.ZoneSet.hasMany(m.Zone, {foreignKey: {name: "idZoneSet", allowNull: false}, onDelete: 'CASCADE'});
-		// m.Zone.belongsTo(m.ZoneTemplate, {foreignKey: {name: "idZoneTemplate", allowNull: true}, onDelete: 'CASCADE'});
-		// m.ZoneTemplate.hasMany(m.Zone, {foreignKey: {name: "idZoneTemplate", allowNull: true}, onDelete: 'CASCADE'});
 		m.Plot.belongsTo(m.Curve, {foreignKey: 'referenceCurve'});
 
 		m.Track.hasMany(m.Line, {foreignKey: {name: "idTrack", allowNull: false}, onDelete: 'CASCADE'});
 		m.Track.hasMany(m.Shading, {foreignKey: {name: "idTrack", allowNull: false}, onDelete: 'CASCADE'});
-		// m.Track.hasMany(m.Image, {foreignKey: {name: "idTrack", allowNull: false}, onDelete: 'CASCADE'});
-		// m.Track.hasMany(m.Marker, {foreignKey: {name: 'idTrack', allowNull: false}, onDelete: 'CASCADE'});
 		m.Track.hasMany(m.Annotation, {foreignKey: {name: 'idTrack', allowNull: false}, onDelete: 'CASCADE'});
 		m.Line.belongsTo(m.Curve, {foreignKey: {name: "idCurve", allowNull: false}, onDelete: 'CASCADE'});
 
@@ -413,10 +409,6 @@ function newDbInstance(dbName, callback) {
 			onDelete: 'CASCADE'
 		});
 
-		// m.Project.hasMany(m.WorkflowSpec, {
-		//     foreignKey: {name: 'idProject', allowNull: false},
-		//     onDelete: 'CASCADE'
-		// });
 		m.Project.hasMany(m.Workflow, {
 			foreignKey: {name: 'idProject', allowNull: false, unique: 'name-idProject'},
 			onDelete: 'CASCADE'
@@ -464,7 +456,7 @@ function newDbInstance(dbName, callback) {
 		});
 		m.MarkerSet.belongsTo(m.Well, {
 			foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"}
-		})
+		});
 		m.Well.hasMany(m.DepthAxis, {
 			foreignKey: {name: "idWell", allowNull: true}
 		});
