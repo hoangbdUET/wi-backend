@@ -241,15 +241,15 @@ router.post('/zone-set', async function (req, res) {
             }
             if (exportUnit != 'm' && exportUnit != 'M') {
                 zoneSet.zones.forEach(zone => {
-                    arrData.push([zoneSet.well.name.replace(/\s+/g, '_'),
-                        zone.zone_template.name.replace(/,/g, '').replace(/\s+/g, '_'),
+                    arrData.push([zoneSet.well.name,
+                        zone.zone_template.name.replace(/,/g, ''),
                         convertLength.convertDistance(zone.startDepth, 'm', exportUnit).toFixed(4),
                         convertLength.convertDistance(zone.endDepth, 'm', exportUnit).toFixed(4)]);
                 });
             } else {
                 zoneSet.zones.forEach(zone => {
-                    arrData.push([zoneSet.well.name.replace(/\s+/g, '_'),
-                        zone.zone_template.name.replace(/,/g, '').replace(/\s+/g, '_'),
+                    arrData.push([zoneSet.well.name,
+                        zone.zone_template.name.replace(/,/g, ''),
                         parseFloat(zone.startDepth).toFixed(4),
                         parseFloat(zone.endDepth).toFixed(4)]);
                 });
@@ -286,14 +286,14 @@ router.post('/marker-set', async function (req, res) {
             if (exportUnit != 'm' && exportUnit != 'M') {
                 // console.log("convert unit of depth");
                 markerSet.markers.forEach(marker => {
-                    arrData.push([markerSet.well.name.replace(/\s+/g, '_'),
-                        marker.marker_template.name.replace(/,/g, '').replace(/\s+/g, '_'),
+                    arrData.push([markerSet.well.name,
+                        marker.marker_template.name.replace(/,/g, ''),
                         convertLength.convertDistance(parseFloat(marker.depth), 'm', exportUnit).toFixed(4)])
                 });
             } else {
                 markerSet.markers.forEach(marker => {
-                    arrData.push([markerSet.well.name.replace(/\s+/g, '_'),
-                        marker.marker_template.name.replace(/,/g, '').replace(/\s+/g, '_'),
+                    arrData.push([markerSet.well.name,
+                        marker.marker_template.name.replace(/,/g, ''),
                         parseFloat(marker.depth).toFixed(4)]);
                 });
             }
