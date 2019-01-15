@@ -491,7 +491,7 @@ function newDbInstance(dbName, callback) {
 			foreignKey: {name: "idImageTemplate", allowNull: false},
 			onDelete: 'CASCADE'
 		});
-		m.ImageTrack.belongsTo(m.ImageSet, {foreignKey: {name: "idImageSet", allowNull: true}});
+		// m.ImageTrack.belongsTo(m.ImageSet, {foreignKey: {name: "idImageSet", allowNull: true}});
 		//marker Template
 		m.Well.hasMany(m.MarkerSet, {
 			foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"}
