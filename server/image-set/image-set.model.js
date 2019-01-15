@@ -60,7 +60,7 @@ function listImageSet(payload, cb, dbConnection) {
 		where: {idWell: payload.idWell},
 		include: {model: dbConnection.Image, include: {model: dbConnection.ImageTemplate}}
 	}).then(rs => {
-		done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
+		cb(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
 	}).catch(err => {
 		cb(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
 	});

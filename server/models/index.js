@@ -465,9 +465,11 @@ function newDbInstance(dbName, callback) {
 				unique: "name-idProject"
 			}, onDelete: 'CASCADE'
 		});
-		m.ImageSetTemplate.hasMany(m.ImageSet, {
-			foreignKey: {name: "idImageSetTemplate", allowNull: false, unique: "name-idMarkerSetTemplate"},
-			onDelete: "CASCADE"
+		m.ImageSetTemplate.hasMany(m.ImageTemplate, {
+			foreignKey: {name: "idImageTemplate", allowNull: false}, onDelete: 'CASCADE'
+		});
+		m.ImageTemplate.belongsTo(m.ImageSetTemplate, {
+			foreignKey: {name: "idImageSetTemplate", allowNull: false}, onDelete: 'CASCADE'
 		});
 		m.ImageSetTemplate.hasMany(m.ImageSet, {
 			foreignKey: {name: "idImageSetTemplate", allowNull: false}, onDelete: 'CASCADE'
@@ -476,10 +478,18 @@ function newDbInstance(dbName, callback) {
 			foreignKey: {name: "idImageSetTemplate", allowNull: false}, onDelete: 'CASCADE'
 		});
 		m.Image.belongsTo(m.ImageSet, {
-			foreignKey: {name: "idImageTemplate", allowNull: false}, onDelete: "CASCADE"
+			foreignKey: {name: "idImageSet", allowNull: false}, onDelete: "CASCADE"
+		});
+		m.ImageSet.hasMany(m.Image, {
+			foreignKey: {name: "idImageSet", allowNull: false}, onDelete: 'CASCADE'
 		});
 		m.ImageTemplate.hasMany(m.Image, {
-			foreignKey: {name: "idImageSet", allowNull: false}
+			foreignKey: {name: "idImageTemplate", allowNull: false},
+			onDelete: 'CASCADE'
+		});
+		m.Image.belongsTo(m.ImageTemplate, {
+			foreignKey: {name: "idImageTemplate", allowNull: false},
+			onDelete: 'CASCADE'
 		});
 		m.ImageTrack.belongsTo(m.ImageSet, {foreignKey: {name: "idImageSet", allowNull: true}});
 		//marker Template
