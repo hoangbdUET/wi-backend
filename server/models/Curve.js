@@ -36,6 +36,11 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: true,
             defaultValue: ''
         },
+	    type: {
+		    type: DataTypes.ENUM("NUMBER", "TEXT", "ARRAY", "OTHER"),
+		    allowNull: false,
+		    defaultValue: "NUMBER"
+	    },
         createdBy: {
             type: DataTypes.STRING(50),
             allowNull: false,

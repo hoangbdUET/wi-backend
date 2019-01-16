@@ -25,6 +25,7 @@ function createNewCurve(curveInfo, done, dbConnection) {
                     name: curveInfo.name,
                     dataset: curveInfo.dataset,
                     unit: curveInfo.unit,
+                    type: curveInfo.type,
                     createdBy: curveInfo.createdBy,
                     updatedBy: curveInfo.updatedBy
                 });
@@ -667,6 +668,7 @@ async function getCurveDataFromInventory(curveInfo, token, callback, dbConnectio
     let curve = {};
     curve.name = curveInfo.name;
     curve.unit = curveInfo.unit;
+    curve.type = curveInfo.type;
     curve.description = curveInfo.description;
     curve.idDataset = dataset.idDataset;
     dbConnection.Curve.findOrCreate({
@@ -678,6 +680,7 @@ async function getCurveDataFromInventory(curveInfo, token, callback, dbConnectio
             name: curve.name,
             idDataset: curve.idDataset,
             unit: curve.unit,
+            type: curve.type,
             createdBy: createdBy,
             updatedBy: updatedBy,
             description: curve.description
@@ -733,6 +736,7 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
         let curve = {};
         curve.name = curveInfo.name;
         curve.unit = curveInfo.unit;
+        curve.type = curveInfo.type;
         curve.description = curveInfo.description;
         curve.idDataset = dataset.idDataset;
         dbConnection.Curve.findOrCreate({
@@ -744,6 +748,7 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
                 name: curve.name,
                 idDataset: curve.idDataset,
                 unit: curve.unit,
+                type: curve.type,
                 createdBy: createdBy,
                 updatedBy: updatedBy,
                 description: curve.description
