@@ -147,6 +147,7 @@ router.post('/curve/scale', function (req, res) {
 
 router.post('/curve/processing', upload.single('data'), function (req, res) {
     fs.readFile(req.file.path, function (err, data) {
+	    fs.unlink(req.file.path);
         if (err) return res.send(err);
         writeToTmpFile(JSON.parse(data.toString()), function (tmpPath) {
             req.tmpPath = tmpPath;
