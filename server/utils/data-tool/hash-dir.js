@@ -95,7 +95,6 @@ function createReadStream(basePath, hashString, fileName) {
 }
 
 
-
 module.exports.getHashPath = getHashPath;
 module.exports.createPath = createPath;
 module.exports.createReadStream = createReadStream;
@@ -119,7 +118,7 @@ function deleteFolderRecursive(path) {
 module.exports.copyFile = function (basePath, srcHashedPath, desHashedDir, fileName) {
 	let result = true;
 	let desPath = basePath + '/';
-	while (desHashedDir.length > 0){
+	while (desHashedDir.length > 0) {
 		desPath += desHashedDir.substr(0, desHashedDir.indexOf('/') + 1);
 		desHashedDir = desHashedDir.substr(desHashedDir.indexOf('/') + 1);
 		try {
@@ -164,10 +163,10 @@ module.exports.createJSONReadStream = function (basePath, hashString, fileName, 
 		writableObjectMode: true,
 		transform: function (chunk, encoding, callback) {
 			chunk = chunk.toString();
-			//let tokens = chunk.toString().split(" ");
+			// let tokens = chunk.toString().split(" ");
 			// let tokens = chunk.toString().split(/\s+/);
 			let depthToken = chunk.substr(0, chunk.indexOf(' '));
-			let valueToken = chunk.substr(chunk.indexOf(' ')+1);
+			let valueToken = chunk.substr(chunk.indexOf(' ') + 1);
 			// if (!this._started_) {
 			//     if (beginFragment) this.push(beginFragment);
 			//     this.push('[' + JSON.stringify({y: parseFunc(tokens[0]), x: !parseFloat(tokens[1]) ? tokens[1] : parseFloat(tokens[1]) * options.rate}));
@@ -178,11 +177,17 @@ module.exports.createJSONReadStream = function (basePath, hashString, fileName, 
 			// }
 			if (!this._started_) {
 				if (beginFragment) this.push(beginFragment);
-				this.push('[' + JSON.stringify({y: parseFunc(depthToken), x: !parseFloat(valueToken) ? valueToken : parseFloat(valueToken) * options.rate}));
+				this.push('[' + JSON.stringify({
+					y: parseFunc(depthToken),
+					x: !parseFloat(valueToken) ? valueToken.substr(1, valueToken.length) : parseFloat(valueToken) * options.rate
+				}));
 				this._started_ = true;
 			}
 			else {
-				this.push(',\n' + JSON.stringify({y: parseFunc(depthToken), x: !parseFloat(valueToken) ? valueToken : parseFloat(valueToken) * options.rate}));
+				this.push(',\n' + JSON.stringify({
+					y: parseFunc(depthToken),
+					x: !parseFloat(valueToken) ? valueToken.substr(1, valueToken.length) : parseFloat(valueToken) * options.rate
+				}));
 			}
 			callback();
 		},
@@ -193,12 +198,12 @@ module.exports.createJSONReadStream = function (basePath, hashString, fileName, 
 		}
 	});
 	let readStream = createReadStream(basePath, hashString, fileName);
-	readStream.on("error", err=>{
-		cb ? cb(err, null): null;
+	readStream.on("error", err => {
+		cb ? cb(err, null) : null;
 	})
 	if (!readStream) return null;
 
-	if(cb){
+	if (cb) {
 		cb(null, byline.createStream(readStream).pipe(MyTransform));
 	} else {
 		return byline.createStream(readStream).pipe(MyTransform);
