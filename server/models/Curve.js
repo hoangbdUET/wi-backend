@@ -43,7 +43,7 @@ module.exports = function (sequelize, DataTypes) {
 		},
 		dimension: {
 			type: DataTypes.INTEGER,
-			allowNull: fasle,
+			allowNull: false,
 			defaultValue: 1
 		},
 		createdBy: {
