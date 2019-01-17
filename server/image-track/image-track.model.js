@@ -12,7 +12,7 @@ function createImageTrack(info, done, dbConnection) {
 
 function infoImageTrack(info, done, dbConnection) {
     let Model = dbConnection.ImageTrack;
-    Model.findById(info.idImageTrack, {include: {all: true}}).then(result => {
+    Model.findByPk(info.idImageTrack, {include: {all: true}}).then(result => {
         if (!result) {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No ImageTrack Found"));
         } else {
@@ -26,7 +26,7 @@ function infoImageTrack(info, done, dbConnection) {
 function editImageTrack(info, done, dbConnection) {
     delete info.createdBy;
     let Model = dbConnection.ImageTrack;
-    Model.findById(info.idImageTrack).then(result => {
+    Model.findByPk(info.idImageTrack).then(result => {
         if (!result) {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No ImageTrack Found"));
         } else {

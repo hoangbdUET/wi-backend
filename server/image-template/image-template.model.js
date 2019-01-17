@@ -14,7 +14,7 @@ function createImageTemplate(payload, cb, dbConnection) {
 }
 
 function infoImageTemplate(payload, cb, dbConnection) {
-	dbConnection.ImageTemplate.findById(payload.idImageTemplate).then(rs => {
+	dbConnection.ImageTemplate.findByPk(payload.idImageTemplate).then(rs => {
 		if (rs) {
 			cb(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
 		} else {
@@ -24,7 +24,7 @@ function infoImageTemplate(payload, cb, dbConnection) {
 }
 
 function updateImageTemplate(payload, cb, dbConnection) {
-	dbConnection.ImageTemplate.findById(payload.idImageTemplate).then(rs => {
+	dbConnection.ImageTemplate.findByPk(payload.idImageTemplate).then(rs => {
 		if (rs) {
 			Object.assign(rs, payload).save().then(r => {
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
@@ -38,7 +38,7 @@ function updateImageTemplate(payload, cb, dbConnection) {
 }
 
 function deleteImageTemplate(payload, cb, dbConnection) {
-	dbConnection.ImageTemplate.findById(payload.idImageTemplate).then(rs => {
+	dbConnection.ImageTemplate.findByPk(payload.idImageTemplate).then(rs => {
 		if (rs) {
 			rs.destroy().then(() => {
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));

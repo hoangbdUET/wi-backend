@@ -3,7 +3,7 @@ let lengthConvert = require('../utils/convert-length');
 wiEventEmitter.on('update-well-depth', function (idWell, dbConnection, cb) {
     console.log("=> Update well depth");
     cb();
-    // dbConnection.Well.findById(idWell, {include: {model: dbConnection.Dataset}}).then(well => {
+    // dbConnection.Well.findByPk(idWell, {include: {model: dbConnection.Dataset}}).then(well => {
     //     let changed = false;
     //     let newDepth = {
     //         topDepth: 999999999,

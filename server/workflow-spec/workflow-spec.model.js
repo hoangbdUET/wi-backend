@@ -20,7 +20,7 @@ let createWorkflowSpec = function (data, callback, dbConnection) {
 };
 
 let editWorkflowSpec = function (data, callback, dbConnection) {
-    dbConnection.WorkflowSpec.findById(data.idWorkflowSpec).then(w => {
+    dbConnection.WorkflowSpec.findByPk(data.idWorkflowSpec).then(w => {
         if (w) {
             Object.assign(w, data).save().then(rs => {
                 callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
@@ -41,7 +41,7 @@ let editWorkflowSpec = function (data, callback, dbConnection) {
 
 
 let infoWorkflowSpec = function (data, callback, dbConnection) {
-    dbConnection.WorkflowSpec.findById(data.idWorkflowSpec, {include: {all: true}}).then(w => {
+    dbConnection.WorkflowSpec.findByPk(data.idWorkflowSpec, {include: {all: true}}).then(w => {
         if (w) {
             callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", w));
         } else {
@@ -54,7 +54,7 @@ let infoWorkflowSpec = function (data, callback, dbConnection) {
 
 
 let deleteWorkflowSpec = function (data, callback, dbConnection) {
-    dbConnection.WorkflowSpec.findById(data.idWorkflowSpec).then(w => {
+    dbConnection.WorkflowSpec.findByPk(data.idWorkflowSpec).then(w => {
         if (w) {
             w.destroy().then(() => {
                 callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", w));

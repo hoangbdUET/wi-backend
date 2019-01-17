@@ -43,7 +43,7 @@ function createNewDataset(datasetInfo, done, dbConnection) {
 
 function editDataset(datasetInfo, done, dbConnection, username) {
     delete datasetInfo.createdBy;
-    dbConnection.Dataset.findById(datasetInfo.idDataset).then(dataset => {
+    dbConnection.Dataset.findByPk(datasetInfo.idDataset).then(dataset => {
         if (dataset) {
             if (datasetInfo.name && dataset.name != datasetInfo.name) {
                 let datasetname = dataset.name;
@@ -52,8 +52,8 @@ function editDataset(datasetInfo, done, dbConnection, username) {
                 dataset.datasetLabel = datasetInfo.datasetLabel;
                 dataset.updatedBy = datasetInfo.updatedBy;
                 dataset.save().then(() => {
-                    dbConnection.Well.findById(dataset.idWell).then(well => {
-                        dbConnection.Project.findById(well.idProject).then(project => {
+                    dbConnection.Well.findByPk(dataset.idWell).then(well => {
+                        dbConnection.Project.findByPk(well.idProject).then(project => {
                             dbConnection.Curve.findAll({
                                 where: {idDataset: datasetInfo.idDataset},
                                 paranoid: false
@@ -102,7 +102,7 @@ function editDataset(datasetInfo, done, dbConnection, username) {
 
 function deleteDataset(datasetInfo, done, dbConnection) {
     let Dataset = dbConnection.Dataset;
-    Dataset.findById(datasetInfo.idDataset, {include: {all: true}})
+    Dataset.findByPk(datasetInfo.idDataset, {include: {all: true}})
         .then(function (dataset) {
             dataset.setDataValue('updatedBy', datasetInfo.updatedBy);
             dataset.destroy({permanently: true, force: true})
@@ -120,7 +120,7 @@ function deleteDataset(datasetInfo, done, dbConnection) {
 
 function getDatasetInfo(dataset, done, dbConnection) {
     let Dataset = dbConnection.Dataset;
-    Dataset.findById(dataset.idDataset, {include: [{all: true}]})
+    Dataset.findByPk(dataset.idDataset, {include: [{all: true}]})
         .then(function (dataset) {
             if (!dataset) throw "not exist";
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Dataset success", dataset));
@@ -132,9 +132,9 @@ function getDatasetInfo(dataset, done, dbConnection) {
 
 function duplicateDataset(data, done, dbConnection, username) {
     let fsExtra = require('fs-extra');
-    dbConnection.Dataset.findById(data.idDataset, {include: {all: true}}).then(async dataset => {
-        let well = await dbConnection.Well.findById(dataset.idWell);
-        let project = await dbConnection.Project.findById(well.idProject);
+    dbConnection.Dataset.findByPk(data.idDataset, {include: {all: true}}).then(async dataset => {
+        let well = await dbConnection.Well.findByPk(dataset.idWell);
+        let project = await dbConnection.Project.findByPk(well.idProject);
         let newDataset = dataset.toJSON();
         delete newDataset.idDataset;
         newDataset.name = dataset.name + '_COPY_' + dataset.duplicated;
@@ -220,7 +220,7 @@ function getDatasetInfoByName(dataset, done, dbConnection) {
 function updateDatasetParams(payload, done, dbConnection) {
     let response = [];
     if (payload.idDatasetParam) {
-        dbConnection.DatasetParams.findById(payload.idDatasetParam).then(p => {
+        dbConnection.DatasetParams.findByPk(payload.idDatasetParam).then(p => {
             Object.assign(p, payload).save().then(r => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
             }).catch(err => {
@@ -228,7 +228,7 @@ function updateDatasetParams(payload, done, dbConnection) {
             })
         });
     } else {
-        dbConnection.Dataset.findById(payload.idDataset).then(dataset => {
+        dbConnection.Dataset.findByPk(payload.idDataset).then(dataset => {
             if (dataset) {
                 asyncEach(payload.params, function (param, next) {
                     dbConnection.DatasetParams.findOrCreate({
@@ -279,9 +279,9 @@ function updateDatasetParams(payload, done, dbConnection) {
 
 async function createMdCurve(payload, done, dbConnection, username) {
     let createMD = require('./create-md-curve');
-    let dataset = await dbConnection.Dataset.findById(payload.idDataset);
-    let well = await dbConnection.Well.findById(dataset.idWell);
-    let project = await dbConnection.Project.findById(well.idProject);
+    let dataset = await dbConnection.Dataset.findByPk(payload.idDataset);
+    let well = await dbConnection.Well.findByPk(dataset.idWell);
+    let project = await dbConnection.Project.findByPk(well.idProject);
     let parents = {
         username: username,
         project: project.name,

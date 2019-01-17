@@ -10,9 +10,9 @@ function createTempfile(data, callback) {
 
 function getFullZoneParents(zoneset, dbConnection) {
 	return new Promise((resolve => {
-		dbConnection.ZoneSet.findById(zoneset.idZoneSet).then(zs => {
+		dbConnection.ZoneSet.findByPk(zoneset.idZoneSet).then(zs => {
 			if (zs) {
-				dbConnection.Well.findById(zs.idWell).then(well => {
+				dbConnection.Well.findByPk(zs.idWell).then(well => {
 					resolve({
 						name: zs.name,
 						well: well.name
@@ -31,9 +31,9 @@ function getFullZoneParents(zoneset, dbConnection) {
 
 function getFullMarkerSetParents(markerSet, dbConnection) {
 	return new Promise((resolve => {
-		dbConnection.MarkerSet.findById(markerSet.idMarkerSet).then(ms => {
+		dbConnection.MarkerSet.findByPk(markerSet.idMarkerSet).then(ms => {
 			if (ms) {
-				dbConnection.Well.findById(ms.idWell).then(well => {
+				dbConnection.Well.findByPk(ms.idWell).then(well => {
 					resolve({
 						name: ms.name,
 						well: well.name
@@ -51,7 +51,7 @@ function getFullMarkerSetParents(markerSet, dbConnection) {
 }
 
 module.exports = function (body, done, error, dbConnection, username) {
-	dbConnection.Plot.findById(body.idPlot, {
+	dbConnection.Plot.findByPk(body.idPlot, {
 		include: [
 			{
 				model: dbConnection.Track, include: [
@@ -153,8 +153,8 @@ module.exports = function (body, done, error, dbConnection, username) {
 										let newShading = {};
 										curveFunction.getFullCurveParents({idCurve: shading.idControlCurve}, dbConnection).then(async control_curve => {
 											let left_curve, right_curve;
-											let left_line = await dbConnection.Line.findById(shading.idLeftLine);
-											let right_line = await dbConnection.Line.findById(shading.idRightLine);
+											let left_line = await dbConnection.Line.findByPk(shading.idLeftLine);
+											let right_line = await dbConnection.Line.findByPk(shading.idRightLine);
 											if (left_line) {
 												left_curve = await curveFunction.getFullCurveParents({idCurve: left_line.idCurve}, dbConnection);
 											}
@@ -218,7 +218,7 @@ module.exports = function (body, done, error, dbConnection, username) {
 					let newDepthAxis = {};
 					curveFunction.getFullCurveParents({idCurve: depth_axis.idCurve}, dbConnection).then(async curve => {
 						let well;
-						if (depth_axis.idWell) well = await dbConnection.Well.findById(depth_axis.idWell);
+						if (depth_axis.idWell) well = await dbConnection.Well.findByPk(depth_axis.idWell);
 						newDepthAxis.curve = curve;
 						newDepthAxis.well = {name: well.name};
 						newDepthAxis.showTitle = depth_axis.showTitle;

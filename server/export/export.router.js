@@ -14,10 +14,10 @@ const serverAddress = require('../utils/information').serverAddress;
 function getFullProjectObj(idProject, idWell, dbConnection) {
     return new Promise(async (resolve) => {
         try {
-            let project = await dbConnection.Project.findById(idProject);
+            let project = await dbConnection.Project.findByPk(idProject);
             if (!project) resolve(null);
             project.wells = [];
-            let well = await dbConnection.Well.findById(idWell, {include: [{model: dbConnection.WellHeader}, {model: dbConnection.Dataset}]});
+            let well = await dbConnection.Well.findByPk(idWell, {include: [{model: dbConnection.WellHeader}, {model: dbConnection.Dataset}]});
             async.each(well.datasets, async (dataset, next) => {
                 dataset.curves = await dbConnection.Curve.findAll({where: {idDataset: dataset.idDataset}});
                 dataset.dataset_params = await dbConnection.DatasetParams.findAll({where: {idDataset: dataset.idDataset}});
@@ -225,7 +225,7 @@ router.post('/zone-set', async function (req, res) {
         let exportUnit = null;
         let arrData = [];
         for (const id of req.body.idZoneSets) {
-            const zoneSet = await req.dbConnection.ZoneSet.findById(id, {
+            const zoneSet = await req.dbConnection.ZoneSet.findByPk(id, {
                 include: [
                     {
                         model: req.dbConnection.Zone,
@@ -269,7 +269,7 @@ router.post('/marker-set', async function (req, res) {
         let arrData = [];
         let exportUnit = null;
         for (const id of req.body.idMarkerSets) {
-            const markerSet = await req.dbConnection.MarkerSet.findById(id, {
+            const markerSet = await req.dbConnection.MarkerSet.findByPk(id, {
                 include: [
                     {
                         model: req.dbConnection.Marker,

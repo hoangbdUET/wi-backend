@@ -33,7 +33,7 @@ function createNewZoneSet(zoneSetInfo, done, dbConnection) {
 						nextZone();
 					})
 				}, function () {
-					dbConnection.ZoneSet.findById(zs.idZoneSet, {
+					dbConnection.ZoneSet.findByPk(zs.idZoneSet, {
 						include: [{model: dbConnection.ZoneSetTemplate}, {
 							model: dbConnection.Zone,
 							include: {model: dbConnection.ZoneTemplate}
@@ -63,12 +63,12 @@ function createNewZoneSet(zoneSetInfo, done, dbConnection) {
 function editZoneSet(zoneSetInfo, done, dbConnection) {
 	delete zoneSetInfo.createdBy;
 	let ZoneSet = dbConnection.ZoneSet;
-	ZoneSet.findById(zoneSetInfo.idZoneSet)
+	ZoneSet.findByPk(zoneSetInfo.idZoneSet)
 		.then(function (zoneSet) {
 			zoneSet = Object.assign(zoneSet, zoneSetInfo);
 			zoneSet.save()
 				.then(function () {
-					dbConnection.ZoneSet.findById(zoneSetInfo.idZoneSet, {
+					dbConnection.ZoneSet.findByPk(zoneSetInfo.idZoneSet, {
 						include: [{model: dbConnection.ZoneSetTemplate}, {
 							model: dbConnection.Zone,
 							include: {model: dbConnection.ZoneTemplate}
@@ -92,7 +92,7 @@ function editZoneSet(zoneSetInfo, done, dbConnection) {
 
 function deleteZoneSet(zoneSetInfo, done, dbConnection) {
 	let ZoneSet = dbConnection.ZoneSet;
-	ZoneSet.findById(zoneSetInfo.idZoneSet)
+	ZoneSet.findByPk(zoneSetInfo.idZoneSet)
 		.then(function (zoneSet) {
 			zoneSet.setDataValue('updatedBy', zoneSetInfo.updatedBy);
 			zoneSet.destroy({permanently: true, force: true})
@@ -110,7 +110,7 @@ function deleteZoneSet(zoneSetInfo, done, dbConnection) {
 
 function getZoneSetInfo(zoneSet, done, dbConnection) {
 	let ZoneSet = dbConnection.ZoneSet;
-	ZoneSet.findById(zoneSet.idZoneSet, {
+	ZoneSet.findByPk(zoneSet.idZoneSet, {
 		include: {
 			model: dbConnection.Zone,
 			include: {
@@ -169,7 +169,7 @@ function getZoneSetList(setInfo, done, dbConnection) {
 }
 
 async function duplicateZoneSet(data, done, dbConnection) {
-	let zoneset = await dbConnection.ZoneSet.findById(data.idZoneSet, {include: {all: true}});
+	let zoneset = await dbConnection.ZoneSet.findByPk(data.idZoneSet, {include: {all: true}});
 	let newZoneset = zoneset.toJSON();
 	delete newZoneset.idZoneSet;
 	newZoneset.name = zoneset.name + '_COPY_' + zoneset.duplicated;

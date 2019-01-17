@@ -66,7 +66,7 @@ function addTaskSpec(payload, done, dbConnection) {
 }
 
 function infoTaskSpec(payload, done, dbConnection) {
-    dbConnection.TaskSpec.findById(payload.idTaskSpec).then(r => {
+    dbConnection.TaskSpec.findByPk(payload.idTaskSpec).then(r => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
     });
 }
@@ -81,7 +81,7 @@ function listTaskSpec(payload, done, dbConnection) {
 }
 
 function deleteTaskSpec(payload, done, dbConnection) {
-    dbConnection.TaskSpec.findById(payload.idTaskSpec).then(r => {
+    dbConnection.TaskSpec.findByPk(payload.idTaskSpec).then(r => {
         if (r) {
             r.destroy().then(() => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
@@ -95,7 +95,7 @@ function deleteTaskSpec(payload, done, dbConnection) {
 }
 
 function editTaskSpec(payload, done, dbConnection) {
-    dbConnection.TaskSpec.findById(payload.idTaskSpec).then(r => {
+    dbConnection.TaskSpec.findByPk(payload.idTaskSpec).then(r => {
         if (r) {
             Object.assign(r, payload).save().then(() => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));

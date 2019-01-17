@@ -42,13 +42,13 @@ function getOverlayLine(payload, callback, dbConnection) {
     let OverlayLine = dbConnection.OverlayLine;
     let idCurveX = payload.idCurveX;
     let idCurveY = payload.idCurveY;
-    OverlayLine.findById(payload.idOverlayLine).then(rs => {
+    OverlayLine.findByPk(payload.idOverlayLine).then(rs => {
         asyncSeries([
             function (cb) {
                 if (idCurveX) {
-                    dbConnection.Curve.findById(idCurveX).then(curve => {
+                    dbConnection.Curve.findByPk(idCurveX).then(curve => {
                         if (curve.idFamily) {
-                            dbConnection.Family.findById(curve.idFamily).then(family => {
+                            dbConnection.Family.findByPk(curve.idFamily).then(family => {
                                 cb(null, family.name);
                             });
                         } else {
@@ -64,10 +64,10 @@ function getOverlayLine(payload, callback, dbConnection) {
             },
             function (cb) {
                 if (idCurveY) {
-                    dbConnection.Curve.findById(idCurveY).then(curve => {
+                    dbConnection.Curve.findByPk(idCurveY).then(curve => {
                         console.log(curve.idFamily);
                         if (curve.idFamily) {
-                            dbConnection.Family.findById(curve.idFamily).then(family => {
+                            dbConnection.Family.findByPk(curve.idFamily).then(family => {
                                 cb(null, family.name);
                             });
                         } else {
@@ -126,12 +126,12 @@ function getListOverlayLineByCurves(payload, callback, dbConnection) {
     let OverlayLine = dbConnection.OverlayLine;
     let Curve = dbConnection.Curve;
     let Family = dbConnection.Family;
-    Curve.findById(payload.idCurveX).then(curveX => {
-        Curve.findById(payload.idCurveY).then(curveY => {
+    Curve.findByPk(payload.idCurveX).then(curveX => {
+        Curve.findByPk(payload.idCurveY).then(curveY => {
             asyncSeries([
                 function (cb) {
                     if (curveX && curveX.idFamily) {
-                        Family.findById(curveX.idFamily).then(family => {
+                        Family.findByPk(curveX.idFamily).then(family => {
                             cb(null, family.name);
                         });
                     } else {
@@ -140,7 +140,7 @@ function getListOverlayLineByCurves(payload, callback, dbConnection) {
                 },
                 function (cb) {
                     if (curveY && curveY.idFamily) {
-                        Family.findById(curveY.idFamily).then(family => {
+                        Family.findByPk(curveY.idFamily).then(family => {
                             cb(null, family.name);
                         });
                     } else {

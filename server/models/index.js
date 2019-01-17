@@ -574,7 +574,7 @@ function newDbInstance(dbName, callback) {
 					})
 			})(curve.name, curve.unit);
 		} else {
-			Family.findById(curve.idFamily, {include: {model: FamilySpec, as: 'family_spec'}}).then(family => {
+			Family.findByPk(curve.idFamily, {include: {model: FamilySpec, as: 'family_spec'}}).then(family => {
 				curve.unit = curve.unit || family.family_spec[0].unit;
 				curve.save();
 			}).catch(err => {
@@ -733,8 +733,8 @@ function newDbInstance(dbName, callback) {
 
 	Dataset.addHook('afterCreate', function (dataset) {
 		console.log("Hooks after create dataset");
-		Well.findById(dataset.idWell).then(w => {
-			Project.findById(w.idProject).then(p => {
+		Well.findByPk(dataset.idWell).then(w => {
+			Project.findByPk(w.idProject).then(p => {
 				let createMD = require('../dataset/create-md-curve');
 				let parents = {
 					username: username,

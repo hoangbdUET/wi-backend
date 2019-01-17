@@ -10,7 +10,7 @@ function createNewMarkerTemplate(payload, done, dbConnection) {
 }
 
 function editMarkerTemplate(payload, done, dbConnection) {
-    dbConnection.MarkerTemplate.findById(payload.idMarkerTemplate).then(m => {
+    dbConnection.MarkerTemplate.findByPk(payload.idMarkerTemplate).then(m => {
         if (m) {
             Object.assign(m, payload).save().then(r => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
@@ -34,7 +34,7 @@ function deleteMarkerTemplate(payload, done, dbConnection) {
 }
 
 function infoMarkerTemplate(payload, done, dbConnection) {
-    dbConnection.MarkerTemplate.findById(payload.idMarkerTemplate).then(r => {
+    dbConnection.MarkerTemplate.findByPk(payload.idMarkerTemplate).then(r => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));

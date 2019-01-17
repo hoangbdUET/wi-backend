@@ -17,7 +17,7 @@ function createNewStorageDatabase(payload, dbConnection, done) {
 }
 
 function infoStorageDatabase(payload, dbConnection, done) {
-	dbConnection.StorageDatabase.findById(payload.idStorageDatabase).then(rs => {
+	dbConnection.StorageDatabase.findByPk(payload.idStorageDatabase).then(rs => {
 		if (rs) {
 			done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
 		} else {
@@ -29,7 +29,7 @@ function infoStorageDatabase(payload, dbConnection, done) {
 }
 
 function deleteStorageDatabase(payload, dbConnection, done) {
-	dbConnection.StorageDatabase.findById(payload.idStorageDatabase).then(rs => {
+	dbConnection.StorageDatabase.findByPk(payload.idStorageDatabase).then(rs => {
 		if (rs) {
 			rs.destroy().then(r => {
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));

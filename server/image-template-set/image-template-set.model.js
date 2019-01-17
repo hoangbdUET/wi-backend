@@ -14,7 +14,7 @@ function createImageTemplateSet(payload, cb, dbConnection) {
 }
 
 function infoImageTemplateSet(payload, cb, dbConnection) {
-	dbConnection.ImageTemplateSet.findById(payload.idImageTemplateSet, {include: [{model: dbConnection.ImageTemplate}, {model: dbConnection.ImageSet}]}).then(rs => {
+	dbConnection.ImageTemplateSet.findByPk(payload.idImageTemplateSet, {include: [{model: dbConnection.ImageTemplate}, {model: dbConnection.ImageSet}]}).then(rs => {
 		if (rs) {
 			cb(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
 		} else {
@@ -24,7 +24,7 @@ function infoImageTemplateSet(payload, cb, dbConnection) {
 }
 
 function updateImageTemplateSet(payload, cb, dbConnection) {
-	dbConnection.ImageTemplateSet.findById(payload.idImageTemplateSet).then(rs => {
+	dbConnection.ImageTemplateSet.findByPk(payload.idImageTemplateSet).then(rs => {
 		if (rs) {
 			Object.assign(rs, payload).save().then(r => {
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
@@ -38,7 +38,7 @@ function updateImageTemplateSet(payload, cb, dbConnection) {
 }
 
 function deleteImageTemplateSet(payload, cb, dbConnection) {
-	dbConnection.ImageTemplateSet.findById(payload.idImageTemplateSet).then(rs => {
+	dbConnection.ImageTemplateSet.findByPk(payload.idImageTemplateSet).then(rs => {
 		if (rs) {
 			rs.destroy().then(() => {
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));

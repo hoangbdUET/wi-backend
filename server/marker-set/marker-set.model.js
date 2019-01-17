@@ -29,7 +29,7 @@ function createNew(payload, done, dbConnection) {
 							next();
 						});
 					}, function () {
-						dbConnection.MarkerSet.findById(markerSet.idMarkerSet, {
+						dbConnection.MarkerSet.findByPk(markerSet.idMarkerSet, {
 							include: [{model: dbConnection.MarkerSetTemplate}, {
 								model: dbConnection.Marker,
 								include: {model: dbConnection.MarkerTemplate}
@@ -64,10 +64,10 @@ function createNew(payload, done, dbConnection) {
 }
 
 function edit(payload, done, dbConnection) {
-	dbConnection.MarkerSet.findById(payload.idMarkerSet).then(m => {
+	dbConnection.MarkerSet.findByPk(payload.idMarkerSet).then(m => {
 		if (m) {
 			Object.assign(m, payload).save().then(r => {
-				dbConnection.MarkerSet.findById(r.idMarkerSet, {
+				dbConnection.MarkerSet.findByPk(r.idMarkerSet, {
 					include: [{model: dbConnection.MarkerSetTemplate}, {
 						model: dbConnection.Marker,
 						include: {model: dbConnection.MarkerTemplate}
@@ -109,7 +109,7 @@ function list(payload, done, dbConnection) {
 }
 
 function info(payload, done, dbConnection) {
-	dbConnection.MarkerSet.findById(payload.idMarkerSet, {
+	dbConnection.MarkerSet.findByPk(payload.idMarkerSet, {
 		include: {
 			model: dbConnection.Marker,
 			include: {model: dbConnection.MarkerTemplate}

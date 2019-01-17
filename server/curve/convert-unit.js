@@ -37,7 +37,7 @@ module.exports = function (data, callback, dbConnection, username) {
 						if (err) {
 							callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
 						} else {
-							dbConnection.Curve.findById(data.idCurve).then(curve => {
+							dbConnection.Curve.findByPk(data.idCurve).then(curve => {
 								curve.unit = data.desUnit.name;
 								curve.save().then(() => {
 									callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", curveParents));

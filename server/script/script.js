@@ -96,7 +96,7 @@ router.post('/migrate/update-zone-set', async (req, res) => {
 	async.each(zonesets, function (zoneset, next) {
 		getIdProjectByIdWell(zoneset.idWell, dbConnection).then(idProject => {
 			console.log("++++++", idProject);
-			dbConnection.ZoneSetTemplate.findById(zoneset.idZoneSetTemplate).then(zst => {
+			dbConnection.ZoneSetTemplate.findByPk(zoneset.idZoneSetTemplate).then(zst => {
 				console.log("------", zst.name);
 				dbConnection.ZoneSetTemplate.findOne({where: {idProject: idProject, name: zst.name}}).then(_zst => {
 					console.log("=======", _zst.idZoneSetTemplate);
@@ -146,7 +146,7 @@ router.post('/migrate/update-marker-set', async (req, res) => {
 	async.each(markersets, function (markerset, next) {
 		getIdProjectByIdWell(markerset.idWell, dbConnection).then(idProject => {
 			console.log("++++++", idProject);
-			dbConnection.MarkerSetTemplate.findById(markerset.idMarkerSetTemplate).then(zst => {
+			dbConnection.MarkerSetTemplate.findByPk(markerset.idMarkerSetTemplate).then(zst => {
 				console.log("------", zst.name);
 				dbConnection.MarkerSetTemplate.findOne({where: {idProject: idProject, name: zst.name}}).then(_zst => {
 					console.log("=======", _zst.idMarkerSetTemplate);
@@ -186,7 +186,7 @@ router.post('/migrate/update-marker-set', async (req, res) => {
 });
 
 async function getIdProjectByIdWell(idWell, dbConnection) {
-	let well = await dbConnection.Well.findById(idWell);
+	let well = await dbConnection.Well.findByPk(idWell);
 	if (well) return well.idProject;
 	return null;
 }
@@ -195,7 +195,7 @@ router.post('/migrate/task-spec', async (req, res) => {
 	const dbConnection = req.dbConnection;
 	dbMaster.TaskSpec.findAll().then((master_tps) => {
 		async.each(master_tps, (master_tp, next) => {
-			dbConnection.TaskSpec.findById(master_tp.idTaskSpec).then(ts => {
+			dbConnection.TaskSpec.findByPk(master_tp.idTaskSpec).then(ts => {
 				ts.content = master_tp.content;
 				ts.name = master_tp.name;
 				ts.type = master_tp.type;

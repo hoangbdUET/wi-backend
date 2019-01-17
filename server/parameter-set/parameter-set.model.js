@@ -31,14 +31,14 @@ let listParameterSet = function (data, done, dbConnection) {
 	});
 };
 let infoParameterSet = function (data, done, dbConnection) {
-	dbConnection.ParameterSet.findById(data.idParameterSet).then(p => {
+	dbConnection.ParameterSet.findByPk(data.idParameterSet).then(p => {
 		done(ResponseJSON(ErrorCodes.SUCCESS, "Done", p));
 	}).catch(err => {
 		done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err));
 	});
 };
 let deleteParameterSet = function (data, done, dbConnection) {
-	dbConnection.ParameterSet.findById(data.idParameterSet).then(p => {
+	dbConnection.ParameterSet.findByPk(data.idParameterSet).then(p => {
 		if (p) {
 			p.destroy().then(() => {
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", p));
@@ -53,7 +53,7 @@ let deleteParameterSet = function (data, done, dbConnection) {
 	});
 };
 let updateParameterSet = function (data, done, dbConnection) {
-	dbConnection.ParameterSet.findById(data.idParameterSet).then(p => {
+	dbConnection.ParameterSet.findByPk(data.idParameterSet).then(p => {
 		if (p) {
 			Object.assign(p, data).save().then(e => {
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", e));

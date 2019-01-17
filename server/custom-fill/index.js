@@ -87,7 +87,7 @@ router.post('/clear', (req, res) => {
 });
 
 router.post('/delete', (req, res) => {
-    req.dbConnection.CustomFill.findById(req.body.idCustomFill).then(cs => {
+    req.dbConnection.CustomFill.findByPk(req.body.idCustomFill).then(cs => {
         if (cs) {
             cs.destroy().then(cs => {
                 res.send(ResponseJSON(errorCodes.CODES.SUCCESS, "Done", cs));

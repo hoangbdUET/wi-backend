@@ -293,7 +293,7 @@ let createNewPlot = function (plotInfo, done, dbConnection, username) {
             } else {
                 //existed
                 if (isOverride) {
-                    dbConnection.Plot.findById(rs[0].idPlot).then(delPlot => {
+                    dbConnection.Plot.findByPk(rs[0].idPlot).then(delPlot => {
                         delPlot.destroy({force: true}).then(() => {
                             newPlot.idPlot = delPlot.idPlot;
                             dbConnection.Plot.create(newPlot).then((p) => {
@@ -322,7 +322,7 @@ let editPlot = function (plotInfo, done, dbConnection) {
     delete plotInfo.createdBy;
     if (typeof(plotInfo.currentState) === "object") plotInfo.currentState = JSON.stringify(plotInfo.currentState);
     const Plot = dbConnection.Plot;
-    Plot.findById(plotInfo.idPlot)
+    Plot.findByPk(plotInfo.idPlot)
         .then(function (plot) {
             Object.assign(plot, plotInfo)
                 .save()
@@ -344,7 +344,7 @@ let editPlot = function (plotInfo, done, dbConnection) {
 
 let deletePlot = function (plotInfo, done, dbConnection) {
     const Plot = dbConnection.Plot;
-    Plot.findById(plotInfo.idPlot)
+    Plot.findByPk(plotInfo.idPlot)
         .then(function (plot) {
             plot.setDataValue('updatedBy', plotInfo.updatedBy);
             plot.destroy({permanently: true, force: true})
@@ -362,7 +362,7 @@ let deletePlot = function (plotInfo, done, dbConnection) {
 
 let getPlotInfo = function (plot, done, dbConnection) {
     const Plot = dbConnection.Plot;
-    Plot.findById(plot.idPlot, {include: [{all: true, include: [{all: true}]}]})
+    Plot.findByPk(plot.idPlot, {include: [{all: true, include: [{all: true}]}]})
         .then(function (plot) {
             if (!plot) throw "not exists";
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Plot success", plot));
@@ -378,7 +378,7 @@ let duplicatePlot = function (payload, done, dbConnection, isSave) {
     let ImageTrack = dbConnection.ImageTrack;
     let ObjectTrack = dbConnection.ObjectTrack;
     let DepthAxis = dbConnection.DepthAxis;
-    Plot.findById(payload.idPlot, {
+    Plot.findByPk(payload.idPlot, {
         include: [{
             model: dbConnection.Track,
             include: [{

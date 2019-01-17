@@ -9,7 +9,7 @@ let asyncWaterfall = require('async/waterfall');
 
 
 module.exports = function (idWell, done, dbConnection, username, createdBy, updatedBy) {
-	dbConnection.Well.findById(idWell, {
+	dbConnection.Well.findByPk(idWell, {
 		include: [
 			{model: dbConnection.Dataset, include: [{model: dbConnection.Curve}, {model: dbConnection.DatasetParams}]},
 			{model: dbConnection.WellHeader},
@@ -30,7 +30,7 @@ module.exports = function (idWell, done, dbConnection, username, createdBy, upda
 			well.duplicated++;
 			await well.save();
 			let _well = await dbConnection.Well.create(newWell);
-			let _project = await dbConnection.Project.findById(newWell.idProject);
+			let _project = await dbConnection.Project.findByPk(newWell.idProject);
 			asyncParallel([
 				function (callback) {
 					asyncEach(well.well_headers, function (wellHeader, next) {

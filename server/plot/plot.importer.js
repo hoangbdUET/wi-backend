@@ -241,17 +241,17 @@ function createTrack(track, dbConnection, idProject, idPlot, username, well, dat
 module.exports = function (req, done, dbConnection, username) {
 	createdBy = req.createdBy;
 	updatedBy = req.updatedBy;
-	dbConnection.ParameterSet.findById(req.body.idParameterSet).then(async param => {
+	dbConnection.ParameterSet.findByPk(req.body.idParameterSet).then(async param => {
 		if (!param) {
 			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No template found"));
 		} else {
 			let myPlot = param.content;
 			let well, dataset;
 			if (req.body.idDataset) {
-				dataset = await dbConnection.Dataset.findById(req.body.idDataset);
-				well = dataset ? await dbConnection.Well.findById(dataset.idWell) : null;
+				dataset = await dbConnection.Dataset.findByPk(req.body.idDataset);
+				well = dataset ? await dbConnection.Well.findByPk(dataset.idWell) : null;
 			} else {
-				well = await dbConnection.Well.findById(req.body.idWell);
+				well = await dbConnection.Well.findByPk(req.body.idWell);
 			}
 			if (!well) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No well found by id"));
 			let idProject = req.body.idProject || well.idProject;

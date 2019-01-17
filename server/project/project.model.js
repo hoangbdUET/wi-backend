@@ -75,7 +75,7 @@ function createDefaultMarkerSetTemplate(markerSetTemplates, idProject, dbConnect
 
 function validationFlow(idFlow, dbConnection) {
 	return new Promise((resolve => {
-		dbConnection.Flow.findById(idFlow, {include: {model: dbConnection.Task}}).then(flow => {
+		dbConnection.Flow.findByPk(idFlow, {include: {model: dbConnection.Task}}).then(flow => {
 			let content = flow.content;
 			async.each(flow.tasks, (task, next) => {
 				let name = task.name;
@@ -176,7 +176,7 @@ function createNewProject(projectInfo, done, dbConnection, username, company) {
 function editProject(projectInfo, done, dbConnection) {
 	delete projectInfo.createdBy;
 	let Project = dbConnection.Project;
-	Project.findById(projectInfo.idProject)
+	Project.findByPk(projectInfo.idProject)
 		.then(function (project) {
 			project.name = projectInfo.name;
 			project.company = projectInfo.company;
@@ -203,7 +203,7 @@ function editProject(projectInfo, done, dbConnection) {
 
 function getProjectInfo(project, done, dbConnection) {
 	let Project = dbConnection.Project;
-	Project.findById(project.idProject)
+	Project.findByPk(project.idProject)
 		.then(function (project) {
 			if (!project) throw "not exits";
 			done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Project success", project));
@@ -285,7 +285,7 @@ async function getProjectList(owner, done, dbConnection, username, realUser, tok
 	let response = [];
 	let projectList = await getSharedProject(token, realUser);
 	let Project = dbConnection.Project;
-	Project.all({
+	Project.findAll({
 		order: ['name']
 	}).then(function (projects) {
 		asyncLoop(projects, function (project, next) {
@@ -365,7 +365,7 @@ async function getProjectFullInfo(payload, done, req) {
 		req.dbConnection = models((config.Database.prefix + req.decoded.realUser));
 	}
 	let dbConnection = req.dbConnection;
-	let project = await dbConnection.Project.findById(payload.idProject);
+	let project = await dbConnection.Project.findByPk(payload.idProject);
 	if (!project) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Project not found"));
 
 	let response = project.toJSON();
@@ -548,7 +548,7 @@ async function listProjectOffAllUser(payload, done, dbConnection, token) {
 }
 
 function deleteProjectOwner(payload, done, dbConnection) {
-	dbConnection.Project.findById(payload.idProject).then(p => {
+	dbConnection.Project.findByPk(payload.idProject).then(p => {
 		if (p) {
 			p.destroy().then(() => {
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", p));

@@ -14,7 +14,7 @@ function createNewAnnotation(annotationInfo, done, dbConnection) {
 
 function getAnnotationInfo(annotationID, done, dbConnection) {
     let Annotation = dbConnection.Annotation;
-    Annotation.findById(annotationID.idAnnotation, {
+    Annotation.findByPk(annotationID.idAnnotation, {
         include: [{all: true}]
     }).then(rs => {
         if (rs) {
@@ -30,7 +30,7 @@ function getAnnotationInfo(annotationID, done, dbConnection) {
 function editAnnotation(annotationInfo, done, dbConnection) {
     delete annotationInfo.createdBy;
     let Annotation = dbConnection.Annotation;
-    Annotation.findById(annotationInfo.idAnnotation)
+    Annotation.findByPk(annotationInfo.idAnnotation)
         .then(function (annotation) {
             Object.assign(annotation, annotationInfo)
                 .save()
@@ -48,7 +48,7 @@ function editAnnotation(annotationInfo, done, dbConnection) {
 
 function deleteAnnotation(annotationInfo, done, dbConnection) {
     let Annotation = dbConnection.Annotation;
-    Annotation.findById(annotationInfo.idAnnotation)
+    Annotation.findByPk(annotationInfo.idAnnotation)
         .then(function (annotation) {
             annotation.setDataValue('updatedBy', annotationInfo.updatedBy);
             annotation.destroy()

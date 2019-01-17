@@ -10,11 +10,11 @@ function checkCurveExisted() {
 
 function getFullCurveParents(curve, dbConnection) {
     return new Promise(function (resolve, reject) {
-        dbConnection.Curve.findById(curve.idCurve, {paranoid: false}).then(async c => {
+        dbConnection.Curve.findByPk(curve.idCurve, {paranoid: false}).then(async c => {
             if (c) {
-                let dataset = await dbConnection.Dataset.findById(c.idDataset, {paranoid: false});
-                let well = await dbConnection.Well.findById(dataset.idWell, {paranoid: false});
-                let project = await dbConnection.Project.findById(well.idProject, {paranoid: false});
+                let dataset = await dbConnection.Dataset.findByPk(c.idDataset, {paranoid: false});
+                let well = await dbConnection.Well.findByPk(dataset.idWell, {paranoid: false});
+                let project = await dbConnection.Project.findByPk(well.idProject, {paranoid: false});
                 resolve({
                     project: project.name,
                     well: well.name,

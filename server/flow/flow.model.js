@@ -5,7 +5,7 @@ let validationFlow = require('../project/project.model').validationFlow;
 
 let createNewFlow = function (flow, done, dbConnection) {
 	if (flow.idFlow) {
-		dbConnection.Flow.findById(flow.idFlow, {include: {model: dbConnection.Task}}).then(fl => {
+		dbConnection.Flow.findByPk(flow.idFlow, {include: {model: dbConnection.Task}}).then(fl => {
 			dbConnection.Flow.create({
 				name: flow.name,
 				content: fl.content,
@@ -41,7 +41,7 @@ let createNewFlow = function (flow, done, dbConnection) {
 			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
 		});
 	} else if (flow.idParameterSet) {
-		dbConnection.ParameterSet.findById(flow.idParameterSet).then(pt => {
+		dbConnection.ParameterSet.findByPk(flow.idParameterSet).then(pt => {
 			if (!pt) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No template found"));
 			dbConnection.Flow.create({
 				name: flow.name,
@@ -88,7 +88,7 @@ let createNewFlow = function (flow, done, dbConnection) {
 };
 
 let editFlow = function (flowInfo, done, dbConnection) {
-	dbConnection.Flow.findById(flowInfo.idFlow).then(flow => {
+	dbConnection.Flow.findByPk(flowInfo.idFlow).then(flow => {
 		if (flow) {
 			Object.assign(flow, flowInfo).save().then(f => {
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", f));
@@ -102,7 +102,7 @@ let editFlow = function (flowInfo, done, dbConnection) {
 };
 
 let infoFlow = function (flow, done, dbConnection) {
-	dbConnection.Flow.findById(flow.idFlow, {include: {all: true}}).then(f => {
+	dbConnection.Flow.findByPk(flow.idFlow, {include: {all: true}}).then(f => {
 		if (f) {
 			done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", f));
 		} else {
@@ -127,7 +127,7 @@ let listFlow = function (flow, done, dbConnection) {
 };
 
 let deleteFlow = function (flow, done, dbConnection) {
-	dbConnection.Flow.findById(flow.idFlow, {include: {all: true}}).then(f => {
+	dbConnection.Flow.findByPk(flow.idFlow, {include: {all: true}}).then(f => {
 		if (f) {
 			f.destroy().then(fl => {
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", f));
@@ -143,7 +143,7 @@ let duplicateFlow = function (flow, done, dbConnection) {
 	if (!flow.name) {
 		done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Need flow name"));
 	} else {
-		dbConnection.Flow.findById(flow.idFlow, {include: {model: dbConnection.Task}}).then(fl => {
+		dbConnection.Flow.findByPk(flow.idFlow, {include: {model: dbConnection.Task}}).then(fl => {
 			if (fl) {
 				dbConnection.Flow.create({
 					name: flow.name,
@@ -189,7 +189,7 @@ let duplicateFlow = function (flow, done, dbConnection) {
 
 let saveAsTemplate = function (flow, done, dbConnection) {
 	if (!flow.name) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Need template name"));
-	dbConnection.Flow.findById(flow.idFlow, {include: {model: dbConnection.Task}}).then(fl => {
+	dbConnection.Flow.findByPk(flow.idFlow, {include: {model: dbConnection.Task}}).then(fl => {
 		fl = fl.toJSON();
 		if (fl) {
 			let saveObjContent = {

@@ -88,7 +88,7 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
     } else {
         dbConnection.Histogram.create(histogramInfo).then(async histogram => {
             await histogram.setCurves(curves);
-            dbConnection.Histogram.findById(histogram.idHistogram, {include: {all: true}}).then(h => {
+            dbConnection.Histogram.findByPk(histogram.idHistogram, {include: {all: true}}).then(h => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", h));
             });
         }).catch(err => {
@@ -105,7 +105,7 @@ function createNewHistogram(histogramInfo, done, dbConnection) {
 function createNewHistogram_(histogramInfo, done, dbConnection) {
     let Histogram = dbConnection.Histogram;
     let Well = dbConnection.Well;
-    Well.findById(parseInt(histogramInfo.idWell)).then(well => {
+    Well.findByPk(parseInt(histogramInfo.idWell)).then(well => {
         let myData;
         if (histogramInfo.histogramTemplate) {
             console.log("NEW HISTOGRAM TEMPLATE ", histogramInfo.histogramTemplate);
@@ -179,7 +179,7 @@ function createNewHistogram_(histogramInfo, done, dbConnection) {
                                 idHistogram: histogram.idHistogram
                             }
                         }).then(rs => {
-                            Histogram.findById(histogram.idHistogram).then(his => {
+                            Histogram.findByPk(histogram.idHistogram).then(his => {
                                 his = his.toJSON();
                                 his.noCurveFound = false;
                                 return done(ResponseJSON(ErrorCodes.SUCCESS, "Done with curve", his));
@@ -188,7 +188,7 @@ function createNewHistogram_(histogramInfo, done, dbConnection) {
                             console.log(err.message);
                         })
                     } else {
-                        Histogram.findById(histogram.idHistogram).then(his => {
+                        Histogram.findByPk(histogram.idHistogram).then(his => {
                             his = his.toJSON();
                             his.noCurveFound = true;
                             done(ResponseJSON(ErrorCodes.SUCCESS, "NO_CURVE_FOUND", his));
@@ -202,7 +202,7 @@ function createNewHistogram_(histogramInfo, done, dbConnection) {
         } else {
             if (histogramInfo.idZoneSet) {
                 Histogram.create(histogramInfo).then(result => {
-                    Histogram.findById(result.idHistogram).then(his => {
+                    Histogram.findByPk(result.idHistogram).then(his => {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
                     });
                 }).catch(err => {
@@ -210,7 +210,7 @@ function createNewHistogram_(histogramInfo, done, dbConnection) {
                 });
             } else {
                 Histogram.create(histogramInfo).then(result => {
-                    Histogram.findById(result.idHistogram).then(his => {
+                    Histogram.findByPk(result.idHistogram).then(his => {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new histogram success", his));
                     });
                 }).catch(err => {
@@ -231,7 +231,7 @@ function getHistogram(histogramId, done, dbConnection) {
     let Zone = dbConnection.Zone;
     let ReferenceCurve = dbConnection.ReferenceCurve;
     let Discrim = dbConnection.Discrim;
-    Histogram.findById(histogramId.idHistogram, {
+    Histogram.findByPk(histogramId.idHistogram, {
         include: [{
             model: ZoneSet,
             include: [{model: Zone}]
@@ -243,11 +243,11 @@ function getHistogram(histogramId, done, dbConnection) {
         }]
     }).then(rs => {
         if (rs) {
-            Curve.findById(rs.idCurve).then(curve => {
+            Curve.findByPk(rs.idCurve).then(curve => {
                 let response = rs.toJSON();
                 if (curve) {
                     asyncLoop(response.reference_curves, function (ref, next) {
-                        Curve.findById(ref.idCurve).then(curve => {
+                        Curve.findByPk(ref.idCurve).then(curve => {
                             if (curve) {
                                 next();
                             } else {
@@ -261,7 +261,7 @@ function getHistogram(histogramId, done, dbConnection) {
                 } else {
                     response.idCurve = null;
                     asyncLoop(response.reference_curves, function (ref, next) {
-                        Curve.findById(ref.idCurve).then(curve => {
+                        Curve.findByPk(ref.idCurve).then(curve => {
                             if (curve) {
                                 next();
                             } else {
@@ -290,7 +290,7 @@ function editHistogram(histogramInfo, done, dbConnection) {
     let curves = histogramInfo.curves ? histogramInfo.curves : [];
     delete histogramInfo.createdBy;
     let Histogram = dbConnection.Histogram;
-    Histogram.findById(histogramInfo.idHistogram)
+    Histogram.findByPk(histogramInfo.idHistogram)
         .then(function (histogram) {
             let isRename = histogramInfo.name && histogram.name !== histogramInfo.name;
             histogramInfo.discriminator = JSON.stringify(histogramInfo.discriminator);
@@ -317,7 +317,7 @@ function editHistogram(histogramInfo, done, dbConnection) {
 
 function deleteHistogram(histogramInfo, done, dbConnection) {
     let Histogram = dbConnection.Histogram;
-    Histogram.findById(histogramInfo.idHistogram)
+    Histogram.findByPk(histogramInfo.idHistogram)
         .then(function (histogram) {
             histogram.setDataValue('updatedBy', histogramInfo.updatedBy);
             histogram.destroy({permanently: true, force: true})
@@ -335,7 +335,7 @@ function deleteHistogram(histogramInfo, done, dbConnection) {
 
 function duplicateHistogram(payload, done, dbConnection) {
     let Histogram = dbConnection.Histogram;
-    Histogram.findById(payload.idHistogram, {include: {all: true}}).then(histogram => {
+    Histogram.findByPk(payload.idHistogram, {include: {all: true}}).then(histogram => {
         let newHistogram;
         if (histogram) {
             newHistogram = histogram.toJSON();
@@ -378,7 +378,7 @@ function duplicateHistogram(payload, done, dbConnection) {
 }
 
 function editHistogramCurveSet(payload, done, dbConnection) {
-    dbConnection.HistogramCurveSet.findById(payload.idHistogramCurveSet).then(hcs => {
+    dbConnection.HistogramCurveSet.findByPk(payload.idHistogramCurveSet).then(hcs => {
         if (hcs) {
             Object.assign(hcs, payload).save().then(h => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Done", h));

@@ -15,7 +15,7 @@ function createImageOfTrack(info, done, dbConnection) {
 
 function infoImageOfTrack(info, done, dbConnection) {
     let Model = dbConnection.ImageOfTrack;
-    Model.findById(info.idImageOfTrack).then(result => {
+    Model.findByPk(info.idImageOfTrack).then(result => {
         if (!result) {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Image Found"));
         } else {
@@ -29,7 +29,7 @@ function infoImageOfTrack(info, done, dbConnection) {
 function editImageOfTrack(info, done, dbConnection) {
     delete info.createdBy;
     let Model = dbConnection.ImageOfTrack;
-    Model.findById(info.idImageOfTrack).then(result => {
+    Model.findByPk(info.idImageOfTrack).then(result => {
         if (!result) {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Image Found"));
         } else {
@@ -46,7 +46,7 @@ function editImageOfTrack(info, done, dbConnection) {
 
 function deleteImageOfTrack(info, done, dbConnection, username) {
     let Model = dbConnection.ImageOfTrack;
-    Model.findById(info.idImageOfTrack).then(image => {
+    Model.findByPk(info.idImageOfTrack).then(image => {
         if (image) {
             image.setDataValue('updatedBy', info.updatedBy);
             Model.destroy({where: {idImageOfTrack: info.idImageOfTrack}}).then(result => {

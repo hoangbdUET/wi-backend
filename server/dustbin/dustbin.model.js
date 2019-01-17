@@ -146,7 +146,7 @@ function deleteObject(payload, callback, dbConnection) {
     let objectType = payload.type;
     switch (objectType) {
         case 'well' : {
-            Well.findById(payload.idObject, {paranoid: false}).then(rs => {
+            Well.findByPk(payload.idObject, {paranoid: false}).then(rs => {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
                     rs.destroy({permanently: true, force: true}).then(() => {
@@ -161,7 +161,7 @@ function deleteObject(payload, callback, dbConnection) {
             break;
         }
         case 'dataset' : {
-            Dataset.findById(payload.idObject, {paranoid: false}).then(rs => {
+            Dataset.findByPk(payload.idObject, {paranoid: false}).then(rs => {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
                     rs.destroy({permanently: true, force: true}).then(() => {
@@ -176,7 +176,7 @@ function deleteObject(payload, callback, dbConnection) {
             break;
         }
         case 'curve' : {
-            Curve.findById(payload.idObject, {paranoid: false}).then(rs => {
+            Curve.findByPk(payload.idObject, {paranoid: false}).then(rs => {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
                     rs.destroy({permanently: true, force: true}).then(() => {
@@ -191,7 +191,7 @@ function deleteObject(payload, callback, dbConnection) {
             break;
         }
         case 'logplot' : {
-            Plot.findById(payload.idObject, {paranoid: false}).then(rs => {
+            Plot.findByPk(payload.idObject, {paranoid: false}).then(rs => {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
                     rs.destroy({permanently: true, force: true}).then(() => {
@@ -206,7 +206,7 @@ function deleteObject(payload, callback, dbConnection) {
             break;
         }
         case 'crossplot' : {
-            CrossPlot.findById(payload.idObject, {paranoid: false}).then(rs => {
+            CrossPlot.findByPk(payload.idObject, {paranoid: false}).then(rs => {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
                     rs.destroy({permanently: true, force: true}).then(() => {
@@ -221,7 +221,7 @@ function deleteObject(payload, callback, dbConnection) {
             break;
         }
         case 'histogram' : {
-            Histogram.findById(payload.idObject, {paranoid: false}).then(rs => {
+            Histogram.findByPk(payload.idObject, {paranoid: false}).then(rs => {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
                     rs.destroy({permanently: true, force: true}).then(() => {
@@ -236,7 +236,7 @@ function deleteObject(payload, callback, dbConnection) {
             break;
         }
         case 'zoneset' : {
-            ZoneSet.findById(payload.idObject, {paranoid: false}).then(rs => {
+            ZoneSet.findByPk(payload.idObject, {paranoid: false}).then(rs => {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
                     rs.destroy({permanently: true, force: true}).then(() => {
@@ -269,7 +269,7 @@ function restoreObject(payload, callback, dbConnection, username) {
     let objectType = payload.type;
     switch (objectType) {
         case 'well': {
-            Well.findById(payload.idObject, {
+            Well.findByPk(payload.idObject, {
                 paranoid: false
             }).then(rs => {
                 let oldName = rs.name;
@@ -311,7 +311,7 @@ function restoreObject(payload, callback, dbConnection, username) {
             break;
         }
         case 'dataset': {
-            Dataset.findById(payload.idObject, {
+            Dataset.findByPk(payload.idObject, {
                 paranoid: false,
                 include: {all: true, paranoid: false}
             }).then(rs => {
@@ -359,7 +359,7 @@ function restoreObject(payload, callback, dbConnection, username) {
             break;
         }
         case 'curve': {
-            Curve.findById(payload.idObject, {
+            Curve.findByPk(payload.idObject, {
                 paranoid: false
             }).then(async rs => {
                 let curveParents = await curveFunction.getFullCurveParents(rs, dbConnection);
@@ -391,7 +391,7 @@ function restoreObject(payload, callback, dbConnection, username) {
             break;
         }
         case 'logplot': {
-            Plot.findById(payload.idObject, {
+            Plot.findByPk(payload.idObject, {
                 paranoid: false
             }).then(rs => {
                 rs.name = rs.name.substring(1);
@@ -408,7 +408,7 @@ function restoreObject(payload, callback, dbConnection, username) {
             break;
         }
         case 'histogram': {
-            Histogram.findById(payload.idObject, {
+            Histogram.findByPk(payload.idObject, {
                 paranoid: false
             }).then(rs => {
                 rs.name = rs.name.substring(1);
@@ -425,7 +425,7 @@ function restoreObject(payload, callback, dbConnection, username) {
             break;
         }
         case 'crossplot': {
-            CrossPlot.findById(payload.idObject, {
+            CrossPlot.findByPk(payload.idObject, {
                 paranoid: false
             }).then(rs => {
                 rs.name = rs.name.substring(1);
@@ -442,7 +442,7 @@ function restoreObject(payload, callback, dbConnection, username) {
             break;
         }
         case 'zoneset': {
-            ZoneSet.findById(payload.idObject, {
+            ZoneSet.findByPk(payload.idObject, {
                 paranoid: false
             }).then(rs => {
                 rs.name = rs.name.substring(1);

@@ -92,7 +92,7 @@ function getWellList(payload, done, dbConnection) {
 }
 
 function editWell(wellInfo, done, dbConnection, username) {
-	dbConnection.Well.findById(wellInfo.idWell).then(well => {
+	dbConnection.Well.findByPk(wellInfo.idWell).then(well => {
 		if (well) {
 			if (wellInfo.name && well.name.toUpperCase() !== wellInfo.name.toUpperCase()) {
 				let oldWellName = well.name;
@@ -101,7 +101,7 @@ function editWell(wellInfo, done, dbConnection, username) {
 				well.updatedBy = wellInfo.updatedBy;
 				well.save()
 					.then(function () {
-						dbConnection.Project.findById(well.idProject).then(function (project) {
+						dbConnection.Project.findByPk(well.idProject).then(function (project) {
 							dbConnection.Dataset.findAll({
 								where: {idWell: well.idWell},
 								paranoid: false
@@ -166,7 +166,7 @@ function editWell(wellInfo, done, dbConnection, username) {
 
 function deleteWell(wellInfo, done, dbConnection) {
 	let Well = dbConnection.Well;
-	Well.findById(wellInfo.idWell)
+	Well.findByPk(wellInfo.idWell)
 		.then(function (well) {
 			well.setDataValue('updatedBy', wellInfo.updatedBy);
 			well.destroy({permanently: true, force: true})
@@ -184,7 +184,7 @@ function deleteWell(wellInfo, done, dbConnection) {
 
 function getWellInfo(well, done, dbConnection) {
 	let Well = dbConnection.Well;
-	Well.findById(well.idWell, {include: [{all: true}]})
+	Well.findByPk(well.idWell, {include: [{all: true}]})
 		.then(function (well) {
 			let wellObj = well.toJSON();
 			asyncSeries([
@@ -241,7 +241,7 @@ function getWellInfo(well, done, dbConnection) {
 
 function getWellFullInfo(well, done, dbConnection) {
 	let Well = dbConnection.Well;
-	Well.findById(well.idWell).then(function (well) {
+	Well.findByPk(well.idWell).then(function (well) {
 		let wellObj = well.toJSON();
 		asyncSeries([
 			function (cb) {
@@ -347,14 +347,14 @@ function getWellInfoByName(well, done, dbConnection) {
 
 async function exportToProject(info, done, dbConnection, username) {
 	let idDesProject = info.idDesProject;
-	let fullWellData = await dbConnection.Well.findById(info.idWell, {
+	let fullWellData = await dbConnection.Well.findByPk(info.idWell, {
 		include: {
 			model: dbConnection.Dataset,
 			include: dbConnection.Curve
 		}
 	});
-	let srcProject = await dbConnection.Project.findById(fullWellData.idProject);
-	let desProject = await dbConnection.Project.findById(idDesProject);
+	let srcProject = await dbConnection.Project.findByPk(fullWellData.idProject);
+	let desProject = await dbConnection.Project.findByPk(idDesProject);
 	dbConnection.Well.create({
 		name: fullWellData.name,
 		topDepth: fullWellData.topDepth,
@@ -411,7 +411,7 @@ function updateWellHeader(payload, done, dbConnection) {
 	checkPermisson(payload.updatedBy, 'well.update', function (pass) {
 		if (pass) {
 			if (payload.idWellHeader) {
-				dbConnection.WellHeader.findById(payload.idWellHeader).then((header) => {
+				dbConnection.WellHeader.findByPk(payload.idWellHeader).then((header) => {
 					Object.assign(header, payload).save().then((rs) => {
 						done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
 					}).catch(err => {

@@ -25,7 +25,7 @@ function createNewTernary(ternaryInfo, done, dbConnection) {
 
 function editTernary(ternaryInfo, done, dbConnection) {
     let Ternary = dbConnection.Ternary;
-    Ternary.findById(ternaryInfo.idTernary)
+    Ternary.findByPk(ternaryInfo.idTernary)
         .then(function (ternary) {
             delete ternaryInfo.idTernary;
             delete ternaryInfo.idCrossPlot;
@@ -46,7 +46,7 @@ function editTernary(ternaryInfo, done, dbConnection) {
 
 function deleteTernary(ternaryInfo, done, dbConnection) {
     let Ternary = dbConnection.Ternary;
-    Ternary.findById(ternaryInfo.idTernary)
+    Ternary.findByPk(ternaryInfo.idTernary)
         .then(function (ternary) {
             ternary.destroy()
                 .then(function () {
@@ -63,7 +63,7 @@ function deleteTernary(ternaryInfo, done, dbConnection) {
 
 function inforTernary(ternaryInfo, done, dbConnection) {
     let Ternary = dbConnection.Ternary;
-    Ternary.findById(ternaryInfo.idTernary).then(ternary => {
+    Ternary.findByPk(ternaryInfo.idTernary).then(ternary => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Successful !", ternary));
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "ERROR", err));

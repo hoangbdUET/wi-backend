@@ -11,7 +11,7 @@ function createNewZoneSetTemplate(payload, done, dbConnection) {
 }
 
 function infoZoneSetTemplate(payload, done, dbConnection) {
-    dbConnection.ZoneSetTemplate.findById(payload.idZoneSetTemplate, {include: [{model: dbConnection.ZoneTemplate}, {model: dbConnection.ZoneSet}]}).then(rs => {
+    dbConnection.ZoneSetTemplate.findByPk(payload.idZoneSetTemplate, {include: [{model: dbConnection.ZoneTemplate}, {model: dbConnection.ZoneSet}]}).then(rs => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
@@ -31,7 +31,7 @@ function listZoneSetTemplate(payload, done, dbConnection) {
 
 
 function deleteZoneSetTemplate(payload, done, dbConnection) {
-    dbConnection.ZoneSetTemplate.findById(payload.idZoneSetTemplate).then(zst => {
+    dbConnection.ZoneSetTemplate.findByPk(payload.idZoneSetTemplate).then(zst => {
         if (zst) {
             zst.destroy().then(() => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Done", zst));
@@ -47,10 +47,10 @@ function deleteZoneSetTemplate(payload, done, dbConnection) {
 }
 
 function editZoneSetTemplate(payload, done, dbConnection) {
-    dbConnection.ZoneSetTemplate.findById(payload.idZoneSetTemplate).then(zst => {
+    dbConnection.ZoneSetTemplate.findByPk(payload.idZoneSetTemplate).then(zst => {
         if (zst) {
             Object.assign(zst, payload).save().then((zst_) => {
-                dbConnection.ZoneSetTemplate.findById(zst_.idZoneSetTemplate, {include: {model: dbConnection.ZoneSet}}).then((r) => {
+                dbConnection.ZoneSetTemplate.findByPk(zst_.idZoneSetTemplate, {include: {model: dbConnection.ZoneSet}}).then((r) => {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
                 });
             }).catch(err => {

@@ -14,7 +14,7 @@ function createNewMarker(markerInfo, done, dbConnection) {
 
 function getMarkerInfo(markerID, done, dbConnection) {
     let Marker = dbConnection.Marker;
-    Marker.findById(markerID.idMarker, {
+    Marker.findByPk(markerID.idMarker, {
         include: [{all: true}]
     }).then(rs => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
@@ -26,7 +26,7 @@ function getMarkerInfo(markerID, done, dbConnection) {
 function editMarker(markerInfo, done, dbConnection) {
     delete markerInfo.createdBy;
     let Marker = dbConnection.Marker;
-    Marker.findById(markerInfo.idMarker)
+    Marker.findByPk(markerInfo.idMarker)
         .then(function (marker) {
             Object.assign(marker, markerInfo)
                 .save()
@@ -44,7 +44,7 @@ function editMarker(markerInfo, done, dbConnection) {
 
 function deleteMarker(markerInfo, done, dbConnection) {
     let Marker = dbConnection.Marker;
-    Marker.findById(markerInfo.idMarker)
+    Marker.findByPk(markerInfo.idMarker)
         .then(function (marker) {
             marker.setDataValue('updatedAt', markerInfo.updatedBy);
             marker.destroy()

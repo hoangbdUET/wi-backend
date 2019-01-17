@@ -22,7 +22,7 @@ let createTask = function (data, callback, dbConnection) {
 
 let editTask = function (data, callback, dbConnection) {
     delete data.createdBy;
-    dbConnection.Task.findById(data.idTask).then(w => {
+    dbConnection.Task.findByPk(data.idTask).then(w => {
         if (w) {
             Object.assign(w, data).save().then(rs => {
                 callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
@@ -43,12 +43,12 @@ let editTask = function (data, callback, dbConnection) {
 
 
 let infoTask = function (data, callback, dbConnection) {
-    dbConnection.Task.findById(data.idTask).then(async w => {
+    dbConnection.Task.findByPk(data.idTask).then(async w => {
         if (w) {
             w = w.toJSON();
             w.taskspec = {};
             if (w.idTaskSpec) {
-                w.taskspec = await dbConnection.TaskSpec.findById(w.idTaskSpec);
+                w.taskspec = await dbConnection.TaskSpec.findByPk(w.idTaskSpec);
                 callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", w));
             } else {
                 callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", w));
@@ -63,7 +63,7 @@ let infoTask = function (data, callback, dbConnection) {
 
 
 let deleteTask = function (data, callback, dbConnection) {
-    dbConnection.Task.findById(data.idTask).then(w => {
+    dbConnection.Task.findByPk(data.idTask).then(w => {
         if (w) {
             w.destroy().then(() => {
                 callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", w));

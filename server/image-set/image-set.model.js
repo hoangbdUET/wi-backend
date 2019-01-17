@@ -14,7 +14,7 @@ function createImageSet(payload, cb, dbConnection) {
 }
 
 function infoImageSet(payload, cb, dbConnection) {
-	dbConnection.ImageSet.findById(payload.idImageSet).then(rs => {
+	dbConnection.ImageSet.findByPk(payload.idImageSet).then(rs => {
 		if (rs) {
 			cb(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
 		} else {
@@ -24,7 +24,7 @@ function infoImageSet(payload, cb, dbConnection) {
 }
 
 function updateImageSet(payload, cb, dbConnection) {
-	dbConnection.ImageSet.findById(payload.idImageSet).then(rs => {
+	dbConnection.ImageSet.findByPk(payload.idImageSet).then(rs => {
 		if (rs) {
 			Object.assign(rs, payload).save().then(r => {
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
@@ -38,7 +38,7 @@ function updateImageSet(payload, cb, dbConnection) {
 }
 
 function deleteImageSet(payload, cb, dbConnection) {
-	dbConnection.ImageSet.findById(payload.idImageSet).then(rs => {
+	dbConnection.ImageSet.findByPk(payload.idImageSet).then(rs => {
 		if (rs) {
 			rs.destroy().then(() => {
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));

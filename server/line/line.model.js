@@ -11,8 +11,8 @@ const _ = require('lodash');
 function getWellIdByTrack(idTrack, dbConnection, callback) {
     let Track = dbConnection.Track;
     let Plot = dbConnection.Plot;
-    Track.findById(idTrack).then(track => {
-        Plot.findById(track.idPlot).then(plot => {
+    Track.findByPk(idTrack).then(track => {
+        Plot.findByPk(track.idPlot).then(plot => {
             callback(null, plot.idWell);
         }).catch(err => {
             callback(err, null);
@@ -26,7 +26,7 @@ function createNewLineWithoutResponse(lineInfo, dbConnection, username) {
     return new Promise(resolve => {
         let convertUnit = require('../family-unit/family-unit.model');
         if (!lineInfo.idCurve) return resolve();
-        dbConnection.Curve.findById(lineInfo.idCurve).then(curve => {
+        dbConnection.Curve.findByPk(lineInfo.idCurve).then(curve => {
             if (!curve) {
                 resolve();
             } else {
@@ -137,7 +137,7 @@ function createNewLineWithoutResponse(lineInfo, dbConnection, username) {
 function createNewLine(lineInfo, done, dbConnection, username) {
     let convertUnit = require('../family-unit/family-unit.model');
     if (!lineInfo.idCurve) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Need idCurve"));
-    dbConnection.Curve.findById(lineInfo.idCurve).then(curve => {
+    dbConnection.Curve.findByPk(lineInfo.idCurve).then(curve => {
         if (!curve) {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No curve found in line info", lineInfo));
         } else {
@@ -253,7 +253,7 @@ function editLine(lineInfo, done, dbConnection) {
     if (lineInfo.lineStyle) lineInfo.lineStyle = typeof(lineInfo.lineStyle) === 'object' ? JSON.stringify(lineInfo.lineStyle) : lineInfo.lineStyle;
     if (lineInfo.symbolLineDash) lineInfo.symbolLineDash = typeof(lineInfo.symbolLineDash) === 'object' ? JSON.stringify(lineInfo.symbolLineDash) : lineInfo.symbolLineDash;
     let Line = dbConnection.Line;
-    Line.findById(lineInfo.idLine, {include: {all: true}}).then(line => {
+    Line.findByPk(lineInfo.idLine, {include: {all: true}}).then(line => {
         if (line) {
             if (line.idTrack != lineInfo.idTrack && lineInfo.idTrack) {
                 console.log("Vao day");
@@ -333,7 +333,7 @@ function editLine(lineInfo, done, dbConnection) {
 
 function deleteLine(lineInfo, done, dbConnection) {
     let Line = dbConnection.Line;
-    Line.findById(lineInfo.idLine)
+    Line.findByPk(lineInfo.idLine)
         .then(function (line) {
             line.setDataValue('updatedBy', lineInfo.updatedBy);
             let Sequelize = require('sequelize');
@@ -364,7 +364,7 @@ function deleteLine(lineInfo, done, dbConnection) {
 
 function getLineInfo(line, done, dbConnection) {
     let Line = dbConnection.Line;
-    Line.findById(line.idLine, {include: [{all: true, include: [{all: true}]}]})
+    Line.findByPk(line.idLine, {include: [{all: true, include: [{all: true}]}]})
         .then(function (line) {
             if (!line) throw "not exist";
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Line success", line));

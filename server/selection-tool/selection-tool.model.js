@@ -30,7 +30,7 @@ function createSelectionTool(payload, done, dbConnection, username) {
 function editSelectionTool(payload, done, dbConnection, username) {
     payload.data = "{}";
     let Model = dbConnection.SelectionTool;
-    Model.findById(payload.idSelectionTool).then(row => {
+    Model.findByPk(payload.idSelectionTool).then(row => {
         if (row) {
             if (payload.BIN) {
 				let binPath = hashDir.createPath(config.curveBasePath, username + row.idSelectionTool, row.idSelectionTool + '.txt');
@@ -69,7 +69,7 @@ function editSelectionTool(payload, done, dbConnection, username) {
 
 function infoSelectionTool(payload, done, dbConnection, username) {
     let Model = dbConnection.SelectionTool;
-    Model.findById(payload.idSelectionTool).then(rs => {
+    Model.findByPk(payload.idSelectionTool).then(rs => {
         if (rs) {
             rs = rs.toJSON();
 			let binPath = hashDir.createPath(config.curveBasePath, username + rs.idSelectionTool, rs.idSelectionTool + '.txt');
@@ -88,7 +88,7 @@ function infoSelectionTool(payload, done, dbConnection, username) {
 
 function deleteSelectionTool(payload, done, dbConnection, username) {
     let Model = dbConnection.SelectionTool;
-    Model.findById(payload.idSelectionTool).then(rs => {
+    Model.findByPk(payload.idSelectionTool).then(rs => {
         if (rs) {
             rs.destroy().then(() => {
                 hashDir.deleteFolder(config.curveBasePath, username + rs.idSelectionTool);

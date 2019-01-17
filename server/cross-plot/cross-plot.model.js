@@ -166,14 +166,14 @@ function editCrossPlot(crossPlotInfo, done, dbConnection) {
         JSON.stringify(crossPlotInfo.axisColors);
     }
     let CrossPlot = dbConnection.CrossPlot;
-    CrossPlot.findById(crossPlotInfo.idCrossPlot)
+    CrossPlot.findByPk(crossPlotInfo.idCrossPlot)
         .then(function (crossPlot) {
             if (crossPlot) {
                 crossPlotInfo.discriminator = JSON.stringify(crossPlotInfo.discriminator);
                 Object.assign(crossPlot, crossPlotInfo);
                 crossPlot.save()
                     .then(function (c) {
-                        dbConnection.CrossPlot.findById(c.idCrossPlot, {include: {all: true}}).then(_c => {
+                        dbConnection.CrossPlot.findByPk(c.idCrossPlot, {include: {all: true}}).then(_c => {
                             done(ResponseJSON(ErrorCodes.SUCCESS, "Edit CrossPlot success", _c));
                         });
                     })
@@ -197,7 +197,7 @@ function editCrossPlot(crossPlotInfo, done, dbConnection) {
 
 function deleteCrossPlot(crossPlotInfo, done, dbConnection) {
     let CrossPlot = dbConnection.CrossPlot;
-    CrossPlot.findById(crossPlotInfo.idCrossPlot)
+    CrossPlot.findByPk(crossPlotInfo.idCrossPlot)
         .then(function (crossPlot) {
             crossPlot.setDataValue('updatedBy', crossPlotInfo.updatedBy);
             crossPlot.destroy({permanently: true, force: true})
@@ -215,7 +215,7 @@ function deleteCrossPlot(crossPlotInfo, done, dbConnection) {
 
 function getCrossPlotInfo(crossPlot, done, dbConnection) {
     let CrossPlot = dbConnection.CrossPlot;
-    CrossPlot.findById(crossPlot.idCrossPlot, {include: [{all: true, include: [{all: true}]}]})
+    CrossPlot.findByPk(crossPlot.idCrossPlot, {include: [{all: true, include: [{all: true}]}]})
         .then(function (crossPlot) {
             if (!crossPlot) throw "not exists";
             crossPlot = crossPlot.toJSON();
@@ -226,7 +226,7 @@ function getCrossPlotInfo(crossPlot, done, dbConnection) {
             if (crossPlot.pointsets.length !== 0) {
                 asyncSeries([
                     function (cb) {
-                        dbConnection.Curve.findById(crossPlot.pointsets[0].idCurveX).then(curve => {
+                        dbConnection.Curve.findByPk(crossPlot.pointsets[0].idCurveX).then(curve => {
                             if (curve) {
                                 cb(null, curve.idCurve);
                             } else {
@@ -235,7 +235,7 @@ function getCrossPlotInfo(crossPlot, done, dbConnection) {
                         });
                     },
                     function (cb) {
-                        dbConnection.Curve.findById(crossPlot.pointsets[0].idCurveY).then(curve => {
+                        dbConnection.Curve.findByPk(crossPlot.pointsets[0].idCurveY).then(curve => {
                             if (curve) {
                                 cb(null, curve.idCurve);
                             } else {
@@ -244,7 +244,7 @@ function getCrossPlotInfo(crossPlot, done, dbConnection) {
                         });
                     },
                     function (cb) {
-                        dbConnection.Curve.findById(crossPlot.pointsets[0].idCurveZ).then(curve => {
+                        dbConnection.Curve.findByPk(crossPlot.pointsets[0].idCurveZ).then(curve => {
                             if (curve) {
                                 cb(null, curve.idCurve);
                             } else {
@@ -254,7 +254,7 @@ function getCrossPlotInfo(crossPlot, done, dbConnection) {
                     },
                     function (cb) {
                         asyncLoop(crossPlot.reference_curves, function (ref, next) {
-                            dbConnection.Curve.findById(ref.idCurve).then(curve => {
+                            dbConnection.Curve.findByPk(ref.idCurve).then(curve => {
                                 if (curve) {
                                     next();
                                 } else {
@@ -283,7 +283,7 @@ function getCrossPlotInfo(crossPlot, done, dbConnection) {
 
 function duplicateCrossplot(payload, done, dbConnection) {
     let CrossPLot = dbConnection.CrossPlot;
-    CrossPLot.findById(payload.idCrossPlot, {include: {all: true, include: {all: true}}}).then(crossplot => {
+    CrossPLot.findByPk(payload.idCrossPlot, {include: {all: true, include: {all: true}}}).then(crossplot => {
         let newCrossPlot;
         if (crossplot) {
             newCrossPlot = crossplot.toJSON();

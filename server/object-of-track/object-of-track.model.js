@@ -12,7 +12,7 @@ function createObjectOfTrack(info, done, dbConnection) {
 
 function infoObjectOfTrack(info, done, dbConnection) {
     let Model = dbConnection.ObjectOfTrack;
-    Model.findById(info.idObjectOfTrack).then(result => {
+    Model.findByPk(info.idObjectOfTrack).then(result => {
         if (!result) {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No ObjectOfTrack Found"));
         } else {
@@ -26,7 +26,7 @@ function infoObjectOfTrack(info, done, dbConnection) {
 function editObjectOfTrack(info, done, dbConnection) {
     delete info.createdBy;
     let Model = dbConnection.ObjectOfTrack;
-    Model.findById(info.idObjectOfTrack).then(result => {
+    Model.findByPk(info.idObjectOfTrack).then(result => {
         if (!result) {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No ObjectOfTrack Found"));
         } else {
@@ -43,7 +43,7 @@ function editObjectOfTrack(info, done, dbConnection) {
 
 function deleteObjectOfTrack(info, done, dbConnection) {
     let Model = dbConnection.ObjectOfTrack;
-    Model.findById(info.idObjectOfTrack).then(track => {
+    Model.findByPk(info.idObjectOfTrack).then(track => {
         if (track) {
             track.setDataValue('updatedBy', info.updatedBy);
             track.destroy().then(() => {

@@ -17,7 +17,7 @@ function createNewTrack(trackInfo, done, dbConnection) {
 function editTrack(trackInfo, done, dbConnection) {
     delete trackInfo.createdBy;
     let Track = dbConnection.Track;
-    Track.findById(trackInfo.idTrack)
+    Track.findByPk(trackInfo.idTrack)
         .then(function (track) {
             Object.assign(track, trackInfo).save()
                 .then(function () {
@@ -34,7 +34,7 @@ function editTrack(trackInfo, done, dbConnection) {
 
 function deleteTrack(trackInfo, done, dbConnection) {
     let Track = dbConnection.Track;
-    Track.findById(trackInfo.idTrack)
+    Track.findByPk(trackInfo.idTrack)
         .then(function (track) {
             track.setDataValue('updatedBy', trackInfo.updatedBy);
             track.destroy({hooks: !dbConnection.hookPerm})
@@ -52,7 +52,7 @@ function deleteTrack(trackInfo, done, dbConnection) {
 
 function getTrackInfo(track, done, dbConnection) {
     let Track = dbConnection.Track;
-    Track.findById(track.idTrack, {
+    Track.findByPk(track.idTrack, {
         include: [
             {model: dbConnection.Line},
             {model: dbConnection.Shading},
@@ -80,7 +80,7 @@ function getTrackInfo(track, done, dbConnection) {
 let findDatasetName = function (idDataset, dbConnection) {
     return new Promise(function (resolve, reject) {
         let Dataset = dbConnection.Dataset;
-        Dataset.findById(idDataset).then(dataset => {
+        Dataset.findByPk(idDataset).then(dataset => {
             resolve(dataset.name);
         }).catch(err => {
             reject(null);
@@ -90,7 +90,7 @@ let findDatasetName = function (idDataset, dbConnection) {
 let exportData = function (payload, done, error, dbConnection, username) {
     let Track = dbConnection.Track;
     let tempfile = require('tempfile')('.json');
-    Track.findById(payload.idTrack, {
+    Track.findByPk(payload.idTrack, {
         include: [{
             model: dbConnection.Line,
             include: {model: dbConnection.Curve}
@@ -282,7 +282,7 @@ let importTrackTemplate = async function (req, done, dbConnection) {
         fs.unlink(filePath);
         return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Only .track files allowed!"));
     }
-    let well = await dbConnection.Well.findById(req.body.idWell);
+    let well = await dbConnection.Well.findByPk(req.body.idWell);
     let isCurveNotFound = false;
     let curveHasError = new Array();
     fs.readFile(filePath, 'utf8', function (err, data) {
@@ -394,7 +394,7 @@ let importTrackTemplate = async function (req, done, dbConnection) {
                                         });
                                     }, function (err) {
                                         console.log("ALL ANNOTATION DONE");
-                                        dbConnection.Track.findById(idTrack, {include: [{all: true}]}).then(aTrack => {
+                                        dbConnection.Track.findByPk(idTrack, {include: [{all: true}]}).then(aTrack => {
                                             if (isCurveNotFound) {
                                                 let track = aTrack.toJSON();
                                                 track.errorCurve = curveHasError;
@@ -424,7 +424,7 @@ let importTrackTemplate = async function (req, done, dbConnection) {
 }
 
 let duplicateTrack = function (payload, done, dbConnection) {
-    dbConnection.Track.findById(payload.idTrack.idTrack, {include: {all: true}}).then(rs => {
+    dbConnection.Track.findByPk(payload.idTrack.idTrack, {include: {all: true}}).then(rs => {
             let track = rs.toJSON();
             delete track.idTrack;
             delete track.createdAt;
@@ -508,7 +508,7 @@ let duplicateTrack = function (payload, done, dbConnection) {
                             });
                         });
                     }, function () {
-                        dbConnection.Track.findById(idTrack, {include: {all: true}}).then(t => {
+                        dbConnection.Track.findByPk(idTrack, {include: {all: true}}).then(t => {
                             done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", t));
                         });
                     });
@@ -596,7 +596,7 @@ async function applyToWell(payload, dbConnection) {
     }
 
     try {
-        let track = await dbConnection.Track.findById(payload.idTrack, {
+        let track = await dbConnection.Track.findByPk(payload.idTrack, {
             include: [
                 {model: dbConnection.Line, include: {model: dbConnection.Curve}},
                 {
@@ -611,7 +611,7 @@ async function applyToWell(payload, dbConnection) {
                 {model: dbConnection.MarkerSet}
             ]
         });
-        let well = await dbConnection.Well.findById(payload.idWell, {
+        let well = await dbConnection.Well.findByPk(payload.idWell, {
             include: [
                 {model: dbConnection.Dataset, include: {model: dbConnection.Curve}},
                 {model: dbConnection.MarkerSet},

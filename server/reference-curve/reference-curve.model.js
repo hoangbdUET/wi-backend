@@ -13,11 +13,11 @@ function createNewReferenceCurve(info, callback, dbConnection) {
 
 function infoReferenceCurve(info, callback, dbConnection) {
     let ReferenceCurve = dbConnection.ReferenceCurve;
-    ReferenceCurve.findById(info.idReferenceCurve, {
+    ReferenceCurve.findByPk(info.idReferenceCurve, {
         include: [dbConnection.Curve]
     }).then(referenceCurve => {
         if (referenceCurve) {
-            dbConnection.Curve.findById(referenceCurve.idCurve).then(curve => {
+            dbConnection.Curve.findByPk(referenceCurve.idCurve).then(curve => {
                 if (curve) {
                     callback(ResponseJSON(ErrorCodes.SUCCESS, "Get info reference successful!", referenceCurve));
                 } else {
@@ -36,7 +36,7 @@ function infoReferenceCurve(info, callback, dbConnection) {
 function editReferenceCurve(info, callback, dbConnection) {
     delete info.createdBy;
     let ReferenceCurve = dbConnection.ReferenceCurve;
-    ReferenceCurve.findById(info.idReferenceCurve).then(referenceCurve => {
+    ReferenceCurve.findByPk(info.idReferenceCurve).then(referenceCurve => {
         Object.assign(referenceCurve, info)
             .save()
             .then(function (result) {
@@ -52,7 +52,7 @@ function editReferenceCurve(info, callback, dbConnection) {
 
 function deleteReferenceCurve(info, callback, dbConnection) {
     let ReferenceCurve = dbConnection.ReferenceCurve;
-    ReferenceCurve.findById(info.idReferenceCurve)
+    ReferenceCurve.findByPk(info.idReferenceCurve)
         .then(function (referenceCurve) {
             referenceCurve.setDataValue('updatedBy', info.updatedBy);
             referenceCurve.destroy()

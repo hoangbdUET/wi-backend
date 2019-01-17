@@ -78,7 +78,7 @@ function createCurvesWithWellExist(wellInfo, datasetInfo, option, dbConnection, 
             transaction: t
         }).then(function (dataset) {
             if (option.overwrite) {
-                return Well.findById(wellInfo.idWell, {
+                return Well.findByPk(wellInfo.idWell, {
                     include: [{all: true, include: {all: true}}],
                     transaction: t
                 })
@@ -93,7 +93,7 @@ function createCurvesWithWellExist(wellInfo, datasetInfo, option, dbConnection, 
                     });
             }
             else {
-                return Well.findById(wellInfo.idWell, {
+                return Well.findByPk(wellInfo.idWell, {
                     include: [{all: true, include: {all: true}}],
                     transaction: t
                 })
@@ -110,7 +110,7 @@ function createCurvesWithDatasetExist(wellInfo, datasetInfo, curvesInfo, option,
         return Curve.bulkCreate(curvesInfo, {transaction: t, individualHooks: true})
             .then(function (dataset) {
                 if (option.overwrite) {
-                    return Well.findById(wellInfo.idWell, {
+                    return Well.findByPk(wellInfo.idWell, {
                         include: [{all: true, include: {all: true}}],
                         transaction: t
                     })
@@ -125,7 +125,7 @@ function createCurvesWithDatasetExist(wellInfo, datasetInfo, curvesInfo, option,
                         });
                 }
                 else {
-                    return Well.findById(wellInfo.idWell, {
+                    return Well.findByPk(wellInfo.idWell, {
                         include: [{all: true, include: {all: true}}],
                         transaction: t
                     })
@@ -154,7 +154,7 @@ function createCurvesWithWellExistLAS3(wellInfo, datasetInfo, option, callback, 
                     }).then(rss => {
                         count++;
                         if (count == dataset.curves.length) {
-                            callback(false, Well.findById(wellInfo.idWell, {
+                            callback(false, Well.findByPk(wellInfo.idWell, {
                                 include: [{all: true}]
                                 // , {include: {all: true}}
                             }));
@@ -184,7 +184,7 @@ function createCurvesWithDatasetExistLAS3(wellInfo, datasetInfo, option, callbac
         datasetInfo[0].curves.forEach(function (curve) {
             curve.idDataset = datasetInfo[0].idDataset;
             Curve.findOrCreate({where: {idCurve: curve.idCurve}, defaults: curve}).then(rs => {
-                callback(false, Well.findById(wellInfo.idWell, {include: [{all: true}]}));
+                callback(false, Well.findByPk(wellInfo.idWell, {include: [{all: true}]}));
             }).catch(err => {
                 callback(err, null);
             })

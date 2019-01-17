@@ -50,7 +50,7 @@ function editCurve(curveInfo, done, dbConnection, username) {
     let Dataset = dbConnection.Dataset;
     let Well = dbConnection.Well;
     let Project = dbConnection.Project;
-    Curve.findById(curveInfo.idCurve)
+    Curve.findByPk(curveInfo.idCurve)
         .then(curve => {
             if (curve.name.toUpperCase() !== curveInfo.name.toUpperCase()) {
                 console.log(curve.name, "-", curveInfo.name);
@@ -64,9 +64,9 @@ function editCurve(curveInfo, done, dbConnection, username) {
                         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve's name already exists"));
                     } else {
                         console.log("EDIT CURVE NAME");
-                        Dataset.findById(curve.idDataset).then(dataset => {
-                            Well.findById(dataset.idWell).then(well => {
-                                Project.findById(well.idProject).then(project => {
+                        Dataset.findByPk(curve.idDataset).then(dataset => {
+                            Well.findByPk(dataset.idWell).then(well => {
+                                Project.findByPk(well.idProject).then(project => {
                                     let curveName = curve.name;
                                     curve.idDataset = curveInfo.idDataset ? curveInfo.idDataset : curve.idDataset;
                                     curve.name = curveInfo.name;
@@ -107,7 +107,7 @@ function editCurve(curveInfo, done, dbConnection, username) {
                     .save()
                     .then((rs) => {
                         // let Family = dbConnection.Family;
-                        // Family.findById(rs.idFamily).then(family => {
+                        // Family.findByPk(rs.idFamily).then(family => {
                         //     let Line = dbConnection.Line;
                         //     Line.findAll({where: {idCurve: rs.idCurve}}).then(lines => {
                         //         if (lines.length > 0) {
@@ -151,7 +151,7 @@ function editCurve(curveInfo, done, dbConnection, username) {
 
 function getCurveInfo(curve, done, dbConnection, username) {
     let Curve = dbConnection.Curve;
-    Curve.findById(curve.idCurve, {
+    Curve.findByPk(curve.idCurve, {
         include: {
             model: dbConnection.Family,
             as: 'LineProperty',
@@ -243,8 +243,8 @@ function getCurveInfo(curve, done, dbConnection, username) {
 
 async function copyCurve(param, done, dbConnection, username) {
     let curveUtils = require('../utils/curve.function');
-    let curve = await dbConnection.Curve.findById(param.idCurve);
-    let desDataset = await dbConnection.Dataset.findById(param.desDatasetId);
+    let curve = await dbConnection.Curve.findByPk(param.idCurve);
+    let desDataset = await dbConnection.Dataset.findByPk(param.desDatasetId);
     if (!curve || !desDataset) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve or Des dataset was not found by id"));
 
     curveUtils.getFullCurveParents(param, dbConnection).then(curveParents => {
@@ -284,9 +284,9 @@ async function copyCurve(param, done, dbConnection, username) {
 
 async function moveCurve(param, done, dbConnection, username) {
     let curveUtils = require('../utils/curve.function');
-    let curve = await dbConnection.Curve.findById(param.idCurve);
+    let curve = await dbConnection.Curve.findByPk(param.idCurve);
     let _curve = curve.toJSON();
-    let desDataset = await dbConnection.Dataset.findById(param.desDatasetId);
+    let desDataset = await dbConnection.Dataset.findByPk(param.desDatasetId);
     if (!curve || !desDataset) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve or Des dataset was not found by id"));
 
     let curveParents = await curveUtils.getFullCurveParents(param, dbConnection);
@@ -332,7 +332,7 @@ async function moveCurve(param, done, dbConnection, username) {
 
 async function deleteCurve(curveInfo, done, dbConnection, username) {
     let Curve = dbConnection.Curve;
-    let curve = await Curve.findById(curveInfo.idCurve);
+    let curve = await Curve.findByPk(curveInfo.idCurve);
     curve.setDataValue('updatedBy', curveInfo.updatedBy);
     if (!curve) return done(ErrorCodes.ERROR_INVALID_PARAMS, "No curve found by id");
 
@@ -349,16 +349,16 @@ function getDataFile(param, successFunc, errorFunc, dbConnection, username) {
     let Dataset = dbConnection.Dataset;
     let Well = dbConnection.Well;
     let Project = dbConnection.Project;
-    Curve.findById(param.idCurve)
+    Curve.findByPk(param.idCurve)
         .then(curve => {
             if (curve) {
-                Dataset.findById(curve.idDataset).then((dataset) => {
+                Dataset.findByPk(curve.idDataset).then((dataset) => {
                     if (!dataset) {
                         console.log("No dataset");
                     } else {
-                        Well.findById(dataset.idWell).then(well => {
+                        Well.findByPk(dataset.idWell).then(well => {
                             if (well) {
-                                Project.findById(well.idProject).then(project => {
+                                Project.findByPk(well.idProject).then(project => {
                                     console.log("Hash : ", config.curveBasePath, username + project.name + well.name + dataset.name + curve.name + '.txt');
                                     let path = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt')
                                     successFunc(fs.createReadStream(path));
@@ -385,16 +385,16 @@ function getData(param, successFunc, errorFunc, dbConnection, username) {
     let Dataset = dbConnection.Dataset;
     let Well = dbConnection.Well;
     let Project = dbConnection.Project;
-    Curve.findById(param.idCurve)
+    Curve.findByPk(param.idCurve)
         .then(curve => {
             if (curve) {
-                Dataset.findById(curve.idDataset).then((dataset) => {
+                Dataset.findByPk(curve.idDataset).then((dataset) => {
                     if (!dataset) {
                         console.log("No dataset");
                     } else {
-                        Well.findById(dataset.idWell).then(well => {
+                        Well.findByPk(dataset.idWell).then(well => {
                             if (well) {
-                                Project.findById(well.idProject).then(project => {
+                                Project.findByPk(well.idProject).then(project => {
                                     let isRef = checkCurveIsReference(curve);
                                     let rate = 1;
                                     if (isRef && !param.isRaw) {
@@ -436,16 +436,16 @@ function exportData(param, successFunc, errorFunc, dbConnection, username) {
     let Dataset = dbConnection.Dataset;
     let Well = dbConnection.Well;
     let Project = dbConnection.Project;
-    Curve.findById(param.idCurve)
+    Curve.findByPk(param.idCurve)
         .then(function (curve) {
             if (curve) {
-                Dataset.findById(curve.idDataset).then((dataset) => {
+                Dataset.findByPk(curve.idDataset).then((dataset) => {
                     if (!dataset) {
                         console.log("No dataset");
                     } else {
-                        Well.findById(dataset.idWell).then(well => {
+                        Well.findByPk(dataset.idWell).then(well => {
                             if (well) {
-                                Project.findById(well.idProject).then(project => {
+                                Project.findByPk(well.idProject).then(project => {
                                     let stream = hashDir.createReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
                                     stream.on('error', function (err) {
                                         errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve Data Was Lost"));
@@ -485,16 +485,16 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
     let Dataset = dbConnection.Dataset;
     let Project = dbConnection.Project;
     let Well = dbConnection.Well;
-    Curve.findById(idCurve, {paranoid: false})
+    Curve.findByPk(idCurve, {paranoid: false})
         .then(function (curve) {
             if (curve) {
-                Dataset.findById(curve.idDataset, {paranoid: false}).then((dataset) => {
+                Dataset.findByPk(curve.idDataset, {paranoid: false}).then((dataset) => {
                     if (!dataset) {
                         console.log("No dataset");
                     } else {
-                        Well.findById(dataset.idWell, {paranoid: false}).then(well => {
+                        Well.findByPk(dataset.idWell, {paranoid: false}).then(well => {
                             if (well) {
-                                Project.findById(well.idProject, {paranoid: false}).then(project => {
+                                Project.findByPk(well.idProject, {paranoid: false}).then(project => {
                                     console.log("Hash : ", config.curveBasePath, username + project.name + well.name + dataset.name + curve.name + '.txt');
                                     let inputStream = hashDir.createReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
                                     inputStream.on("error", function () {
@@ -570,10 +570,10 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy) {
     let unit = req.body.unit ? req.body.unit === 'null' ? '' : req.body.unit : '';
     let idFamily = req.body.idFamily ? (req.body.idFamily === 'null' ? null : req.body.idFamily) : null;
     let idDesCurve = req.body.idDesCurve;
-    Dataset.findById(idDataset).then(dataset => {
+    Dataset.findByPk(idDataset).then(dataset => {
         if (dataset) {
-            Well.findById(dataset.idWell).then(well => {
-                Project.findById(well.idProject).then(project => {
+            Well.findByPk(dataset.idWell).then(well => {
+                Project.findByPk(well.idProject).then(project => {
                     if (newCurveName && newCurveName !== 'null') {
                         //create new curve
                         Curve.create({
@@ -604,7 +604,7 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy) {
                         });
                     } else {
                         //overwrite curve
-                        Curve.findById(idDesCurve).then(curve => {
+                        Curve.findByPk(idDesCurve).then(curve => {
                             if (curve) {
                                 checkPermisson(req.updatedBy, 'curve.update', function (perm) {
                                     if (perm) {
@@ -661,9 +661,9 @@ async function getCurveDataFromInventory(curveInfo, token, callback, dbConnectio
         strictSSL: false
     };
     let idDataset = curveInfo.idDesDataset;
-    let dataset = await dbConnection.Dataset.findById(idDataset);
-    let well = await dbConnection.Well.findById(dataset.idWell);
-    let project = await dbConnection.Project.findById(well.idProject);
+    let dataset = await dbConnection.Dataset.findByPk(idDataset);
+    let well = await dbConnection.Well.findByPk(dataset.idWell);
+    let project = await dbConnection.Project.findByPk(well.idProject);
     let curve = {};
     curve.name = curveInfo.name;
     curve.unit = curveInfo.unit;
@@ -729,9 +729,9 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
             strictSSL: false
         };
         let idDataset = curveInfo.idDesDataset;
-        let dataset = await dbConnection.Dataset.findById(idDataset);
-        let well = await dbConnection.Well.findById(dataset.idWell);
-        let project = await dbConnection.Project.findById(well.idProject);
+        let dataset = await dbConnection.Dataset.findByPk(idDataset);
+        let well = await dbConnection.Well.findByPk(dataset.idWell);
+        let project = await dbConnection.Project.findByPk(well.idProject);
         let curve = {};
         curve.name = curveInfo.name;
         curve.unit = curveInfo.unit;
@@ -794,12 +794,12 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
 }
 
 function duplicateCurve(data, done, dbConnection, username) {
-    dbConnection.Curve.findById(data.idCurve).then(async curve => {
+    dbConnection.Curve.findByPk(data.idCurve).then(async curve => {
         if (curve) {
             try {
-                let dataset = await dbConnection.Dataset.findById(curve.idDataset);
-                let well = await dbConnection.Well.findById(dataset.idWell);
-                let project = await dbConnection.Project.findById(well.idProject);
+                let dataset = await dbConnection.Dataset.findByPk(curve.idDataset);
+                let well = await dbConnection.Well.findByPk(dataset.idWell);
+                let project = await dbConnection.Project.findByPk(well.idProject);
                 let curvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
                 let newCurve = curve.toJSON();
                 newCurve.createdBy = data.createdBy;
@@ -850,11 +850,11 @@ function checkCurveExisted(payload, callback, dbConnection) {
 
 function getCurveParents(payload, done, dbConnection) {
     let response = {};
-    dbConnection.Curve.findById(payload.idCurve).then(async curve => {
+    dbConnection.Curve.findByPk(payload.idCurve).then(async curve => {
         if (curve) {
-            response.dataset = await dbConnection.Dataset.findById(curve.idDataset);
-            response.well = await dbConnection.Well.findById(response.dataset.idWell);
-            response.project = await dbConnection.Project.findById(response.well.idProject);
+            response.dataset = await dbConnection.Dataset.findByPk(curve.idDataset);
+            response.well = await dbConnection.Well.findByPk(response.dataset.idWell);
+            response.project = await dbConnection.Project.findByPk(response.well.idProject);
             response.curve = curve;
             done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
         } else {
