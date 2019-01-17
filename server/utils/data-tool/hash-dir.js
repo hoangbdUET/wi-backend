@@ -179,14 +179,14 @@ module.exports.createJSONReadStream = function (basePath, hashString, fileName, 
 				if (beginFragment) this.push(beginFragment);
 				this.push('[' + JSON.stringify({
 					y: parseFunc(depthToken),
-					x: !parseFloat(valueToken) ? valueToken.substr(1, valueToken.length) : parseFloat(valueToken) * options.rate
+					x: !parseFloat(valueToken) ? valueToken.substr(1, valueToken.length - 1) : parseFloat(valueToken) * options.rate
 				}));
 				this._started_ = true;
 			}
 			else {
 				this.push(',\n' + JSON.stringify({
 					y: parseFunc(depthToken),
-					x: !parseFloat(valueToken) ? valueToken.substr(1, valueToken.length) : parseFloat(valueToken) * options.rate
+					x: !parseFloat(valueToken) ? valueToken.substr(1, valueToken.length - 1) : parseFloat(valueToken) * options.rate
 				}));
 			}
 			callback();
