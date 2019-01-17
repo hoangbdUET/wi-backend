@@ -78,7 +78,7 @@ function main() {
 	let curveRouter = require('./server/curve/curve.router');
 	let trackRouter = require('./server/track/track.router');
 	let depthAxisRouter = require('./server/depth-axis/depth-axis.router');
-	let uploadRouter = require('./server/upload/index');
+	// let uploadRouter = require('./server/upload/index');
 	let datasetRouter = require('./server/dataset/dataset.router');
 	let lineRouter = require('./server/line/line.router');
 	let shadingRouter = require('./server/shading/shading.router');
@@ -241,7 +241,7 @@ function main() {
 	});
 	app.use('/', patternRouter);
 	app.use('/', inventoryRouter);
-	app.use('/', uploadRouter);
+	// app.use('/', uploadRouter);
 	app.use('/', projectRouter);
 	app.use('/', familyRouter);
 	app.use('/', familyUnitRouter);

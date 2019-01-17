@@ -1,0 +1,1 @@
+module.exports.hashDir = require('./hash-dir');

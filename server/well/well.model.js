@@ -2,8 +2,7 @@
 
 let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
-let wiImport = require('wi-import');
-let hashDir = wiImport.hashDir;
+let hashDir = require('../utils/data-tool').hashDir;
 let config = require('config');
 let fs = require('fs');
 let asyncEach = require('async/each');

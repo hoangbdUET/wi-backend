@@ -8,7 +8,7 @@ const fs = require('fs');
 const formidable = require('formidable');
 let ResponseJSON = require('../response');
 let errorCodes = require('../../error-codes');
-let hashDir = require('wi-import').hashDir; // hashDir.createPath();
+let hashDir = require('../utils/data-tool').hashDir; // hashDir.createPath();
 let Finder = require('fs-finder');
 let asyncEach = require('async/each');
 

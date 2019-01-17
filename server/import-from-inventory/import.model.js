@@ -3,8 +3,7 @@ let asyncEach = require('async/each');
 let request = require('request');
 let config = require('config');
 let asyncQueue = require('async/queue');
-let wiImport = require('wi-import');
-let hashDir = wiImport.hashDir;
+let hashDir = require('../utils/data-tool').hashDir;
 let fs = require('fs-extra');
 let async = require('async');
 

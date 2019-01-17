@@ -1,4 +1,4 @@
-const hasdDir = require('wi-import').hashDir;
+const hasdDir = require('../utils/data-tool').hashDir;
 const fs = require('fs');
 const config = require('config');
 const async = require('async');

@@ -1,6 +1,5 @@
 var asyncLoop = require('node-async-loop');
-var wiImport = require('wi-import');
-var hashDir = wiImport.hashDir;
+var hashDir = require('../utils/data-tool').hashDir;
 var fs = require('fs');
 var importer = require('./index');
 var config = require('config');

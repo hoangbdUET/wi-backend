@@ -5,8 +5,7 @@ let Sequelize = require('sequelize');
 let config = require('config').Database;
 let configCommon = require('config');
 
-let wiImport = require('wi-import');
-let hashDir = wiImport.hashDir;
+let hashDir = require('../utils/data-tool').hashDir;
 
 let sequelizeCache = new Object();
 
