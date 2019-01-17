@@ -175,18 +175,19 @@ module.exports.createJSONReadStream = function (basePath, hashString, fileName, 
 			// else {
 			//     this.push(',\n' + JSON.stringify({y: parseFunc(tokens[0]), x: !parseFloat(tokens[1]) ? tokens[1] : parseFloat(tokens[1]) * options.rate}));
 			// }
+
 			if (!this._started_) {
 				if (beginFragment) this.push(beginFragment);
 				this.push('[' + JSON.stringify({
 					y: parseFunc(depthToken),
-					x: !parseFloat(valueToken) ? valueToken.substr(1, valueToken.length - 1) : parseFloat(valueToken) * options.rate
+					x: !parseFloat(valueToken) ? valueToken.replace(/\B"(.*)"\B/, (match, p1) => p1) : parseFloat(valueToken) * options.rate
 				}));
 				this._started_ = true;
 			}
 			else {
 				this.push(',\n' + JSON.stringify({
 					y: parseFunc(depthToken),
-					x: !parseFloat(valueToken) ? valueToken.substr(1, valueToken.length - 1) : parseFloat(valueToken) * options.rate
+					x: !parseFloat(valueToken) ? valueToken.replace(/\B"(.*)"\B/, (match, p1) => p1) : parseFloat(valueToken) * options.rate
 				}));
 			}
 			callback();
