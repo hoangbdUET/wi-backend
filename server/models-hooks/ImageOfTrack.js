@@ -12,7 +12,7 @@ module.exports = function (dbConnection) {
         });
 
     });
-    dbConnection.ImageOfTrack.hook('beforeDestroy', function (object, options) {
+    dbConnection.ImageOfTrack.addHook('beforeDestroy', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'image-of-track.delete', function (result) {
                 if (result) {
@@ -27,7 +27,7 @@ module.exports = function (dbConnection) {
             });
         });
     });
-    dbConnection.ImageOfTrack.hook('beforeUpdate', function (object, options) {
+    dbConnection.ImageOfTrack.addHook('beforeUpdate', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'image-of-track.update', function (result) {
                 if (result) {

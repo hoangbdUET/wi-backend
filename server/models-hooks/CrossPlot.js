@@ -12,7 +12,7 @@ module.exports = function (dbConnection) {
         });
 
     });
-    dbConnection.CrossPlot.hook('beforeDestroy', function (object, options) {
+    dbConnection.CrossPlot.addHook('beforeDestroy', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'cross-plot.delete', function (result) {
                 if (result) {
@@ -27,7 +27,7 @@ module.exports = function (dbConnection) {
             });
         });
     });
-    dbConnection.CrossPlot.hook('beforeUpdate', function (object, options) {
+    dbConnection.CrossPlot.addHook('beforeUpdate', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'cross-plot.update', function (result) {
                 if (result) {

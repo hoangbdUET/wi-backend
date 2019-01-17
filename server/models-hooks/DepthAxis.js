@@ -12,7 +12,7 @@ module.exports = function (dbConnection) {
         });
 
     });
-    dbConnection.DepthAxis.hook('beforeDestroy', function (object, options) {
+    dbConnection.DepthAxis.addHook('beforeDestroy', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'depth-axis.delete', function (result) {
                 if (result) {
@@ -27,7 +27,7 @@ module.exports = function (dbConnection) {
             });
         });
     });
-    dbConnection.DepthAxis.hook('beforeUpdate', function (object, options) {
+    dbConnection.DepthAxis.addHook('beforeUpdate', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'depth-axis.update', function (result) {
                 if (result) {

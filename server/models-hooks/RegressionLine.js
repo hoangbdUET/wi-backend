@@ -12,7 +12,7 @@ module.exports = function (dbConnection) {
         });
 
     });
-    dbConnection.RegressionLine.hook('beforeDestroy', function (object, options) {
+    dbConnection.RegressionLine.addHook('beforeDestroy', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'regression-line.delete', function (result) {
                 if (result) {
@@ -27,7 +27,7 @@ module.exports = function (dbConnection) {
             });
         });
     });
-    dbConnection.RegressionLine.hook('beforeUpdate', function (object, options) {
+    dbConnection.RegressionLine.addHook('beforeUpdate', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'regression-line.update', function (result) {
                 if (result) {

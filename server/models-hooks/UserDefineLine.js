@@ -12,7 +12,7 @@ module.exports = function (dbConnection) {
         });
 
     });
-    dbConnection.UserDefineLine.hook('beforeDestroy', function (object, options) {
+    dbConnection.UserDefineLine.addHook('beforeDestroy', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'user-define-line.delete', function (result) {
                 if (result) {
@@ -27,7 +27,7 @@ module.exports = function (dbConnection) {
             });
         });
     });
-    dbConnection.UserDefineLine.hook('beforeUpdate', function (object, options) {
+    dbConnection.UserDefineLine.addHook('beforeUpdate', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'user-define-line.update', function (result) {
                 if (result) {

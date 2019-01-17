@@ -550,7 +550,7 @@ function newDbInstance(dbName, callback) {
 	let rename = require('../utils/function').renameObjectForDustbin;
 	let curveFunction = require('../utils/curve.function');
 	require('../models-hooks/index')(object);
-	Curve.hook('afterCreate', function (curve) {
+	Curve.addHook('afterCreate', function (curve) {
 		if (!curve.idFamily) {
 			((curveName, unit) => {
 				FamilyCondition.findAll()
@@ -582,7 +582,7 @@ function newDbInstance(dbName, callback) {
 			});
 		}
 	});
-	Curve.hook('beforeDestroy', function (curve, options) {
+	Curve.addHook('beforeDestroy', function (curve, options) {
 		return new Promise(async function (resolve) {
 			let parents = await curveFunction.getFullCurveParents(curve, object);
 			parents.username = username;
@@ -625,7 +625,7 @@ function newDbInstance(dbName, callback) {
 		});
 	});
 
-	Well.hook('beforeDestroy', function (well, options) {
+	Well.addHook('beforeDestroy', function (well, options) {
 		console.log("Hooks delete well");
 		return new Promise(function (resolve) {
 			if (options.permanently) {
@@ -681,7 +681,7 @@ function newDbInstance(dbName, callback) {
 		});
 	});
 
-	Dataset.hook('beforeDestroy', function (dataset, options) {
+	Dataset.addHook('beforeDestroy', function (dataset, options) {
 		console.log("Hooks delete dataset");
 		return new Promise(function (resolve, reject) {
 			if (options.permanently) {
@@ -731,7 +731,7 @@ function newDbInstance(dbName, callback) {
 
 	});
 
-	Dataset.hook('afterCreate', function (dataset) {
+	Dataset.addHook('afterCreate', function (dataset) {
 		console.log("Hooks after create dataset");
 		Well.findById(dataset.idWell).then(w => {
 			Project.findById(w.idProject).then(p => {
@@ -749,7 +749,7 @@ function newDbInstance(dbName, callback) {
 		});
 	});
 
-	Histogram.hook('beforeDestroy', function (histogram, options) {
+	Histogram.addHook('beforeDestroy', function (histogram, options) {
 		console.log("Hooks delete histogram");
 		if (histogram.deletedAt) {
 
@@ -758,7 +758,7 @@ function newDbInstance(dbName, callback) {
 		}
 	});
 
-	CrossPlot.hook('beforeDestroy', function (crossplot, options) {
+	CrossPlot.addHook('beforeDestroy', function (crossplot, options) {
 		console.log("Hooks delete crossplot");
 		if (crossplot.deletedAt) {
 
@@ -767,7 +767,7 @@ function newDbInstance(dbName, callback) {
 		}
 	});
 
-	Plot.hook('beforeDestroy', function (plot, options) {
+	Plot.addHook('beforeDestroy', function (plot, options) {
 		return new Promise(function (resolve, reject) {
 			console.log("Hooks delete plot ", options);
 			if (options.permanently) {
@@ -782,7 +782,7 @@ function newDbInstance(dbName, callback) {
 
 	});
 
-	ZoneSet.hook('beforeDestroy', function (zoneset, options) {
+	ZoneSet.addHook('beforeDestroy', function (zoneset, options) {
 		console.log("Hooks delete zoneset");
 		if (zoneset.deletedAt) {
 
