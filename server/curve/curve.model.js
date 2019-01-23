@@ -570,6 +570,7 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy) {
     let unit = req.body.unit ? req.body.unit === 'null' ? '' : req.body.unit : '';
     let idFamily = req.body.idFamily ? (req.body.idFamily === 'null' ? null : req.body.idFamily) : null;
     let idDesCurve = req.body.idDesCurve;
+    let type = req.body.type || 'NUMBER';
     Dataset.findByPk(idDataset).then(dataset => {
         if (dataset) {
             Well.findByPk(dataset.idWell).then(well => {
@@ -580,6 +581,7 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy) {
                             name: newCurveName,
                             unit: unit,
                             idDataset: idDataset,
+                            type: type,
                             idFamily: idFamily,
                             createdBy: createdBy,
                             updatedBy: updatedBy
@@ -610,7 +612,8 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy) {
                                     if (perm) {
                                         let overwriteInfo = {
                                             unit: unit || curve.unit,
-                                            idFamily: idFamily || curve.idFamily
+                                            idFamily: idFamily || curve.idFamily,
+                                            type: type
                                         };
                                         let response = {};
                                         let newPath = hashDir.createPath(config.curveBasePath, req.decoded.username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
