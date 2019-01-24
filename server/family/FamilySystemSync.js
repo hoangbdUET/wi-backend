@@ -36,7 +36,8 @@ let syncFamilySpec = function (callback) {
             lineWidth: familySpec[9],
             lineColor: familySpec[10],
             isDefault: familySpec[12],
-            idUnitGroup: isNaN(parseInt(familySpec[13])) ? null: parseInt(familySpec[13])
+            idUnitGroup: isNaN(parseInt(familySpec[13])) ? null: parseInt(familySpec[13]),
+	        type: familySpec[14]
         }).then(() => {
             next();
         }).catch(err => {
@@ -54,7 +55,8 @@ let syncFamilyCondition = function (callback) {
             idFamilyCondition: condition[0],
             idFamily: condition[1],
             curveName: condition[2],
-            unit: condition[3]
+            unit: condition[3],
+            type: condition[4]
         }).then(() => {
             nextG();
         }).catch(err => {
