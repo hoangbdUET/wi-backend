@@ -12,6 +12,11 @@ module.exports = function (sequelize, DataTypes) {
         unit:{
             type:DataTypes.STRING(50),
             allowNull:false
-        }
+        },
+	    type: {
+		    type: DataTypes.STRING(15),
+		    allowNull: false,
+		    defaultValue: 'NUMBER'
+	    }
     });
 };
