@@ -10,6 +10,8 @@ let markerTemplateUpdate = require('./server/marker-template/marker-template.fun
 let markerSetTemplateUpdate = require('./server/marker-template/marker-template.function').importMarkerSetTemplate;
 let flowTemplateUpdate = require('./server/flow/sync-master-flow');
 
+const fs = require('fs');
+let path = require('path');
 const QUEUE_TIME = 500;
 
 const EventEmitter = require('events');
@@ -34,7 +36,6 @@ Object.defineProperty(Array.prototype, "forEachDone", {
 });
 
 setTimeout(function () {
-	const fs = require('fs');
 	fs.appendFileSync('./pids.pid', process.pid + '\n');
 	main();
 	// let familySystemSync = require('./server/family/FamilySystemSync');
@@ -63,13 +64,11 @@ function main() {
 	let express = require('express');
 	let app = express();
 	let morgan = require('morgan');
-	let path = require('path');
-	let fs = require('fs');
 	let os = require('os');
 	const cors = require('cors');
 	let fullConfig = require('config');
 	let config = fullConfig.Application;
-	let influx = require('./server/utils/influx/index');
+	// let influx = require('./server/utils/influx/index');
 	require('./server/utils/redis');
 	let projectRouter = require('./server/project/project.router');
 	let wellRouter = require('./server/well/well.router');
@@ -165,7 +164,24 @@ function main() {
 	}
 
 	let request = require('request');
-
+	app.post('/phrase/new', (req, res) => {
+		let filePath = path.join(__dirname, 'phrase.json');
+		if (!fs.existsSync(filePath)) {
+			fs.writeFileSync(filePath, "{}");
+		}
+		let newPhrase = JSON.parse(fs.readFileSync(filePath).toString());
+		Object.assign(newPhrase, req.body);
+		fs.writeFileSync(filePath, JSON.stringify(newPhrase));
+		res.json(newPhrase);
+	});
+	app.post('/phrase/get', (req, res) => {
+		let filePath = path.join(__dirname, 'phrase.json');
+		if (!fs.existsSync(filePath)) {
+			fs.writeFileSync(filePath, "{}");
+		}
+		let newPhrase = JSON.parse(fs.readFileSync(filePath).toString());
+		res.json(newPhrase);
+	});
 	app.get('/update', function (req, res) {
 		let familySystemSync = require('./server/family/FamilySystemSync');
 		familySystemSync(function () {
@@ -226,16 +242,16 @@ function main() {
 			let duration = Date.now() - start;
 			// profiles.emit('route', {req, elapsedMS: duration});
 			console.log(req.decoded.username, (req.header('x-real-ip') || req.ip), req.method, req.originalUrl, `${duration}ms`);
-			influx.writePoints([
-				{
-					measurement: 'response_times',
-					tags: {username: req.decoded.username, path: req.originalUrl,},
-					fields: {duration, ipaddr: (req.header('x-real-ip') || req.ip), pid: process.pid},
-				}
-			]).catch(err => {
-				next();
-				console.error(`Error saving data to InfluxDB! ${err.stack}`)
-			})
+			// influx.writePoints([
+			// 	{
+			// 		measurement: 'response_times',
+			// 		tags: {username: req.decoded.username, path: req.originalUrl,},
+			// 		fields: {duration, ipaddr: (req.header('x-real-ip') || req.ip), pid: process.pid},
+			// 	}
+			// ]).catch(err => {
+			// 	next();
+			// 	console.error(`Error saving data to InfluxDB! ${err.stack}`)
+			// })
 		});
 		next();
 	});
