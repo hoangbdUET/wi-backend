@@ -108,6 +108,8 @@ module.exports = function (idWell, done, dbConnection, username, createdBy, upda
 										dbConnection.Curve.create({
 											name: curve.name,
 											unit: curve.unit,
+											dimension: curve.dimension,
+											type: curve.type,
 											idFamily: curve.idFamily,
 											idDataset: _dataset.idDataset,
 											createdBy: createdBy,
