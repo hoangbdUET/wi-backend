@@ -676,6 +676,7 @@ async function getCurveDataFromInventory(curveInfo, token, callback, dbConnectio
 	curve.unit = curveInfo.unit;
 	curve.type = curveInfo.type;
 	curve.description = curveInfo.description;
+	curve.dimension = curveInfo.dimension;
 	curve.idDataset = dataset.idDataset;
 	dbConnection.Curve.findOrCreate({
 		where: {
@@ -687,6 +688,7 @@ async function getCurveDataFromInventory(curveInfo, token, callback, dbConnectio
 			idDataset: curve.idDataset,
 			unit: curve.unit,
 			type: curve.type,
+			dimention: curve.dimension,
 			createdBy: createdBy,
 			updatedBy: updatedBy,
 			description: curve.description
@@ -745,6 +747,7 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
 		curve.type = curveInfo.type;
 		curve.description = curveInfo.description;
 		curve.idDataset = dataset.idDataset;
+		curve.dimension = curveInfo.dimension;
 		dbConnection.Curve.findOrCreate({
 			where: {
 				name: curve.name,
@@ -755,6 +758,7 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
 				idDataset: curve.idDataset,
 				unit: curve.unit,
 				type: curve.type,
+				dimension: curve.dimension,
 				createdBy: createdBy,
 				updatedBy: updatedBy,
 				description: curve.description

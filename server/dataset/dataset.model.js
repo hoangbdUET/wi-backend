@@ -173,6 +173,8 @@ function duplicateDataset(data, done, dbConnection, username) {
 						dbConnection.Curve.create({
 							name: curve.name,
 							unit: curve.unit,
+							type: curve.type,
+							dimensoon: curve.dimension,
 							idFamily: curve.idFamily,
 							idDataset: _dataset.idDataset,
 							createdBy: data.createdBy,
@@ -306,7 +308,7 @@ async function copyDataset(payload, dbConnection, username) {
 						description: curve.description,
 						note: curve.note,
 						type: curve.type,
-						demension: curve.demension,
+						dimension: curve.dimension,
 						createdBy: payload.createdBy,
 						updatedBy: payload.createdBy,
 						idDataset: idDataset,
