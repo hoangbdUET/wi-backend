@@ -286,7 +286,7 @@ async function getProjectList(owner, done, dbConnection, username, realUser, tok
 	let projectList = await getSharedProject(token, realUser);
 	let Project = dbConnection.Project;
 	Project.findAll({
-		order: ['name']
+		order: ['alias']
 	}).then(function (projects) {
 		asyncLoop(projects, function (project, next) {
 			project = project.toJSON();
