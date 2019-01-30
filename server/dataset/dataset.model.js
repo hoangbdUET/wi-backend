@@ -174,7 +174,7 @@ function duplicateDataset(data, done, dbConnection, username) {
 							name: curve.name,
 							unit: curve.unit,
 							type: curve.type,
-							dimensoon: curve.dimension,
+							dimension: curve.dimension,
 							idFamily: curve.idFamily,
 							idDataset: _dataset.idDataset,
 							createdBy: data.createdBy,
