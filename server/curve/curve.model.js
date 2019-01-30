@@ -150,6 +150,7 @@ function editCurve(curveInfo, done, dbConnection, username) {
 
 
 function getCurveInfo(curve, done, dbConnection, username) {
+	let _ = require('lodash');
 	let Curve = dbConnection.Curve;
 	Curve.findByPk(curve.idCurve, {
 		include: {
@@ -201,10 +202,10 @@ function getCurveInfo(curve, done, dbConnection, username) {
 							"lineWidth": 1,
 							"lineColor": "red",
 						};
-						curve.DataStatistic.minValue = result.minScale ? parseFloat(result.minScale) : NaN;
-						curve.DataStatistic.maxValue = result.maxScale ? parseFloat(result.maxScale) : NaN;
-						curve.DataStatistic.meanValue = result.meanValue ? parseFloat(result.meanValue) : NaN;
-						curve.DataStatistic.medianValue = result.medianValue ? parseFloat(result.medianValue) : NaN;
+						curve.DataStatistic.minValue = _.isFinite(result.minScale) ? parseFloat(result.minScale) : NaN;
+						curve.DataStatistic.maxValue = _.isFinite(result.maxScale) ? parseFloat(result.maxScale) : NaN;
+						curve.DataStatistic.meanValue = _.isFinite(result.meanValue) ? parseFloat(result.meanValue) : NaN;
+						curve.DataStatistic.medianValue = _.isFinite(result.medianValue) ? parseFloat(result.medianValue) : NaN;
 					}
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Curve success", curve));
 				} else {
@@ -224,10 +225,10 @@ function getCurveInfo(curve, done, dbConnection, username) {
 					curveObj.LineProperty.maxScale = curveObj.LineProperty.family_spec[0].maxScale;
 					curveObj.LineProperty.minScale = curveObj.LineProperty.family_spec[0].minScale;
 					curveObj.LineProperty.unit = curveObj.LineProperty.family_spec[0].unit;
-					curveObj.DataStatistic.minValue = result.minScale ? parseFloat(result.minScale) : NaN;
-					curveObj.DataStatistic.maxValue = result.maxScale ? parseFloat(result.maxScale) : NaN;
-					curveObj.DataStatistic.meanValue = result.meanValue ? parseFloat(result.meanValue) : NaN;
-					curveObj.DataStatistic.medianValue = result.medianValue ? parseFloat(result.medianValue) : NaN;
+					curveObj.DataStatistic.minValue = _.isFinite(result.minScale) ? parseFloat(result.minScale) : NaN;
+					curveObj.DataStatistic.maxValue = _.isFinite(result.maxScale) ? parseFloat(result.maxScale) : NaN;
+					curveObj.DataStatistic.meanValue = _.isFinite(result.meanValue) ? parseFloat(result.meanValue) : NaN;
+					curveObj.DataStatistic.medianValue = _.isFinite(result.medianValue) ? parseFloat(result.medianValue) : NaN;
 					delete curveObj.LineProperty.family_spec;
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Curve success", curveObj));
 				}
