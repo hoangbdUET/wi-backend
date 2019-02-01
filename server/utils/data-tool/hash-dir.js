@@ -154,6 +154,16 @@ module.exports.deleteFolder = function (basePath, hashString) {
 	return null;
 }
 
+function getValues(array, index) {
+	let result = [];
+	index.forEach(i => {
+		if (array[i]) {
+			result.push(array[i]);
+		}
+	});
+	return result;
+}
+
 module.exports.createJSONReadStream = function (basePath, hashString, fileName, beginFragment, endFragment, cb, options) {
 	let parseFunc = parseInt;
 	if (options.isCore) {
@@ -175,22 +185,42 @@ module.exports.createJSONReadStream = function (basePath, hashString, fileName, 
 			// else {
 			//     this.push(',\n' + JSON.stringify({y: parseFunc(tokens[0]), x: !parseFloat(tokens[1]) ? tokens[1] : parseFloat(tokens[1]) * options.rate}));
 			// }
-
-			if (!this._started_) {
-				if (beginFragment) this.push(beginFragment);
-				this.push('[' + JSON.stringify({
-					y: parseFunc(depthToken),
-					x: !parseFloat(valueToken) ? valueToken.replace(/\B"(.*)"\B/, (match, p1) => p1) : parseFloat(valueToken) * options.rate
-				}));
-				this._started_ = true;
+			if (options.type === "ARRAY") {
+				valueToken = valueToken.split(/\s+/);
+				let isFullCurve = !options.columnIndex || options.columnIndex.length === 0;
+				// console.log(valueToken, options.columnIndex[0]);
+				if (!this._started_) {
+					if (beginFragment) this.push(beginFragment);
+					this.push('[' + JSON.stringify({
+						y: parseFunc(depthToken),
+						x: isFullCurve ? valueToken.map(parseFloat) : getValues(valueToken.map(parseFloat), options.columnIndex)
+					}));
+					this._started_ = true;
+				}
+				else {
+					this.push(',\n' + JSON.stringify({
+						y: parseFunc(depthToken),
+						x: isFullCurve ? valueToken.map(parseFloat) : getValues(valueToken.map(parseFloat), options.columnIndex)
+					}));
+				}
+				callback();
+			} else {
+				if (!this._started_) {
+					if (beginFragment) this.push(beginFragment);
+					this.push('[' + JSON.stringify({
+						y: parseFunc(depthToken),
+						x: !parseFloat(valueToken) ? valueToken.replace(/\B"(.*)"\B/, (match, p1) => p1) : parseFloat(valueToken) * options.rate
+					}));
+					this._started_ = true;
+				}
+				else {
+					this.push(',\n' + JSON.stringify({
+						y: parseFunc(depthToken),
+						x: !parseFloat(valueToken) ? valueToken.replace(/\B"(.*)"\B/, (match, p1) => p1) : parseFloat(valueToken) * options.rate
+					}));
+				}
+				callback();
 			}
-			else {
-				this.push(',\n' + JSON.stringify({
-					y: parseFunc(depthToken),
-					x: !parseFloat(valueToken) ? valueToken.replace(/\B"(.*)"\B/, (match, p1) => p1) : parseFloat(valueToken) * options.rate
-				}));
-			}
-			callback();
 		},
 		flush: function (callback) {
 			this.push(']');
@@ -201,15 +231,15 @@ module.exports.createJSONReadStream = function (basePath, hashString, fileName, 
 	let readStream = createReadStream(basePath, hashString, fileName);
 	readStream.on("error", err => {
 		cb ? cb(err, null) : null;
-	})
+	});
 	if (!readStream) return null;
-
 	if (cb) {
 		cb(null, byline.createStream(readStream).pipe(MyTransform));
 	} else {
 		return byline.createStream(readStream).pipe(MyTransform);
 	}
-}
+
+};
 
 function DeCodeData(basePath, hashString, fileName, callback) {
 	let url = createPath(basePath, hashString, fileName);

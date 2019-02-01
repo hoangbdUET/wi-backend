@@ -402,18 +402,31 @@ function getData(param, successFunc, errorFunc, dbConnection, username) {
 										rate = convertLength.getDistanceRate(curve.unit, 'm');
 									}
 									console.log("Hash : ", config.curveBasePath, username + project.name + well.name + dataset.name + curve.name + '.txt');
-									hashDir.createJSONReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt', '{\n"code": 200,\n"content":', '}\n',
-										function (err, stream) {
-											if (err) {
-												errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve Data Was Lost"));
-											} else {
-												successFunc(stream);
-											}
-										}, {
-											isCore: (dataset.step === 0 || dataset.step === '0'),
-											rate: rate
+									try {
+										if (!param.columnIndex || param.columnIndex.length !== 0) {
+											param.columnIndex.forEach(v => {
+												if (v + 1 > curve.dimension) {
+													throw ("Not valid column index");
+												}
+											})
 										}
-									);
+										hashDir.createJSONReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt', '{\n"code": 200,\n"content":', '}\n',
+											function (err, stream) {
+												if (err) {
+													errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve Data Was Lost"));
+												} else {
+													successFunc(stream);
+												}
+											}, {
+												isCore: (dataset.step === 0 || dataset.step === '0'),
+												rate: rate,
+												type: curve.type,
+												columnIndex: param.columnIndex
+											}
+										);
+									} catch (e) {
+										return errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, e));
+									}
 								});
 							}
 						});
