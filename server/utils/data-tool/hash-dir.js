@@ -186,6 +186,7 @@ module.exports.createJSONReadStream = function (basePath, hashString, fileName, 
 			//     this.push(',\n' + JSON.stringify({y: parseFunc(tokens[0]), x: !parseFloat(tokens[1]) ? tokens[1] : parseFloat(tokens[1]) * options.rate}));
 			// }
 			if (options.type === "ARRAY") {
+
 				valueToken = valueToken.split(/\s+/);
 				let isFullCurve = !options.columnIndex || options.columnIndex.length === 0;
 				// console.log(valueToken, options.columnIndex[0]);

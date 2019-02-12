@@ -403,7 +403,7 @@ function getData(param, successFunc, errorFunc, dbConnection, username) {
 									}
 									console.log("Hash : ", config.curveBasePath, username + project.name + well.name + dataset.name + curve.name + '.txt');
 									try {
-										if (_.isFinite(param.columnIndex)  || param.columnIndex.length !== 0) {
+										if (_.isFinite(param.columnIndex)) {
 											param.columnIndex.forEach(v => {
 												if (v + 1 > curve.dimension) {
 													throw ("Not valid column index");
@@ -425,6 +425,7 @@ function getData(param, successFunc, errorFunc, dbConnection, username) {
 											}
 										);
 									} catch (e) {
+										console.log("LOI ", e);
 										return errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, e));
 									}
 								});
