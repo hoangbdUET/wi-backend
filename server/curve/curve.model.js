@@ -14,6 +14,7 @@ const hashDir = require('../utils/data-tool').hashDir;
 const async = require('async');
 const convertLength = require('../utils/convert-length');
 const {Transform} = require('stream');
+const _ = require('lodash')
 
 function createNewCurve(curveInfo, done, dbConnection) {
 	let Curve = dbConnection.Curve;
@@ -150,7 +151,6 @@ function editCurve(curveInfo, done, dbConnection, username) {
 
 
 function getCurveInfo(curve, done, dbConnection, username) {
-	let _ = require('lodash');
 	let Curve = dbConnection.Curve;
 	Curve.findByPk(curve.idCurve, {
 		include: {
@@ -403,7 +403,7 @@ function getData(param, successFunc, errorFunc, dbConnection, username) {
 									}
 									console.log("Hash : ", config.curveBasePath, username + project.name + well.name + dataset.name + curve.name + '.txt');
 									try {
-										if (!param.columnIndex || param.columnIndex.length !== 0) {
+										if (_.isFinite(param.columnIndex)  || param.columnIndex.length !== 0) {
 											param.columnIndex.forEach(v => {
 												if (v + 1 > curve.dimension) {
 													throw ("Not valid column index");
