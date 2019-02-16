@@ -135,6 +135,7 @@ function main() {
 	let imageSetRouter = require('./server/image-set/image-set.router');
 	let imageTemplateRouter = require('./server/image-template/image-template.router');
 	let imageTemplateSetRouter = require('./server/image-template-set/image-template-set.router');
+	let logViewRouter = require('./server/log-view/log-view.router');
 	// let projectLogRouter = require('./server/project-log/project-log.router');
 	let queue = {};
 	let http = require('http').Server(app);
@@ -340,6 +341,8 @@ function main() {
 	app.use('/project/plot/object-track', objectOfTrackRouter);
 	app.use('/project/plot/image-track', imageOfTrackRouter);
 	app.use('/export', exportRouter);
+	app.use('/log-view', logViewRouter)
+	
 
 	accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});
 	app.use(morgan('combined', {stream: accessLogStream}));
