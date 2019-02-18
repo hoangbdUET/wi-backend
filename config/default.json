@@ -24,6 +24,9 @@
     "inventory": "13.250.197.210",
     "authenticate": "admin.dev.i2g.cloud"
   },
+  "elasticsearch": {
+    "host": "localhost:9200"
+  },
   "curveBasePath": "../data",
   "imageBasePath": "wi-images",
   "exportPath": "./server/export/exported-files"
