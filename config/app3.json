@@ -33,5 +33,6 @@
   },
   "curveBasePath": "../data",
   "imageBasePath": "/opt/wi-backend/wi-images",
-  "exportPath": "/opt/wi-backend/server/export/exported-files"
+  "exportPath": "/opt/wi-backend/server/export/exported-files",
+  "userLogPath": "/tmp/wiLog"
 }

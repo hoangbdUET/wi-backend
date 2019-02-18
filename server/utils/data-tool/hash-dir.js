@@ -205,19 +205,35 @@ module.exports.createJSONReadStream = function (basePath, hashString, fileName, 
 					}));
 				}
 				callback();
-			} else {
+			} else if (options.type === "TEXT") {
 				if (!this._started_) {
 					if (beginFragment) this.push(beginFragment);
 					this.push('[' + JSON.stringify({
 						y: parseFunc(depthToken),
-						x: !parseFloat(valueToken) ? valueToken.replace(/\B"(.*)"\B/, (match, p1) => p1) : parseFloat(valueToken) * options.rate
+						x: valueToken.replace(/\B"(.*)"\B/, (match, p1) => p1)
 					}));
 					this._started_ = true;
 				}
 				else {
 					this.push(',\n' + JSON.stringify({
 						y: parseFunc(depthToken),
-						x: !parseFloat(valueToken) ? valueToken.replace(/\B"(.*)"\B/, (match, p1) => p1) : parseFloat(valueToken) * options.rate
+						x: valueToken.replace(/\B"(.*)"\B/, (match, p1) => p1)
+					}));
+				}
+				callback();
+			} else {
+				if (!this._started_) {
+					if (beginFragment) this.push(beginFragment);
+					this.push('[' + JSON.stringify({
+						y: parseFunc(depthToken),
+						x: parseFloat(valueToken) * options.rate
+					}));
+					this._started_ = true;
+				}
+				else {
+					this.push(',\n' + JSON.stringify({
+						y: parseFunc(depthToken),
+						x: parseFloat(valueToken) * options.rate
 					}));
 				}
 				callback();

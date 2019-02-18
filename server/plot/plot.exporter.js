@@ -71,7 +71,7 @@ module.exports = function (body, done, error, dbConnection, username) {
 		let newEportPlot = {
 			name: plot.name,
 			option: plot.option,
-			cropDisplay: plot.cropDisplay,
+			// cropDisplay: plot.cropDisplay,
 			printSetting: plot.printSetting,
 			unit: plot.unit,
 			depthRefSpec: plot.depthRefSpec,
