@@ -12,7 +12,8 @@ router.registerHooks = function (io) {
 };
 
 router.post('/project/list', function (req, res) {
-	req.logger.error("Get project list");
+	req.logger.error("GET_PROJECT_LIST");
+	req.logger.info("DELETE_PROJECT_LIST");
 	projectModel.getProjectList(req.body, function (status) {
 		res.send(status);
 	}, req.dbConnection, req.decoded.username, req.decoded.realUser, req.token, req.decoded.company);

@@ -95,6 +95,7 @@ function newDbInstance(dbName, callback) {
 		});
 
 	let models = [
+		'Analysis',
 		'Annotation',
 		'CombinedBox',
 		'CombinedBoxTool',
@@ -527,6 +528,13 @@ function newDbInstance(dbName, callback) {
 		});
 		m.Curve.hasMany(m.DepthAxis, {
 			foreignKey: {name: "idCurve", allowNull: true}
+		});
+
+		m.Analysis.belongsTo(m.Project, {
+			foreignKey: {name: "idProject", allowNull: false}, onDelete: "CASCADE"
+		});
+		m.Project.hasMany(m.Analysis, {
+			foreignKey: {name: "idProject", allowNull: false}, onDelete: "CASCADE"
 		});
 	})(object);
 

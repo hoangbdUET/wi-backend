@@ -136,6 +136,7 @@ function main() {
 	let imageTemplateRouter = require('./server/image-template/image-template.router');
 	let imageTemplateSetRouter = require('./server/image-template-set/image-template-set.router');
 	let logViewRouter = require('./server/log-view/log-view.router');
+	let analysisRouter = require('./server/analysis/analysis.router');
 	// let projectLogRouter = require('./server/project-log/project-log.router');
 	let queue = {};
 	let http = require('http').Server(app);
@@ -303,6 +304,7 @@ function main() {
 	app.use('/project/well', markerSetRouter);
 	app.use('/project', flowRouter);
 	app.use('/project/flow', taskRouter);
+	app.use('/project', analysisRouter);
 	// app.use('/project', projectLogRouter);
 	//middleware for all curve router to block spam request
 	app.use('/project/well/dataset/curve', function (req, res, next) {
@@ -341,8 +343,8 @@ function main() {
 	app.use('/project/plot/object-track', objectOfTrackRouter);
 	app.use('/project/plot/image-track', imageOfTrackRouter);
 	app.use('/export', exportRouter);
-	app.use('/log-view', logViewRouter)
-	
+	app.use('/log-view', logViewRouter);
+
 
 	accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});
 	app.use(morgan('combined', {stream: accessLogStream}));
