@@ -17,4 +17,4 @@ processors:
 - add_cloud_metadata: ~
 
 output.logstash:
-  hosts: ["10.0.75.1:5045"]
+  hosts: ["10.0.1.30:5045"]
