@@ -1,55 +1,67 @@
 "use strict";
 let ResponseJSON = require('../response');
-let request = require('request');
 let config = require('config');
 let ES_HOST = config.get('elasticsearch.host');
+const elasticsearch = require('elasticsearch');
+const client = new elasticsearch.Client({
+	host: ES_HOST,
+});
+const _ = require('lodash');
 
 function viewByUserName(userName, cb) {
-  let uri = `${ES_HOST}/wi-backend-${userName}-*/_search`
+	client.search({
+		index: `wi-backend-${userName}-*`,
+		body: {}
+	}).then(resp => {
+		let data = resp.hits.hits;
 
-  request.get(uri, (err, resp) => {
-    if (err) {
-      cb(ResponseJSON(400, err.message, err.message))
-    } else {
-      let data = JSON.parse(resp.body).hits.hits
-      
-      if (!data.length) {
-        cb(ResponseJSON(404,
-          'User is not found or there is no logs for this user',
-          'User is not found or there is no logs for this user')
-        )
-      } else {
-        let respData = data.map(d => d._source)
-        cb(ResponseJSON(200, 'done', respData))
-      }
-    }
-  })
+		if (!data.length) {
+			cb(ResponseJSON(404,
+				'User is not found or there is no logs for this user',
+				'User is not found or there is no logs for this user')
+			)
+		} else {
+			let respData = data.map(d => d._source.data);
+			cb(ResponseJSON(200, 'done', respData));
+		}
+	}).catch(err => {
+		cb(ResponseJSON(512, err.message, err));
+	});
 }
 
-function viewByTaskname(tasknName, cb) {
-  let query = `data.message:${tasknName}`
-  let uri = `${ES_HOST}/wi-backend-*-*/_search?q=${query}`
+function viewByObject(data, cb) {
+	console.log(data.username);
+	let query = `data.message.object:${data.object} AND 1=1 `;
+	if (_.isFinite(data.idObject)) query += `AND data.message.idObject:${data.idObject} `;
+	if (data.username) query += `AND data.username:${data.username}`;
+	console.log(_.isFinite('hoang'));
+	client.search({
+		index: 'wi-backend-*-*',
+		body: {
+			query: {
+				query_string: {
+					query: query
+				}
+			}
+		}
+	}).then(resp => {
+		let data = resp.hits.hits;
 
-  request.get(uri, (err, resp) => {
-    if (err) {
-      cb(ResponseJSON(400, err.message, err.message))
-    } else {
-      let data = JSON.parse(resp.body).hits.hits
-      
-      if (!data.length) {
-        cb(ResponseJSON(404,
-          'taskName is not found or there is no logs for this task',
-          'taskName is not found or there is no logs for this task')
-        )
-      } else {
-        cb(ResponseJSON(200, 'done', data))
-      }
-    }
-  })
+		if (!data.length) {
+			cb(ResponseJSON(404,
+				'Object is not found or there is no logs for this object',
+				'Object is not found or there is no logs for this object')
+			)
+		} else {
+			let respData = data.map(d => d._source.data);
+			cb(ResponseJSON(200, 'done', respData));
+		}
+	}).catch(err => {
+		cb(ResponseJSON(512, err.message, err));
+	});
 }
-
 
 module.exports = {
-  viewByUserName: viewByUserName,
-  viewByTaskname: viewByTaskname
-}
+	viewByUserName: viewByUserName,
+	viewByObject: viewByObject
+};

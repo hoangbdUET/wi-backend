@@ -9,6 +9,7 @@ let openProject = require('../authenticate/opening-project');
 let dbMaster = require('../models-master');
 let async = require('async');
 const crypto = require('crypto');
+const logMessage = require('../log-message');
 
 function createDefaultZoneSetTemplate(zoneSetTemplates, idProject, dbConnection) {
 	return new Promise(resolve => {
@@ -279,7 +280,7 @@ function createStorageIfNotExsited(idProject, dbConnection, username, company) {
 	});
 }
 
-async function getProjectList(owner, done, dbConnection, username, realUser, token, company) {
+async function getProjectList(owner, done, dbConnection, username, realUser, token, company, logger) {
 	let databasesList = await getDatabases();
 	dbConnection = models(config.Database.prefix + realUser);
 	let response = [];
@@ -318,9 +319,11 @@ async function getProjectList(owner, done, dbConnection, username, realUser, tok
 						next();
 					}
 				}, function () {
+					logger.info(logMessage("PROJECT", "", "Get List Project success"));
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Get List Project success", response));
 				});
 			} else {
+				logger.info(logMessage("PROJECT", "", "Get List Project success"));
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Get List Project success", response));
 			}
 		});
@@ -386,6 +389,7 @@ async function getProjectFullInfo(payload, done, req) {
 	response.combined_boxes = combined_boxes;
 	response.storage_databases = storage_databases;
 	if (wells.length == 0) {
+		req.logger.info(logMessage("PROJECT", "", "Get full info Project success"));
 		return done(ResponseJSON(ErrorCodes.SUCCESS, "Get full info Project success", response));
 	}
 	asyncLoop(wells, function (well, nextWell) {
@@ -474,6 +478,7 @@ async function getProjectFullInfo(payload, done, req) {
 			nextWell();
 		});
 	}, function () {
+		req.logger.info(logMessage("PROJECT", "", "Get full info Project success"));
 		done(ResponseJSON(ErrorCodes.SUCCESS, "Get full info Project success", response));
 	});
 }
