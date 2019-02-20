@@ -32,7 +32,7 @@
     "authenticate": "https://admin.dev.i2g.cloud"
   },
   "elasticsearch": {
-    "host": "localhost:9200"
+    "host": "10.0.1.30:9200"
   },
   "curveBasePath": "../data",
   "imageBasePath": "/opt/wi-backend/wi-images",
