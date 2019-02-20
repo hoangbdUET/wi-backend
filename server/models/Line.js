@@ -144,6 +144,11 @@ module.exports = function (sequelize, DataTypes) {
 			allowNull: false,
 			defaultValue: "Top"
 		},
+		textDisplayBoundary: {
+			type: DataTypes.BOOLEAN,
+			allowNull: false,
+			defaultValue: 1
+		},
 		createdBy: {
 			type: DataTypes.STRING(50),
 			allowNull: false,
