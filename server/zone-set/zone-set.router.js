@@ -13,17 +13,17 @@ router.post('/zone-set/info', function (req, res) {
 router.post('/zone-set/new', function (req, res) {
     zoneSetModel.createNewZoneSet(req.body, function (status) {
         res.send(status);
-    }, req.dbConnection)
+    }, req.dbConnection, req.logger)
 });
 router.post('/zone-set/edit', function (req, res) {
     zoneSetModel.editZoneSet(req.body, function (status) {
         res.send(status);
-    }, req.dbConnection)
+    }, req.dbConnection, req.logger)
 });
 router.delete('/zone-set/delete', function (req, res) {
     zoneSetModel.deleteZoneSet(req.body, function (status) {
         res.send(status);
-    }, req.dbConnection)
+    }, req.dbConnection, req.logger)
 });
 router.post('/zone-set/list', function (req, res) {
     zoneSetModel.getZoneSetList(req.body, function (status) {
@@ -34,7 +34,7 @@ router.post('/zone-set/list', function (req, res) {
 router.post('/zone-set/duplicate', function (req, res) {
     zoneSetModel.duplicateZoneSet(req.body, function (status) {
         res.send(status);
-    }, req.dbConnection);
+    }, req.dbConnection, req.logger);
 });
 
 module.exports = router;

@@ -6,7 +6,7 @@ let asyncQueue = require('async/queue');
 let hashDir = require('../utils/data-tool').hashDir;
 let fs = require('fs-extra');
 let async = require('async');
-
+const logMessage = require('../log-message');
 class Options {
     constructor(path, token, payload) {
         this.method = 'POST';
@@ -39,7 +39,7 @@ function getWellFromInventory(well, token) {
     });
 }
 
-async function importWell(well, token, callback, dbConnection, username, createdBy, updatedBy) {
+async function importWell(well, token, callback, dbConnection, username, createdBy, updatedBy, logger) {
     let Op = require('sequelize').Op;
     let wiProject = (await dbConnection.Project.findOrCreate({
         where: {
@@ -174,7 +174,7 @@ function importCurves(curves, token, callback, dbConnection, username) {
     });
 }
 
-function importDataset(datasets, token, callback, dbConnection, username, createdBy, updatedBy) {
+function importDataset(datasets, token, callback, dbConnection, username, createdBy, updatedBy, logger) {
     let response = {
         curves: [],
         datasets: []
@@ -198,10 +198,11 @@ function importDataset(datasets, token, callback, dbConnection, username, create
             let _dataset = rs[0];
             if (rs[1]) {
                 //created
+                logger.info(logMessage("DATASET", _dataset.idDataset, "Created"));
                 response.datasets.push(_dataset);
                 async.eachSeries(dataset.curves, function (curve, nextCurve) {
                     curve.idDesDataset = _dataset.idDataset;
-                    curveModels.getCurveDataFromInventoryPromise(curve, token, dbConnection, username, createdBy, updatedBy).then(curve => {
+                    curveModels.getCurveDataFromInventoryPromise(curve, token, dbConnection, username, createdBy, updatedBy, logger).then(curve => {
                         response.curves.push(curve);
                         nextCurve();
                     }).catch(err => {
@@ -213,6 +214,7 @@ function importDataset(datasets, token, callback, dbConnection, username, create
                 });
             } else {
                 //found
+	            logger.info(logMessage("DATASET", _dataset.idDataset, "Updated"));
                 let newDataset = _dataset.toJSON();
                 newDataset.name = newDataset.name + "_CP" + newDataset.duplicated;
                 _dataset.duplicated++;
@@ -228,7 +230,7 @@ function importDataset(datasets, token, callback, dbConnection, username, create
                     response.datasets.push(d);
                     async.eachSeries(dataset.curves, function (curve, nextCurve) {
                         curve.idDesDataset = d.idDataset;
-                        curveModels.getCurveDataFromInventoryPromise(curve, token, dbConnection, username, createdBy, updatedBy).then(curve => {
+                        curveModels.getCurveDataFromInventoryPromise(curve, token, dbConnection, username, createdBy, updatedBy, logger).then(curve => {
                             response.curves.push(curve);
                             nextCurve();
                         }).catch(err => {

@@ -1,6 +1,7 @@
 const fs = require('fs');
 const curveFunction = require('../utils/curve.function');
 const async = require('async');
+const logMessage = require('../log-message');
 
 function createTempfile(data, callback) {
 	let tempfile = require('tempfile')('.json');
@@ -50,7 +51,7 @@ function getFullMarkerSetParents(markerSet, dbConnection) {
 	}));
 }
 
-module.exports = function (body, done, error, dbConnection, username) {
+module.exports = function (body, done, error, dbConnection, username, logger) {
 	dbConnection.Plot.findByPk(body.idPlot, {
 		include: [
 			{
@@ -302,6 +303,7 @@ module.exports = function (body, done, error, dbConnection, username) {
 			}
 		], () => {
 			createTempfile(newEportPlot, done);
+			logger.info(logMessage("PLOT", plot.idPlot, "Exported"));
 			// createTempfile(plot, done);
 		});
 	}).catch(err => {

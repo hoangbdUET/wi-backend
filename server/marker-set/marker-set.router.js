@@ -5,13 +5,13 @@ let model = require('./marker-set.model');
 router.post('/marker-set/new', function (req, res) {
     model.createNewMarkerSet(req.body, function (status) {
         res.send(status);
-    }, req.dbConnection);
+    }, req.dbConnection, req.logger);
 });
 
 router.post('/marker-set/edit', function (req, res) {
     model.editMarkerSet(req.body, function (status) {
         res.send(status);
-    }, req.dbConnection);
+    }, req.dbConnection, req.logger);
 });
 
 router.post('/marker-set/info', function (req, res) {
@@ -23,7 +23,7 @@ router.post('/marker-set/info', function (req, res) {
 router.delete('/marker-set/delete', function (req, res) {
     model.deleteMarkerSet(req.body, function (status) {
         res.send(status);
-    }, req.dbConnection);
+    }, req.dbConnection, req.logger);
 });
 
 router.post('/marker-set/list', function (req, res) {

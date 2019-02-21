@@ -27,23 +27,23 @@ router.post('/plot/info', function (req, res) {
 router.post('/plot/new', function (req, res) {
 	plotModel.createNewPlot(req.body, function (status) {
 		res.send(status);
-	}, req.dbConnection, req.decoded.username)
+	}, req.dbConnection, req.decoded.username, req.logger)
 });
 router.post('/plot/edit', function (req, res) {
 	plotModel.editPlot(req.body, function (status) {
 		res.send(status);
-	}, req.dbConnection)
+	}, req.dbConnection, req.logger)
 });
 router.delete('/plot/delete', function (req, res) {
 	plotModel.deletePlot(req.body, function (status) {
 		res.send(status);
-	}, req.dbConnection)
+	}, req.dbConnection, req.logger)
 });
 router.post('/plot/duplicate', function (req, res) {
 	req.setTimeout(180000);
 	plotModel.duplicatePlot(req.body, function (status) {
 		res.send(status);
-	}, req.dbConnection);
+	}, req.dbConnection, req.logger);
 });
 
 router.post('/plot/export', function (req, res) {
@@ -55,26 +55,26 @@ router.post('/plot/export', function (req, res) {
 		});
 	}, function (code) {
 		res.status(code).end();
-	}, req.dbConnection, req.decoded.username)
+	}, req.dbConnection, req.decoded.username, req.logger)
 });
 
 router.post('/plot/import', upload.single('file'), function (req, res) {
 	let importer = require('./plot.importer');
 	importer(req, function (status) {
 		res.send(status);
-	}, req.dbConnection, req.decoded.username);
+	}, req.dbConnection, req.decoded.username, req.logger);
 });
 
 router.post('/plot/save-as', function (req, res) {
 	plotModel.duplicatePlot(req.body, function (status) {
 		res.send(status);
-	}, req.dbConnection, req.body.name);
+	}, req.dbConnection, req.body.name, req.logger);
 });
 
 router.post('/plot/new-from-parameter', function (req, res) {
 	let importer = require('./plot.importer');
 	importer(req, function (status) {
 		res.send(status);
-	}, req.dbConnection, req.decoded.username);
+	}, req.dbConnection, req.decoded.username, req.logger);
 });
 module.exports = router;

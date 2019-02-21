@@ -7,8 +7,9 @@ let hashDir = require('../utils/data-tool').hashDir;
 let config = require('config');
 let readline = require('readline');
 let checkPerm = require('../utils/permission/check-permisison');
+const logMessage = require('../log-message');
 
-module.exports = function (data, callback, dbConnection, username) {
+module.exports = function (data, callback, dbConnection, username, logger) {
 	checkPerm(data.updatedBy, 'curve.update', function (pass) {
 		if (pass) {
 			// let ratio = data.desUnit.rate / data.srcUnit.rate;
@@ -40,6 +41,7 @@ module.exports = function (data, callback, dbConnection, username) {
 							dbConnection.Curve.findByPk(data.idCurve).then(curve => {
 								curve.unit = data.desUnit.name;
 								curve.save().then(() => {
+									logger.info(logMessage("CURVE", curve.idCurve, "Unit Converted"));
 									callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", curveParents));
 								});
 							});

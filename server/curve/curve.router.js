@@ -48,27 +48,27 @@ router.post('/curve/move', (req, res) => {
 router.delete('/curve/delete', function (req, res) {
     curveModel.deleteCurve(req.body, (status) => {
         res.send(status);
-    }, req.dbConnection, req.decoded.username);
+    }, req.dbConnection, req.decoded.username, req.logger);
 });
 
 router.post('/curve/info', function (req, res) {
     //console.log("Get info");
     curveModel.getCurveInfo(req.body, function (status) {
         res.send(status);
-    }, req.dbConnection, req.decoded.username);
+    }, req.dbConnection, req.decoded.username, req.logger);
 });
 
 router.post('/curve/new', function (req, res) {
     curveModel.createNewCurve(req.body, function (status) {
         res.send(status);
-    }, req.dbConnection)
+    }, req.dbConnection, req.logger)
 
 });
 
 router.post('/curve/edit', function (req, res) {
     curveModel.editCurve(req.body, function (status) {
         res.send(status);
-    }, req.dbConnection, req.decoded.username)
+    }, req.dbConnection, req.decoded.username, req.logger)
 
 });
 
@@ -80,7 +80,7 @@ router.post('/curve/export', function (req, res) {
         });
     }, function (code) {
         res.send(code);
-    }, req.dbConnection, req.decoded.username)
+    }, req.dbConnection, req.decoded.username, req.logger)
 });
 
 router.post('/curve/getData', function (req, res) {
@@ -92,7 +92,7 @@ router.post('/curve/getData', function (req, res) {
         }
     }, function (status) {
         res.send(status);
-    }, req.dbConnection, req.decoded.username);
+    }, req.dbConnection, req.decoded.username, req.logger);
 });
 
 router.post('/curve/getRawData', function (req, res) {
@@ -104,7 +104,7 @@ router.post('/curve/getRawData', function (req, res) {
         }
     }, function (status) {
         res.send(status);
-    }, req.dbConnection, req.decoded.username);
+    }, req.dbConnection, req.decoded.username, req.logger);
 });
 
 router.post('/curve/getDataFile', function (req, res) {
@@ -116,7 +116,7 @@ router.post('/curve/getDataFile', function (req, res) {
         }
     }, function (status) {
         res.send(status);
-    }, req.dbConnection, req.decoded.username)
+    }, req.dbConnection, req.decoded.username, req.logger)
 })
 
 function writeToTmpFile(data, callback) {
@@ -153,7 +153,7 @@ router.post('/curve/processing', upload.single('data'), function (req, res) {
             req.tmpPath = tmpPath;
             curveModel.processingCurve(req, function (result) {
                 res.send(result);
-            }, req.dbConnection, req.createdBy, req.updatedBy);
+            }, req.dbConnection, req.createdBy, req.updatedBy, req.logger);
         });
     })
 });
@@ -166,13 +166,13 @@ router.post('/curve/import-from-inventory', function (req, res) {
         } else {
             res.send(ResponseJSON(ErrorCodes.SUCCESS, "Done", successful))
         }
-    }, req.dbConnection, req.decoded.username);
+    }, req.dbConnection, req.decoded.username, req.logger);
 });
 
 router.post('/curve/duplicate', function (req, res) {
     curveModel.duplicateCurve(req.body, function (done) {
         res.send(done);
-    }, req.dbConnection, req.decoded.username);
+    }, req.dbConnection, req.decoded.username, req.logger);
 });
 
 router.post('/curve/is-existed', function (req, res) {
@@ -190,7 +190,7 @@ router.post('/curve/get-parents', function (req, res) {
 router.post('/curve/convert-unit', function (req, res) {
     convertUnit(req.body, function (status) {
         res.send(status);
-    }, req.dbConnection, req.decoded.username)
+    }, req.dbConnection, req.decoded.username, req.logger)
 });
 
 router.post('/curve/info-by-name', function (req, res) {

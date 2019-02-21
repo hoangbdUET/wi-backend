@@ -12,7 +12,7 @@ router.post('/inventory/import/curve', function (req, res) {
     let curves = req.body;
     model.importCurves(curves, token, function (response) {
         res.send(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
-    }, req.dbConnection, req.decoded.username, req.createdBy, req.updatedBy);
+    }, req.dbConnection, req.decoded.username, req.createdBy, req.updatedBy, req.logger);
 });
 
 router.post('/inventory/import/dataset', function (req, res) {
@@ -20,7 +20,7 @@ router.post('/inventory/import/dataset', function (req, res) {
     let datasets = req.body;
     model.importDataset(datasets, token, function (response) {
         res.send(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
-    }, req.dbConnection, req.decoded.username, req.createdBy, req.updatedBy);
+    }, req.dbConnection, req.decoded.username, req.createdBy, req.updatedBy, req.logger);
 });
 
 module.exports = router;
