@@ -466,7 +466,7 @@ function newDbInstance(dbName, callback) {
 			}, onDelete: 'CASCADE'
 		});
 		m.ImageSetTemplate.hasMany(m.ImageTemplate, {
-			foreignKey: {name: "idImageTemplate", allowNull: false}, onDelete: 'CASCADE'
+			foreignKey: {name: "idImageSetTemplate", allowNull: false}, onDelete: 'CASCADE'
 		});
 		m.ImageTemplate.belongsTo(m.ImageSetTemplate, {
 			foreignKey: {name: "idImageSetTemplate", allowNull: false}, onDelete: 'CASCADE'
