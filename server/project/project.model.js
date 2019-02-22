@@ -468,12 +468,24 @@ async function getProjectFullInfo(payload, done, req) {
 				}).then(markersets => {
 					cb(null, markersets);
 				});
+			},
+			function (cb) {
+				dbConnection.ImageSet.findAll({
+					where: {idWell: well.idWell},
+					include: [{
+						model: dbConnection.Image,
+						include: {model: dbConnection.ImageTemplate}
+					}, {model: dbConnection.ImageSetTemplate}]
+				}).then(imagesets => {
+					cb(null, imagesets);
+				});
 			}
 		], function (err, result) {
 			wellObj.datasets = result[0];
 			wellObj.zonesets = result[1];
 			wellObj.wellheaders = result[2];
 			wellObj.markersets = result[3];
+			wellObj.imagesets = result[4];
 			response.wells.push(wellObj);
 			nextWell();
 		});

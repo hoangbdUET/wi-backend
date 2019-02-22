@@ -225,12 +225,21 @@ function getWellInfo(well, done, dbConnection) {
 					}).then(markersets => {
 						cb(null, markersets);
 					});
+				},
+				function (cb) {
+					dbConnection.ImageSet.findAll({
+						where: {idWell: well.idWell},
+						include: {model: dbConnection.Image, include: {model: dbConnection.ImageTemplate}}
+					}).then(imagesets=>{
+						cb(null, imagesets);
+					});
 				}
 			], function (err, result) {
 				wellObj.datasets = result[0];
 				wellObj.zone_sets = result[1];
 				wellObj.well_headers = result[2];
 				wellObj.marker_sets = result[3];
+				wellObj.image_sets = result[4];
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", wellObj));
 			});
 		})
