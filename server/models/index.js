@@ -568,7 +568,7 @@ function newDbInstance(dbName, callback) {
 							try {
 								regex = new RegExp("^" + aCondition.curveName + "$", "i").test(curveName) && new RegExp("^" + aCondition.unit + "$", "i").test(unit) && (curve.type === aCondition.type);
 							} catch (err) {
-								console.log(err);
+								// console.log(err);
 							}
 							return regex;
 						});
