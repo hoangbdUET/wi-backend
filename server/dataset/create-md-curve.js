@@ -10,7 +10,7 @@ function createText(start, stop, step) {
 	let value = start;
 	while (value < stop) {
 		text += index + " " + value + "\n";
-		value += step;
+		value += Math.abs(step);
 		index++;
 	}
 	return text;
