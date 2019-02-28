@@ -408,7 +408,7 @@ function getData(param, successFunc, errorFunc, dbConnection, username) {
 									}
 									console.log("Hash : ", config.curveBasePath, username + project.name + well.name + dataset.name + curve.name + '.txt');
 									try {
-										if (_.isFinite(param.columnIndex)) {
+										if (param.columnIndex && param.columnIndex.length > 0) {
 											param.columnIndex.forEach(v => {
 												if (v + 1 > curve.dimension) {
 													throw ("Not valid column index");
