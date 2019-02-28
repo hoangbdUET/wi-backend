@@ -62,7 +62,7 @@ function duplicateImageSet(payload, cb, dbConnection) {
 function listImageSet(payload, cb, dbConnection) {
 	dbConnection.ImageSet.findAll({
 		where: {idWell: payload.idWell},
-		include: {model: dbConnection.Image, include: {model: dbConnection.ImageTemplate}}
+		include: {model: dbConnection.Image}
 	}).then(rs => {
 		cb(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
 	}).catch(err => {
