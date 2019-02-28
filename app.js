@@ -164,34 +164,34 @@ function main() {
 	}
 
 	let request = require('request');
-	app.post('/phrase/new', (req, res) => {
-		let responseJSON = require('./server/response');
-		let filePath = path.join(__dirname, 'phrase.json');
-		if (!fs.existsSync(filePath)) {
-			fs.writeFileSync(filePath, "{}");
-		}
-		let newPhrase = JSON.parse(fs.readFileSync(filePath).toString());
-		Object.assign(newPhrase, req.body);
-		fs.writeFileSync(filePath, JSON.stringify(newPhrase));
-		res.json(responseJSON(200, "Done", newPhrase));
-	});
-	app.post('/phrase/get', (req, res) => {
-		let responseJSON = require('./server/response');
-		let filePath = path.join(__dirname, 'phrase.json');
-		if (!fs.existsSync(filePath)) {
-			fs.writeFileSync(filePath, "{}");
-		}
-		let newPhrase = JSON.parse(fs.readFileSync(filePath).toString());
-		res.json(responseJSON(200, "Done", newPhrase));
-	});
-	app.get('/phrase/clear', (req, res) => {
-		let filePath = path.join(__dirname, 'phrase.json');
-		if (!fs.existsSync(filePath)) {
-			fs.writeFileSync(filePath, "{}");
-		}
-		fs.writeFileSync(filePath, "{}");
-		res.send("Done");
-	});
+	// app.post('/phrase/new', (req, res) => {
+	// 	let responseJSON = require('./server/response');
+	// 	let filePath = path.join(__dirname, 'phrase.json');
+	// 	if (!fs.existsSync(filePath)) {
+	// 		fs.writeFileSync(filePath, "{}");
+	// 	}
+	// 	let newPhrase = JSON.parse(fs.readFileSync(filePath).toString());
+	// 	Object.assign(newPhrase, req.body);
+	// 	fs.writeFileSync(filePath, JSON.stringify(newPhrase));
+	// 	res.json(responseJSON(200, "Done", newPhrase));
+	// });
+	// app.post('/phrase/get', (req, res) => {
+	// 	let responseJSON = require('./server/response');
+	// 	let filePath = path.join(__dirname, 'phrase.json');
+	// 	if (!fs.existsSync(filePath)) {
+	// 		fs.writeFileSync(filePath, "{}");
+	// 	}
+	// 	let newPhrase = JSON.parse(fs.readFileSync(filePath).toString());
+	// 	res.json(responseJSON(200, "Done", newPhrase));
+	// });
+	// app.get('/phrase/clear', (req, res) => {
+	// 	let filePath = path.join(__dirname, 'phrase.json');
+	// 	if (!fs.existsSync(filePath)) {
+	// 		fs.writeFileSync(filePath, "{}");
+	// 	}
+	// 	fs.writeFileSync(filePath, "{}");
+	// 	res.send("Done");
+	// });
 	app.get('/update', function (req, res) {
 		let familySystemSync = require('./server/family/FamilySystemSync');
 		familySystemSync(function () {
