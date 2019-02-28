@@ -16,7 +16,7 @@ function createImageSet(payload, cb, dbConnection, logger) {
 }
 
 function infoImageSet(payload, cb, dbConnection) {
-	dbConnection.ImageSet.findByPk(payload.idImageSet).then(rs => {
+	dbConnection.ImageSet.findByPk(payload.idImageSet, {include: {model: dbConnection.Image}}).then(rs => {
 		if (rs) {
 			cb(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
 		} else {

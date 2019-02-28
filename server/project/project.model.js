@@ -472,10 +472,7 @@ async function getProjectFullInfo(payload, done, req) {
 			function (cb) {
 				dbConnection.ImageSet.findAll({
 					where: {idWell: well.idWell},
-					include: [{
-						model: dbConnection.Image,
-						include: {model: dbConnection.ImageTemplate}
-					}, {model: dbConnection.ImageSetTemplate}]
+					include: {model: dbConnection.Image}
 				}).then(imagesets => {
 					cb(null, imagesets);
 				});

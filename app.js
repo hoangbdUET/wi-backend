@@ -133,8 +133,6 @@ function main() {
 	let storageDatabseRouter = require('./server/storage-database/storage-database.router');
 	let imageRouter = require('./server/image/image.router');
 	let imageSetRouter = require('./server/image-set/image-set.router');
-	let imageTemplateRouter = require('./server/image-template/image-template.router');
-	let imageTemplateSetRouter = require('./server/image-template-set/image-template-set.router');
 	let logViewRouter = require('./server/log-view/log-view.router');
 	let analysisRouter = require('./server/analysis/analysis.router');
 	// let projectLogRouter = require('./server/project-log/project-log.router');
@@ -282,8 +280,6 @@ function main() {
 	app.use('/', markerSetTemplateRouter);
 	app.use('/', markerTemplateRouter);
 	app.use('/', taskSpecRouter);
-	app.use('/project', imageTemplateSetRouter);
-	app.use('/project/image-template-set', imageTemplateRouter);
 	app.use('/project/well', imageSetRouter);
 	app.use('/project/well/image-set', imageRouter);
 	app.use('/project', parameterSetRouter);

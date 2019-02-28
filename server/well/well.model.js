@@ -229,8 +229,8 @@ function getWellInfo(well, done, dbConnection) {
 				function (cb) {
 					dbConnection.ImageSet.findAll({
 						where: {idWell: well.idWell},
-						include: {model: dbConnection.Image, include: {model: dbConnection.ImageTemplate}}
-					}).then(imagesets=>{
+						include: {model: dbConnection.Image}
+					}).then(imagesets => {
 						cb(null, imagesets);
 					});
 				}

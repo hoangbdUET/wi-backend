@@ -6,6 +6,28 @@ module.exports = function (sequelize, DataTypes) {
 			allowNull: false,
 			autoIncrement: true
 		},
+		name: {
+			type: DataTypes.STRING(255),
+			allowNull: false
+		},
+		imageUrl: {
+			type: DataTypes.TEXT,
+			allowNull: true
+		},
+		fill: {
+			type: DataTypes.STRING(50),
+			allowNull: false,
+			defaultValue: "white"
+		},
+		spec: {
+			type: DataTypes.TEXT,
+			allowNull: true
+		},
+		orderNum: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 0
+		},
 		showOnTrack: {
 			type: DataTypes.BOOLEAN,
 			allowNull: false,
