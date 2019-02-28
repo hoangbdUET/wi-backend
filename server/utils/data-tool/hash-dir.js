@@ -6,6 +6,7 @@ let Transform = require('stream').Transform;
 const LEN = 8;
 let decrypto = require('./crypto-file/decrypto');
 let async = require('async');
+let _ = require('lodash');
 
 function createDirSync(basePath, hash, dir) {
 	dir.push(hash.substr(0, LEN));
@@ -156,11 +157,11 @@ module.exports.deleteFolder = function (basePath, hashString) {
 
 function getValues(array, index) {
 	let result = [];
-	index.forEach(i => {
-		if (array[i]) {
+	for (let i = 0; i < index.length; i++) {
+		if (_.isFinite(array[i])) {
 			result.push(array[i]);
 		}
-	});
+	}
 	return result;
 }
 
