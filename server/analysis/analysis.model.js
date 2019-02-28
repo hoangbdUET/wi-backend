@@ -34,7 +34,11 @@ function deleteAnalysis(payload, done, dbConnection) {
 }
 
 function listAnalysis(payload, done, dbConnection) {
-	dbConnection.Analysis.findAll({where: {idProject: payload.idProject}}).then(l => {
+	let conditions = {
+		idProject: payload.idProject
+	};
+	if (payload.type) conditions.type = payload.type;
+	dbConnection.Analysis.findAll({where: conditions}).then(l => {
 		done(ResponseJSON(ErrorCodes.SUCCESS, "Done", l));
 	})
 }
