@@ -9,7 +9,8 @@ module.exports = function (sequelize, DataTypes) {
 		},
 		name: {
 			type: DataTypes.STRING(250),
-			allowNull: false
+			allowNull: false,
+			unique: 'name-project-type'
 		},
 		content: {
 			type: DataTypes.TEXT('medium'),
@@ -25,7 +26,8 @@ module.exports = function (sequelize, DataTypes) {
 		type: {
 			type: DataTypes.STRING(100),
 			allowNull: false,
-			defaultValue: ''
+			defaultValue: '',
+			unique: 'name-project-type'
 		},
 		createdBy: {
 			type: DataTypes.STRING(50),

@@ -502,10 +502,10 @@ function newDbInstance(dbName, callback) {
 		});
 
 		m.Analysis.belongsTo(m.Project, {
-			foreignKey: {name: "idProject", allowNull: false}, onDelete: "CASCADE"
+			foreignKey: {name: "idProject", allowNull: false, unique: 'name-project-type'}, onDelete: "CASCADE"
 		});
 		m.Project.hasMany(m.Analysis, {
-			foreignKey: {name: "idProject", allowNull: false}, onDelete: "CASCADE"
+			foreignKey: {name: "idProject", allowNull: false, unique: 'name-project-type'}, onDelete: "CASCADE"
 		});
 	})(object);
 
