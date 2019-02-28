@@ -22,6 +22,11 @@ module.exports = function (sequelize, DataTypes) {
 				return JSON.parse(value);
 			}
 		},
+		type: {
+			type: DataTypes.STRING(100),
+			allowNull: false,
+			defaultValue: ''
+		},
 		createdBy: {
 			type: DataTypes.STRING(50),
 			allowNull: false,
