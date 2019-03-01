@@ -520,6 +520,20 @@ function importWell(payload, done, dbConnection, username, token) {
 	}, dbConnection, username);
 }
 
+function deleteWellHeader(payload, done, dbConnection) {
+	dbConnection.WellHeader(payload.idWellHeader).then(wh => {
+		if (wh) {
+			wh.defaultValue().then(() => {
+				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", wh));
+			}).catch(err => {
+				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
+			})
+		} else {
+			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No well header found by id"));
+		}
+	});
+}
+
 module.exports = {
 	createNewWell: createNewWell,
 	editWell: editWell,
@@ -532,5 +546,6 @@ module.exports = {
 	bulkUpdateWellHeader: bulkUpdateWellHeader,
 	importWell: importWell,
 	getWellList: getWellList,
-	getWellFullInfo: getWellFullInfo
+	getWellFullInfo: getWellFullInfo,
+	deleteWellHeader: deleteWellHeader
 };
