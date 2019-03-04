@@ -523,7 +523,7 @@ function importWell(payload, done, dbConnection, username, token) {
 function deleteWellHeader(payload, done, dbConnection) {
 	dbConnection.WellHeader.findByPk(payload.idWellHeader).then(wh => {
 		if (wh) {
-			wh.defaultValue().then(() => {
+			wh.destroy().then(() => {
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", wh));
 			}).catch(err => {
 				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
