@@ -7,6 +7,7 @@ let fs = require('fs');
 let asyncEach = require('async/each');
 let curveFunction = require('../utils/curve.function');
 const logMessage = require('../log-message');
+
 function createNewDataset(datasetInfo, done, dbConnection, logger) {
 	let Dataset = dbConnection.Dataset;
 	Dataset.sync()
@@ -384,6 +385,20 @@ async function copyDataset(payload, dbConnection, username, logger) {
 	}
 }
 
+function deleteDatasetParam(payload, done, dbConnection) {
+	dbConnection.DatasetParams.findByPk(payload.idDatasetParam).then(dp => {
+		if (dp) {
+			dp.destroy().then(() => {
+				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", dp));
+			}).catch(err => {
+				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
+			})
+		} else {
+			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No dataset param found by "));
+		}
+	});
+}
+
 module.exports = {
 	createNewDataset: createNewDataset,
 	editDataset: editDataset,
@@ -393,5 +408,6 @@ module.exports = {
 	getDatasetInfoByName: getDatasetInfoByName,
 	updateDatasetParams: updateDatasetParams,
 	createMdCurve: createMdCurve,
-	copyDataset: copyDataset
+	copyDataset: copyDataset,
+	deleteDatasetParam: deleteDatasetParam
 };

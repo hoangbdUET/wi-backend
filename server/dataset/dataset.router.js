@@ -25,21 +25,31 @@ router.post('/dataset/edit', function (req, res) {
 		res.send(status);
 	}, req.dbConnection, req.decoded.username, req.logger);
 });
+
 router.delete('/dataset/delete', function (req, res) {
 	datasetModel.deleteDataset(req.body, function (status) {
 		res.send(status);
 	}, req.dbConnection, req.logger)
 });
+
 router.post('/dataset/duplicate', function (req, res) {
 	datasetModel.duplicateDataset(req.body, function (status) {
 		res.send(status);
 	}, req.dbConnection, req.decoded.username, req.logger);
 });
+
 router.post('/dataset/bulk-update-params', function (req, res) {
 	datasetModel.updateDatasetParams(req.body, function (status) {
 		res.send(status);
 	}, req.dbConnection);
 });
+
+router.post('/dataset/delete-dataset-param', (req, res) => {
+	datasetModel.deleteDatasetParam(req.body, (status) => {
+		res.send(status);
+	}, req.dbConnection);
+});
+
 router.post('/dataset/create-md', function (req, res) {
 	datasetModel.createMdCurve(req.body, function (status) {
 		res.send(status);

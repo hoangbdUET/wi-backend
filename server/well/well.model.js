@@ -521,7 +521,7 @@ function importWell(payload, done, dbConnection, username, token) {
 }
 
 function deleteWellHeader(payload, done, dbConnection) {
-	dbConnection.WellHeader(payload.idWellHeader).then(wh => {
+	dbConnection.WellHeader.findByPk(payload.idWellHeader).then(wh => {
 		if (wh) {
 			wh.defaultValue().then(() => {
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", wh));
