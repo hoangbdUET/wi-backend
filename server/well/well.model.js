@@ -508,17 +508,17 @@ function bulkUpdateWellHeader(headers, idWell, done, dbConnection) {
 }
 
 
-function importWell(payload, done, dbConnection, username, token) {
-	importFromInventory.importWell(payload, token, function (err, res) {
-		if (err) {
-			console.log(err);
-			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
-		} else {
-			console.log(res);
-			done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", res));
-		}
-	}, dbConnection, username);
-}
+// function importWell(payload, done, dbConnection, username, token) {
+// 	importFromInventory.importWell(payload, token, function (err, res) {
+// 		if (err) {
+// 			console.log(err);
+// 			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
+// 		} else {
+// 			console.log(res);
+// 			done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", res));
+// 		}
+// 	}, dbConnection, username);
+// }
 
 function deleteWellHeader(payload, done, dbConnection) {
 	dbConnection.WellHeader.findByPk(payload.idWellHeader).then(wh => {
@@ -544,7 +544,7 @@ module.exports = {
 	getWellHeader: getWellHeader,
 	updateWellHeader: updateWellHeader,
 	bulkUpdateWellHeader: bulkUpdateWellHeader,
-	importWell: importWell,
+	// importWell: importWell,
 	getWellList: getWellList,
 	getWellFullInfo: getWellFullInfo,
 	deleteWellHeader: deleteWellHeader
