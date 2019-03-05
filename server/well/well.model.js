@@ -482,7 +482,7 @@ function bulkUpdateWellHeader(headers, idWell, done, dbConnection) {
 		}).then(rs => {
 			if (rs[1]) {
 				//create
-				response.push({header: header, result: "CREATED"});
+				response.push({header: rs[0], result: "CREATED"});
 				next();
 			} else {
 				//found

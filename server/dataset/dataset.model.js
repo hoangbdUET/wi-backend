@@ -254,7 +254,7 @@ function updateDatasetParams(payload, done, dbConnection) {
 					}).then(rs => {
 						if (rs[1]) {
 							//create
-							response.push({param: param, result: "CREATED"});
+							response.push({param: rs[0], result: "CREATED"});
 							next();
 						} else {
 							//found
