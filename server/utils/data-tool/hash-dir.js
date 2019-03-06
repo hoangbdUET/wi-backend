@@ -158,7 +158,7 @@ module.exports.deleteFolder = function (basePath, hashString) {
 function getValues(array, index) {
 	let result = [];
 	for (let i = 0; i < index.length; i++) {
-		result.push(array[i]);
+		result.push(array[index[i]]);
 	}
 	return result;
 }
