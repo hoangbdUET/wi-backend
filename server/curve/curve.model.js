@@ -16,6 +16,7 @@ const convertLength = require('../utils/convert-length');
 const {Transform} = require('stream');
 const _ = require('lodash');
 const logMessage = require('../log-message');
+let byline = require('byline');
 
 function createNewCurve(curveInfo, done, dbConnection, logger) {
 	let Curve = dbConnection.Curve;
@@ -244,97 +245,6 @@ function getCurveInfo(curve, done, dbConnection, username) {
 		});
 }
 
-///curve advance acrions
-
-async function copyCurve(param, done, dbConnection, username) {
-	let curveUtils = require('../utils/curve.function');
-	let curve = await dbConnection.Curve.findByPk(param.idCurve);
-	let desDataset = await dbConnection.Dataset.findByPk(param.desDatasetId);
-	if (!curve || !desDataset) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve or Des dataset was not found by id"));
-
-	curveUtils.getFullCurveParents(param, dbConnection).then(curveParents => {
-		curveParents.username = username;
-		let desCurve = {...curveParents};
-		desCurve.dataset = desDataset.name;
-		curveUtils.copyCurveData(curveParents, desCurve, function (err, successPath) {
-			if (err) {
-				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
-			} else {
-				console.log("Successful copy curve path : ", successPath);
-				dbConnection.Curve.findOne({
-					where: {
-						name: curve.name,
-						idDataset: desDataset.idDataset
-					}
-				}).then(existedCurve => {
-					if (existedCurve) {
-						done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", existedCurve));
-					} else {
-						let newCurve = curve.toJSON();
-						delete newCurve.idCurve;
-						newCurve.idDataset = desDataset.idDataset;
-						newCurve.createdBy = param.createdBy;
-						newCurve.updatedBy = param.updatedBy;
-						dbConnection.Curve.create(newCurve).then((c) => {
-							done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", c));
-						}).catch(err => {
-							done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
-						});
-					}
-				})
-			}
-		});
-	});
-}
-
-async function moveCurve(param, done, dbConnection, username) {
-	let curveUtils = require('../utils/curve.function');
-	let curve = await dbConnection.Curve.findByPk(param.idCurve);
-	let _curve = curve.toJSON();
-	let desDataset = await dbConnection.Dataset.findByPk(param.desDatasetId);
-	if (!curve || !desDataset) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve or Des dataset was not found by id"));
-
-	let curveParents = await curveUtils.getFullCurveParents(param, dbConnection);
-	curveParents.username = username;
-	let newCurve = {...curveParents};
-	newCurve.dataset = desDataset.name;
-	checkPermisson(param.updatedBy, 'curve.update', function (result) {
-		if (result) {
-			curveUtils.moveCurveData(curveParents, newCurve, function (err, successPath) {
-				if (err) {
-					done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
-				} else {
-					curve.destroy({permanently: true, force: true}).then(() => {
-						dbConnection.Curve.findOne({
-							where: {
-								name: _curve.name,
-								idDataset: desDataset.idDataset
-							}
-						}).then(existed => {
-							if (!existed) {
-								dbConnection.Curve.create({
-									name: _curve.name,
-									idDataset: desDataset.idDataset,
-									createdBy: _curve.createdBy,
-									updatedBy: _curve.updatedBy,
-									unit: _curve.unit,
-									idFamily: _curve.idFamily
-								}).then(() => {
-									done(ResponseJSON(ErrorCodes.SUCCESS, "Successful"));
-								});
-							} else {
-								done(ResponseJSON(ErrorCodes.SUCCESS, "Successful"));
-							}
-						})
-					});
-				}
-			});
-		} else {
-			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve : Do not have permission", "Curve : Do not have permission"));
-		}
-	}, curve.createdBy);
-}
-
 async function deleteCurve(curveInfo, done, dbConnection, username, logger) {
 	let Curve = dbConnection.Curve;
 	let curve = await Curve.findByPk(curveInfo.idCurve);
@@ -415,7 +325,8 @@ function getData(param, successFunc, errorFunc, dbConnection, username) {
 												}
 											})
 										}
-										hashDir.createJSONReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt', '{\n"code": 200,\n"content":', '}\n',
+										let dataKey = username + project.name + well.name + dataset.name + curve.name;
+										hashDir.createJSONReadStream(config.curveBasePath, dataKey, curve.name + '.txt', '{\n"code": 200,\n"content":', '}\n',
 											function (err, stream) {
 												if (err) {
 													errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve Data Was Lost"));
@@ -426,7 +337,7 @@ function getData(param, successFunc, errorFunc, dbConnection, username) {
 												isCore: (dataset.step === 0 || dataset.step === '0'),
 												rate: rate,
 												type: curve.type,
-												columnIndex: param.columnIndex
+												columnIndex: param.columnIndex,
 											}
 										);
 									} catch (e) {
@@ -787,27 +698,37 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
 		}).then(rs => {
 			let _curve = rs[0];
 			let curvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + _curve.name, _curve.name + '.txt');
-			// console.log("=======", _curve.name);
+			console.log("Import ", curvePath);
+			// if (_curve.type === "ARRAY") {
+			// 	if (false) {
+			// 	// const {Transform} = require('stream');
+			// 	const byline = require('byline');
+			// 	fs.writeFileSync(hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + _curve.name, 'DEPTH.txt'), '');
+			// 	for (let i = 0; i < _curve.dimension; i++) {
+			// 		fs.writeFileSync(hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + _curve.name, _curve.name + '_' + i + '.txt'), '');
+			// 	}
+			// 	const splitData = new Transform({
+			// 		transform(chunk, encoding, callback) {
+			// 			this.push(chunk);
+			// 			let arr = chunk.toString().split(/\s+/);
+			// 			fs.appendFileSync(hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + _curve.name, 'DEPTH.txt'), arr[0] + '\n');
+			// 			for (let i = 1; i < arr.length; i++) {
+			// 				fs.appendFileSync(hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + _curve.name, _curve.name + '_' + (i - 1) + '.txt'), arr[i] + '\n');
+			// 			}
+			// 			callback();
+			// 		}
+			// 	});
+			// 	let stream = byline.createStream(request(options)).pipe(splitData);
+			// 	stream.on('close', () => {
+			// 		resolve(_curve);
+			// 	});
+			// 	stream.on('error', (err) => {
+			// 		console.log(err);
+			// 		reject(err);
+			// 	});
+			// } else {
 			try {
 				let stream = request(options).pipe(fs.createWriteStream(curvePath));
-				// let isRef = checkCurveIsReference(_curve);
-				// console.log("=====", isRef);
-				// if (isRef) {
-				//     console.log("Curve is reference");
-				//     let rate = convertLength.getDistanceRate(_curve.unit, 'm');
-				//     const convertTransform = new Transform({
-				//         writableObjectMode: true,
-				//         transform(chunk, encoding, callback) {
-				//             let tokens = chunk.toString().split(/\s+/);
-				//             this.push(tokens[0] + " " + tokens[1] * rate + "\n");
-				//             callback();
-				//         }
-				//     });
-				//     stream = request(options).pipe(convertTransform).pipe(fs.createWriteStream(curvePath));
-				// } else {
-				//     console.log("Curve is not reference");
-				//     stream = request(options).pipe(fs.createWriteStream(curvePath));
-				// }
 				stream.on('close', function () {
 					logger.info(logMessage("CURVE", _curve.idCurve, "Created"));
 					console.log("Import Done ", curvePath, " : ", new Date() - start, "ms");
@@ -819,6 +740,7 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
 			} catch (err) {
 				reject(err);
 			}
+			// }
 		}).catch(err => {
 			console.log(err);
 			reject(err);
@@ -862,7 +784,7 @@ function duplicateCurve(data, done, dbConnection, username, logger) {
 			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No curve found by ID"));
 		}
 	});
-};
+}
 
 function checkCurveExisted(payload, callback, dbConnection) {
 	dbConnection.Curve.findOne({
@@ -950,6 +872,45 @@ function resyncFamily(payload, done, dbConnection) {
 	});
 }
 
+function processingArrayCurve(req, done, dbConnection, createdBy, updatedBy, logger) {
+	dbConnection.Curve.findByPk(req.body.idCurve).then(curve => {
+		if (!curve) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No curve found by id"));
+		if (curve.type !== "ARRAY") return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "This is not array curve"));
+		if (!req.body.columnIndex || (curve.dimension < +req.body.columnIndex + 1 || +req.body.columnIndex < 0))
+			return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Not valid column index"));
+		curveFunction.getFullCurveParents({idCurve: req.body.idCurve}, dbConnection).then(curveParent => {
+			let path = hashDir.createPath(config.curveBasePath, createdBy + curveParent.project + curveParent.well + curveParent.dataset + curveParent.curve, curveParent.curve + '.txt');
+			let output = fs.createWriteStream(path + '_');
+			let stream = byline(fs.createReadStream(path));
+			let count = 0;
+			stream.on('data', (line) => {
+				let valueToken = line.toString().split(/\s+/);
+				valueToken[+req.body.columnIndex] = req.tmpData[count];
+				output.write(_.join(valueToken, ' ') + '\n');
+				count++;
+			});
+			stream.on('end', () => {
+				fs.copy(path + '_', path, err => {
+					if (err) console.log(err);
+					console.log("Edit array data done, remove tmp");
+					output.close();
+					fs.unlink(path + '_');
+				});
+				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", curve));
+			});
+		});
+	});
+}
+
+function splitArrayCurve(payload, done, dbConnection) {
+
+}
+
+function mergeCurvesIntoArrayCurve(payload, done, dbConnection) {
+
+}
+
+
 module.exports = {
 	resyncFamily: resyncFamily,
 	createNewCurve: createNewCurve,
@@ -959,8 +920,6 @@ module.exports = {
 	getData: getData,
 	getDataFile: getDataFile,
 	exportData: exportData,
-	copyCurve: copyCurve,
-	moveCurve: moveCurve,
 	getScale: getScale,
 	calculateScale: calculateScale,
 	processingCurve: processingCurve,
@@ -969,6 +928,8 @@ module.exports = {
 	checkCurveExisted: checkCurveExisted,
 	getCurveParents: getCurveParents,
 	getCurveByName: getCurveByName,
-	getCurveDataFromInventoryPromise: getCurveDataFromInventoryPromise
+	getCurveDataFromInventoryPromise: getCurveDataFromInventoryPromise,
+	processingArrayCurve: processingArrayCurve,
+	splitArrayCurve: splitArrayCurve,
+	mergeCurvesIntoArrayCurve: mergeCurvesIntoArrayCurve
 };
-
