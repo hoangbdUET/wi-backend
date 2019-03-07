@@ -885,7 +885,7 @@ function processingArrayCurve(req, done, dbConnection, createdBy, updatedBy, log
 			let count = 0;
 			stream.on('data', (line) => {
 				let valueToken = line.toString().split(/\s+/);
-				valueToken[+req.body.columnIndex] = req.tmpData[count];
+				valueToken[+req.body.columnIndex + 1] = req.tmpData[count];
 				output.write(_.join(valueToken, ' ') + '\n');
 				count++;
 			});
