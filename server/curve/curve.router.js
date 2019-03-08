@@ -213,10 +213,19 @@ router.post('/curve/processing-array-data-curve', upload.single('data'), (req, r
 	fs.readFile(req.file.path, function (err, data) {
 		if (err) return res.send(err);
 		fs.unlinkSync(req.file.path);
-		req.tmpData = JSON.parse(data.toString());
-		curveModel.processingArrayCurve(req, function (result) {
-			res.send(result);
-		}, req.dbConnection, req.createdBy, req.updatedBy, req.logger);
+		try {
+			req.tmpData = JSON.parse(data.toString());
+			curveModel.processingArrayCurve(req, function (result) {
+				res.send(result);
+			}, req.dbConnection, req.createdBy, req.updatedBy, req.logger);
+		} catch (e) {
+			res.send({
+				code: 512,
+				reason: e,
+				content: e
+			});
+		}
+
 	});
 });
 
