@@ -159,7 +159,7 @@ module.exports = function (sequelize, DataTypes) {
 			defaultValue: 0,
 			allowNull: false
 		},
-		arrayXUpperLimit: {
+		arrayYUpperLimit: {
 			type: DataTypes.INTEGER,
 			defaultValue: 1,
 			allowNull: false
@@ -169,7 +169,7 @@ module.exports = function (sequelize, DataTypes) {
 			defaultValue: 0,
 			allowNull: false
 		},
-		arrayYStop: {
+		arrayXStop: {
 			type: DataTypes.INTEGER,
 			defaultValue: 0,
 			allowNull: false
