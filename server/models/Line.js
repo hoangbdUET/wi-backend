@@ -199,6 +199,16 @@ module.exports = function (sequelize, DataTypes) {
 			defaultValue: 'Column',
 			allowNull: false
 		},
+		arrayWindowSize: {
+			type: DataTypes.INTEGER,
+			defaultValue: 1,
+			allowNull: false
+		},
+		arrayWindowUnit: {
+			type: DataTypes.STRING(20),
+			defaultValue: 'm',
+			allowNull: false
+		},
 		createdBy: {
 			type: DataTypes.STRING(50),
 			allowNull: false,
