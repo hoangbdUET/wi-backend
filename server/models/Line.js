@@ -149,6 +149,56 @@ module.exports = function (sequelize, DataTypes) {
 			allowNull: false,
 			defaultValue: 1
 		},
+		arrayColumnCumulative: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: true,
+			allowNull: false
+		},
+		arrayYLowerLimit: {
+			type: DataTypes.INTEGER,
+			defaultValue: 0,
+			allowNull: false
+		},
+		arrayXUpperLimit: {
+			type: DataTypes.INTEGER,
+			defaultValue: 1,
+			allowNull: false
+		},
+		arrayXStart: {
+			type: DataTypes.INTEGER,
+			defaultValue: 0,
+			allowNull: false
+		},
+		arrayYStop: {
+			type: DataTypes.INTEGER,
+			defaultValue: 0,
+			allowNull: false
+		},
+		arraySmooth: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: false,
+			allowNull: false
+		},
+		arrayTraceColorPalette: {
+			type: DataTypes.STRING,
+			defaultValue: '',
+			allowNull: false
+		},
+		arrayMatrixStartColor: {
+			type: DataTypes.STRING(100),
+			defaultValue: 'black',
+			allowNull: false
+		},
+		arrayMatrixStopColor: {
+			type: DataTypes.STRING(100),
+			defaultValue: 'green',
+			allowNull: false
+		},
+		arrayDisplayAs: {
+			type: DataTypes.STRING(100),
+			defaultValue: 'Column',
+			allowNull: false
+		},
 		createdBy: {
 			type: DataTypes.STRING(50),
 			allowNull: false,
