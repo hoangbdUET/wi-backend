@@ -155,22 +155,22 @@ module.exports = function (sequelize, DataTypes) {
 			allowNull: false
 		},
 		arrayYLowerLimit: {
-			type: DataTypes.INTEGER,
+			type: DataTypes.FLOAT,
 			defaultValue: 0,
 			allowNull: false
 		},
 		arrayYUpperLimit: {
-			type: DataTypes.INTEGER,
+			type: DataTypes.FLOAT,
 			defaultValue: 1,
 			allowNull: false
 		},
 		arrayXStart: {
-			type: DataTypes.INTEGER,
+			type: DataTypes.FLOAT,
 			defaultValue: 0,
 			allowNull: false
 		},
 		arrayXStop: {
-			type: DataTypes.INTEGER,
+			type: DataTypes.FLOAT,
 			defaultValue: 0,
 			allowNull: false
 		},
@@ -200,7 +200,7 @@ module.exports = function (sequelize, DataTypes) {
 			allowNull: false
 		},
 		arrayWindowSize: {
-			type: DataTypes.INTEGER,
+			type: DataTypes.FLOAT,
 			defaultValue: 1,
 			allowNull: false
 		},
