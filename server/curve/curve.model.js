@@ -424,7 +424,7 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
 						console.log("No dataset");
 					} else {
 						Well.findByPk(dataset.idWell, {paranoid: false}).then(well => {
-							if (well) {
+							if (well && curve.type === "NUMBER") {
 								Project.findByPk(well.idProject, {paranoid: false}).then(project => {
 									console.log("Hash : ", config.curveBasePath, username + project.name + well.name + dataset.name + curve.name + '.txt');
 									let inputStream = hashDir.createReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
@@ -471,6 +471,13 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
 									});
 								}).catch(err => {
 									console.log("LOI : ", err);
+								});
+							} else {
+								callback(null, {
+									minScale: NaN,
+									maxScale: NaN,
+									meanValue: NaN,
+									medianValue: NaN
 								});
 							}
 						});
