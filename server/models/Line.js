@@ -209,6 +209,11 @@ module.exports = function (sequelize, DataTypes) {
 			defaultValue: 'm',
 			allowNull: false
 		},
+		arrayIntervalValue: {
+			type: DataTypes.FLOAT,
+			defaultValue: 0,
+			allowNull: false
+		},
 		createdBy: {
 			type: DataTypes.STRING(50),
 			allowNull: false,
