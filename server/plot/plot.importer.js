@@ -117,6 +117,7 @@ function findLine(line, dbConnection, idTrack) {
 }
 
 async function createPlot(plot, dbConnection, idProject, well, dataset) {
+	delete plot.cropDisplay;
 	plot.createdBy = createdBy;
 	plot.updatedBy = updatedBy;
 	plot.idProject = idProject;
