@@ -889,7 +889,7 @@ function processingArrayCurve(req, done, dbConnection, createdBy, updatedBy, log
 			let path = hashDir.createPath(config.curveBasePath, createdBy + curveParent.project + curveParent.well + curveParent.dataset + curveParent.curve, curveParent.curve + '.txt');
 			let tmpPath = Date.now() + '';
 			let output = fs.createWriteStream(tmpPath);
-			output.write('');
+			// output.write('');
 			let stream = byline(fs.createReadStream(path));
 			let count = 0;
 			stream.on('data', (line) => {
