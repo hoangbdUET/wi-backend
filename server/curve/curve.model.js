@@ -887,7 +887,7 @@ function processingArrayCurve(req, done, dbConnection, createdBy, updatedBy, log
 			return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Not valid column index"));
 		curveFunction.getFullCurveParents({idCurve: req.body.idCurve}, dbConnection).then(curveParent => {
 			let path = hashDir.createPath(config.curveBasePath, createdBy + curveParent.project + curveParent.well + curveParent.dataset + curveParent.curve, curveParent.curve + '.txt');
-			let tmpPath = Date.now();
+			let tmpPath = Date.now() + '';
 			let output = fs.createWriteStream(tmpPath);
 			output.write('');
 			let stream = byline(fs.createReadStream(path));
