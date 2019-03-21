@@ -142,7 +142,7 @@ function createNewLine(lineInfo, done, dbConnection, username) {
 			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No curve found in line info", lineInfo));
 		} else {
 			if (curve.type === 'TEXT') {
-				dbConnection.Line.create({
+				dbConnection.Line.create(Object.assign({
 					idTrack: lineInfo.idTrack,
 					idCurve: curve.idCurve,
 					alias: lineInfo.alias || curve.name,
@@ -170,7 +170,7 @@ function createNewLine(lineInfo, done, dbConnection, username) {
 					symbolLineWidth: lineInfo.symbolLineWidth,
 					wrapMode: lineInfo.wrapMode,
 					symbolName: lineInfo.symbolName
-				}).then(l => {
+				}, lineInfo)).then(l => {
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", l.toJSON()));
 				}).catch(function (err) {
 					done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name + err.message));
@@ -232,8 +232,8 @@ function createNewLine(lineInfo, done, dbConnection, username) {
 								_line.symbolLineDash = lineInfo.symbolLineDash;
 								_line.symbolLineWidth = lineInfo.symbolLineWidth;
 								_line.wrapMode = lineInfo.wrapMode;
-								_line.symbolName = lineInfo.symbolName
-								dbConnection.Line.create(_line).then(l => {
+								_line.symbolName = lineInfo.symbolName;
+								dbConnection.Line.create(Object.assign(_line, lineInfo)).then(l => {
 									done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", l));
 								}).catch(err => {
 									console.log(err);
@@ -241,7 +241,7 @@ function createNewLine(lineInfo, done, dbConnection, username) {
 								})
 							});
 						} else {
-							dbConnection.Line.create({
+							dbConnection.Line.create(Object.assign({
 								idTrack: lineInfo.idTrack,
 								idCurve: curve.idCurve,
 								alias: lineInfo.alias || curve.name,
@@ -269,7 +269,7 @@ function createNewLine(lineInfo, done, dbConnection, username) {
 								symbolLineWidth: lineInfo.symbolLineWidth,
 								wrapMode: lineInfo.wrapMode,
 								symbolName: lineInfo.symbolName
-							}).then(l => {
+							}, lineInfo)).then(l => {
 								done(ResponseJSON(ErrorCodes.SUCCESS, "Create new line success", l.toJSON()));
 							}).catch(function (err) {
 								done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.name + err.message));
