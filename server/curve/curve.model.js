@@ -899,7 +899,7 @@ function processingArrayCurve(req, done, dbConnection, createdBy, updatedBy, log
 				count++;
 			});
 			stream.on('end', () => {
-				fs.copy(path + '_', path, err => {
+				fs.copy(tmpPath, path, err => {
 					if (err) console.log(err);
 					console.log("Edit array data done, remove tmp");
 					output.close();
