@@ -902,7 +902,7 @@ function processingArrayCurve(req, done, dbConnection, createdBy, updatedBy, log
 					if (err) console.log(err);
 					console.log("Edit array data done, remove tmp");
 					output.close();
-					fs.unlink(path + '_');
+					if (fs.existsSync(path + '_')) fs.unlink(path + '_');
 				});
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", curve));
 			});
