@@ -212,11 +212,11 @@ router.post('/curve/resync-family', (req, res) => {
 router.post('/curve/processing-array-data-curve', upload.single('data'), (req, res) => {
 	fs.readFile(req.file.path, function (err, data) {
 		if (err) return res.send(err);
-		if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
 		try {
 			req.tmpData = JSON.parse(data.toString());
 			curveModel.processingArrayCurve(req, function (result) {
 				res.send(result);
+				if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
 			}, req.dbConnection, req.createdBy, req.updatedBy, req.logger);
 		} catch (e) {
 			res.send({
