@@ -888,6 +888,7 @@ function processingArrayCurve(req, done, dbConnection, createdBy, updatedBy, log
 		curveFunction.getFullCurveParents({idCurve: req.body.idCurve}, dbConnection).then(curveParent => {
 			let path = hashDir.createPath(config.curveBasePath, createdBy + curveParent.project + curveParent.well + curveParent.dataset + curveParent.curve, curveParent.curve + '.txt');
 			let output = fs.createWriteStream(path + '_');
+			output.write('');
 			let stream = byline(fs.createReadStream(path));
 			let count = 0;
 			stream.on('data', (line) => {
