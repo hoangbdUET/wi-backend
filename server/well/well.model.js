@@ -115,11 +115,11 @@ function editWell(wellInfo, done, dbConnection, username) {
 										paranoid: false
 									}).then(function (curves) {
 										asyncEach(curves, function (curve, next) {
-											let path = hashDir.createPath(config.curveBasePath, username + project.name + oldWellName + dataset.name + curve.name, curve.name + '.txt');
-											let newPath = hashDir.createPath(config.curveBasePath, username + project.name + wellInfo.name + dataset.name + curve.name, curve.name + '.txt');
+											let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + oldWellName + dataset.name + curve.name, curve.name + '.txt');
+											let newPath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + wellInfo.name + dataset.name + curve.name, curve.name + '.txt');
 											let copy = fs.createReadStream(path).pipe(fs.createWriteStream(newPath));
 											copy.on('close', function () {
-												hashDir.deleteFolder(config.curveBasePath, username + project.name + oldWellName + dataset.name + curve.name);
+												hashDir.deleteFolder(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + oldWellName + dataset.name + curve.name);
 												next();
 											});
 											copy.on('error', function (err) {
@@ -388,8 +388,8 @@ async function exportToProject(info, done, dbConnection, username) {
 						idDataset: newDataset.idDataset,
 						idFamily: curve.idFamily
 					}).then(newCurve => {
-						let oldPath = hashDir.createPath(config.curveBasePath, username + srcProject.name + fullWellData.name + dataset.name + curve.name, curve.name + '.txt');
-						let cpPath = hashDir.createPath(config.curveBasePath, username + desProject.name + well.name + newDataset.name + newCurve.name, newCurve.name + '.txt');
+						let oldPath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + srcProject.name + fullWellData.name + dataset.name + curve.name, curve.name + '.txt');
+						let cpPath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + desProject.name + well.name + newDataset.name + newCurve.name, newCurve.name + '.txt');
 						fsExtra.copy(oldPath, cpPath, function (err) {
 							if (err) {
 								console.log("Copy file error ", err);

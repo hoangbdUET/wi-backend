@@ -76,7 +76,7 @@ let listWorkflowSpec = function (data, callback, dbConnection) {
 };
 
 let syncWorkflowSpec = function (username, callback) {
-    let userDbConnection = userModel(config.Database.prefix + username, function (err) {
+    let userDbConnection = userModel((process.env.BACKEND_DBPREFIX || config.Database.prefix) + username, function (err) {
         if (err) {
             return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "ERROR", err));
         }

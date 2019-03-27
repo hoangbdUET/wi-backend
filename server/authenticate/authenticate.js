@@ -24,7 +24,7 @@ module.exports = function () {
 							if (opening[decoded.username]) {
 								console.log(decoded.realUser + " --- Working with shared session from : ", opening[decoded.username].owner);
 								decoded.username = opening[decoded.username].owner;
-								req.dbConnection = models(config.Database.prefix + decoded.username.toLowerCase());
+								req.dbConnection = models((process.env.BACKEND_DBPREFIX || config.Database.prefix) + decoded.username.toLowerCase());
 								req.logger = require('../utils/user-logger')(decoded.username.toLowerCase());
 								req.dbConnection.sequelize.authenticate().then(() => {
 									req.decoded = decoded;
@@ -41,7 +41,7 @@ module.exports = function () {
 							} else {
 								console.log(decoded.username + " --- Working with master session");
 								req.logger = require('../utils/user-logger')(decoded.username.toLowerCase());
-								req.dbConnection = models(config.Database.prefix + decoded.username.toLowerCase(), (err) => {
+								req.dbConnection = models((process.env.BACKEND_DBPREFIX || config.Database.prefix) + decoded.username.toLowerCase(), (err) => {
 									console.log(err);
 									if (err) return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Some err", "Some err"));
 								});

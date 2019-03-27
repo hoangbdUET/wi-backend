@@ -8,7 +8,7 @@ const path = require('path');
 let config = require('config');
 
 function syncOverlayLine(username, callback) {
-    let userDbConnection = userModels(config.Database.prefix + username, function (err) {
+    let userDbConnection = userModels((process.env.BACKEND_DBPREFIX || config.Database.prefix) + username, function (err) {
         if (err) {
             console.log(err);
             return callback(err, null);

@@ -11,7 +11,7 @@ const logMessage = require('../log-message');
 class Options {
 	constructor(path, token, payload) {
 		this.method = 'POST';
-		this.url = config.Service.inventory + path;
+		this.url = (process.env.BACKEND_INV_SERVICE || config.Service.inventory) + path;
 		this.headers = {
 			'Cache-Control': 'no-cache',
 			Authorization: token,

@@ -16,7 +16,7 @@ module.exports = (username) => {
 	});
 
 	const dailyRotateTransport = new (winston.transports.DailyRotateFile)({
-		filename: path.join(config.userLogPath, username, '%DATE%.log'),
+		filename: path.join(process.env.BACKEND_USER_LOG_PATH || config.userLogPath, username, '%DATE%.log'),
 		datePattern: 'YYYY-MM-DD',
 		zippedArchive: true,
 		maxSize: '20m',

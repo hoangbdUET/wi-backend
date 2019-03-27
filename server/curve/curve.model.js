@@ -78,11 +78,11 @@ function editCurve(curveInfo, done, dbConnection, username, logger) {
 									curve.updatedBy = curveInfo.updatedBy;
 									curve.save()
 										.then(() => {
-											let path = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curveName, curveName + '.txt');
-											let newPath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curveInfo.name, curveInfo.name + '.txt');
+											let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curveName, curveName + '.txt');
+											let newPath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curveInfo.name, curveInfo.name + '.txt');
 											let copy = fs.createReadStream(path).pipe(fs.createWriteStream(newPath));
 											copy.on('close', function () {
-												hashDir.deleteFolder(config.curveBasePath, username + project.name + well.name + dataset.name + curveName);
+												hashDir.deleteFolder(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curveName);
 											});
 											copy.on('error', function (err) {
 												return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit Curve name", err));
@@ -275,8 +275,8 @@ function getDataFile(param, successFunc, errorFunc, dbConnection, username) {
 						Well.findByPk(dataset.idWell).then(well => {
 							if (well) {
 								Project.findByPk(well.idProject).then(project => {
-									console.log("Hash : ", config.curveBasePath, username + project.name + well.name + dataset.name + curve.name + '.txt');
-									let path = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt')
+									console.log("Hash : ", process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curve.name + '.txt');
+									let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt')
 									successFunc(fs.createReadStream(path));
 								})
 							}
@@ -316,7 +316,7 @@ function getData(param, successFunc, errorFunc, dbConnection, username) {
 									if (isRef && !param.isRaw) {
 										rate = convertLength.getDistanceRate(curve.unit, 'm');
 									}
-									console.log("Hash : ", config.curveBasePath, username + project.name + well.name + dataset.name + curve.name + '.txt');
+									console.log("Hash : ", process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curve.name + '.txt');
 									try {
 										if (param.columnIndex && param.columnIndex.length > 0) {
 											param.columnIndex.forEach(v => {
@@ -326,7 +326,7 @@ function getData(param, successFunc, errorFunc, dbConnection, username) {
 											})
 										}
 										let dataKey = username + project.name + well.name + dataset.name + curve.name;
-										hashDir.createJSONReadStream(config.curveBasePath, dataKey, curve.name + '.txt', '{\n"code": 200,\n"content":', '}\n',
+										hashDir.createJSONReadStream(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, dataKey, curve.name + '.txt', '{\n"code": 200,\n"content":', '}\n',
 											function (err, stream) {
 												if (err) {
 													errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve Data Was Lost"));
@@ -377,7 +377,7 @@ function exportData(param, successFunc, errorFunc, dbConnection, username) {
 						Well.findByPk(dataset.idWell).then(well => {
 							if (well) {
 								Project.findByPk(well.idProject).then(project => {
-									let stream = hashDir.createReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+									let stream = hashDir.createReadStream(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
 									stream.on('error', function (err) {
 										errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve Data Was Lost"));
 									});
@@ -426,8 +426,8 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
 						Well.findByPk(dataset.idWell, {paranoid: false}).then(well => {
 							if (well && curve.type === "NUMBER") {
 								Project.findByPk(well.idProject, {paranoid: false}).then(project => {
-									console.log("Hash : ", config.curveBasePath, username + project.name + well.name + dataset.name + curve.name + '.txt');
-									let inputStream = hashDir.createReadStream(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+									console.log("Hash : ", process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curve.name + '.txt');
+									let inputStream = hashDir.createReadStream(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
 									inputStream.on("error", function () {
 										callback("Curve Data Was Lost", null);
 									});
@@ -524,7 +524,7 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy, l
 							createdBy: createdBy,
 							updatedBy: updatedBy
 						}).then(curve => {
-							let newPath = hashDir.createPath(config.curveBasePath, req.decoded.username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+							let newPath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, req.decoded.username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
 							fs.copy(filePath, newPath, function (err) {
 								if (err) {
 									console.log("ERR COPY FILE : ", err);
@@ -558,7 +558,7 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy, l
 											idFamily: idFamily || curve.idFamily,
 										};
 										let response = {};
-										let newPath = hashDir.createPath(config.curveBasePath, req.decoded.username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+										let newPath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, req.decoded.username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
 										fs.copy(filePath, newPath, function (err) {
 											if (err) {
 												console.log("ERR COPY FILE : ", err);
@@ -596,7 +596,7 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy, l
 async function getCurveDataFromInventory(curveInfo, token, callback, dbConnection, username, createdBy, updatedBy) {
 	let options = {
 		method: 'POST',
-		url: config.Service.inventory + '/user/well/dataset/curve/data',
+		url: (process.env.BACKEND_INV_SERVICE || config.Service.inventory) + '/user/well/dataset/curve/data',
 		headers:
 			{
 				Authorization: token,
@@ -635,7 +635,7 @@ async function getCurveDataFromInventory(curveInfo, token, callback, dbConnectio
 	}).then(rs => {
 		// console.log(rs);
 		let _curve = rs[0];
-		let curvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + _curve.name, _curve.name + '.txt');
+		let curvePath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + _curve.name, _curve.name + '.txt');
 		console.log(curvePath);
 		try {
 			let stream = request(options).pipe(fs.createWriteStream(curvePath));
@@ -666,7 +666,7 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
 	return new Promise(async function (resolve, reject) {
 		let options = {
 			method: 'POST',
-			url: config.Service.inventory + '/user/well/dataset/curve/data',
+			url: (process.env.BACKEND_INV_SERVICE || config.Service.inventory) + '/user/well/dataset/curve/data',
 			headers:
 				{
 					Authorization: token,
@@ -704,7 +704,7 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
 			}
 		}).then(rs => {
 			let _curve = rs[0];
-			let curvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + _curve.name, _curve.name + '.txt');
+			let curvePath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + _curve.name, _curve.name + '.txt');
 			console.log("Import ", curvePath);
 			// if (_curve.type === "ARRAY") {
 			// 	if (false) {
@@ -762,7 +762,7 @@ function duplicateCurve(data, done, dbConnection, username, logger) {
 				let dataset = await dbConnection.Dataset.findByPk(curve.idDataset);
 				let well = await dbConnection.Well.findByPk(dataset.idWell);
 				let project = await dbConnection.Project.findByPk(well.idProject);
-				let curvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+				let curvePath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
 				let newCurve = curve.toJSON();
 				newCurve.createdBy = data.createdBy;
 				newCurve.updatedBy = data.updatedBy;
@@ -771,7 +771,7 @@ function duplicateCurve(data, done, dbConnection, username, logger) {
 				curve.duplicated += 1;
 				await curve.save();
 				dbConnection.Curve.create(newCurve).then(_Curve => {
-					let newCurvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + _Curve.name, _Curve.name + '.txt');
+					let newCurvePath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + _Curve.name, _Curve.name + '.txt');
 					fs.copy(curvePath, newCurvePath, function (err) {
 						if (err) {
 							throw err;
@@ -886,7 +886,7 @@ function processingArrayCurve(req, done, dbConnection, createdBy, updatedBy, log
 		if (!req.body.columnIndex || (curve.dimension < +req.body.columnIndex + 1 || +req.body.columnIndex < 0))
 			return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Not valid column index"));
 		curveFunction.getFullCurveParents({idCurve: req.body.idCurve}, dbConnection).then(curveParent => {
-			let path = hashDir.createPath(config.curveBasePath, createdBy + curveParent.project + curveParent.well + curveParent.dataset + curveParent.curve, curveParent.curve + '.txt');
+			let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, createdBy + curveParent.project + curveParent.well + curveParent.dataset + curveParent.curve, curveParent.curve + '.txt');
 			let tmpPath = Date.now() + '';
 			let output = fs.createWriteStream(tmpPath);
 			// output.write('');

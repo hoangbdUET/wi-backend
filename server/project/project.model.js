@@ -218,7 +218,7 @@ function getSharedProject(token, username) {
 	return new Promise(function (resolve, reject) {
 		let options = {
 			method: 'POST',
-			url: config.Service.authenticate + '/shared-project/list',
+			url: (process.env.BACKEND_AUTH_SERVICE || config.Service.authenticate) + '/shared-project/list',
 			headers: {
 				'Cache-Control': 'no-cache',
 				'Authorization': token,
@@ -243,7 +243,7 @@ async function getDatabases() {
 	const modelMaster = require('../models-master');
 	const sequelize = require('sequelize');
 	let result = [];
-	let dbs = await modelMaster.sequelize.query("SHOW DATABASES LIKE '" + config.Database.prefix + "%'", {type: sequelize.QueryTypes.SELECT});
+	let dbs = await modelMaster.sequelize.query("SHOW DATABASES LIKE '" + (process.env.BACKEND_DBPREFIX || config.Database.prefix) + "%'", {type: sequelize.QueryTypes.SELECT});
 	dbs.forEach(db => {
 		result.push(db[Object.keys(db)]);
 	});
@@ -282,7 +282,7 @@ function createStorageIfNotExsited(idProject, dbConnection, username, company) {
 
 async function getProjectList(owner, done, dbConnection, username, realUser, token, company, logger) {
 	let databasesList = await getDatabases();
-	dbConnection = models(config.Database.prefix + realUser);
+	dbConnection = models((process.env.BACKEND_DBPREFIX || config.Database.prefix) + realUser);
 	let response = [];
 	let projectList = await getSharedProject(token, realUser);
 	let Project = dbConnection.Project;
@@ -299,7 +299,7 @@ async function getProjectList(owner, done, dbConnection, username, realUser, tok
 		}, function () {
 			if (projectList.length > 0) {
 				asyncLoop(projectList, function (prj, next) {
-					let dbName = config.Database.prefix + prj.owner;
+					let dbName = (process.env.BACKEND_DBPREFIX || config.Database.prefix) + prj.owner;
 					if (databasesList.indexOf(dbName) !== -1) {
 						let shareDbConnection = models(dbName);
 						shareDbConnection.Project.findOne({where: {name: prj.name}}).then(p => {
@@ -336,7 +336,7 @@ async function getProjectList(owner, done, dbConnection, username, realUser, tok
 
 function deleteProject(projectInfo, done, dbConnection) {
 	const sequelize = require('sequelize');
-	let dbName = config.Database.prefix + projectInfo.owner;
+	let dbName = (process.env.BACKEND_DBPREFIX || config.Database.prefix) + projectInfo.owner;
 	let query = "DELETE FROM " + dbName + ".project WHERE idProject = " + projectInfo.idProject;
 	console.log(query);
 	dbConnection.sequelize.query(query, {type: sequelize.QueryTypes.UPDATE}).then(rs => {
@@ -360,12 +360,12 @@ async function getProjectFullInfo(payload, done, req) {
 		await userPermission.loadUserPermission(req.token, payload.name, req.decoded.realUser);
 		await openProject.removeRow({username: req.decoded.realUser});
 		await openProject.addRow({username: req.decoded.realUser, project: payload.name, owner: payload.owner});
-		req.dbConnection = models(config.Database.prefix + payload.owner.toLowerCase());
+		req.dbConnection = models((process.env.BACKEND_DBPREFIX || config.Database.prefix) + payload.owner.toLowerCase());
 	} else {
 		// console.log("LOAD USER PROJECT");
 		await userPermission.loadUserPermission(req.token, payload.name, req.decoded.realUser, true);
 		await openProject.removeRow({username: req.decoded.realUser});
-		req.dbConnection = models((config.Database.prefix + req.decoded.realUser));
+		req.dbConnection = models((process.env.BACKEND_DBPREFIX || config.Database.prefix) + req.decoded.realUser);
 	}
 	let dbConnection = req.dbConnection;
 	let project = await dbConnection.Project.findByPk(payload.idProject);
@@ -388,7 +388,7 @@ async function getProjectFullInfo(payload, done, req) {
 	response.histograms = histograms;
 	response.combined_boxes = combined_boxes;
 	response.storage_databases = storage_databases;
-	if (wells.length == 0) {
+	if (wells.length === 0) {
 		req.logger.info(logMessage("PROJECT", "", "Get full info Project success"));
 		return done(ResponseJSON(ErrorCodes.SUCCESS, "Get full info Project success", response));
 	}
@@ -507,7 +507,7 @@ function getAllSharedProject(token) {
 	return new Promise(function (resolve, reject) {
 		let options = {
 			method: 'POST',
-			url: config.Service.authenticate + '/shared-project/all',
+			url: (process.env.BACKEND_AUTH_SERVICE || config.Service.authenticate) + '/shared-project/all',
 			headers: {
 				'Cache-Control': 'no-cache',
 				'Authorization': token,
@@ -530,7 +530,7 @@ function getAllSharedProject(token) {
 
 async function listProjectOffAllUser(payload, done, dbConnection, token) {
 	let sharedProjectList = await getAllSharedProject(token);
-	let dbs = payload.users ? payload.users = payload.users.map(u => config.Database.prefix + u) : [];
+	let dbs = payload.users ? payload.users = payload.users.map(u => (process.env.BACKEND_DBPREFIX || config.Database.prefix) + u) : [];
 	const sequelize = require('sequelize');
 	getDatabases().then(databaseList => {
 		let response = [];
@@ -577,7 +577,7 @@ function deleteProjectOwner(payload, done, dbConnection) {
 
 function listProjectByUser(payload, done, dbConnection) {
 	const sequelize = require('sequelize');
-	let query = "SELECT * FROM `" + config.Database.prefix + payload.username + "`.project";
+	let query = "SELECT * FROM `" + (process.env.BACKEND_DBPREFIX || config.Database.prefix) + payload.username + "`.project";
 	dbConnection.sequelize.query(query, {type: sequelize.QueryTypes.SELECT}).then(projects => {
 		done(ResponseJSON(ErrorCodes.SUCCESS, "Done", projects));
 	}).catch(err => {

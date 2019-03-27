@@ -104,7 +104,7 @@ module.exports = function (idWell, done, dbConnection, username, createdBy, upda
 									if (curve.name === '__MD') {
 										nextCurve();
 									} else {
-										let curvePath = hashDir.createPath(config.curveBasePath, username + _project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+										let curvePath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + _project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
 										dbConnection.Curve.create({
 											name: curve.name,
 											unit: curve.unit,
@@ -115,7 +115,7 @@ module.exports = function (idWell, done, dbConnection, username, createdBy, upda
 											createdBy: createdBy,
 											updatedBy: updatedBy
 										}).then(_curve => {
-											let newCurvePath = hashDir.createPath(config.curveBasePath, username + _project.name + _well.name + _dataset.name + _curve.name, _curve.name + '.txt');
+											let newCurvePath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + _project.name + _well.name + _dataset.name + _curve.name, _curve.name + '.txt');
 											try {
 												fsExtra.copy(curvePath, newCurvePath, function (err) {
 													if (err) {

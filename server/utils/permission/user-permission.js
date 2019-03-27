@@ -6,7 +6,7 @@ function getPermissionFromAuthenService(token, project_name) {
     return new Promise(function (resolve) {
         let options = {
             method: 'POST',
-            url: config.Service.authenticate + '/user/get-permission',
+            url: (process.env.BACKEND_AUTH_SERVICE || config.Service.authenticate) + '/user/get-permission',
             headers: {
                 'Cache-Control': 'no-cache',
                 'Authorization': token,

@@ -36,7 +36,7 @@ module.exports = function (parents, dataset, dbConnection) {
 			};
 			dbConnection.Curve.create(curve).then(c => {
 				if (c && (dataset.top < dataset.bottom)) {
-					let hashPath = hasdDir.createPath(config.curveBasePath, parents.username + parents.project + parents.well + dataset.name + c.name, c.name + '.txt');
+					let hashPath = hasdDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, parents.username + parents.project + parents.well + dataset.name + c.name, c.name + '.txt');
 					console.log(hashPath);
 					fs.writeFileSync(hashPath, createText(dataset.top, dataset.bottom, dataset.step));
 					// let dataArr = [];

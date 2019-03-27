@@ -1,7 +1,7 @@
 "use strict";
 let ResponseJSON = require('../response');
 let config = require('config');
-let ES_HOST = config.get('elasticsearch.host');
+let ES_HOST = process.env.BACKEND_ELASTICSEARCH || config.get('elasticsearch.host');
 const elasticsearch = require('elasticsearch');
 const client = new elasticsearch.Client({
 	host: ES_HOST,

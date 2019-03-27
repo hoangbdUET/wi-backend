@@ -179,7 +179,7 @@ let syncFamilySpec = function (userDbConnection, callback) {
 };
 
 let syncFamilyData = function (params, done) {
-    let userDbConnection = userModels(config.Database.prefix + params.username, function (err) {
+    let userDbConnection = userModels((process.env.BACKEND_DBPREFIX || config.Database.prefix) + params.username, function (err) {
         if (err) {
             return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "ERROR", err));
         }

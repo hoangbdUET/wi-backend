@@ -62,11 +62,11 @@ function editDataset(datasetInfo, done, dbConnection, username, logger) {
 								paranoid: false
 							}).then(curves => {
 								asyncEach(curves, function (curve, next) {
-									let path = hashDir.createPath(config.curveBasePath, username + project.name + well.name + datasetname + curve.name, curve.name + '.txt');
-									let newPath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + datasetInfo.name + curve.name, curve.name + '.txt');
+									let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + datasetname + curve.name, curve.name + '.txt');
+									let newPath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + datasetInfo.name + curve.name, curve.name + '.txt');
 									let copy = fs.createReadStream(path).pipe(fs.createWriteStream(newPath));
 									copy.on('close', function () {
-										hashDir.deleteFolder(config.curveBasePath, username + project.name + well.name + datasetname + curve.name);
+										hashDir.deleteFolder(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + datasetname + curve.name);
 										next();
 									});
 									copy.on('error', function (err) {
@@ -170,8 +170,8 @@ function duplicateDataset(data, done, dbConnection, username, logger) {
 					if (curve.name === '__MD') {
 						next();
 					} else {
-						let curvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
-						let newCurvePath = hashDir.createPath(config.curveBasePath, username + project.name + well.name + _dataset.name + curve.name, curve.name + '.txt');
+						let curvePath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+						let newCurvePath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + _dataset.name + curve.name, curve.name + '.txt');
 						delete curve.idCurve;
 						curve.idDataset = _dataset.idDataset;
 						dbConnection.Curve.create({

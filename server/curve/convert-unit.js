@@ -17,7 +17,7 @@ module.exports = function (data, callback, dbConnection, username, logger) {
 			let s2 = JSON.parse(data.desUnit.rate);
 			curveFunction.getFullCurveParents({idCurve: data.idCurve}, dbConnection).then(curveParents => {
 				curveParents.username = username;
-				let hashPath = hashDir.createPath(config.curveBasePath, username + curveParents.project + curveParents.well + curveParents.dataset + curveParents.curve, curveParents.curve + '.txt');
+				let hashPath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + curveParents.project + curveParents.well + curveParents.dataset + curveParents.curve, curveParents.curve + '.txt');
 				let tempfile = require('tempfile')('.txt');
 				let rl = readline.createInterface({
 					input: fs.createReadStream(hashPath)

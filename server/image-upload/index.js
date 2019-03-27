@@ -14,7 +14,7 @@ let asyncEach = require('async/each');
 
 let router = express.Router();
 // let saveDir = path.join(__dirname, '../..', config.imageBasePath);
-let saveDir = config.imageBasePath;
+let saveDir = process.env.BACKEND_IMAGE_BASE_PATH || config.imageBasePath;
 
 
 router.use(cors());
@@ -50,7 +50,7 @@ function imageUpload(req, res) {
 
     var form = new formidable.IncomingForm();
     form.multiples = false;
-    form.uploadDir = config.imageBasePath;
+    form.uploadDir = process.env.BACKEND_IMAGE_BASE_PATH || config.imageBasePath;
 
     form.on('end', function () {
 

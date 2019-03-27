@@ -345,7 +345,7 @@ function main() {
 	accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});
 	app.use(morgan('combined', {stream: accessLogStream}));
 
-	http.listen(config.port, function () {
-		console.log("Listening on port " + config.port);
+	http.listen(process.env.BACKEND_PORT || config.port, function () {
+		console.log("Listening on port " + (process.env.BACKEND_PORT || config.port));
 	});
 }
