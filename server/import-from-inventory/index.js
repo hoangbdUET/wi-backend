@@ -5,9 +5,9 @@ let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
 let model = require('./import.model');
 let mqtt = require('mqtt');
-let MqttClient = mqtt.connect("ws://mqtt-broker.i2g.cloud:8888");
+let MqttClient = mqtt.connect(process.env.BACKEND_MQTT_BROKER || "ws://mqtt-broker.i2g.cloud:8888");
 MqttClient.on('connect', () => {
-	console.log("Connected to broker ws://mqtt-broker.i2g.cloud:8888");
+	console.log("Connected to broker " + (process.env.BACKEND_MQTT_BROKER || "ws://mqtt-broker.i2g.cloud:8888"));
 });
 MqttClient.on('error', () => {
 	console.log("Mqtt connect failed");
