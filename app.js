@@ -149,7 +149,7 @@ function main() {
 	app.get('/info', (req, res) => {
 		res.send(require('./server/utils/information').serverInfo);
 	});
-	app.use(express.static(fullConfig.imageBasePath));
+	app.use(express.static(process.env.BACKEND_IMAGE_BASE_PATH || fullConfig.imageBasePath));
 	app.use('/pattern', express.static(path.join(__dirname, '/server/pattern/files')));
 	const compression = require('compression');
 	app.use(compression({filter: shouldCompress}));
@@ -233,7 +233,7 @@ function main() {
 	app.use('/script', scriptRouter);
 	app.use('/', testRouter);
 	app.use('/csv', (req, res) => {
-		let url = fullConfig.csvService.host + req.originalUrl;
+		let url = (process.env.BACKEND_CSV_SERVICE || fullConfig.csvService.host) + req.originalUrl;
 		console.log(url);
 		req.pipe(
 			request({
