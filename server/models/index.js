@@ -66,7 +66,7 @@ module.exports = function (dbName, callback, isDelete) {
 
 function newDbInstance(dbName, callback) {
 	let object = new Object();
-	const sequelize = new Sequelize(process.env.BACKEND_DBNAME || dbName, process.env.BACKEND_DBUSER || config.user, process.env.BACKEND_DBPASSWORD || config.password, {
+	const sequelize = new Sequelize(dbName, process.env.BACKEND_DBUSER || config.user, process.env.BACKEND_DBPASSWORD || config.password, {
 		host: process.env.BACKEND_DBHOST || config.host,
 		define: {
 			freezeTableName: true,

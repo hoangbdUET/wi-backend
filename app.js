@@ -14,6 +14,8 @@ const fs = require('fs');
 let path = require('path');
 const QUEUE_TIME = 500;
 
+let serverId = require('./server/utils/hashTool').getRandomHash();
+
 const EventEmitter = require('events');
 
 class MyEmitter extends EventEmitter {
@@ -224,7 +226,7 @@ function main() {
 	});
 	app.use('/', globalFamilyRouter);
 	app.get('/', function (req, res) {
-		res.send("WELCOME TO WI-SYSTEM");
+		res.json({serverId: serverId});
 	});
 	app.use('/', databaseRouter);
 	authenticate = require('./server/authenticate/authenticate');
@@ -347,5 +349,6 @@ function main() {
 
 	http.listen(process.env.BACKEND_PORT || config.port, function () {
 		console.log("Listening on port " + (process.env.BACKEND_PORT || config.port));
+		console.log("Server ID: ", serverId);
 	});
 }
