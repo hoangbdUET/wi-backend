@@ -1,22 +1,23 @@
-var express = require('express');
-var router = express.Router();
-var plotModel = require('./plot.model');
-var bodyParser = require('body-parser');
-var fs = require('fs');
+let express = require('express');
+let router = express.Router();
+let plotModel = require('./plot.model');
+let bodyParser = require('body-parser');
+let fs = require('fs');
+let uploadDir = process.env.BACKEND_USER_UPLOAD_PATH || require('config').uploadPath;
 const multer = require('multer');
 
 router.use(bodyParser.json());
 
-var storage = multer.diskStorage({
+let storage = multer.diskStorage({
 	destination: function (req, file, cb) {
-		cb(null, 'uploads/');
+		cb(null, uploadDir);
 	},
 	filename: function (req, file, cb) {
 		cb(null, Date.now() + '-' + file.originalname);
 	}
 });
 
-var upload = multer({storage: storage});
+let upload = multer({storage: storage});
 
 router.post('/plot/info', function (req, res) {
 	plotModel.getPlotInfo(req.body, function (status) {

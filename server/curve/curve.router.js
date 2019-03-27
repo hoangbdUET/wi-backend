@@ -9,12 +9,13 @@ let ErrorCodes = require('../../error-codes').CODES;
 let path = require('path');
 let curveModel = require('./curve.model');
 let convertUnit = require('./convert-unit');
+let uploadDir = process.env.BACKEND_USER_UPLOAD_PATH || require('config').uploadPath;
 
 router.use(bodyParser.json());
 
 let storage = multer.diskStorage({
 	destination: function (req, file, cb) {
-		cb(null, 'uploads/');
+		cb(null, uploadDir);
 	},
 	filename: function (req, file, cb) {
 		cb(null, Date.now() + '-' + file.originalname);
