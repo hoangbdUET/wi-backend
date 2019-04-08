@@ -214,6 +214,21 @@ module.exports = function (sequelize, DataTypes) {
 			defaultValue: 0,
 			allowNull: false
 		},
+		arrayYScaleType: {
+			type: DataTypes.STRING(20),
+			defaultValue: 'Linear',
+			allowNull: false
+		},
+		arrayYUnit: {
+			type: DataTypes.STRING(20),
+			defaultValue: 'm',
+			allowNull: false
+		},
+		arrayColumnFill: {
+			type: DataTypes.STRING(20),
+			defaultValue: 'Palette',
+			allowNull: false
+		},
 		createdBy: {
 			type: DataTypes.STRING(50),
 			allowNull: false,
