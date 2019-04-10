@@ -138,6 +138,7 @@ function main() {
 	let logViewRouter = require('./server/log-view/log-view.router');
 	let analysisRouter = require('./server/analysis/analysis.router');
 	// let projectLogRouter = require('./server/project-log/project-log.router');
+	let utmZoneRouter = require('./server/utm-zone/index');
 	let queue = {};
 	let http = require('http').Server(app);
 	let bodyParser = require('body-parser');
@@ -152,6 +153,7 @@ function main() {
 		res.send(require('./server/utils/information').serverInfo);
 	});
 	app.use(express.static(process.env.BACKEND_IMAGE_BASE_PATH || fullConfig.imageBasePath));
+	app.use('/', utmZoneRouter);
 	app.use('/pattern', express.static(path.join(__dirname, '/server/pattern/files')));
 	const compression = require('compression');
 	app.use(compression({filter: shouldCompress}));
