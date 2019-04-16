@@ -554,7 +554,8 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy, l
 										let overwriteInfo = type ? {
 											unit: unit || curve.unit,
 											idFamily: idFamily || curve.idFamily,
-											type: type
+											type: type,
+											dimension: dimension
 										} : {
 											unit: unit || curve.unit,
 											idFamily: idFamily || curve.idFamily,
