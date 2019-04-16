@@ -509,6 +509,7 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy, l
 	let idFamily = req.body.idFamily ? (req.body.idFamily === 'null' ? null : req.body.idFamily) : null;
 	let idDesCurve = req.body.idDesCurve;
 	let type = req.body.type;
+	let dimension = req.body.dimension || 1;
 	Dataset.findByPk(idDataset).then(dataset => {
 		if (dataset) {
 			Well.findByPk(dataset.idWell).then(well => {
@@ -522,7 +523,8 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy, l
 							type: type,
 							idFamily: idFamily,
 							createdBy: createdBy,
-							updatedBy: updatedBy
+							updatedBy: updatedBy,
+							dimension: dimension
 						}).then(curve => {
 							let newPath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, req.decoded.username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
 							fs.copy(filePath, newPath, function (err) {
@@ -627,7 +629,7 @@ async function getCurveDataFromInventory(curveInfo, token, callback, dbConnectio
 			idDataset: curve.idDataset,
 			unit: curve.unit,
 			type: curve.type,
-			dimention: curve.dimension,
+			dimension: curve.dimension,
 			createdBy: createdBy,
 			updatedBy: updatedBy,
 			description: curve.description
