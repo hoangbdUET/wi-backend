@@ -290,7 +290,9 @@ module.exports = function (req, done, dbConnection, username, logger) {
 					}
 				], () => {
 					logger.info(logMessage("PLOT", pl.idPlot, "Created from template"));
-					done(ResponseJSON(ErrorCodes.SUCCESS, "Done", pl));
+					dbConnection.Plot.findByPk(pl.idPlot, {include: {all: true, include: {all: true}}}).then(p => {
+						done(ResponseJSON(ErrorCodes.SUCCESS, "Done", p));
+					});
 				});
 			}).catch(err => {
 				if (err.name === "SequelizeUniqueConstraintError") {
