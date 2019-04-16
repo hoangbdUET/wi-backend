@@ -44,7 +44,7 @@ router.post('/plot/duplicate', function (req, res) {
 	req.setTimeout(180000);
 	plotModel.duplicatePlot(req.body, function (status) {
 		res.send(status);
-	}, req.dbConnection, req.logger);
+	}, req.dbConnection, false, req.logger);
 });
 
 router.post('/plot/export', function (req, res) {

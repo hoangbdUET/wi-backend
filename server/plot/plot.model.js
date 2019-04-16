@@ -376,7 +376,7 @@ let getPlotInfo = function (plot, done, dbConnection) {
 		})
 };
 
-let duplicatePlot = function (payload, done, dbConnection, isSave) {
+let duplicatePlot = function (payload, done, dbConnection, isSave, logger) {
 	let Plot = dbConnection.Plot;
 	let Track = dbConnection.Track;
 	let ImageTrack = dbConnection.ImageTrack;
@@ -633,7 +633,7 @@ let duplicatePlot = function (payload, done, dbConnection, isSave) {
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Done", pl));
 				});
 			}).catch(err => {
-				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "err", err));
+				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "err", err.message));
 			})
 		} else {
 			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Plot"));
