@@ -31,7 +31,7 @@ module.exports = function (sequelize, DataTypes) {
 		},
 		exportValue: {
 			type: DataTypes.FLOAT,
-			allowNull: false,
+			allowNull: true,
 			defaultValue: 0
 		},
 	});
