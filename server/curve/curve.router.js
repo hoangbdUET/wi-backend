@@ -233,13 +233,13 @@ router.post('/curve/processing-array-data-curve', upload.single('data'), (req, r
 router.post('/curve/merge-curves', (req, res) => {
 	curveModel.mergeCurvesIntoArrayCurve(req.body, (status) => {
 		res.send(status);
-	}, req.dbConnection);
+	}, req.dbConnection, req.decoded.username);
 });
 
 router.post('/curve/split-curve', (req, res) => {
 	curveModel.splitArrayCurve(req.body, (status) => {
 		res.send(status);
-	}, req.dbConnection);
+	}, req.dbConnection, req.decoded.username);
 });
 
 module.exports = router;

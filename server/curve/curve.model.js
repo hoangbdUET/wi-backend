@@ -6,6 +6,7 @@ const ResponseJSON = require('../response');
 const ErrorCodes = require('../../error-codes').CODES;
 const asyncLoop = require('async/each');
 const fs = require('fs-extra');
+const mFs = require('fs');
 const request = require('request');
 const rename = require('../utils/function').renameObjectForDustbin;
 const curveFunction = require('../utils/curve.function');
@@ -914,12 +915,152 @@ function processingArrayCurve(req, done, dbConnection, createdBy, updatedBy, log
 	});
 }
 
-function splitArrayCurve(payload, done, dbConnection) {
-
+function splitArrayCurve(payload, done, dbConnection, username) {
+	dbConnection.Curve.findByPk(payload.idCurve).then(curve => {
+		if (curve || curve.type !== "ARRAY") {
+			curveFunction.getFullCurveParents(curve, dbConnection).then(async c => {
+				try {
+					let curvePath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + c.project + c.well + c.dataset + c.curve, c.curve + '.txt');
+					if (!mFs.existsSync(curvePath)) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error while reading data curve"));
+					console.log("Split array curve : ", curvePath);
+					let outputStreams = [];
+					for (let i = 0; i < curve.dimension; i++) {
+						await dbConnection.Curve.create({
+							name: curve.name + '_' + i,
+							unit: payload.unit || curve.unit,
+							description: "Splited from " + curve.name,
+							type: "NUMBER",
+							createdBy: curve.createdBy,
+							updatedBy: curve.updatedBy,
+							idDataset: curve.idDataset,
+							idFamily: payload.idFamily || curve.idFamily
+						});
+						let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + c.project + c.well + c.dataset + c.curve + '_' + i, c.curve + '_' + i + '.txt');
+						console.log(path);
+						outputStreams.push(mFs.createWriteStream(path, {flags: 'w'}));
+					}
+					let byLineSteam = byline(mFs.createReadStream(curvePath, {flags: 'r'}));
+					byLineSteam.on('data', line => {
+						line = line.toString();
+						let depthToken = line.substr(0, line.indexOf(' '));
+						let valueToken = line.substr(line.indexOf(' ') + 1);
+						valueToken = valueToken.split(/\s+/);
+						// console.log(outputStreams.length, valueToken.length);
+						// console.log(depthToken, ":", valueToken);
+						valueToken.forEach((value, index) => {
+							if (outputStreams[index]) outputStreams[index].write(depthToken + ' ' + value + '\n');
+						});
+					});
+					byLineSteam.on('end', () => {
+						outputStreams.forEach(s => {
+							s.close();
+						});
+						done(ResponseJSON(ErrorCodes.SUCCESS, "Done", c));
+					});
+					byLineSteam.on('error', e => {
+						outputStreams.forEach(s => {
+							s.close();
+						});
+						done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, e.message, e));
+					});
+				} catch (e) {
+					done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, e.message, e));
+				}
+			});
+		} else {
+			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No curve found by id or curve isn't an array curve"));
+		}
+	});
 }
 
-function mergeCurvesIntoArrayCurve(payload, done, dbConnection) {
+function mergeCurvesIntoArrayCurve(payload, done, dbConnection, username) {
+	if (!payload.name) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Need new curve name"));
+	if (!payload.idDataset) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Need idDataset"));
+	if (!payload.idCurves || payload.idCurves.length === 0) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Need idCurves"));
+	let curves = [];
+	dbConnection.Curve.create({
+		name: payload.name,
+		idDataset: payload.idDataset,
+		dimension: payload.idCurves.length,
+		type: "ARRAY",
+		unit: payload.unit || '',
+		idFamily: payload.idFamily || null,
+		createdBy: payload.createdBy,
+		updatedBy: payload.updatedBy
+	}).then(newArrayCurve => {
+		async.each(payload.idCurves, (idCurve, next) => {
+			dbConnection.Curve.findByPk(idCurve).then(curve => {
+				if (curve) {
+					curve = curve.toJSON();
+					curveFunction.getFullCurveParents(curve, dbConnection).then(c => {
+						curve.path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + c.project + c.well + c.dataset + c.curve, c.curve + '.txt');
+						curve.dataStream = mFs.createReadStream(curve.path);
+						curve.parents = c;
+						curves.push(curve);
+						next();
+					})
+				} else {
+					next();
+				}
+			});
+		}, () => {
+			_createDataTmp(curves, newArrayCurve.name, username).then(data => {
+				console.log(data);
+				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", newArrayCurve));
+			}).catch(err => {
+				console.log(err);
+			})
+		});
+	}).catch(err => {
+		done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
+	});
+}
 
+function _createDataTmp(curves, newCurveName, username) {
+	return new Promise((resolve, reject) => {
+		let arrayData = [];
+		let initCurve = curves[0];
+		if (!initCurve) done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Failed!", "No init curve"));
+		let newArrayCurvePath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + initCurve.parents.project + initCurve.parents.well + initCurve.parents.dataset + newCurveName, newCurveName + '.txt');
+		let bylineStream = byline(initCurve.dataStream);
+		bylineStream.on('data', line => {
+			arrayData.push(line.toString().split(/\s+/));
+		});
+		bylineStream.on('end', () => {
+			initCurve.dataStream.close();
+		});
+		bylineStream.on('error', () => {
+			reject('byline stream error');
+			initCurve.dataStream.close();
+		});
+		curves.splice(0, 1);
+		async.eachSeries(curves, (curve, next) => {
+			let count = 0;
+			let bylineStream = byline(curve.dataStream);
+			bylineStream.on('data', l => {
+				arrayData[count].push((l.toString().split(/\s+/))[1]);
+				count++;
+			});
+			bylineStream.on('end', () => {
+				curve.dataStream.close();
+				next();
+			});
+			bylineStream.on('error', () => {
+				reject('byline stream error');
+				curve.dataStream.close();
+				next(n);
+			});
+		}, () => {
+			let writeStream = mFs.createWriteStream(newArrayCurvePath, {flags: 'w'});
+			arrayData.forEach(l => {
+				writeStream.write(l.join(' ') + '\n');
+			});
+			writeStream.on('finish', () => {
+				writeStream.close();
+			});
+			resolve(newArrayCurvePath);
+		});
+	});
 }
 
 
