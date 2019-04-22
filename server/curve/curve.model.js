@@ -1049,7 +1049,7 @@ function _createDataTmp(curves, newCurveName, username) {
 				let count = 0;
 				let bylineStream = byline(curve.dataStream);
 				bylineStream.on('data', l => {
-					arrayData[count].push((l.toString().split(/\s+/))[1]);
+					if(arrayData[count]) arrayData[count].push((l.toString().split(/\s+/))[1]);
 					count++;
 				});
 				bylineStream.on('end', () => {
