@@ -1037,34 +1037,34 @@ function _createDataTmp(curves, newCurveName, username) {
 			arrayData.push(line.toString().split(/\s+/));
 		});
 		bylineStream.on('end', () => {
+			curves.splice(0, 1);
 			initCurve.dataStream.close();
+			async.eachSeries(curves, (curve, next) => {
+				try {
+					let count = 0;
+					let bylineStream = byline(curve.dataStream);
+					bylineStream.on('data', l => {
+						arrayData[count].push((l.toString().split(/\s+/))[1]);
+						count++;
+					});
+					bylineStream.on('end', () => {
+						curve.dataStream.close();
+						next();
+					});
+					bylineStream.on('error', () => {
+						reject('byline stream error');
+						curve.dataStream.close();
+						next(n);
+					});
+				} catch (e) {
+					console.log(e);
+					next();
+				}
 		});
 		bylineStream.on('error', () => {
 			reject('byline stream error');
 			initCurve.dataStream.close();
 		});
-		curves.splice(0, 1);
-		async.eachSeries(curves, (curve, next) => {
-			try {
-				let count = 0;
-				let bylineStream = byline(curve.dataStream);
-				bylineStream.on('data', l => {
-					arrayData[count].push((l.toString().split(/\s+/))[1]);
-					count++;
-				});
-				bylineStream.on('end', () => {
-					curve.dataStream.close();
-					next();
-				});
-				bylineStream.on('error', () => {
-					reject('byline stream error');
-					curve.dataStream.close();
-					next(n);
-				});
-			} catch (e) {
-				console.log(e);
-				next();
-			}
 		}, () => {
 			let writeStream = mFs.createWriteStream(newArrayCurvePath, {flags: 'w'});
 			arrayData.forEach(l => {
