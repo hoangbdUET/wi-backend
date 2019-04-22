@@ -917,6 +917,7 @@ function processingArrayCurve(req, done, dbConnection, createdBy, updatedBy, log
 
 function splitArrayCurve(payload, done, dbConnection, username) {
 	dbConnection.Curve.findByPk(payload.idCurve).then(curve => {
+		let subfix = (payload.subfix || '_');
 		if (curve || curve.type !== "ARRAY") {
 			curveFunction.getFullCurveParents(curve, dbConnection).then(async c => {
 				try {
@@ -925,17 +926,22 @@ function splitArrayCurve(payload, done, dbConnection, username) {
 					console.log("Split array curve : ", curvePath);
 					let outputStreams = [];
 					for (let i = 0; i < curve.dimension; i++) {
-						await dbConnection.Curve.create({
-							name: curve.name + '_' + i,
-							unit: payload.unit || curve.unit,
-							description: "Splited from " + curve.name,
-							type: "NUMBER",
-							createdBy: curve.createdBy,
-							updatedBy: curve.updatedBy,
-							idDataset: curve.idDataset,
-							idFamily: payload.idFamily || curve.idFamily
+						await dbConnection.Curve.findOrCreate({
+							where: {
+								name: curve.name + subfix + i,
+								idDataset: curve.idDataset
+							}, defaults: {
+								name: curve.name + subfix + i,
+								unit: payload.unit || curve.unit,
+								description: "Splited from " + curve.name,
+								type: "NUMBER",
+								createdBy: curve.createdBy,
+								updatedBy: curve.updatedBy,
+								idDataset: curve.idDataset,
+								idFamily: payload.idFamily || curve.idFamily
+							}
 						});
-						let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + c.project + c.well + c.dataset + c.curve + '_' + i, c.curve + '_' + i + '.txt');
+						let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + c.project + c.well + c.dataset + c.curve + subfix + i, c.curve + subfix + i + '.txt');
 						console.log(path);
 						outputStreams.push(mFs.createWriteStream(path, {flags: 'w'}));
 					}
@@ -1012,7 +1018,11 @@ function mergeCurvesIntoArrayCurve(payload, done, dbConnection, username) {
 			})
 		});
 	}).catch(err => {
-		done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
+		if (err.name === "SequelizeUniqueConstraintError") {
+			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve's name already exists"));
+		} else {
+			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+		}
 	});
 }
 
@@ -1035,21 +1045,26 @@ function _createDataTmp(curves, newCurveName, username) {
 		});
 		curves.splice(0, 1);
 		async.eachSeries(curves, (curve, next) => {
-			let count = 0;
-			let bylineStream = byline(curve.dataStream);
-			bylineStream.on('data', l => {
-				arrayData[count].push((l.toString().split(/\s+/))[1]);
-				count++;
-			});
-			bylineStream.on('end', () => {
-				curve.dataStream.close();
+			try {
+				let count = 0;
+				let bylineStream = byline(curve.dataStream);
+				bylineStream.on('data', l => {
+					arrayData[count].push((l.toString().split(/\s+/))[1]);
+					count++;
+				});
+				bylineStream.on('end', () => {
+					curve.dataStream.close();
+					next();
+				});
+				bylineStream.on('error', () => {
+					reject('byline stream error');
+					curve.dataStream.close();
+					next(n);
+				});
+			} catch (e) {
+				console.log(e);
 				next();
-			});
-			bylineStream.on('error', () => {
-				reject('byline stream error');
-				curve.dataStream.close();
-				next(n);
-			});
+			}
 		}, () => {
 			let writeStream = mFs.createWriteStream(newArrayCurvePath, {flags: 'w'});
 			arrayData.forEach(l => {

@@ -230,7 +230,7 @@ router.post('/curve/processing-array-data-curve', upload.single('data'), (req, r
 	});
 });
 
-router.post('/curve/merge-curves', (req, res) => {
+router.post('/curve/merge-curve', (req, res) => {
 	curveModel.mergeCurvesIntoArrayCurve(req.body, (status) => {
 		res.send(status);
 	}, req.dbConnection, req.decoded.username);
