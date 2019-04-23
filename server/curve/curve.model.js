@@ -926,24 +926,28 @@ function splitArrayCurve(payload, done, dbConnection, username) {
 					console.log("Split array curve : ", curvePath);
 					let outputStreams = [];
 					for (let i = 0; i < curve.dimension; i++) {
-						await dbConnection.Curve.findOrCreate({
-							where: {
-								name: curve.name + subfix + i,
-								idDataset: curve.idDataset
-							}, defaults: {
-								name: curve.name + subfix + i,
-								unit: payload.unit || curve.unit,
-								description: "Splited from " + curve.name,
-								type: "NUMBER",
-								createdBy: curve.createdBy,
-								updatedBy: curve.updatedBy,
-								idDataset: curve.idDataset,
-								idFamily: payload.idFamily || curve.idFamily
-							}
-						});
-						let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + c.project + c.well + c.dataset + c.curve + subfix + i, c.curve + subfix + i + '.txt');
-						console.log(path);
-						outputStreams.push(mFs.createWriteStream(path, {flags: 'w'}));
+						if (payload.columnIndex && payload.columnIndex.includes(i) || !payload.columnIndex) {
+							await dbConnection.Curve.findOrCreate({
+								where: {
+									name: curve.name + subfix + i,
+									idDataset: curve.idDataset
+								}, defaults: {
+									name: curve.name + subfix + i,
+									unit: payload.unit || curve.unit,
+									description: "Splited from " + curve.name,
+									type: "NUMBER",
+									createdBy: curve.createdBy,
+									updatedBy: curve.updatedBy,
+									idDataset: curve.idDataset,
+									idFamily: payload.idFamily || curve.idFamily
+								}
+							});
+							let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + c.project + c.well + c.dataset + c.curve + subfix + i, c.curve + subfix + i + '.txt');
+							console.log(path);
+							outputStreams.push(mFs.createWriteStream(path, {flags: 'w'}));
+						} else {
+							outputStreams.push(false);
+						}
 					}
 					let byLineSteam = byline(mFs.createReadStream(curvePath, {flags: 'r'}));
 					byLineSteam.on('data', line => {
@@ -959,13 +963,13 @@ function splitArrayCurve(payload, done, dbConnection, username) {
 					});
 					byLineSteam.on('end', () => {
 						outputStreams.forEach(s => {
-							s.close();
+							if (s) s.close();
 						});
 						done(ResponseJSON(ErrorCodes.SUCCESS, "Done", c));
 					});
 					byLineSteam.on('error', e => {
 						outputStreams.forEach(s => {
-							s.close();
+							if (s) s.close();
 						});
 						done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, e.message, e));
 					});
@@ -1044,7 +1048,7 @@ function _createDataTmp(curves, newCurveName, username) {
 					let count = 0;
 					let bylineStream = byline(curve.dataStream);
 					bylineStream.on('data', l => {
-						if(arrayData[count]) arrayData[count].push((l.toString().split(/\s+/))[1]);
+						if (arrayData[count]) arrayData[count].push((l.toString().split(/\s+/))[1]);
 						count++;
 					});
 					bylineStream.on('end', () => {
