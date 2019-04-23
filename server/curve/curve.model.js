@@ -998,7 +998,7 @@ function mergeCurvesIntoArrayCurve(payload, done, dbConnection, username) {
 		createdBy: payload.createdBy,
 		updatedBy: payload.updatedBy
 	}).then(newArrayCurve => {
-		async.each(payload.idCurves, (idCurve, next) => {
+		async.eachSeries(payload.idCurves, (idCurve, next) => {
 			dbConnection.Curve.findByPk(idCurve).then(curve => {
 				if (curve) {
 					curve = curve.toJSON();
