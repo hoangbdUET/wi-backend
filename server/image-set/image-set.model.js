@@ -8,9 +8,9 @@ function createImageSet(payload, cb, dbConnection, logger) {
 		cb(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
 	}).catch(err => {
 		if (err.name === "SequelizeUniqueConstraintError") {
-			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Image set's name already exists!"));
+			cb(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Image set's name already exists!"));
 		} else {
-			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+			cb(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
 		}
 	});
 }
