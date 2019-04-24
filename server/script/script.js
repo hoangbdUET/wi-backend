@@ -196,13 +196,17 @@ router.post('/migrate/task-spec', async (req, res) => {
 	dbMaster.TaskSpec.findAll().then((master_tps) => {
 		async.each(master_tps, (master_tp, next) => {
 			dbConnection.TaskSpec.findByPk(master_tp.idTaskSpec).then(ts => {
-				ts.content = master_tp.content;
-				ts.name = master_tp.name;
-				ts.type = master_tp.type;
-				ts.group = master_tp.group;
-				ts.save().then(() => {
-					next();
-				});
+				if (ts) {
+					ts.content = master_tp.content;
+					ts.name = master_tp.name;
+					ts.type = master_tp.type;
+					ts.group = master_tp.group;
+					ts.save().then(() => {
+						next();
+					});
+				} else {
+					console.log("Loi ", master_tp.idTaskSpec);
+				}
 			});
 		}, function () {
 			res.json(req.decoded.username + " Done");
