@@ -206,6 +206,7 @@ router.post('/migrate/task-spec', async (req, res) => {
 					});
 				} else {
 					console.log("Loi ", master_tp.idTaskSpec);
+					next();
 				}
 			});
 		}, function () {
