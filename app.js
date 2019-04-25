@@ -228,7 +228,7 @@ function main() {
 	});
 	app.use('/', globalFamilyRouter);
 	app.get('/', function (req, res) {
-		res.json({serverId: serverId});
+		res.json({serverId: serverId, version: "1.0"});
 	});
 	app.use('/', databaseRouter);
 	authenticate = require('./server/authenticate/authenticate');
