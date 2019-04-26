@@ -243,7 +243,7 @@ module.exports = function (body, done, error, dbConnection, username, logger) {
 						let well;
 						if (depth_axis.idWell) well = await dbConnection.Well.findByPk(depth_axis.idWell);
 						newDepthAxis.curve = curve;
-						newDepthAxis.well = {name: well.name};
+						newDepthAxis.well = well ? {name: well.name} : {};
 						newDepthAxis.showTitle = depth_axis.showTitle;
 						newDepthAxis.title = depth_axis.title;
 						newDepthAxis.justification = depth_axis.justification;
