@@ -145,9 +145,9 @@ module.exports = function (sequelize, DataTypes) {
 			defaultValue: "Top"
 		},
 		textDisplayBoundary: {
-			type: DataTypes.BOOLEAN,
+			type: DataTypes.STRING(50),
 			allowNull: false,
-			defaultValue: 1
+			defaultValue: "anchor"
 		},
 		arrayColumnCumulative: {
 			type: DataTypes.BOOLEAN,
