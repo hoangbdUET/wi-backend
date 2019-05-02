@@ -144,10 +144,15 @@ module.exports = function (sequelize, DataTypes) {
 			allowNull: false,
 			defaultValue: "Top"
 		},
-		textDisplayBoundary: {
+		textDisplayMode : {
 			type: DataTypes.STRING(50),
 			allowNull: false,
 			defaultValue: "anchor"
+		},
+		textDisplayStep: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 1
 		},
 		arrayColumnCumulative: {
 			type: DataTypes.BOOLEAN,
