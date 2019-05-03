@@ -149,6 +149,11 @@ module.exports = function (sequelize, DataTypes) {
 			allowNull: false,
 			defaultValue: "anchor"
 		},
+		textDisplayPalette: {
+			type: DataTypes.STRING(50),
+			allowNull: false,
+			defaultValue: "HFU"
+		},
 		textDisplayStep: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
