@@ -147,7 +147,7 @@ module.exports = function (sequelize, DataTypes) {
 		textDisplayMode : {
 			type: DataTypes.STRING(50),
 			allowNull: false,
-			defaultValue: "anchor"
+			defaultValue: "palette"
 		},
 		textDisplayPalette: {
 			type: DataTypes.STRING(50),
