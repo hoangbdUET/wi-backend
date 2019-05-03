@@ -142,7 +142,7 @@ module.exports = function (sequelize, DataTypes) {
 		textVerticalAlignment: {
 			type: DataTypes.STRING(50),
 			allowNull: false,
-			defaultValue: "Top"
+			defaultValue: "Middle"
 		},
 		textDisplayMode : {
 			type: DataTypes.STRING(50),
