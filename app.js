@@ -358,3 +358,10 @@ function main() {
 		console.log("Server ID: ", serverId);
 	});
 }
+
+process.on("unhandledRejection", (reason, promise) => {
+	console.log('Unhandled Rejection at:', reason.stack || reason)
+});
+process.on('uncaughtException', (error) => {
+	console.log('uncaughtException', error);
+});
