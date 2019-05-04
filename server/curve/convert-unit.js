@@ -24,14 +24,25 @@ module.exports = function (data, callback, dbConnection, username, logger) {
 				});
 				let fd = fs.openSync(tempfile, 'w');
 				rl.on('line', function (line) {
-					let index = line.split(" ")[0];
-					let valueString = line.split(" ")[1];
-					if (valueString === 'null' || valueString === 'NaN') {
-						fs.writeSync(fd, line + '\n');
-					} else {
-						let value = (parseFloat(valueString) - s1[1]) * (s2[0] / s1[0]) + s2[1];
-						fs.writeSync(fd, index + " " + value + '\n');
-					}
+					let result = [];
+					let lineArray = line.split(" ");
+					let index = lineArray.splice(0, 1);
+					lineArray.forEach(valueString => {
+						if (valueString === 'null' || valueString === 'NaN') {
+							result.push(valueString)
+						} else {
+							result.push((parseFloat(valueString) - s1[1]) * (s2[0] / s1[0]) + s2[1]);
+						}
+					});
+					fs.writeSync(fd, index + " " + result.join(" ") + '\n');
+					// let index = line.split(" ")[0];
+					// let valueString = line.split(" ")[1];
+					// if (valueString === 'null' || valueString === 'NaN') {
+					// 	fs.writeSync(fd, line + '\n');
+					// } else {
+					// 	let value = (parseFloat(valueString) - s1[1]) * (s2[0] / s1[0]) + s2[1];
+					// 	fs.writeSync(fd, index + " " + value + '\n');
+					// }
 				});
 				rl.on('close', function () {
 					fsExtra.move(tempfile, hashPath, {overwrite: true}, err => {
@@ -46,7 +57,6 @@ module.exports = function (data, callback, dbConnection, username, logger) {
 								});
 							});
 						}
-
 					});
 				});
 			})
