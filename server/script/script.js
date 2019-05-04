@@ -301,5 +301,33 @@ router.post('/migrate/add-flow-to-existed-project', (req, res) => {
 	});
 });
 
+router.post('/migrate/add-ps-to-existed-project', (req, res) => {
+	const dbConnection = req.dbConnection;
+	dbMaster.ParameterSet.findAll().then(pss => {
+		dbConnection.Project.findAll().then(projects => {
+			async.each(projects, (project, nextProject) => {
+				async.each(pss, (ps, nextParam) => {
+					dbConnection.ParameterSet.create({
+						name: ps.name,
+						content: ps.content,
+						note: ps.note,
+						type: ps.type,
+						createdBy: req.decoded.username,
+						updatedBy: req.decoded.username,
+						idProject: project.idProject
+					}).then(() => {
+						nextParam();
+					}).catch(() => {
+						nextParam();
+					});
+				}, () => {
+					nextProject();
+				});
+			}, () => {
+				res.json(req.decoded.username + " Done");
+			});
+		});
+	});
+});
 
 module.exports = router;
