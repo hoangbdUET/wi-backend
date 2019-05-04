@@ -32,6 +32,7 @@ let models = [
     'MarkerTemplate',
     'OpenSharedProject',
     'OverlayLine',
+    'ParameterSet',
     'Task',
     'TaskSpec',
     'UnitGroup',

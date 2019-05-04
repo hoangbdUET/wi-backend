@@ -139,6 +139,30 @@ function createNewFlowTemplate(flows, idProject, dbConnection, createdBy) {
 	});
 }
 
+function createDefaultPramSet(idProject, dbConnection, user) {
+	return new Promise((resolve => {
+		dbMaster.ParameterSet.findAll().then(pss => {
+			async.each(pss, (ps, next) => {
+				dbConnection.ParameterSet.create({
+					name: ps.name,
+					content: ps.content,
+					type: ps.type,
+					note: ps.note,
+					createdBy: user,
+					updatedBy: user,
+					idProject: idProject
+				}).then(() => {
+					next();
+				}).catch(() => {
+					next();
+				});
+			}, () => {
+				resolve();
+			});
+		});
+	}));
+}
+
 function createNewProject(projectInfo, done, dbConnection, username, company) {
 	let Project = dbConnection.Project;
 	projectInfo.alias = projectInfo.alias || projectInfo.name;
@@ -163,6 +187,7 @@ function createNewProject(projectInfo, done, dbConnection, username, company) {
 			await createDefaultMarkerSetTemplate(msks, project.idProject, dbConnection);
 			// await createNewFlowTemplate(flows, project.idProject, dbConnection, username);
 			await createStorageIfNotExsited(project.idProject, dbConnection, username, company);
+			await createDefaultPramSet(project.idProject, dbConnection, username);
 			done(ResponseJSON(ErrorCodes.SUCCESS, "Create new project success", project));
 		})
 		.catch(function (err) {

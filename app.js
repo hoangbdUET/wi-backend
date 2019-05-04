@@ -9,6 +9,7 @@ let zoneSetTemplateUpdate = require('./server/zone-template/zone-template.model'
 let markerTemplateUpdate = require('./server/marker-template/marker-template.function').importMarkerTemplate;
 let markerSetTemplateUpdate = require('./server/marker-template/marker-template.function').importMarkerSetTemplate;
 let flowTemplateUpdate = require('./server/flow/sync-master-flow');
+let parameterSetUpdate = require('./server/parameter-set/sync-master-parameter-set');
 
 const fs = require('fs');
 let path = require('path');
@@ -222,6 +223,9 @@ function main() {
 				flowTemplateUpdate.syncMasterTask(function () {
 
 				});
+			});
+			parameterSetUpdate.syncMasterParamSet(function () {
+
 			});
 			res.send("Done");
 		});

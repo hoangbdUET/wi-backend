@@ -73,7 +73,7 @@ function syncMasterFlow(cb) {
 		masterDb.Flow.create(flow).then(() => {
 			next();
 		}).catch(err => {
-			console.log(err);
+			console.log("New flow err");
 			next();
 		})
 	}, function () {
@@ -87,7 +87,7 @@ function syncMasterTask(cb) {
 		masterDb.Task.create(task).then(() => {
 			next();
 		}).catch(err => {
-			console.log(err);
+			console.log("New task err");
 			next();
 		});
 	}, function () {

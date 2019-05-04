@@ -49,8 +49,8 @@ let createTaskSpec = function (callback) {
         }).then(() => {
             nextRow();
         }).catch(err => {
-            console.log("====", row);
-            console.log(err);
+            // console.log("====", row);
+            // console.log(err);
             nextRow();
         })
     }, function () {
