@@ -23,7 +23,7 @@ function createNewCurve(curveInfo, done, dbConnection, logger) {
 	let Curve = dbConnection.Curve;
 	Curve.sync()
 		.then(() => {
-				let curve = Curve.build({
+				let curve = Curve.build(Object.assign({
 					idDataset: curveInfo.idDataset,
 					name: curveInfo.name,
 					dataset: curveInfo.dataset,
@@ -31,7 +31,7 @@ function createNewCurve(curveInfo, done, dbConnection, logger) {
 					type: curveInfo.type,
 					createdBy: curveInfo.createdBy,
 					updatedBy: curveInfo.updatedBy
-				});
+				}, curveInfo));
 				curve.save()
 					.then(curve => {
 						logger.info(logMessage("CURVE", curve.idCurve, "Created"));
