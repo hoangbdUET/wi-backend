@@ -21,6 +21,17 @@ module.exports = function (sequelize, DataTypes) {
 			allowNull: true,
 			defaultValue: ''
 		},
+		relatedTo: {
+			type: DataTypes.TEXT,
+			allowNull: true,
+			set(value) {
+				this.setDataValue('relatedTo', typeof(value) === 'object' ? JSON.stringify(value) : value);
+			},
+			get() {
+				const value = this.getDataValue('relatedTo');
+				return value ? JSON.parse(value) : null;
+			}
+		},
 		lockable: {
 			type: DataTypes.BOOLEAN,
 			allowNull: false,
