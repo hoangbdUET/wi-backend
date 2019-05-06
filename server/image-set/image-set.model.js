@@ -30,9 +30,9 @@ function updateImageSet(payload, cb, dbConnection, logger) {
 		if (rs) {
 			Object.assign(rs, payload).save().then(r => {
 				logger.info(logMessage("IMAGE_SET", r.idImageSet, "Updated"));
-				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
+				cb(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
 			}).catch(err => {
-				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
+				cb(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
 			});
 		} else {
 			cb(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Not found"));
@@ -45,9 +45,9 @@ function deleteImageSet(payload, cb, dbConnection, logger) {
 		if (rs) {
 			rs.destroy().then(() => {
 				logger.info(logMessage("IMAGE_SET", rs.idImageSet, "Deleted"));
-				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
+				cb(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
 			}).catch(err => {
-				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+				cb(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
 			})
 		} else {
 			cb(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Not found"));
