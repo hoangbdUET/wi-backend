@@ -988,6 +988,7 @@ function mergeCurvesIntoArrayCurve(payload, done, dbConnection, username) {
 	if (!payload.idDataset) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Need idDataset"));
 	if (!payload.idCurves || payload.idCurves.length === 0) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Need idCurves"));
 	let curves = [];
+	let columnsTitle = [];
 	dbConnection.Curve.create({
 		name: payload.name,
 		idDataset: payload.idDataset,
@@ -1001,6 +1002,7 @@ function mergeCurvesIntoArrayCurve(payload, done, dbConnection, username) {
 		async.eachSeries(payload.idCurves, (idCurve, next) => {
 			dbConnection.Curve.findByPk(idCurve).then(curve => {
 				if (curve) {
+					columnsTitle.push(curve.name);
 					curve = curve.toJSON();
 					curveFunction.getFullCurveParents(curve, dbConnection).then(c => {
 						curve.path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + c.project + c.well + c.dataset + c.curve, c.curve + '.txt');
@@ -1016,7 +1018,13 @@ function mergeCurvesIntoArrayCurve(payload, done, dbConnection, username) {
 		}, () => {
 			_createDataTmp(curves, newArrayCurve.name, username).then(data => {
 				console.log(data);
-				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", newArrayCurve));
+				newArrayCurve.columnsTitle = columnsTitle;
+				newArrayCurve.save().then(() => {
+					done(ResponseJSON(ErrorCodes.SUCCESS, "Done", newArrayCurve));
+				}).catch(err => {
+					done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
+					console.log(err);
+				})
 			}).catch(err => {
 				console.log(err);
 			})
