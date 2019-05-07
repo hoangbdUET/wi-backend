@@ -7,7 +7,6 @@ const fs = require('fs');
 const path = require('path');
 const lineModel = require('../line/line.model');
 const wiFunctions = require('../utils/function');
-const logMessage = require('../log-message');
 let findFamilyIdByName = function (familyName, dbConnection, callback) {
 	dbConnection.Family.findOne({where: {name: familyName}}).then(family => {
 		if (family) {
@@ -289,7 +288,7 @@ let createNewPlot = function (plotInfo, done, dbConnection, username, logger) {
 		}).then(rs => {
 			if (rs[1]) {
 				//created new
-				logger.info(logMessage("PLOT", rs[0].idPlot, "Created"));
+				logger.info("PLOT", rs[0].idPlot, "Created");
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Plot success", rs[0]));
 			} else {
 				//existed
@@ -298,7 +297,7 @@ let createNewPlot = function (plotInfo, done, dbConnection, username, logger) {
 						delPlot.destroy({force: true}).then(() => {
 							newPlot.idPlot = delPlot.idPlot;
 							dbConnection.Plot.create(newPlot).then((p) => {
-								logger.info(logMessage("PLOT", p.idPlot, "Created"));
+								logger.info("PLOT", p.idPlot, "Created");
 								done(ResponseJSON(ErrorCodes.SUCCESS, "Override plot success", p.toJSON()));
 							}).catch(err => {
 								done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
@@ -329,7 +328,7 @@ let editPlot = function (plotInfo, done, dbConnection, logger) {
 			Object.assign(plot, plotInfo)
 				.save()
 				.then(function (a) {
-					logger.info(logMessage("PLOT", a.idPlot, "Updated"));
+					logger.info("PLOT", a.idPlot, "Updated");
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Plot success", plotInfo));
 				})
 				.catch(function (err) {
@@ -352,7 +351,7 @@ let deletePlot = function (plotInfo, done, dbConnection, logger) {
 			plot.setDataValue('updatedBy', plotInfo.updatedBy);
 			plot.destroy({permanently: true, force: true})
 				.then(function () {
-					logger.info(logMessage("PLOT", plot.idPlot, "Deleted"));
+					logger.info("PLOT", plot.idPlot, "Deleted");
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Plot is deleted", plot));
 				})
 				.catch(function (err) {

@@ -1,7 +1,6 @@
 const ResponseJSON = require('../response');
 const ErrorCodes = require('../../error-codes').CODES;
 const async = require('async');
-const logMessage = require('../log-message');
 
 function createNew(payload, done, dbConnection, logger) {
 	if (payload.idMarkerSetTemplate) {
@@ -23,7 +22,7 @@ function createNew(payload, done, dbConnection, logger) {
 							updatedBy: payload.updatedBy,
 							createdBy: payload.createdBy
 						}).then((m) => {
-							logger.info(logMessage("MARKER", m.idMarker, "Created"));
+							logger.info("MARKER", m.idMarker, "Created");
 							start = start + range;
 							next();
 						}).catch(err => {
@@ -37,7 +36,7 @@ function createNew(payload, done, dbConnection, logger) {
 								include: {model: dbConnection.MarkerTemplate}
 							}]
 						}).then(rs => {
-							logger.info(logMessage("MARKER_SET", rs.idMarkerSet, "Created"));
+							logger.info("MARKER_SET", rs.idMarkerSet, "Created");
 							done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
 						});
 					})
@@ -59,7 +58,7 @@ function createNew(payload, done, dbConnection, logger) {
 		})
 	} else {
 		dbConnection.MarkerSet.create(payload).then(m => {
-			logger.info(logMessage("MARKER_SET", m.idMarkerSet, "Created"));
+			logger.info("MARKER_SET", m.idMarkerSet, "Created");
 			done(ResponseJSON(ErrorCodes.SUCCESS, "Done", m));
 		}).catch(err => {
 			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
@@ -77,7 +76,7 @@ function edit(payload, done, dbConnection, logger) {
 						include: {model: dbConnection.MarkerTemplate}
 					}]
 				}).then(rs => {
-					logger.info(logMessage("MARKER_SET", rs.idMarkerSet, "Updated"));
+					logger.info("MARKER_SET", rs.idMarkerSet, "Updated");
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
 				});
 			}).catch(err => {
@@ -93,7 +92,7 @@ function edit(payload, done, dbConnection, logger) {
 
 function del(payload, done, dbConnection, logger) {
 	dbConnection.MarkerSet.destroy({where: {idMarkerSet: payload.idMarkerSet}}).then(r => {
-		logger.info(logMessage("MARKER_SET", r.idMarkerSet, "Deleted"));
+		logger.info("MARKER_SET", r.idMarkerSet, "Deleted");
 		done(ResponseJSON(ErrorCodes.SUCCESS, "Done"));
 	}).catch(err => {
 		done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));

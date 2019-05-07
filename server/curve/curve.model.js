@@ -16,7 +16,6 @@ const async = require('async');
 const convertLength = require('../utils/convert-length');
 const {Transform} = require('stream');
 const _ = require('lodash');
-const logMessage = require('../log-message');
 let byline = require('byline');
 
 function createNewCurve(curveInfo, done, dbConnection, logger) {
@@ -34,7 +33,7 @@ function createNewCurve(curveInfo, done, dbConnection, logger) {
 				}, curveInfo));
 				curve.save()
 					.then(curve => {
-						logger.info(logMessage("CURVE", curve.idCurve, "Created"));
+						logger.info("CURVE", curve.idCurve, "Created");
 						done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Curve success", {idCurve: curve.idCurve}))
 					})
 					.catch(err => {
@@ -88,7 +87,7 @@ function editCurve(curveInfo, done, dbConnection, username, logger) {
 											copy.on('error', function (err) {
 												return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit Curve name", err));
 											});
-											logger.info(logMessage("CURVE", curveInfo.idCurve, "Edit curve success"));
+											logger.info("CURVE", curveInfo.idCurve, "Edit curve success");
 											done(ResponseJSON(ErrorCodes.SUCCESS, "Edit curve success", curveInfo));
 										})
 										.catch(err => {
@@ -137,7 +136,7 @@ function editCurve(curveInfo, done, dbConnection, username, logger) {
 						//     console.log(err);
 						//     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Curve " + err.meesage));
 						// });
-						logger.info(logMessage("CURVE", curveInfo.idCurve, "Edit curve success"));
+						logger.info("CURVE", curveInfo.idCurve, "Edit curve success");
 						done(ResponseJSON(ErrorCodes.SUCCESS, "Edit curve success", rs));
 					})
 					.catch(err => {
@@ -253,7 +252,7 @@ async function deleteCurve(curveInfo, done, dbConnection, username, logger) {
 	if (!curve) return done(ErrorCodes.ERROR_INVALID_PARAMS, "No curve found by id");
 
 	curve.destroy({permanently: true, force: true}).then(() => {
-		logger.info(logMessage("CURVE", curve.idCurve, "Curve deleted"));
+		logger.info("CURVE", curve.idCurve, "Curve deleted");
 		done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", curve));
 	}).catch(err => {
 		done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
@@ -534,7 +533,7 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy, l
 								}
 								console.log("Copy file success!");
 								fs.unlink(filePath);
-								logger.info(logMessage("CURVE", curve.idCurve, "Created"));
+								logger.info("CURVE", curve.idCurve, "Created");
 								done(ResponseJSON(ErrorCodes.SUCCESS, "Success", curve));
 							});
 						}).catch(err => {
@@ -570,7 +569,7 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy, l
 											console.log("Copy file success!");
 											fs.unlink(filePath);
 											Object.assign(curve, overwriteInfo).save().then((c) => {
-												logger.info(logMessage("CURVE", curve.idCurve, "Updated data"));
+												logger.info("CURVE", curve.idCurve, "Updated data");
 												done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", c));
 											}).catch(err => {
 												done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
@@ -741,7 +740,7 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
 			try {
 				let stream = request(options).pipe(fs.createWriteStream(curvePath));
 				stream.on('close', function () {
-					logger.info(logMessage("CURVE", _curve.idCurve, "Created"));
+					logger.info("CURVE", _curve.idCurve, "Created");
 					console.log("Import Done ", curvePath, " : ", new Date() - start, "ms");
 					resolve(_curve);
 				});
@@ -780,7 +779,7 @@ function duplicateCurve(data, done, dbConnection, username, logger) {
 						if (err) {
 							throw err;
 						}
-						logger.info(logMessage("CURVE", curve.idCurve, "Duplicated"));
+						logger.info("CURVE", curve.idCurve, "Duplicated");
 						done(ResponseJSON(ErrorCodes.SUCCESS, "Done", _Curve));
 					});
 

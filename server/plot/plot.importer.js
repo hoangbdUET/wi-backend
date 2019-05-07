@@ -5,7 +5,6 @@ let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
 let createdBy;
 let updatedBy;
-const logMessage = require("../log-message");
 
 function findCurve(curve, dbConnection, idProject, well, dataset) {
 	return new Promise((resolve => {
@@ -289,7 +288,7 @@ module.exports = function (req, done, dbConnection, username, logger) {
 						}, cb)
 					}
 				], () => {
-					logger.info(logMessage("PLOT", pl.idPlot, "Created from template"));
+					logger.info("PLOT", pl.idPlot, "Created from template");
 					dbConnection.Plot.findByPk(pl.idPlot, {include: {all: true, include: {all: true}}}).then(p => {
 						done(ResponseJSON(ErrorCodes.SUCCESS, "Done", p));
 					});

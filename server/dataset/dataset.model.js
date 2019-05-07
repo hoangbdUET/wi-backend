@@ -6,7 +6,6 @@ let config = require('config');
 let fs = require('fs');
 let asyncEach = require('async/each');
 let curveFunction = require('../utils/curve.function');
-const logMessage = require('../log-message');
 
 function createNewDataset(datasetInfo, done, dbConnection, logger) {
 	let Dataset = dbConnection.Dataset;
@@ -26,7 +25,7 @@ function createNewDataset(datasetInfo, done, dbConnection, logger) {
 				});
 				dataset.save()
 					.then(function (dataset) {
-						logger.info(logMessage("DATASET", dataset.idDataset, "Created"));
+						logger.info("DATASET", dataset.idDataset, "Created");
 						done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Dataset success", dataset));
 					})
 					.catch(function (err) {
@@ -76,7 +75,7 @@ function editDataset(datasetInfo, done, dbConnection, username, logger) {
 									if (err) {
 										return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
 									}
-									logger.info(logMessage("DATASET", dataset.idDataset, "Updated"));
+									logger.info("DATASET", dataset.idDataset, "Updated");
 									done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", dataset));
 								});
 							});
@@ -111,7 +110,7 @@ function deleteDataset(datasetInfo, done, dbConnection, logger) {
 			dataset.setDataValue('updatedBy', datasetInfo.updatedBy);
 			dataset.destroy({permanently: true, force: true})
 				.then(function () {
-					logger.info(logMessage("DATASET", dataset.idDataset, "Deleted"));
+					logger.info("DATASET", dataset.idDataset, "Deleted");
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Dataset is deleted", dataset));
 				})
 				.catch(function (err) {
@@ -199,7 +198,7 @@ function duplicateDataset(data, done, dbConnection, username, logger) {
 					if (err) {
 						done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
 					}
-					logger.info(logMessage("DATASET", dataset.idDataset, "Duplicated"));
+					logger.info("DATASET", dataset.idDataset, "Duplicated");
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Done", _dataset));
 				});
 			});
@@ -374,7 +373,7 @@ async function copyDataset(payload, dbConnection, username, logger) {
 				desDataset: newDataset.name
 			});
 		}
-		logger.info(logMessage("DATASET", sourceDataset.idDataset, "Copied"));
+		logger.info("DATASET", sourceDataset.idDataset, "Copied");
 		return ResponseJSON(ErrorCodes.SUCCESS, "Done", newDataset);
 	} catch (err) {
 		if (err.name === "SequelizeUniqueConstraintError") {

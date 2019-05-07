@@ -2,7 +2,6 @@ let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
 let asyncEach = require('async/each');
 let eachSeries = require('async/eachSeries');
-const logMessage = require('../log-message');
 
 function createNewZoneSet(zoneSetInfo, done, dbConnection, logger) {
 	let ZoneSet = dbConnection.ZoneSet;
@@ -40,13 +39,13 @@ function createNewZoneSet(zoneSetInfo, done, dbConnection, logger) {
 							include: {model: dbConnection.ZoneTemplate}
 						}]
 					}).then(rs => {
-						logger.info(logMessage("ZONE_SET", rs.idZoneSet, "Created"));
+						logger.info("ZONE_SET", rs.idZoneSet, "Created");
 						done(ResponseJSON(ErrorCodes.SUCCESS, "Create new ZoneSet success", rs));
 					});
 				});
 			});
 		} else {
-			logger.info(logMessage("ZONE_SET", zs.idZoneSet, "Created"));
+			logger.info("ZONE_SET", zs.idZoneSet, "Created");
 			done(ResponseJSON(ErrorCodes.SUCCESS, "Create new ZoneSet success", zs));
 		}
 	}).catch(err => {
@@ -77,7 +76,7 @@ function editZoneSet(zoneSetInfo, done, dbConnection, logger) {
 							include: {model: dbConnection.ZoneTemplate}
 						}]
 					}).then(rs => {
-						logger.info(logMessage("ZONE_SET", rs.idZoneSet, "Updated"));
+						logger.info("ZONE_SET", rs.idZoneSet, "Updated");
 						done(ResponseJSON(ErrorCodes.SUCCESS, "Edit zoneSet success", rs));
 					});
 				})
@@ -101,7 +100,7 @@ function deleteZoneSet(zoneSetInfo, done, dbConnection, logger) {
 			zoneSet.setDataValue('updatedBy', zoneSetInfo.updatedBy);
 			zoneSet.destroy({permanently: true, force: true})
 				.then(function () {
-					logger.info(logMessage("ZONE_SET", zoneSet.idZoneSet, "Deleted"));
+					logger.info("ZONE_SET", zoneSet.idZoneSet, "Deleted");
 					done(ResponseJSON(ErrorCodes.SUCCESS, "ZoneSet is deleted", zoneSet));
 				})
 				.catch(function (err) {
@@ -192,7 +191,7 @@ async function duplicateZoneSet(data, done, dbConnection, logger) {
 			next();
 		});
 	}, function (err) {
-		logger.info(logMessage("ZONE_SET", zoneset.idZoneSet, "Duplicated"));
+		logger.info("ZONE_SET", zoneset.idZoneSet, "Duplicated");
 		done(ResponseJSON(ErrorCodes.SUCCESS, "Done", _zoneset));
 	});
 }

@@ -29,7 +29,8 @@
   },
   "Service": {
     "inventory": "",
-    "authenticate": ""
+    "authenticate": "",
+    "logger": ""
   },
   "elasticsearch": {
     "host": ""

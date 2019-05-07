@@ -6,7 +6,6 @@ let asyncQueue = require('async/queue');
 let hashDir = require('../utils/data-tool').hashDir;
 let fs = require('fs-extra');
 let async = require('async');
-const logMessage = require('../log-message');
 
 class Options {
 	constructor(path, token, payload) {
@@ -212,7 +211,7 @@ function importDataset(datasets, token, callback, dbConnection, username, create
 			}), {qos: 2});
 			if (rs[1]) {
 				//created
-				logger.info(logMessage("DATASET", _dataset.idDataset, "Created"));
+				logger.info("DATASET", _dataset.idDataset, "Created");
 				// response.datasets.push(_dataset);
 				async.eachSeries(dataset.curves, function (curve, nextCurve) {
 					curve.idDesDataset = _dataset.idDataset;
@@ -238,7 +237,7 @@ function importDataset(datasets, token, callback, dbConnection, username, create
 				});
 			} else {
 				//found
-				logger.info(logMessage("DATASET", _dataset.idDataset, "Updated"));
+				logger.info("DATASET", _dataset.idDataset, "Updated");
 				let newDataset = _dataset.toJSON();
 				newDataset.name = newDataset.name + "_CP" + newDataset.duplicated;
 				_dataset.duplicated++;

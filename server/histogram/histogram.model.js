@@ -2,7 +2,6 @@
 let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
 let asyncLoop = require('async/each');
-const logMessage = require('../log-message');
 let findFamilyIdByName = function (familyName, dbConnection, callback) {
 	dbConnection.Family.findOne({
 		where: {name: familyName},
@@ -75,7 +74,7 @@ function createNewHistogram(histogramInfo, done, dbConnection, logger) {
 				});
 			}, function () {
 				histogram.setCurves(curves).then(() => {
-					logger.info(logMessage("HISTOGRAM", histogram.idHistogram, "Created"));
+					logger.info("HISTOGRAM", histogram.idHistogram, "Created");
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Done", histogram));
 				});
 			});
@@ -90,7 +89,7 @@ function createNewHistogram(histogramInfo, done, dbConnection, logger) {
 		dbConnection.Histogram.create(histogramInfo).then(async histogram => {
 			await histogram.setCurves(curves);
 			dbConnection.Histogram.findByPk(histogram.idHistogram, {include: {all: true}}).then(h => {
-				logger.info(logMessage("HISTOGRAM", h.idHistogram, "Created"));
+				logger.info("HISTOGRAM", h.idHistogram, "Created");
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", h));
 			});
 		}).catch(err => {
@@ -302,7 +301,7 @@ function editHistogram(histogramInfo, done, dbConnection, logger) {
 					if (!isRename) {
 						await result.setCurves(curves);
 					}
-					logger.info(logMessage("HISTOGRAM", result.idHistogram, "Updated"));
+					logger.info("HISTOGRAM", result.idHistogram, "Updated");
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Edit histogram success", result));
 				})
 				.catch(function (err) {
@@ -325,7 +324,7 @@ function deleteHistogram(histogramInfo, done, dbConnection, logger) {
 			histogram.setDataValue('updatedBy', histogramInfo.updatedBy);
 			histogram.destroy({permanently: true, force: true})
 				.then(function () {
-					logger.info(logMessage("HISTOGRAM", histogram.idHistogram, "Deleted"));
+					logger.info("HISTOGRAM", histogram.idHistogram, "Deleted");
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Histogram is deleted", histogram));
 				})
 				.catch(function (err) {
@@ -371,7 +370,7 @@ function duplicateHistogram(payload, done, dbConnection, logger) {
 				// rs.setCurves(histogram.curves).then(r => {
 				//     console.log(r);
 				// });
-				logger.info(logMessage("HISTOGRAM", histogram.idHistogram, "Duplicated"));
+				logger.info("HISTOGRAM", histogram.idHistogram, "Duplicated");
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", histogram));
 			}).catch(err => {
 				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));

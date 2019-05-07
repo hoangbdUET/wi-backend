@@ -29,7 +29,8 @@
   },
   "Service": {
     "inventory": "http://13.250.197.210",
-    "authenticate": "https://admin.dev.i2g.cloud"
+    "authenticate": "https://admin.dev.i2g.cloud",
+    "logger": "http://logger.dev.i2g.cloud"
   },
   "elasticsearch": {
     "host": "http://10.0.1.30:9200"

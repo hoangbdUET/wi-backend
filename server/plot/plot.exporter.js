@@ -1,7 +1,6 @@
 const fs = require('fs');
 const curveFunction = require('../utils/curve.function');
 const async = require('async');
-const logMessage = require('../log-message');
 
 function createTempfile(data, callback) {
 	let tempfile = require('tempfile')('.json');
@@ -325,7 +324,7 @@ module.exports = function (body, done, error, dbConnection, username, logger) {
 			}
 		], () => {
 			createTempfile(newEportPlot, done);
-			logger.info(logMessage("PLOT", plot.idPlot, "Exported"));
+			logger.info("PLOT", plot.idPlot, "Exported");
 			// createTempfile(plot, done);
 		});
 	}).catch(err => {

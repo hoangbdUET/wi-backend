@@ -2,7 +2,6 @@ let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
 let asyncLoop = require('async/each');
 let asyncSeries = require('async/series');
-const logMessage = require('../log-message');
 
 let findFamilyIdByName = function (familyName, dbConnection, callback) {
 	dbConnection.Family.findOne({
@@ -41,7 +40,7 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection, logger) {
 		try {
 			myData = require('./cross-template/' + crossPlotInfo.crossTemplate + '.json');
 		} catch (err) {
-			logger.error(logMessage("CROSS_PLOT", "", "CrossPlot type not found"));
+			logger.error("CROSS_PLOT", "", "CrossPlot type not found");
 			return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CrossPlot type not found"));
 		}
 		dbConnection.CrossPlot.create({
@@ -131,16 +130,16 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection, logger) {
 					});
 				});
 			}, function () {
-				logger.info(logMessage("CROSS_PLOT", _cr.idCrossPlot, "Create new CrossPlot success"));
+				logger.info("CROSS_PLOT", _cr.idCrossPlot, "Create new CrossPlot success");
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Create new CrossPlot success", _cr));
 			});
 		}).catch(err => {
 
 			if (err.name === "SequelizeUniqueConstraintError") {
-				logger.error(logMessage("CROSS_PLOT", "", "Cross plot's name already exists"));
+				logger.error("CROSS_PLOT", "", "Cross plot's name already exists");
 				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Cross plot's name already exists"));
 			} else {
-				logger.error(logMessage("CROSS_PLOT", "", err.message));
+				logger.error("CROSS_PLOT", "", err.message);
 				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
 			}
 		});
@@ -153,14 +152,14 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection, logger) {
 			updatedBy: crossPlotInfo.updatedBy,
 			configs: crossPlotInfo.configs
 		}).then(function (crossPlot) {
-			logger.info(logMessage("CROSS_PLOT", crossPlot.idCrossPlot, "Create new CrossPlot success"));
+			logger.info("CROSS_PLOT", crossPlot.idCrossPlot, "Create new CrossPlot success");
 			done(ResponseJSON(ErrorCodes.SUCCESS, "Create new CrossPlot success", crossPlot.toJSON()));
 		}).catch(function (err) {
 			if (err.name === "SequelizeUniqueConstraintError") {
-				logger.error(logMessage("CROSS_PLOT", "", "Cross plot's name already exists"));
+				logger.error("CROSS_PLOT", "", "Cross plot's name already exists");
 				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Cross plot's name already exists"));
 			} else {
-				logger.error(logMessage("CROSS_PLOT", "", err.message));
+				logger.error("CROSS_PLOT", "", err.message);
 				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
 			}
 		});
@@ -182,7 +181,7 @@ function editCrossPlot(crossPlotInfo, done, dbConnection, logger) {
 				crossPlot.save()
 					.then(function (c) {
 						dbConnection.CrossPlot.findByPk(c.idCrossPlot, {include: {all: true}}).then(_c => {
-							logger.info(logMessage("CROSS_PLOT", _c.idCrossPlot, "Edit CrossPlot success"));
+							logger.info("CROSS_PLOT", _c.idCrossPlot, "Edit CrossPlot success");
 							done(ResponseJSON(ErrorCodes.SUCCESS, "Edit CrossPlot success", _c));
 						});
 					})
@@ -211,7 +210,7 @@ function deleteCrossPlot(crossPlotInfo, done, dbConnection, logger) {
 			crossPlot.setDataValue('updatedBy', crossPlotInfo.updatedBy);
 			crossPlot.destroy({permanently: true, force: true})
 				.then(function () {
-					logger.info(logMessage("CROSS_PLOT", crossPlot.idCrossPlot, "CrossPlot is deleted"));
+					logger.info("CROSS_PLOT", crossPlot.idCrossPlot, "CrossPlot is deleted");
 					done(ResponseJSON(ErrorCodes.SUCCESS, "CrossPlot is deleted", crossPlot));
 				})
 				.catch(function (err) {
@@ -403,7 +402,7 @@ function duplicateCrossplot(payload, done, dbConnection, logger) {
 						}
 					],
 					function (err, result) {
-						logger.info(logMessage("CROSS_PLOT", crossplot.idCrossPlot, "CrossPlot is duplicated"));
+						logger.info("CROSS_PLOT", crossplot.idCrossPlot, "CrossPlot is duplicated");
 						done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", result));
 					});
 			}).catch(err => {
