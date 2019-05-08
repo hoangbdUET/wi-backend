@@ -242,4 +242,20 @@ router.post('/curve/split-curve', (req, res) => {
 	}, req.dbConnection, req.decoded.username);
 });
 
+router.post('/curve/new-raw-curve', upload.single('data'), (req, res) => {
+	try {
+		curveModel.createArrayCurve(req, function (result) {
+			res.send(result);
+			if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+		}, req.dbConnection, req.createdBy, req.updatedBy, req.logger);
+	} catch (e) {
+		console.log(e);
+		res.send({
+			code: 512,
+			reason: e,
+			content: e
+		});
+	}
+});
+
 module.exports = router;

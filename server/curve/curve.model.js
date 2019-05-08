@@ -1089,6 +1089,37 @@ function _createDataTmp(curves, newCurveName, username) {
 	});
 }
 
+function createArrayCurve(payload, done, dbConnection, createdBy, updatedBy, logger) {
+	dbConnection.Curve.create({
+		name: payload.body.name,
+		unit: payload.body.unit || '',
+		type: payload.body.type,
+		columnsTitle: payload.body.columnsTitle,
+		createdBy: createdBy,
+		updatedBy: updatedBy,
+		dimension: payload.body.dimension || 1,
+		idDataset: payload.body.idDataset,
+		idFamily: payload.body.idFamily || null
+	}).then(c => {
+		curveFunction.getFullCurveParents(c, dbConnection).then(curveParent => {
+			let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, createdBy + curveParent.project + curveParent.well + curveParent.dataset + curveParent.curve, curveParent.curve + '.txt');
+			fs.copy(payload.file.path, path, function (err) {
+				if (err) {
+					console.log("ERR COPY FILE : ", err);
+				}
+				console.log("Copy file success for new raw curve!" , path);
+				logger.info("CURVE", c.idCurve, "Created");
+				done(ResponseJSON(ErrorCodes.SUCCESS, "Success", c));
+			});
+		});
+	}).catch(err => {
+		if (err.name === "SequelizeUniqueConstraintError") {
+			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve's name already exists!"));
+		} else {
+			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+		}
+	});
+}
 
 module.exports = {
 	resyncFamily: resyncFamily,
@@ -1110,5 +1141,6 @@ module.exports = {
 	getCurveDataFromInventoryPromise: getCurveDataFromInventoryPromise,
 	processingArrayCurve: processingArrayCurve,
 	splitArrayCurve: splitArrayCurve,
-	mergeCurvesIntoArrayCurve: mergeCurvesIntoArrayCurve
+	mergeCurvesIntoArrayCurve: mergeCurvesIntoArrayCurve,
+	createArrayCurve: createArrayCurve
 };
