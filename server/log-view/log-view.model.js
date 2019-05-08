@@ -27,7 +27,7 @@ let options = {
 function viewByUserName(userName, cb, token, project) {
 	options.headers.Authorization = token;
 	options.body.username = userName;
-	options.project = project;
+	options.body.project = project;
 	request(options, (err, resp, body) => {
 		if (err) {
 			console.log("error push log ", err.message);
