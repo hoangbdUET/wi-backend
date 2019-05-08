@@ -7,9 +7,33 @@ let ResponseJSON = require('../response');
 // 	host: ES_HOST,
 // });
 const _ = require('lodash');
+const config = require('config');
+const request = require('request');
+const loggingServiceUrl = process.env.LOGGING_SERVICE || config.Service.logger || "http://localhost:3333";
 
-function viewByUserName(userName, cb) {
-	cb(ResponseJSON(200, "Done", []));
+let options = {
+	method: 'POST',
+	url: loggingServiceUrl + '/find-log',
+	headers: {
+		'Cache-Control': 'no-cache',
+		'Content-Type': 'application/json',
+		'Authorization': ''
+	},
+	body: {},
+	json: true,
+	strictSSL: false
+};
+
+function viewByUserName(userName, cb, token) {
+	options.headers.Authorization = token;
+	request(options, (err, resp, body) => {
+		if (err) {
+			console.log("error push log ", err.message);
+		} else {
+			cb(ResponseJSON(body.code, body.reason, body.content));
+			// console.log("Pushed ", body ? body.content._id : "null body", JSON.stringify(options.body));
+		}
+	});
 	// client.search({
 	// 	index: `wi-backend-${userName}-*`,
 	// 	body: {}
@@ -30,7 +54,7 @@ function viewByUserName(userName, cb) {
 	// });
 }
 
-function viewByObject(data, cb) {
+function viewByObject(data, cb, token) {
 	cb(ResponseJSON(200, "Done", []))
 	// console.log(data.username);
 	// let query = `data.message.object:${data.object} AND 1=1 `;
