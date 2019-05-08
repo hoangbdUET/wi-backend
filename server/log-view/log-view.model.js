@@ -32,7 +32,11 @@ function viewByUserName(userName, cb, token, project) {
 		if (err) {
 			console.log("error push log ", err.message);
 		} else {
-			cb(ResponseJSON(body.code, body.reason, body.content));
+			if(body.success){
+				cb(ResponseJSON(body.code, body.reason, body.content));
+			} else {
+				cb(ResponseJSON(200, "No log service", []));
+			}
 			// console.log("Pushed ", body ? body.content._id : "null body", JSON.stringify(options.body));
 		}
 	});

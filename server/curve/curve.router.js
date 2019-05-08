@@ -10,6 +10,7 @@ let path = require('path');
 let curveModel = require('./curve.model');
 let convertUnit = require('./convert-unit');
 let uploadDir = process.env.BACKEND_USER_UPLOAD_PATH || require('config').uploadPath;
+const byline = require('byline');
 
 router.use(bodyParser.json());
 
