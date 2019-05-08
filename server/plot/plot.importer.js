@@ -202,9 +202,12 @@ function createTrack(track, dbConnection, idProject, idPlot, username, well, dat
 							} else {
 								line.idCurve = curve.idCurve;
 								let lineModel = require('../line/line.model');
-								lineModel.createNewLineWithoutResponse(line, dbConnection, username).then(() => {
+								// lineModel.createNewLineWithoutResponse(line, dbConnection, username).then(() => {
+								// 	next();
+								// });
+								lineModel.createNewLine(lineInfo, function () {
 									next();
-								});
+								}, dbConnection, username);
 							}
 						})
 					}, cb)
