@@ -295,7 +295,9 @@ module.exports = function (req, done, dbConnection, username, logger) {
 				});
 			}).catch(err => {
 				if (err.name === "SequelizeUniqueConstraintError") {
-					done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot's name already exists! " + myPlot.name));
+					dbConnection.Plot.findOne({where: {name: myPlot.name}}).then(pl => {
+						done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot's name already exists! " + myPlot.name, pl));
+					})
 				} else {
 					done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
 				}
