@@ -24,8 +24,10 @@ let options = {
 	strictSSL: false
 };
 
-function viewByUserName(userName, cb, token) {
+function viewByUserName(userName, cb, token, project) {
 	options.headers.Authorization = token;
+	options.body.username = userName;
+	options.project = project;
 	request(options, (err, resp, body) => {
 		if (err) {
 			console.log("error push log ", err.message);
