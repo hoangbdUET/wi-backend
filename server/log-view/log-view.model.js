@@ -28,19 +28,19 @@ function viewByUserName(userName, cb, token, project) {
 	options.headers.Authorization = token;
 	options.body.username = userName;
 	options.body.project = project;
-	cb(ResponseJSON(200, "Done", []));
-	// request(options, (err, resp, body) => {
-	// 	if (err) {
-	// 		console.log("error push log ", err.message);
-	// 	} else {
-	// 		if(body.success){
-	// 			cb(ResponseJSON(body.code, body.reason, body.content));
-	// 		} else {
-	// 			cb(ResponseJSON(200, "No log service", []));
-	// 		}
-	// 		// console.log("Pushed ", body ? body.content._id : "null body", JSON.stringify(options.body));
-	// 	}
-	// });
+	// cb(ResponseJSON(200, "Done", []));
+	request(options, (err, resp, body) => {
+		if (err) {
+			console.log("error push log ", err.message);
+		} else {
+			if (body.success) {
+				cb(ResponseJSON(body.code, body.reason, body.content));
+			} else {
+				cb(ResponseJSON(200, "No log service", []));
+			}
+			// console.log("Pushed ", body ? body.content._id : "null body", JSON.stringify(options.body));
+		}
+	});
 	// client.search({
 	// 	index: `wi-backend-${userName}-*`,
 	// 	body: {}
