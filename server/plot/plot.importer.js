@@ -205,7 +205,7 @@ function createTrack(track, dbConnection, idProject, idPlot, username, well, dat
 								// lineModel.createNewLineWithoutResponse(line, dbConnection, username).then(() => {
 								// 	next();
 								// });
-								lineModel.createNewLine(lineInfo, function () {
+								lineModel.createNewLine(line, function () {
 									next();
 								}, dbConnection, username);
 							}
