@@ -240,7 +240,7 @@ function importDataset(datasets, token, callback, dbConnection, username, create
 				//found
 				logger.info("DATASET", _dataset.idDataset, "Updated");
 				let newDataset = _dataset.toJSON();
-				newDataset.name = newDataset.name + "_CP" + newDataset.duplicated;
+				newDataset.name = (newDataset.name + "_CP" + newDataset.duplicated).toUpperCase();
 				_dataset.duplicated++;
 				_dataset.save();
 				delete newDataset.idDataset;
