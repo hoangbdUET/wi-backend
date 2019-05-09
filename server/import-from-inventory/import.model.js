@@ -181,8 +181,9 @@ function importDataset(datasets, token, callback, dbConnection, username, create
 	// };
 	let response = [];
 	asyncEach(datasets, function (dataset, next) {
+		dataset.name = dataset.name.toUpperCase();
 		let newDataset = {};
-		newDataset.name = dataset.name.toUpperCase();
+		newDataset.name = dataset.name;
 		newDataset.step = dataset.step;
 		newDataset.top = dataset.top;
 		newDataset.bottom = dataset.bottom;
