@@ -245,6 +245,7 @@ router.post('/curve/split-curve', (req, res) => {
 
 router.post('/curve/new-raw-curve', upload.single('data'), (req, res) => {
 	try {
+		if (req.body.idFamily === "null") delete req.body.idFamily;
 		curveModel.createArrayCurve(req, function (result) {
 			res.send(result);
 			if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
