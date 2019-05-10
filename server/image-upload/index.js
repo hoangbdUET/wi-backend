@@ -39,6 +39,7 @@ let storage = multer.diskStorage({
 
 let upload = multer({storage: storage});
 router.post('/image-upload', upload.single('file'), (req, res) => {
+	if (!req.body.idImage) return res.send(ResponseJSON(512, "Need idImage", "Need idImage"));
 	let savePath = saveDir + "/" + req.decoded.username;
 	let idImage = req.body.idImage || 0;
 	let fileHashDir = hashDir.createPath(savePath, idImage + '', idImage + req.file.originalname.substring(req.file.originalname.lastIndexOf('.')));
