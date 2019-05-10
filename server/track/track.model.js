@@ -578,7 +578,7 @@ async function applyToWell(payload, dbConnection) {
                     if (curve) {
                         shading.idControlCurve = curve.idCurve;
                     }
-                    if (shading.idLeftLine || shading.idRightLine) {
+                    if ((shading.idLeftLine || shading.idRightLine) && shading.idControlCurve) {
                         dbConnection.Shading.create(shading).then(() => {
                             next();
                         }).catch(err => {
