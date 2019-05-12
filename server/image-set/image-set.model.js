@@ -13,6 +13,13 @@ function createImageSet(payload, cb, dbConnection, logger) {
 		}
 	});
 }
+function createOrGetImageSet(payload, cb, dbConnection, logger) {
+    dbConnection.ImageSet.findOrCreate(payload).then(rs => {
+        cb(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
+    }).catch(err => {
+        cb(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+    });
+}
 
 function infoImageSet(payload, cb, dbConnection) {
 	dbConnection.ImageSet.findByPk(payload.idImageSet, {include: {model: dbConnection.Image}}).then(rs => {
@@ -71,6 +78,7 @@ function listImageSet(payload, cb, dbConnection) {
 
 module.exports = {
 	createImageSet: createImageSet,
+    createOrGetImageSet: createOrGetImageSet,
 	infoImageSet: infoImageSet,
 	updateImageSet: updateImageSet,
 	deleteImageSet: deleteImageSet,

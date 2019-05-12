@@ -7,6 +7,11 @@ router.post('/image-set/new', (req, res) => {
 		res.send(status);
 	}, req.dbConnection, req.logger);
 });
+router.post('/image-set/new-or-get', (req, res) => {
+    model.createOrGetImageSet(req.body, (status) => {
+        res.send(status);
+    }, req.dbConnection, req.logger);
+});
 
 router.post('/image-set/info', (req, res) => {
 	model.infoImageSet(req.body, (status) => {
