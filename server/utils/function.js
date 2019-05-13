@@ -27,7 +27,7 @@ function renameObjectForDustbin(object, callback, type) {
 async function getWellTopDepth(idWell, dbConnection) {
     let topDepth;
     try {
-        let well = await dbConnection.Well.findById(idWell, {include: dbConnection.Dataset});
+        let well = await dbConnection.Well.findByPk(idWell, {include: dbConnection.Dataset});
         if (well.datasets.length === 0) {
             return null;
         } else {
@@ -46,7 +46,7 @@ async function getWellTopDepth(idWell, dbConnection) {
 async function getWellBottomDepth(idWell, dbConnection) {
     let bottomDepth;
     try {
-        let well = await dbConnection.Well.findById(idWell, {include: dbConnection.Dataset});
+        let well = await dbConnection.Well.findByPk(idWell, {include: dbConnection.Dataset});
         if (well.datasets.length === 0) {
             return null;
         } else {
@@ -64,9 +64,9 @@ async function getWellBottomDepth(idWell, dbConnection) {
 
 async function getWellByDataset(idDataset, dbConnection) {
     try {
-        let dataset = idDataset ? await dbConnection.Dataset.findById(idDataset) : null;
+        let dataset = idDataset ? await dbConnection.Dataset.findByPk(idDataset) : null;
         if (dataset) {
-            return await dbConnection.Well.findById(dataset.idWell);
+            return await dbConnection.Well.findByPk(dataset.idWell);
         } else {
             return null;
         }

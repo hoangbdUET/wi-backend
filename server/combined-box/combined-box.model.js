@@ -25,7 +25,7 @@ function createNewCombinedBox(payload, done, dbConnection) {
 
 function infoCombinedBox(payload, done, dbConnection, username) {
     let Model = dbConnection.CombinedBox;
-    Model.findById(payload.idCombinedBox, {
+    Model.findByPk(payload.idCombinedBox, {
         include: [{
             model: dbConnection.Plot
         }, {
@@ -60,7 +60,7 @@ function infoCombinedBox(payload, done, dbConnection, username) {
 
 function deleteCombinedBox(payload, done, dbConnection) {
     let Model = dbConnection.CombinedBox;
-    Model.findById(payload.idCombinedBox).then(rs => {
+    Model.findByPk(payload.idCombinedBox).then(rs => {
         if (rs) {
             rs.destroy().then(rs => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
@@ -84,7 +84,7 @@ function editCombinedBox(payload, done, dbConnection) {
     let idPlots = payload.idLogPlots || [];
     let idCrossplots = payload.idCrossPlots || [];
     let idHistograms = payload.idHistograms || [];
-    Model.findById(payload.idCombinedBox).then(rs => {
+    Model.findByPk(payload.idCombinedBox).then(rs => {
         if (rs) {
             let newCb = rs.toJSON();
             newCb.name = payload.name || newCb.name;

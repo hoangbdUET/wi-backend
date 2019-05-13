@@ -46,7 +46,11 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: false
+        },
+        type: {
+            type: DataTypes.STRING(15),
+            allowNull: false,
+            defaultValue: 'NUMBER'
         }
-
     });
 };

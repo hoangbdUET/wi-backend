@@ -25,7 +25,7 @@ function createNewGroup(groupInfo, done, dbConnection) {
 
 function editGroup(groupInfo, done, dbConnection) {
     var Groups = dbConnection.Groups;
-    Groups.findById(groupInfo.idGroup)
+    Groups.findByPk(groupInfo.idGroup)
         .then(function (group) {
             delete groupInfo.idGroup;
             Object.assign(group, groupInfo)
@@ -48,7 +48,7 @@ function editGroup(groupInfo, done, dbConnection) {
 
 function deleteGroup(groupInfo, done, dbConnection) {
     var Groups = dbConnection.Groups;
-    Groups.findById(groupInfo.idGroup)
+    Groups.findByPk(groupInfo.idGroup)
         .then(function (group) {
             group.destroy()
                 .then(function () {
@@ -65,7 +65,7 @@ function deleteGroup(groupInfo, done, dbConnection) {
 
 function getGroupInfo(groupInfo, done, dbConnection) {
     var Groups = dbConnection.Groups;
-    Groups.findById(groupInfo.idGroup, {
+    Groups.findByPk(groupInfo.idGroup, {
         include: {model: dbConnection.Well}
     })
         .then(function (group) {

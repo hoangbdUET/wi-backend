@@ -22,7 +22,11 @@
   },
   "Service": {
     "inventory": "13.250.197.210",
-    "authenticate": "admin.dev.i2g.cloud"
+    "authenticate": "admin.dev.i2g.cloud",
+    "logger": "http://logger.dev.i2g.cloud"
+  },
+  "elasticsearch": {
+    "host": "http://10.0.1.30:9200"
   },
   "curveBasePath": "../data",
   "imageBasePath": "wi-images",

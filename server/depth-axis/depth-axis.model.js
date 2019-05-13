@@ -41,7 +41,7 @@ function createNewDepthAxis(depthAxisInfo, done, dbConnection) {
 function editDepthAxis(depthAxisInfo, done, dbConnection) {
     delete depthAxisInfo.createdBy;
     let DepthAxis = dbConnection.DepthAxis;
-    DepthAxis.findById(depthAxisInfo.idDepthAxis)
+    DepthAxis.findByPk(depthAxisInfo.idDepthAxis)
         .then(function (depthAxis) {
             delete depthAxisInfo.idPlot;
             delete depthAxisInfo.idDepthAxis;
@@ -61,7 +61,7 @@ function editDepthAxis(depthAxisInfo, done, dbConnection) {
 
 function deleteDepthAxis(depthAxisInfo, done, dbConnection) {
     let DepthAxis = dbConnection.DepthAxis;
-    DepthAxis.findById(depthAxisInfo.idDepthAxis)
+    DepthAxis.findByPk(depthAxisInfo.idDepthAxis)
         .then(function (depthAxis) {
             depthAxis.setDataValue('updatedBy', depthAxisInfo.updatedBy);
             depthAxis.destroy()
@@ -80,7 +80,7 @@ function deleteDepthAxis(depthAxisInfo, done, dbConnection) {
 
 function getDepthAxisInfo(depthAxis, done, dbConnection) {
     let DepthAxis = dbConnection.DepthAxis;
-    DepthAxis.findById(depthAxis.idDepthAxis, {include: [{all: true}]})
+    DepthAxis.findByPk(depthAxis.idDepthAxis, {include: [{all: true}]})
         .then(function (depthAxis) {
             if (!depthAxis) throw "not exits";
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Depth-Axis success", depthAxis));

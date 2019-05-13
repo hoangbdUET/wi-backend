@@ -3,7 +3,7 @@ let ErrorCodes = require('../../error-codes').CODES;
 let asyncEach = require('async/each');
 let eachSeries = require('async/eachSeries');
 
-function createNewZoneSet(zoneSetInfo, done, dbConnection) {
+function createNewZoneSet(zoneSetInfo, done, dbConnection, logger) {
 	let ZoneSet = dbConnection.ZoneSet;
 	ZoneSet.create(zoneSetInfo).then(zs => {
 		if (zoneSetInfo.idZoneSetTemplate && (zoneSetInfo.start || zoneSetInfo.start === 0) && zoneSetInfo.stop) {
@@ -33,17 +33,19 @@ function createNewZoneSet(zoneSetInfo, done, dbConnection) {
 						nextZone();
 					})
 				}, function () {
-					dbConnection.ZoneSet.findById(zs.idZoneSet, {
+					dbConnection.ZoneSet.findByPk(zs.idZoneSet, {
 						include: [{model: dbConnection.ZoneSetTemplate}, {
 							model: dbConnection.Zone,
 							include: {model: dbConnection.ZoneTemplate}
 						}]
 					}).then(rs => {
+						logger.info("ZONE_SET", rs.idZoneSet, "Created");
 						done(ResponseJSON(ErrorCodes.SUCCESS, "Create new ZoneSet success", rs));
 					});
 				});
 			});
 		} else {
+			logger.info("ZONE_SET", zs.idZoneSet, "Created");
 			done(ResponseJSON(ErrorCodes.SUCCESS, "Create new ZoneSet success", zs));
 		}
 	}).catch(err => {
@@ -60,20 +62,21 @@ function createNewZoneSet(zoneSetInfo, done, dbConnection) {
 	});
 }
 
-function editZoneSet(zoneSetInfo, done, dbConnection) {
+function editZoneSet(zoneSetInfo, done, dbConnection, logger) {
 	delete zoneSetInfo.createdBy;
 	let ZoneSet = dbConnection.ZoneSet;
-	ZoneSet.findById(zoneSetInfo.idZoneSet)
+	ZoneSet.findByPk(zoneSetInfo.idZoneSet)
 		.then(function (zoneSet) {
 			zoneSet = Object.assign(zoneSet, zoneSetInfo);
 			zoneSet.save()
 				.then(function () {
-					dbConnection.ZoneSet.findById(zoneSetInfo.idZoneSet, {
+					dbConnection.ZoneSet.findByPk(zoneSetInfo.idZoneSet, {
 						include: [{model: dbConnection.ZoneSetTemplate}, {
 							model: dbConnection.Zone,
 							include: {model: dbConnection.ZoneTemplate}
 						}]
 					}).then(rs => {
+						logger.info("ZONE_SET", rs.idZoneSet, "Updated");
 						done(ResponseJSON(ErrorCodes.SUCCESS, "Edit zoneSet success", rs));
 					});
 				})
@@ -90,13 +93,14 @@ function editZoneSet(zoneSetInfo, done, dbConnection) {
 		});
 }
 
-function deleteZoneSet(zoneSetInfo, done, dbConnection) {
+function deleteZoneSet(zoneSetInfo, done, dbConnection, logger) {
 	let ZoneSet = dbConnection.ZoneSet;
-	ZoneSet.findById(zoneSetInfo.idZoneSet)
+	ZoneSet.findByPk(zoneSetInfo.idZoneSet)
 		.then(function (zoneSet) {
 			zoneSet.setDataValue('updatedBy', zoneSetInfo.updatedBy);
 			zoneSet.destroy({permanently: true, force: true})
 				.then(function () {
+					logger.info("ZONE_SET", zoneSet.idZoneSet, "Deleted");
 					done(ResponseJSON(ErrorCodes.SUCCESS, "ZoneSet is deleted", zoneSet));
 				})
 				.catch(function (err) {
@@ -110,7 +114,7 @@ function deleteZoneSet(zoneSetInfo, done, dbConnection) {
 
 function getZoneSetInfo(zoneSet, done, dbConnection) {
 	let ZoneSet = dbConnection.ZoneSet;
-	ZoneSet.findById(zoneSet.idZoneSet, {
+	ZoneSet.findByPk(zoneSet.idZoneSet, {
 		include: {
 			model: dbConnection.Zone,
 			include: {
@@ -168,8 +172,8 @@ function getZoneSetList(setInfo, done, dbConnection) {
 	}
 }
 
-async function duplicateZoneSet(data, done, dbConnection) {
-	let zoneset = await dbConnection.ZoneSet.findById(data.idZoneSet, {include: {all: true}});
+async function duplicateZoneSet(data, done, dbConnection, logger) {
+	let zoneset = await dbConnection.ZoneSet.findByPk(data.idZoneSet, {include: {all: true}});
 	let newZoneset = zoneset.toJSON();
 	delete newZoneset.idZoneSet;
 	newZoneset.name = zoneset.name + '_COPY_' + zoneset.duplicated;
@@ -187,6 +191,7 @@ async function duplicateZoneSet(data, done, dbConnection) {
 			next();
 		});
 	}, function (err) {
+		logger.info("ZONE_SET", zoneset.idZoneSet, "Duplicated");
 		done(ResponseJSON(ErrorCodes.SUCCESS, "Done", _zoneset));
 	});
 }

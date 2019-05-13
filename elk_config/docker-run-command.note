@@ -1,0 +1,4 @@
+docker run -itd --name logstash -p 5044:5044 -v D:/docker_app/logstash/wi-log.conf:/usr/share/logstash/pipeline/wi-user-log.conf docker.elastic.co/logstash/logstash:6.6.0
+
+docker run -itd --name filebeat -v D:/workspace/tmp/user-log:/app/logs/ -v D:/docker_app/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml docker.elastic.co/beats/filebeat:6.6.0
+

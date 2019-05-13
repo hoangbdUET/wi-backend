@@ -20,14 +20,14 @@ router.post('/database/update', function (req, res) {
 			if (err) {
 				return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Authentication failed", "Authentication failed"));
 			} else {
-				let sequelize = new Sequelize('wi_backend', config.user, config.password, {
-					host: config.host,
+				let sequelize = new Sequelize('wi_backend', process.env.BACKEND_DBUSER || config.user, process.env.BACKEND_DBPASSWORD || config.password, {
+					host: process.env.BACKEND_DBHOST || config.host,
 					define: {
 						freezeTableName: true
 					},
-					dialect: config.dialect,
-					port: config.port,
-					logging: config.logging,
+					dialect: process.env.BACKEND_DBDIALECT || config.dialect,
+					port: process.env.BACKEND_DBPORT || config.port,
+					logging: false,
 					dialectOptions: {
 						charset: 'utf8'
 					},
@@ -37,9 +37,9 @@ router.post('/database/update', function (req, res) {
 						idle: 200
 					},
 					operatorsAliases: Sequelize.Op,
-					storage: config.storage
+					storage: process.env.BACKEND_DBSTORAGE || config.storage
 				});
-				let dbName = config.prefix + decoded.username.toLowerCase();
+				let dbName = (process.env.BACKEND_DBPREFIX || config.prefix) + decoded.username.toLowerCase();
 				sequelize.query("CREATE DATABASE IF NOT EXISTS `" + dbName + "` CHARACTER SET utf8 COLLATE utf8_general_ci").then(rs => {
 					if (rs[0].warningStatus === 0) {
 						models(dbName).sequelize.sync().then(() => {

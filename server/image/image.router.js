@@ -23,7 +23,7 @@ router.post('/image/edit', function (req, res) {
     }, req.dbConnection)
 });
 
-router.delete('/image/delete', function (req, res) {
+router.post('/image/delete', function (req, res) {
     //TODO : Hooks after delete
     imageModel.deleteImage(req.body, function (status) {
         res.send(status);

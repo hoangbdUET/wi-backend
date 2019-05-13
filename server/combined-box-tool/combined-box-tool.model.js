@@ -14,7 +14,7 @@ function createNewComboBoxSelect(payload, done, dbConnection) {
 
 function infoComboBoxSelect(payload, done, dbConnection) {
     let Model = dbConnection.CombinedBoxTool;
-    Model.findById(payload.idCombinedBoxTool, {include: {all: true}}).then(rs => {
+    Model.findByPk(payload.idCombinedBoxTool, {include: {all: true}}).then(rs => {
         if (rs) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
         } else {
@@ -29,7 +29,7 @@ function infoComboBoxSelect(payload, done, dbConnection) {
 
 function deleteNewComboBoxSelect(payload, done, dbConnection) {
     let Model = dbConnection.CombinedBoxTool;
-    Model.findById(payload.idCombinedBoxTool).then(rs => {
+    Model.findByPk(payload.idCombinedBoxTool).then(rs => {
         if (rs) {
             rs.destroy().then(rs => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
@@ -49,7 +49,7 @@ function deleteNewComboBoxSelect(payload, done, dbConnection) {
 
 function editNewComboBoxSelect(payload, done, dbConnection) {
     let Model = dbConnection.CombinedBoxTool;
-    Model.findById(payload.idCombinedBoxTool).then(rs => {
+    Model.findByPk(payload.idCombinedBoxTool).then(rs => {
         if (rs) {
             let newCb = rs.toJSON();
             newCb.name = payload.name || newCb.name;

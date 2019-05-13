@@ -12,7 +12,7 @@ module.exports = function (dbConnection) {
         });
 
     });
-    dbConnection.Ternary.hook('beforeDestroy', function (object, options) {
+    dbConnection.Ternary.addHook('beforeDestroy', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'ternary.delete', function (result) {
                 if (result) {
@@ -27,7 +27,7 @@ module.exports = function (dbConnection) {
             });
         });
     });
-    dbConnection.Ternary.hook('beforeUpdate', function (object, options) {
+    dbConnection.Ternary.addHook('beforeUpdate', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'ternary.update', function (result) {
                 if (result) {

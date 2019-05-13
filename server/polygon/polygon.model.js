@@ -23,7 +23,7 @@ function createNewPolygon(polygonInfo, done, dbConnection) {
 function editPolygon(polygonInfo, done, dbConnection) {
     delete polygonInfo.createdBy;
     let Polygon = dbConnection.Polygon;
-    Polygon.findById(polygonInfo.idPolygon)
+    Polygon.findByPk(polygonInfo.idPolygon)
         .then(function (polygon) {
             delete polygonInfo.idPolygon;
             delete polygonInfo.idCrossPlot;//forbid changing CrossPlot it belongto
@@ -44,7 +44,7 @@ function editPolygon(polygonInfo, done, dbConnection) {
 
 function deletePolygon(polygonInfo, done, dbConnection) {
     let Polygon = dbConnection.Polygon;
-    Polygon.findById(polygonInfo.idPolygon)
+    Polygon.findByPk(polygonInfo.idPolygon)
         .then(function (polygon) {
             polygon.setDataValue('updatedBy', polygonInfo.updatedBy);
             polygon.destroy()
@@ -62,7 +62,7 @@ function deletePolygon(polygonInfo, done, dbConnection) {
 
 function getPolygonInfo(polygonInfo, done, dbConnection) {
     let Polygon = dbConnection.Polygon;
-    Polygon.findById(polygonInfo.idPolygon)
+    Polygon.findByPk(polygonInfo.idPolygon)
         .then(function (polygon) {
             if (!polygon) throw 'not exists';
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get polygon info success", polygon))

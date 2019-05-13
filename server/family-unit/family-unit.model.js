@@ -4,7 +4,7 @@ let async = require('async');
 
 function getListUnitByIdFamily(idFamily, dbConnection) {
     return new Promise(function (resolve) {
-        dbConnection.Family.findById(idFamily, {
+        dbConnection.Family.findByPk(idFamily, {
             order: ['name'],
             include: {
                 model: dbConnection.FamilySpec,
@@ -25,7 +25,7 @@ function getListUnitByIdFamily(idFamily, dbConnection) {
 
 function getListUnitByIdCurve(idCurve, dbConnection) {
     return new Promise(function (resolve) {
-        dbConnection.Curve.findById(idCurve).then((curve => {
+        dbConnection.Curve.findByPk(idCurve).then((curve => {
             if (!curve || !curve.idFamily) {
                 resolve([]);
             } else {

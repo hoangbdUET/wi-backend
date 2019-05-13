@@ -12,7 +12,7 @@ module.exports = function (dbConnection) {
         });
 
     });
-    dbConnection.Annotation.hook('beforeDestroy', function (object, options) {
+    dbConnection.Annotation.addHook('beforeDestroy', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'annotation.delete', function (result) {
                 if (result) {
@@ -27,7 +27,7 @@ module.exports = function (dbConnection) {
             });
         });
     });
-    dbConnection.Annotation.hook('beforeUpdate', function (object, options) {
+    dbConnection.Annotation.addHook('beforeUpdate', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'annotation.update', function (result) {
                 if (result) {

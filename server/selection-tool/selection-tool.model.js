@@ -1,14 +1,13 @@
 let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
-let wiImport = require('wi-import');
-let hashDir = wiImport.hashDir;
+let hashDir = require('../utils/data-tool').hashDir;
 let config = require('config');
 let fs = require('fs-extra');
 
 function createSelectionTool(payload, done, dbConnection, username) {
     payload.data = "{}";
     dbConnection.SelectionTool.create(payload).then(rs => {
-		let binPath = hashDir.createPath(config.curveBasePath, username + rs.idSelectionTool, rs.idSelectionTool + '.txt');
+		let binPath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + rs.idSelectionTool, rs.idSelectionTool + '.txt');
 		console.log(binPath);
         rs = rs.toJSON();
         fs.copy(payload.BIN, binPath, function (err) {
@@ -31,10 +30,10 @@ function createSelectionTool(payload, done, dbConnection, username) {
 function editSelectionTool(payload, done, dbConnection, username) {
     payload.data = "{}";
     let Model = dbConnection.SelectionTool;
-    Model.findById(payload.idSelectionTool).then(row => {
+    Model.findByPk(payload.idSelectionTool).then(row => {
         if (row) {
             if (payload.BIN) {
-				let binPath = hashDir.createPath(config.curveBasePath, username + row.idSelectionTool, row.idSelectionTool + '.txt');
+				let binPath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + row.idSelectionTool, row.idSelectionTool + '.txt');
 				console.log("THong ", binPath, payload.BIN);
                 fs.copy(payload.BIN, binPath, function (err) {
                     if (err) {
@@ -70,10 +69,10 @@ function editSelectionTool(payload, done, dbConnection, username) {
 
 function infoSelectionTool(payload, done, dbConnection, username) {
     let Model = dbConnection.SelectionTool;
-    Model.findById(payload.idSelectionTool).then(rs => {
+    Model.findByPk(payload.idSelectionTool).then(rs => {
         if (rs) {
             rs = rs.toJSON();
-			let binPath = hashDir.createPath(config.curveBasePath, username + rs.idSelectionTool, rs.idSelectionTool + '.txt');
+			let binPath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + rs.idSelectionTool, rs.idSelectionTool + '.txt');
 
 			console.log("Get selection tool data path ", binPath);
             rs.data = JSON.parse(fs.readFileSync(binPath).toString());
@@ -89,10 +88,10 @@ function infoSelectionTool(payload, done, dbConnection, username) {
 
 function deleteSelectionTool(payload, done, dbConnection, username) {
     let Model = dbConnection.SelectionTool;
-    Model.findById(payload.idSelectionTool).then(rs => {
+    Model.findByPk(payload.idSelectionTool).then(rs => {
         if (rs) {
             rs.destroy().then(() => {
-                hashDir.deleteFolder(config.curveBasePath, username + rs.idSelectionTool);
+                hashDir.deleteFolder(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + rs.idSelectionTool);
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
             }).catch(err => {
                 console.log(err);

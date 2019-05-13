@@ -11,7 +11,7 @@ function createNewMarkerSetTemplate(payload, done, dbConnection) {
 }
 
 function infoMarkerSetTemplate(payload, done, dbConnection) {
-    dbConnection.MarkerSetTemplate.findById(payload.idMarkerSetTemplate, {include: [{model: dbConnection.MarkerTemplate}, {model: dbConnection.MarkerSet}]}).then(rs => {
+    dbConnection.MarkerSetTemplate.findByPk(payload.idMarkerSetTemplate, {include: [{model: dbConnection.MarkerTemplate}, {model: dbConnection.MarkerSet}]}).then(rs => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
@@ -31,7 +31,7 @@ function listMarkerSetTemplate(payload, done, dbConnection) {
 
 
 function deleteMarkerSetTemplate(payload, done, dbConnection) {
-    dbConnection.MarkerSetTemplate.findById(payload.idMarkerSetTemplate).then(zst => {
+    dbConnection.MarkerSetTemplate.findByPk(payload.idMarkerSetTemplate).then(zst => {
         if (zst) {
             zst.destroy().then(() => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Done", zst));
@@ -47,10 +47,10 @@ function deleteMarkerSetTemplate(payload, done, dbConnection) {
 }
 
 function editMarkerSetTemplate(payload, done, dbConnection) {
-    dbConnection.MarkerSetTemplate.findById(payload.idMarkerSetTemplate).then(zst => {
+    dbConnection.MarkerSetTemplate.findByPk(payload.idMarkerSetTemplate).then(zst => {
         if (zst) {
             Object.assign(zst, payload).save().then((zst_) => {
-                dbConnection.MarkerSetTemplate.findById(zst_.idMarkerSetTemplate, {include: {model: dbConnection.MarkerSet}}).then((t) => {
+                dbConnection.MarkerSetTemplate.findByPk(zst_.idMarkerSetTemplate, {include: {model: dbConnection.MarkerSet}}).then((t) => {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Done", t));
                 });
             }).catch(err => {

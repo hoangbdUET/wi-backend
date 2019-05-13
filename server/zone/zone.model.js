@@ -27,7 +27,7 @@ function createNewZone(zoneInfo, done, dbConnection) {
 function editZone(zoneInfo, done, dbConnection) {
     delete zoneInfo.createdBy;
     let Zone = dbConnection.Zone;
-    Zone.findById(zoneInfo.idZone)
+    Zone.findByPk(zoneInfo.idZone)
         .then(function (zone) {
             zone = Object.assign(zone, zoneInfo);
             zone.fill = JSON.stringify(zone.fill);
@@ -46,7 +46,7 @@ function editZone(zoneInfo, done, dbConnection) {
 
 function deleteZone(zoneInfo, done, dbConnection) {
     let Zone = dbConnection.Zone;
-    Zone.findById(zoneInfo.idZone)
+    Zone.findByPk(zoneInfo.idZone)
         .then(function (zone) {
             zone.setDataValue('updatedBy', zoneInfo.updatedBy);
             zone.destroy()
@@ -64,7 +64,7 @@ function deleteZone(zoneInfo, done, dbConnection) {
 
 function getZoneInfo(zone, done, dbConnection) {
     let Zone = dbConnection.Zone;
-    Zone.findById(zone.idZone, {include: [{all: true}]})
+    Zone.findByPk(zone.idZone, {include: [{all: true}]})
         .then(function (zone) {
             if (!zone) throw "not exits";
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Zone success", zone));

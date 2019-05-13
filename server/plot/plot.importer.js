@@ -202,9 +202,12 @@ function createTrack(track, dbConnection, idProject, idPlot, username, well, dat
 							} else {
 								line.idCurve = curve.idCurve;
 								let lineModel = require('../line/line.model');
-								lineModel.createNewLineWithoutResponse(line, dbConnection, username).then(() => {
+								// lineModel.createNewLineWithoutResponse(line, dbConnection, username).then(() => {
+								// 	next();
+								// });
+								lineModel.createNewLine(line, function () {
 									next();
-								});
+								}, dbConnection, username);
 							}
 						})
 					}, cb)
@@ -239,20 +242,20 @@ function createTrack(track, dbConnection, idProject, idPlot, username, well, dat
 	});
 }
 
-module.exports = function (req, done, dbConnection, username) {
+module.exports = function (req, done, dbConnection, username, logger) {
 	createdBy = req.createdBy;
 	updatedBy = req.updatedBy;
-	dbConnection.ParameterSet.findById(req.body.idParameterSet).then(async param => {
+	dbConnection.ParameterSet.findByPk(req.body.idParameterSet).then(async param => {
 		if (!param) {
 			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No template found"));
 		} else {
 			let myPlot = param.content;
 			let well, dataset;
 			if (req.body.idDataset) {
-				dataset = await dbConnection.Dataset.findById(req.body.idDataset);
-				well = dataset ? await dbConnection.Well.findById(dataset.idWell) : null;
+				dataset = await dbConnection.Dataset.findByPk(req.body.idDataset);
+				well = dataset ? await dbConnection.Well.findByPk(dataset.idWell) : null;
 			} else {
-				well = await dbConnection.Well.findById(req.body.idWell);
+				well = await dbConnection.Well.findByPk(req.body.idWell);
 			}
 			if (!well) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No well found by id"));
 			let idProject = req.body.idProject || well.idProject;
@@ -288,11 +291,16 @@ module.exports = function (req, done, dbConnection, username) {
 						}, cb)
 					}
 				], () => {
-					done(ResponseJSON(ErrorCodes.SUCCESS, "Done", pl));
+					logger.info("PLOT", pl.idPlot, "Created from template");
+					dbConnection.Plot.findByPk(pl.idPlot, {include: {all: true, include: {all: true}}}).then(p => {
+						done(ResponseJSON(ErrorCodes.SUCCESS, "Done", p));
+					});
 				});
 			}).catch(err => {
 				if (err.name === "SequelizeUniqueConstraintError") {
-					done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot's name already exists! " + myPlot.name));
+					dbConnection.Plot.findOne({where: {name: myPlot.name}}).then(pl => {
+						done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot's name already exists! " + myPlot.name, pl));
+					})
 				} else {
 					done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
 				}

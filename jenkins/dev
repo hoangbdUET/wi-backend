@@ -12,7 +12,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'ssh i2g-dev "cd /opt/wi-backend && npm install && npm i wi-import && npm i wi-export-test"'
+                sh 'ssh i2g-dev "cd /opt/wi-backend && npm install && npm i wi-export-test"'
             }
         }
 

@@ -12,7 +12,7 @@ module.exports = function (dbConnection) {
         });
 
     });
-    dbConnection.ImageTrack.hook('beforeDestroy', function (object, options) {
+    dbConnection.ImageTrack.addHook('beforeDestroy', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'image-track.delete', function (result) {
                 if (result) {
@@ -27,7 +27,7 @@ module.exports = function (dbConnection) {
             });
         });
     });
-    dbConnection.ImageTrack.hook('beforeUpdate', function (object, options) {
+    dbConnection.ImageTrack.addHook('beforeUpdate', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'image-track.update', function (result) {
                 if (result) {

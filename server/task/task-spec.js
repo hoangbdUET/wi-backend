@@ -8,7 +8,7 @@ let ErrorCodes = require('../../error-codes').CODES;
 let config = require('config');
 
 let syncTaskSpec = function (username, callback) {
-    let userDbConnection = userModel(config.Database.prefix + username, function (err) {
+    let userDbConnection = userModel((process.env.BACKEND_DBPREFIX || config.Database.prefix) + username, function (err) {
         if (err) {
             return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "ERROR", err));
         }
@@ -49,6 +49,8 @@ let createTaskSpec = function (callback) {
         }).then(() => {
             nextRow();
         }).catch(err => {
+            // console.log("====", row);
+            // console.log(err);
             nextRow();
         })
     }, function () {
@@ -66,7 +68,7 @@ function addTaskSpec(payload, done, dbConnection) {
 }
 
 function infoTaskSpec(payload, done, dbConnection) {
-    dbConnection.TaskSpec.findById(payload.idTaskSpec).then(r => {
+    dbConnection.TaskSpec.findByPk(payload.idTaskSpec).then(r => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
     });
 }
@@ -81,7 +83,7 @@ function listTaskSpec(payload, done, dbConnection) {
 }
 
 function deleteTaskSpec(payload, done, dbConnection) {
-    dbConnection.TaskSpec.findById(payload.idTaskSpec).then(r => {
+    dbConnection.TaskSpec.findByPk(payload.idTaskSpec).then(r => {
         if (r) {
             r.destroy().then(() => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
@@ -95,7 +97,7 @@ function deleteTaskSpec(payload, done, dbConnection) {
 }
 
 function editTaskSpec(payload, done, dbConnection) {
-    dbConnection.TaskSpec.findById(payload.idTaskSpec).then(r => {
+    dbConnection.TaskSpec.findByPk(payload.idTaskSpec).then(r => {
         if (r) {
             Object.assign(r, payload).save().then(() => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));

@@ -15,7 +15,8 @@ module.exports = function (sequelize, DataTypes) {
         },
         alias:{
             type: DataTypes.STRING,
-            allowNull: true
+            allowNull: true,
+            unique: true
         },
         location: {
             type: DataTypes.STRING(250),

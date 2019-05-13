@@ -96,7 +96,7 @@ router.post('/migrate/update-zone-set', async (req, res) => {
 	async.each(zonesets, function (zoneset, next) {
 		getIdProjectByIdWell(zoneset.idWell, dbConnection).then(idProject => {
 			console.log("++++++", idProject);
-			dbConnection.ZoneSetTemplate.findById(zoneset.idZoneSetTemplate).then(zst => {
+			dbConnection.ZoneSetTemplate.findByPk(zoneset.idZoneSetTemplate).then(zst => {
 				console.log("------", zst.name);
 				dbConnection.ZoneSetTemplate.findOne({where: {idProject: idProject, name: zst.name}}).then(_zst => {
 					console.log("=======", _zst.idZoneSetTemplate);
@@ -146,7 +146,7 @@ router.post('/migrate/update-marker-set', async (req, res) => {
 	async.each(markersets, function (markerset, next) {
 		getIdProjectByIdWell(markerset.idWell, dbConnection).then(idProject => {
 			console.log("++++++", idProject);
-			dbConnection.MarkerSetTemplate.findById(markerset.idMarkerSetTemplate).then(zst => {
+			dbConnection.MarkerSetTemplate.findByPk(markerset.idMarkerSetTemplate).then(zst => {
 				console.log("------", zst.name);
 				dbConnection.MarkerSetTemplate.findOne({where: {idProject: idProject, name: zst.name}}).then(_zst => {
 					console.log("=======", _zst.idMarkerSetTemplate);
@@ -186,7 +186,7 @@ router.post('/migrate/update-marker-set', async (req, res) => {
 });
 
 async function getIdProjectByIdWell(idWell, dbConnection) {
-	let well = await dbConnection.Well.findById(idWell);
+	let well = await dbConnection.Well.findByPk(idWell);
 	if (well) return well.idProject;
 	return null;
 }
@@ -195,14 +195,19 @@ router.post('/migrate/task-spec', async (req, res) => {
 	const dbConnection = req.dbConnection;
 	dbMaster.TaskSpec.findAll().then((master_tps) => {
 		async.each(master_tps, (master_tp, next) => {
-			dbConnection.TaskSpec.findById(master_tp.idTaskSpec).then(ts => {
-				ts.content = master_tp.content;
-				ts.name = master_tp.name;
-				ts.type = master_tp.type;
-				ts.group = master_tp.group;
-				ts.save().then(() => {
+			dbConnection.TaskSpec.findByPk(master_tp.idTaskSpec).then(ts => {
+				if (ts) {
+					ts.content = master_tp.content;
+					ts.name = master_tp.name;
+					ts.type = master_tp.type;
+					ts.group = master_tp.group;
+					ts.save().then(() => {
+						next();
+					});
+				} else {
+					console.log("Loi ", master_tp.idTaskSpec);
 					next();
-				});
+				}
 			});
 		}, function () {
 			res.json(req.decoded.username + " Done");
@@ -296,5 +301,33 @@ router.post('/migrate/add-flow-to-existed-project', (req, res) => {
 	});
 });
 
+router.post('/migrate/add-ps-to-existed-project', (req, res) => {
+	const dbConnection = req.dbConnection;
+	dbMaster.ParameterSet.findAll().then(pss => {
+		dbConnection.Project.findAll().then(projects => {
+			async.each(projects, (project, nextProject) => {
+				async.each(pss, (ps, nextParam) => {
+					dbConnection.ParameterSet.create({
+						name: ps.name,
+						content: ps.content,
+						note: ps.note,
+						type: ps.type,
+						createdBy: req.decoded.username,
+						updatedBy: req.decoded.username,
+						idProject: project.idProject
+					}).then(() => {
+						nextParam();
+					}).catch(() => {
+						nextParam();
+					});
+				}, () => {
+					nextProject();
+				});
+			}, () => {
+				res.json(req.decoded.username + " Done");
+			});
+		});
+	});
+});
 
 module.exports = router;

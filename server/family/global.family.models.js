@@ -26,7 +26,7 @@ function createNewFamily(familyInfo, done) {
 }
 
 function editFamily(familyInfo, done) {
-    Family.findById(familyInfo.idFamily)
+    Family.findByPk(familyInfo.idFamily)
         .then(function (family) {
             delete familyInfo.idFamily;
             Object.assign(family, familyInfo)
@@ -44,7 +44,7 @@ function editFamily(familyInfo, done) {
 }
 
 function deleteFamily(familyInfo, done) {
-    Family.findById(familyInfo.idFamily)
+    Family.findByPk(familyInfo.idFamily)
         .then(function (family) {
             family.destroy()
                 .then(function () {
@@ -60,7 +60,7 @@ function deleteFamily(familyInfo, done) {
 }
 
 function getFamilyInfo(familyInfo, done) {
-    Family.findById(familyInfo.idFamily)
+    Family.findByPk(familyInfo.idFamily)
         .then(function (family) {
             if (!family) throw 'not exists';
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get family info success", family));
@@ -71,7 +71,7 @@ function getFamilyInfo(familyInfo, done) {
 }
 
 function getFamilyList(done) {
-    Family.all()
+    Family.findAll()
         .then(function (families) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get List Family success", families));
         })
@@ -179,7 +179,7 @@ let syncFamilySpec = function (userDbConnection, callback) {
 };
 
 let syncFamilyData = function (params, done) {
-    let userDbConnection = userModels(config.Database.prefix + params.username, function (err) {
+    let userDbConnection = userModels((process.env.BACKEND_DBPREFIX || config.Database.prefix) + params.username, function (err) {
         if (err) {
             return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "ERROR", err));
         }

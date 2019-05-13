@@ -5,8 +5,7 @@ let Sequelize = require('sequelize');
 let config = require('config').Database;
 let configCommon = require('config');
 
-let wiImport = require('wi-import');
-let hashDir = wiImport.hashDir;
+let hashDir = require('../utils/data-tool').hashDir;
 
 let sequelizeCache = new Object();
 
@@ -67,16 +66,16 @@ module.exports = function (dbName, callback, isDelete) {
 
 function newDbInstance(dbName, callback) {
 	let object = new Object();
-	const sequelize = new Sequelize(dbName, config.user, config.password, {
-		host: config.host,
+	const sequelize = new Sequelize(dbName, process.env.BACKEND_DBUSER || config.user, process.env.BACKEND_DBPASSWORD || config.password, {
+		host: process.env.BACKEND_DBHOST || config.host,
 		define: {
 			freezeTableName: true,
 			charset: 'utf8',
 			collate: 'utf8_general_ci',
 		},
-		dialect: config.dialect,
-		port: config.port,
-		logging: config.logging,
+		dialect: process.env.BACKEND_DBDIALECT || config.dialect,
+		port: process.env.BACKEND_DBPORT || config.port,
+		logging: false,
 		dialectOptions: {
 			charset: 'utf8'
 		},
@@ -87,7 +86,7 @@ function newDbInstance(dbName, callback) {
 			idle: 1000 * 60 * 15
 		},
 		operatorsAliases: Sequelize.Op,
-		storage: config.storage
+		storage: process.env.BACKEND_DBSTORAGE || config.storage
 	});
 	sequelize.sync()
 		.catch(function (err) {
@@ -96,6 +95,7 @@ function newDbInstance(dbName, callback) {
 		});
 
 	let models = [
+		'Analysis',
 		'Annotation',
 		'CombinedBox',
 		'CombinedBoxTool',
@@ -115,6 +115,7 @@ function newDbInstance(dbName, callback) {
 		'HistogramCurveSet',
 		'Image',
 		'ImageOfTrack',
+		'ImageSet',
 		'ImageTrack',
 		'Line',
 		'Marker',
@@ -294,15 +295,10 @@ function newDbInstance(dbName, callback) {
 		m.ZoneSet.hasMany(m.Zone, {foreignKey: {name: "idZoneSet", allowNull: false}, onDelete: 'CASCADE'});
 
 
-		// m.ZoneSet.hasMany(m.Zone, {foreignKey: {name: "idZoneSet", allowNull: false}, onDelete: 'CASCADE'});
-		// m.Zone.belongsTo(m.ZoneTemplate, {foreignKey: {name: "idZoneTemplate", allowNull: true}, onDelete: 'CASCADE'});
-		// m.ZoneTemplate.hasMany(m.Zone, {foreignKey: {name: "idZoneTemplate", allowNull: true}, onDelete: 'CASCADE'});
 		m.Plot.belongsTo(m.Curve, {foreignKey: 'referenceCurve'});
 
 		m.Track.hasMany(m.Line, {foreignKey: {name: "idTrack", allowNull: false}, onDelete: 'CASCADE'});
 		m.Track.hasMany(m.Shading, {foreignKey: {name: "idTrack", allowNull: false}, onDelete: 'CASCADE'});
-		// m.Track.hasMany(m.Image, {foreignKey: {name: "idTrack", allowNull: false}, onDelete: 'CASCADE'});
-		// m.Track.hasMany(m.Marker, {foreignKey: {name: 'idTrack', allowNull: false}, onDelete: 'CASCADE'});
 		m.Track.hasMany(m.Annotation, {foreignKey: {name: 'idTrack', allowNull: false}, onDelete: 'CASCADE'});
 		m.Line.belongsTo(m.Curve, {foreignKey: {name: "idCurve", allowNull: false}, onDelete: 'CASCADE'});
 
@@ -413,10 +409,6 @@ function newDbInstance(dbName, callback) {
 			onDelete: 'CASCADE'
 		});
 
-		// m.Project.hasMany(m.WorkflowSpec, {
-		//     foreignKey: {name: 'idProject', allowNull: false},
-		//     onDelete: 'CASCADE'
-		// });
 		m.Project.hasMany(m.Workflow, {
 			foreignKey: {name: 'idProject', allowNull: false, unique: 'name-idProject'},
 			onDelete: 'CASCADE'
@@ -457,14 +449,27 @@ function newDbInstance(dbName, callback) {
 			onDelete: 'CASCADE'
 		});
 
-
-		//marker set
+		//image Template
+		m.Well.hasMany(m.ImageSet, {
+			foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"}
+		});
+		m.ImageSet.belongsTo(m.Well, {
+			foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"}
+		});
+		m.Image.belongsTo(m.ImageSet, {
+			foreignKey: {name: "idImageSet", allowNull: false}, onDelete: "CASCADE"
+		});
+		m.ImageSet.hasMany(m.Image, {
+			foreignKey: {name: "idImageSet", allowNull: false}, onDelete: 'CASCADE'
+		});
+		m.ImageTrack.belongsTo(m.ImageSet, {foreignKey: {name: "idImageSet", allowNull: true}});
+		//marker Template
 		m.Well.hasMany(m.MarkerSet, {
 			foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"}
 		});
 		m.MarkerSet.belongsTo(m.Well, {
 			foreignKey: {name: "idWell", allowNull: false, unique: "name-idWell"}
-		})
+		});
 		m.Well.hasMany(m.DepthAxis, {
 			foreignKey: {name: "idWell", allowNull: true}
 		});
@@ -495,6 +500,13 @@ function newDbInstance(dbName, callback) {
 		m.Curve.hasMany(m.DepthAxis, {
 			foreignKey: {name: "idCurve", allowNull: true}
 		});
+
+		m.Analysis.belongsTo(m.Project, {
+			foreignKey: {name: "idProject", allowNull: false, unique: 'name-project-type'}, onDelete: "CASCADE"
+		});
+		m.Project.hasMany(m.Analysis, {
+			foreignKey: {name: "idProject", allowNull: false, unique: 'name-project-type'}, onDelete: "CASCADE"
+		});
 	})(object);
 
 	object.sequelize = sequelize;
@@ -517,7 +529,7 @@ function newDbInstance(dbName, callback) {
 	let rename = require('../utils/function').renameObjectForDustbin;
 	let curveFunction = require('../utils/curve.function');
 	require('../models-hooks/index')(object);
-	Curve.hook('afterCreate', function (curve) {
+	Curve.addHook('afterCreate', function (curve) {
 		if (!curve.idFamily) {
 			((curveName, unit) => {
 				FamilyCondition.findAll()
@@ -525,7 +537,8 @@ function newDbInstance(dbName, callback) {
 						let result = conditions.find(function (aCondition) {
 							let regex;
 							try {
-								regex = new RegExp("^" + aCondition.curveName + "$", "i").test(curveName) && new RegExp("^" + aCondition.unit + "$", "i").test(unit);
+								regex = new RegExp("^" + aCondition.curveName + "$", "i").test(curveName) && new RegExp("^" + aCondition.unit + "$", "i").test(unit) && (curve.type === aCondition.type);
+								// console.log(aCondition);
 							} catch (err) {
 								console.log(err);
 							}
@@ -541,7 +554,7 @@ function newDbInstance(dbName, callback) {
 					})
 			})(curve.name, curve.unit);
 		} else {
-			Family.findById(curve.idFamily, {include: {model: FamilySpec, as: 'family_spec'}}).then(family => {
+			Family.findByPk(curve.idFamily, {include: {model: FamilySpec, as: 'family_spec'}}).then(family => {
 				curve.unit = curve.unit || family.family_spec[0].unit;
 				curve.save();
 			}).catch(err => {
@@ -549,7 +562,7 @@ function newDbInstance(dbName, callback) {
 			});
 		}
 	});
-	Curve.hook('beforeDestroy', function (curve, options) {
+	Curve.addHook('beforeDestroy', function (curve, options) {
 		return new Promise(async function (resolve) {
 			let parents = await curveFunction.getFullCurveParents(curve, object);
 			parents.username = username;
@@ -592,7 +605,7 @@ function newDbInstance(dbName, callback) {
 		});
 	});
 
-	Well.hook('beforeDestroy', function (well, options) {
+	Well.addHook('beforeDestroy', function (well, options) {
 		console.log("Hooks delete well");
 		return new Promise(function (resolve) {
 			if (options.permanently) {
@@ -648,7 +661,7 @@ function newDbInstance(dbName, callback) {
 		});
 	});
 
-	Dataset.hook('beforeDestroy', function (dataset, options) {
+	Dataset.addHook('beforeDestroy', function (dataset, options) {
 		console.log("Hooks delete dataset");
 		return new Promise(function (resolve, reject) {
 			if (options.permanently) {
@@ -698,10 +711,10 @@ function newDbInstance(dbName, callback) {
 
 	});
 
-	Dataset.hook('afterCreate', function (dataset) {
+	Dataset.addHook('afterCreate', function (dataset) {
 		console.log("Hooks after create dataset");
-		Well.findById(dataset.idWell).then(w => {
-			Project.findById(w.idProject).then(p => {
+		Well.findByPk(dataset.idWell).then(w => {
+			Project.findByPk(w.idProject).then(p => {
 				let createMD = require('../dataset/create-md-curve');
 				let parents = {
 					username: username,
@@ -716,7 +729,7 @@ function newDbInstance(dbName, callback) {
 		});
 	});
 
-	Histogram.hook('beforeDestroy', function (histogram, options) {
+	Histogram.addHook('beforeDestroy', function (histogram, options) {
 		console.log("Hooks delete histogram");
 		if (histogram.deletedAt) {
 
@@ -725,7 +738,7 @@ function newDbInstance(dbName, callback) {
 		}
 	});
 
-	CrossPlot.hook('beforeDestroy', function (crossplot, options) {
+	CrossPlot.addHook('beforeDestroy', function (crossplot, options) {
 		console.log("Hooks delete crossplot");
 		if (crossplot.deletedAt) {
 
@@ -734,7 +747,7 @@ function newDbInstance(dbName, callback) {
 		}
 	});
 
-	Plot.hook('beforeDestroy', function (plot, options) {
+	Plot.addHook('beforeDestroy', function (plot, options) {
 		return new Promise(function (resolve, reject) {
 			console.log("Hooks delete plot ", options);
 			if (options.permanently) {
@@ -749,7 +762,7 @@ function newDbInstance(dbName, callback) {
 
 	});
 
-	ZoneSet.hook('beforeDestroy', function (zoneset, options) {
+	ZoneSet.addHook('beforeDestroy', function (zoneset, options) {
 		console.log("Hooks delete zoneset");
 		if (zoneset.deletedAt) {
 

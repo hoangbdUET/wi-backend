@@ -21,7 +21,7 @@ module.exports = function (sequelize, DataTypes) {
         lineWidth: {
             type: DataTypes.DOUBLE,
             allowNull: false,
-            defaultValue: 1
+            defaultValue: 2
         },
         orderNum: {
             type: DataTypes.STRING,

@@ -12,7 +12,7 @@ module.exports = function (dbConnection) {
         });
 
     });
-    dbConnection.Shading.hook('beforeDestroy', function (object, options) {
+    dbConnection.Shading.addHook('beforeDestroy', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'shading.delete', function (result) {
                 if (result) {
@@ -27,7 +27,7 @@ module.exports = function (dbConnection) {
             });
         });
     });
-    dbConnection.Shading.hook('beforeUpdate', function (object, options) {
+    dbConnection.Shading.addHook('beforeUpdate', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'shading.update', function (result) {
                 if (result) {

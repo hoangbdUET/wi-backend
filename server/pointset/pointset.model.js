@@ -4,7 +4,7 @@ let ErrorCodes = require('../../error-codes').CODES;
 // function createNewPointSet(pointSetInfo, done, dbConnection) {
 //     let PointSet = dbConnection.PointSet;
 //     let Well = dbConnection.Well;
-//     Well.findById(pointSetInfo.idWell).then(well => {
+//     Well.findByPk(pointSetInfo.idWell).then(well => {
 //         if (pointSetInfo.idZoneSet) {
 //             PointSet.sync()
 //                 .then(function () {
@@ -53,7 +53,7 @@ function createNewPointSet(pointSetInfo, done, dbConnection) {
 function editPointSet(pointSetInfo, done, dbConnection) {
     delete pointSetInfo.createdBy;
     let PointSet = dbConnection.PointSet;
-    PointSet.findById(pointSetInfo.idPointSet)
+    PointSet.findByPk(pointSetInfo.idPointSet)
         .then(function (pointSet) {
             Object.assign(pointSet, pointSetInfo)
                 .save()
@@ -71,7 +71,7 @@ function editPointSet(pointSetInfo, done, dbConnection) {
 
 function deletePointSet(pointSetInfo, done, dbConnection) {
     let PointSet = dbConnection.PointSet;
-    PointSet.findById(pointSetInfo.idPointSet)
+    PointSet.findByPk(pointSetInfo.idPointSet)
         .then(function (pointSet) {
             pointSet.setDataValue('updatedBy', pointSetInfo.updatedBy);
             pointSet.destroy()
@@ -90,7 +90,7 @@ function deletePointSet(pointSetInfo, done, dbConnection) {
 
 function getPointSetInfo(pointSetInfo, done, dbConnection) {
     let PointSet = dbConnection.PointSet;
-    PointSet.findById(pointSetInfo.idPointSet)
+    PointSet.findByPk(pointSetInfo.idPointSet)
         .then(function (pointSet) {
             if (!pointSet) throw 'not exists';
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get PointSetInfo success", pointSet));

@@ -15,7 +15,7 @@ router.post('/marker-set-template/marker-template/info', function (req, res) {
 });
 
 router.post('/marker-set-template/marker-template/list', function (req, res) {
-    model.allMarkerTemplate(req.body, function (status) {
+    model.findAllMarkerTemplate(req.body, function (status) {
         res.send(status);
     }, req.dbConnection);
 });

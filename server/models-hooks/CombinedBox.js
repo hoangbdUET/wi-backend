@@ -12,7 +12,7 @@ module.exports = function (dbConnection) {
         });
 
     });
-    dbConnection.CombinedBox.hook('beforeDestroy', function (object, options) {
+    dbConnection.CombinedBox.addHook('beforeDestroy', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'combined-box.delete', function (result) {
                 if (result) {
@@ -27,7 +27,7 @@ module.exports = function (dbConnection) {
             });
         });
     });
-    dbConnection.CombinedBox.hook('beforeUpdate', function (object, options) {
+    dbConnection.CombinedBox.addHook('beforeUpdate', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'combined-box.update', function (result) {
                 if (result) {

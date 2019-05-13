@@ -1,0 +1,43 @@
+{
+  "Database": {
+    "dialect": "",
+    "host": "",
+    "port": "",
+    "user": "",
+    "password": "",
+    "logging": "",
+    "storage": "",
+    "dbName": "",
+    "prefix": ""
+  },
+  "Application": {
+    "port": ""
+  },
+  "influx": {
+    "host": "",
+    "port": "",
+    "username": "",
+    "password": "",
+    "database": ""
+  },
+  "redis": {
+    "host": "",
+    "port": ""
+  },
+  "csvService": {
+    "host": ""
+  },
+  "Service": {
+    "inventory": "",
+    "authenticate": "",
+    "logger": ""
+  },
+  "elasticsearch": {
+    "host": ""
+  },
+  "curveBasePath": "",
+  "imageBasePath": "",
+  "exportPath": "",
+  "userLogPath": "",
+  "uploadPath": ""
+}

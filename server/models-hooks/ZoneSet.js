@@ -12,7 +12,7 @@ module.exports = function (dbConnection) {
         });
 
     });
-    dbConnection.ZoneSet.hook('beforeDestroy', function (object, options) {
+    dbConnection.ZoneSet.addHook('beforeDestroy', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'zone-set.delete', function (result) {
                 if (result) {
@@ -27,7 +27,7 @@ module.exports = function (dbConnection) {
             });
         });
     });
-    dbConnection.ZoneSet.hook('beforeUpdate', function (object, options) {
+    dbConnection.ZoneSet.addHook('beforeUpdate', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'zone-set.update', function (result) {
                 if (result) {

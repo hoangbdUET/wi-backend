@@ -12,7 +12,7 @@ module.exports = function (dbConnection) {
         });
 
     });
-    dbConnection.ReferenceCurve.hook('beforeDestroy', function (object, options) {
+    dbConnection.ReferenceCurve.addHook('beforeDestroy', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'reference-curve.delete', function (result) {
                 if (result) {
@@ -27,7 +27,7 @@ module.exports = function (dbConnection) {
             });
         });
     });
-    dbConnection.ReferenceCurve.hook('beforeUpdate', function (object, options) {
+    dbConnection.ReferenceCurve.addHook('beforeUpdate', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'reference-curve.update', function (result) {
                 if (result) {

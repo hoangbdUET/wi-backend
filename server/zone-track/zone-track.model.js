@@ -28,7 +28,7 @@ function createNewZoneTrack(zoneTrackInfo, done, dbConnection) {
 function editZoneTrack(zoneTrackInfo, done, dbConnection) {
     delete zoneTrackInfo.createdBy;
     let ZoneTrack = dbConnection.ZoneTrack;
-    ZoneTrack.findById(zoneTrackInfo.idZoneTrack)
+    ZoneTrack.findByPk(zoneTrackInfo.idZoneTrack)
         .then(function (zoneTrack) {
             zoneTrack = Object.assign(zoneTrack, zoneTrackInfo);
             zoneTrack.save()
@@ -46,7 +46,7 @@ function editZoneTrack(zoneTrackInfo, done, dbConnection) {
 
 function deleteZoneTrack(zoneTrackInfo, done, dbConnection) {
     let ZoneTrack = dbConnection.ZoneTrack;
-    ZoneTrack.findById(zoneTrackInfo.idZoneTrack)
+    ZoneTrack.findByPk(zoneTrackInfo.idZoneTrack)
         .then(function (zoneTrack) {
             zoneTrack.setDataValue('updatedBy', zoneTrackInfo.updatedBy);
             zoneTrack.destroy()
@@ -64,7 +64,7 @@ function deleteZoneTrack(zoneTrackInfo, done, dbConnection) {
 
 function getZoneTrackInfo(zoneTrack, done, dbConnection) {
     let ZoneTrack = dbConnection.ZoneTrack;
-    ZoneTrack.findById(zoneTrack.idZoneTrack, {
+    ZoneTrack.findByPk(zoneTrack.idZoneTrack, {
         include: {
             model: dbConnection.ZoneSet,
             include: {model: dbConnection.Zone, include: {model: dbConnection.ZoneTemplate}}

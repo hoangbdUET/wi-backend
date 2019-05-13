@@ -23,7 +23,7 @@ function createNewFamily(familyInfo, done, dbConnection) {
 
 function editFamily(familyInfo, done, dbConnection) {
     let Family = dbConnection.Family;
-    Family.findById(familyInfo.idFamily)
+    Family.findByPk(familyInfo.idFamily)
         .then(function (family) {
             delete familyInfo.idFamily;
             Object.assign(family, familyInfo)
@@ -42,7 +42,7 @@ function editFamily(familyInfo, done, dbConnection) {
 
 function deleteFamily(familyInfo, done, dbConnection) {
     let Family = dbConnection.Family;
-    Family.findById(familyInfo.idFamily)
+    Family.findByPk(familyInfo.idFamily)
         .then(function (family) {
             family.destroy()
                 .then(function () {
@@ -59,7 +59,7 @@ function deleteFamily(familyInfo, done, dbConnection) {
 
 function getFamilyInfo(familyInfo, done, dbConnection) {
     let Family = dbConnection.Family;
-    Family.findById(familyInfo.idFamily)
+    Family.findByPk(familyInfo.idFamily)
         .then(function (family) {
             if (!family) throw 'not exists';
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get family info success", family));
@@ -71,7 +71,7 @@ function getFamilyInfo(familyInfo, done, dbConnection) {
 
 function getFamilyList(done, dbConnection) {
     let Family = dbConnection.Family;
-    Family.all({
+    Family.findAll({
         order: ['name'],
         include: {
             model: dbConnection.FamilySpec,

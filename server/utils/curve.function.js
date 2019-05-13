@@ -1,7 +1,6 @@
 let fs = require('fs');
 let fsExtra = require('fs-extra');
-let wiImport = require('wi-import');
-let hashDir = wiImport.hashDir;
+let hashDir = require('../utils/data-tool').hashDir;
 let async = require('async');
 let config = require('config');
 
@@ -11,11 +10,11 @@ function checkCurveExisted() {
 
 function getFullCurveParents(curve, dbConnection) {
     return new Promise(function (resolve, reject) {
-        dbConnection.Curve.findById(curve.idCurve, {paranoid: false}).then(async c => {
+        dbConnection.Curve.findByPk(curve.idCurve, {paranoid: false}).then(async c => {
             if (c) {
-                let dataset = await dbConnection.Dataset.findById(c.idDataset, {paranoid: false});
-                let well = await dbConnection.Well.findById(dataset.idWell, {paranoid: false});
-                let project = await dbConnection.Project.findById(well.idProject, {paranoid: false});
+                let dataset = await dbConnection.Dataset.findByPk(c.idDataset, {paranoid: false});
+                let well = await dbConnection.Well.findByPk(dataset.idWell, {paranoid: false});
+                let project = await dbConnection.Project.findByPk(well.idProject, {paranoid: false});
                 resolve({
                     project: project.name,
                     well: well.name,
@@ -44,10 +43,10 @@ function getFullCurveParents(curve, dbConnection) {
  */
 
 function copyCurveData(srcCurve, desCurve, callback) {
-    let srcPath = hashDir.createPath(config.curveBasePath, srcCurve.username + srcCurve.project + srcCurve.well + srcCurve.dataset + srcCurve.curve, srcCurve.curve + '.txt');
-    let desPath = hashDir.createPath(config.curveBasePath, desCurve.username + desCurve.project + desCurve.well + desCurve.dataset + desCurve.curve, desCurve.curve + '.txt');
-    console.log("SRC ", config.curveBasePath, srcCurve.username + srcCurve.project + srcCurve.well + srcCurve.dataset + srcCurve.curve);
-    console.log("DES ", config.curveBasePath, desCurve.username + desCurve.project + desCurve.well + desCurve.dataset + desCurve.curve);
+    let srcPath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, srcCurve.username + srcCurve.project + srcCurve.well + srcCurve.dataset + srcCurve.curve, srcCurve.curve + '.txt');
+    let desPath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, desCurve.username + desCurve.project + desCurve.well + desCurve.dataset + desCurve.curve, desCurve.curve + '.txt');
+    console.log("SRC ", process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, srcCurve.username + srcCurve.project + srcCurve.well + srcCurve.dataset + srcCurve.curve);
+    console.log("DES ", process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, desCurve.username + desCurve.project + desCurve.well + desCurve.dataset + desCurve.curve);
     console.log("Copy from ", srcPath, " to ", desPath);
     fsExtra.copy(srcPath, desPath).then(() => {
         callback(null, desPath);
@@ -59,8 +58,8 @@ function copyCurveData(srcCurve, desCurve, callback) {
 
 
 function moveCurveData(srcCurve, desCurve, callback) {
-    let srcPath = hashDir.createPath(config.curveBasePath, srcCurve.username + srcCurve.project + srcCurve.well + srcCurve.dataset + srcCurve.curve, srcCurve.curve + '.txt');
-    let desPath = hashDir.createPath(config.curveBasePath, desCurve.username + desCurve.project + desCurve.well + desCurve.dataset + desCurve.curve, desCurve.curve + '.txt');
+    let srcPath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, srcCurve.username + srcCurve.project + srcCurve.well + srcCurve.dataset + srcCurve.curve, srcCurve.curve + '.txt');
+    let desPath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, desCurve.username + desCurve.project + desCurve.well + desCurve.dataset + desCurve.curve, desCurve.curve + '.txt');
     // console.log("Move : ", srcCurve, srcPath);
     // console.log("To : ", desCurve, desPath);
     fsExtra.move(srcPath, desPath).then(() => {

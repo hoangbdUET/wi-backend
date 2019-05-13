@@ -14,7 +14,7 @@ function createNewRegressionLine(regressionLineInfo, done, dbConnection) {
                         regressionLine.setPolygons(regressionLineInfo.polygons)
                             .then(function (rs) {
                                 let id = rs[0][0].dataValues.idRegressionLine;
-                                RegressionLine.findById(id, {include: [{all: true}]}).then(res => {
+                                RegressionLine.findByPk(id, {include: [{all: true}]}).then(res => {
                                     done(ResponseJSON(ErrorCodes.SUCCESS, "Save polygon_regressionLine success", res));
                                 }).catch(err => {
                                     done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "loi roi em eiiiiiii", "LOL"));
@@ -38,7 +38,7 @@ function createNewRegressionLine(regressionLineInfo, done, dbConnection) {
 function editRegressionLine(regressionLineInfo, done, dbConnection) {
     delete regressionLineInfo.createdBy;
     let RegressionLine = dbConnection.RegressionLine;
-    RegressionLine.findById(regressionLineInfo.idRegressionLine)
+    RegressionLine.findByPk(regressionLineInfo.idRegressionLine)
         .then(function (regressionLine) {
             delete regressionLineInfo.idRegressionLine;
             delete regressionLineInfo.idPolygon;//forbid changing Polygon it belongto
@@ -48,7 +48,7 @@ function editRegressionLine(regressionLineInfo, done, dbConnection) {
                 .save()
                 .then(async function (result) {
                     await result.setPolygons(regressionLineInfo.polygons);
-                    RegressionLine.findById(result.idRegressinLine, {include: {all: true}}).then(rl => {
+                    RegressionLine.findByPk(result.idRegressinLine, {include: {all: true}}).then(rl => {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Edit regressionLine success", rl));
                     });
                 })
@@ -63,7 +63,7 @@ function editRegressionLine(regressionLineInfo, done, dbConnection) {
 
 function deleteRegressionLine(regressionLineInfo, done, dbConnection) {
     let RegressionLine = dbConnection.RegressionLine;
-    RegressionLine.findById(regressionLineInfo.idRegressionLine)
+    RegressionLine.findByPk(regressionLineInfo.idRegressionLine)
         .then(function (regressionLine) {
             regressionLine.setDataValue('updatedBy', regressionLineInfo.updatedBy);
             regressionLine.destroy()
@@ -81,7 +81,7 @@ function deleteRegressionLine(regressionLineInfo, done, dbConnection) {
 
 function getRegressionLineInfo(regressionLineInfo, done, dbConnection) {
     let RegressionLine = dbConnection.RegressionLine;
-    RegressionLine.findById(regressionLineInfo.idRegressionLine, {
+    RegressionLine.findByPk(regressionLineInfo.idRegressionLine, {
         include: [
             {
                 model: dbConnection.Polygon

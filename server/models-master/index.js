@@ -2,21 +2,21 @@ let Sequelize = require('sequelize');
 let config = require('config').Database;
 
 
-const sequelize = new Sequelize(config.dbName, config.user, config.password, {
-    host: config.host,
+const sequelize = new Sequelize(process.env.BACKEND_DBNAME || config.dbName, process.env.BACKEND_DBUSER || config.user, process.env.BACKEND_DBPASSWORD || config.password, {
+    host: process.env.BACKEND_DBHOST || config.host,
     define: {
         freezeTableName: true
     },
-    dialect: config.dialect,
-    port: config.port,
-    logging: config.logging,
+    dialect: process.env.BACKEND_DBDIALECT || config.dialect,
+    port: process.env.BACKEND_DBPORT || config.port,
+    logging: false,
     pool: {
         max: 20,
         min: 0,
         idle: 200
     },
     operatorsAliases: Sequelize.Op,
-    storage: config.storage
+    storage: process.env.BACKEND_DBSTORAGE || config.storage
 });
 sequelize.sync()
     .catch(function (err) {
@@ -32,6 +32,7 @@ let models = [
     'MarkerTemplate',
     'OpenSharedProject',
     'OverlayLine',
+    'ParameterSet',
     'Task',
     'TaskSpec',
     'UnitGroup',

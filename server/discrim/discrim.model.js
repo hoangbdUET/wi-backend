@@ -20,7 +20,7 @@ function createNewDiscrim(discrimInfo,done,dbConnection) {
 }
 function editDiscim(discrimInfo, done,dbConnection) {
     var Discrim = dbConnection.Discrim;
-    Discrim.findById(discrimInfo.idDiscrim)
+    Discrim.findByPk(discrimInfo.idDiscrim)
         .then(function (discrim) {
             delete discrimInfo.idDiscrim;
             delete discrimInfo.idCrossPlot;
@@ -41,7 +41,7 @@ function editDiscim(discrimInfo, done,dbConnection) {
 
 function deleteDiscrim(discrimInfo, done,dbConnection) {
     var Discrim = dbConnection.Discrim;
-    Discrim.findById(discrimInfo.idDiscrim)
+    Discrim.findByPk(discrimInfo.idDiscrim)
         .then(function (discrim) {
             discrim.destroy()
                 .then(function () {
@@ -57,7 +57,7 @@ function deleteDiscrim(discrimInfo, done,dbConnection) {
 }
 function getDiscrimInfo(discrimInfo, done,dbConnection) {
     var Discrim = dbConnection.Discrim;
-    Discrim.findById(discrimInfo.idDiscrim)
+    Discrim.findByPk(discrimInfo.idDiscrim)
         .then(function (discrim) {
             if (!discrim) throw 'not exists';
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get Discrim info success", discrim));
