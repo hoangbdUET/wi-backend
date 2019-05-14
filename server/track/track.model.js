@@ -628,6 +628,7 @@ async function applyToWell(payload, dbConnection) {
         track.idZoneSet = foundZoneSetInNewWell ? foundZoneSetInNewWell.idZoneSet : null;
         track.idMarkerSet = foundMarkerSetInNewWell ? foundMarkerSetInNewWell.idMarkerSet : null;
         track.orderNum = payload.orderNum;
+        track.trackOffset = payload.trackOffset || track.trackOffset;
         // track.title = "Created from " + track.title;
         let _track = await dbConnection.Track.create(track);
         let _lines = await createLines(track.lines, well, _track);
