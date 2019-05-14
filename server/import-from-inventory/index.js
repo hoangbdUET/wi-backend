@@ -6,7 +6,7 @@ let ErrorCodes = require('../../error-codes').CODES;
 let model = require('./import.model');
 let mqtt = require('mqtt');
 let config = require('config');
-let MqttClient = mqtt.connect(process.env.BACKEND_MQTT_BROKER || config.mqttBroker || "wss://mqtt-broker.i2g.cloud:8083");
+let MqttClient = mqtt.connect(process.env.BACKEND_MQTT_BROKER || config.mqttBroker || "wss://mqtt-broker.i2g.cloud:8083", {rejectUnauthorized: false});
 MqttClient.on('connect', () => {
 	console.log("Connected to broker " + (process.env.BACKEND_MQTT_BROKER || config.mqttBroker || "wss://mqtt-broker.i2g.cloud:8083"));
 });
