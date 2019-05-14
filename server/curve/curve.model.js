@@ -857,7 +857,7 @@ function resyncFamily(payload, done, dbConnection) {
 						let result = conditions.find(function (aCondition) {
 							let regex;
 							try {
-								regex = new RegExp("^" + aCondition.curveName + "$", "i").test(curveName) && new RegExp("^" + aCondition.unit + "$", "i").test(unit);
+								regex = new RegExp("^" + aCondition.curveName + "$", "i").test(curveName) && new RegExp("^" + aCondition.unit + "$", "i").test(unit) && (curve.type === aCondition.type);
 							} catch (err) {
 								console.log(err);
 							}
