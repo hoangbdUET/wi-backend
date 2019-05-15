@@ -330,4 +330,42 @@ router.post('/migrate/add-ps-to-existed-project', (req, res) => {
 	});
 });
 
+router.post('/migrate/add-zone-template-to-existed-project', (req, res) => {
+	const dbConnection = req.dbConnection;
+	dbConnection.ZoneTemplate.findAll({where: {idZoneSetTemplate: 1000}}).then(zts => {
+		dbConnection.Project.findAll().then(projects => {
+			async.eachSeries(projects, (project, next) => {
+				dbConnection.ZoneSetTemplate.create({
+					idProject: project.idProject,
+					name: "Depofacies",
+				}).then(zoneSetTemplate => {
+					async.eachSeries(zts, (zt, nextZt) => {
+						dbConnection.ZoneTemplate.create({
+							idZoneSetTemplate: zoneSetTemplate.idZoneSetTemplate,
+							name: zt.name,
+							background: zt.background,
+							foreground: zt.foreground,
+							pattern: zt.pattern,
+							orderNum: zt.orderNum,
+							exportValue: zt.exportValue
+						}).then(() => {
+							nextZt();
+						}).catch(err => {
+							console.log(err.message);
+							nextZt();
+						});
+					}, () => {
+						next();
+					});
+				}).catch(() => {
+					next();
+				});
+			}, () => {
+				res.json(req.decoded.username + " Done");
+			});
+		})
+
+	});
+});
+
 module.exports = router;
