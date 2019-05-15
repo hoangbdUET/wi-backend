@@ -122,7 +122,7 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection, logger) {
 						pointset.updatedBy = crossPlotInfo.updatedBy;
 						if (pointset.idCurveX && pointset.idCurveY) {
 							dbConnection.PointSet.create(pointset).then(() => {
-								nextDataset("pointset");
+								nextDataset();
 							}).catch(e => {
 								nextDataset();
 							});
@@ -131,7 +131,7 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection, logger) {
 						}
 					});
 				});
-			}, function (err) {
+			}, function () {
 				logger.info("CROSS_PLOT", _cr.idCrossPlot, "Create new CrossPlot success");
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Create new CrossPlot success", _cr));
 			});

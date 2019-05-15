@@ -73,7 +73,7 @@ function createNewHistogram(histogramInfo, done, dbConnection, logger) {
 					nextDataset();
 				});
 			}, function () {
-				histogram.setCurves(curves[0] ? [curves[0]] : []).then(() => {
+				histogram.setCurves(curves).then(() => {
 					logger.info("HISTOGRAM", histogram.idHistogram, "Created");
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Done", histogram));
 				});
