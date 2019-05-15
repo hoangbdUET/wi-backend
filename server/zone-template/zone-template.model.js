@@ -17,7 +17,8 @@ function createZoneTemplateFromXLSX(callback) {
                 background: row[3],
                 foreground: row[4],
                 pattern: row[5],
-                orderNum: row[6]
+                orderNum: row[6],
+                exportVaule: row[7]
             }).then(() => {
                 next();
             }).catch(() => {
