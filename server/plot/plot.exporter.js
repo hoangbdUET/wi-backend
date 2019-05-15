@@ -121,7 +121,7 @@ module.exports = function (body, done, error, dbConnection, username, logger) {
 								async.each(track.lines, function (line, nextLine) {
 									let newLine = {};
 									curveFunction.getFullCurveParents({idCurve: line.idCurve}, dbConnection).then(curveFullParents => {
-										Object.assign(nextLine, line);
+										Object.assign(newLine, line);
 										newLine.curve = curveFullParents;
 										newTrack.lines.push(newLine);
 										nextLine();
