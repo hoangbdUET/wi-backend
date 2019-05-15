@@ -122,6 +122,9 @@ module.exports = function (body, done, error, dbConnection, username, logger) {
 									let newLine = {};
 									curveFunction.getFullCurveParents({idCurve: line.idCurve}, dbConnection).then(curveFullParents => {
 										Object.assign(newLine, line);
+										delete newLine.idLine;
+										delete newLine.idTrack;
+										delete newLine.idCurve;
 										newLine.curve = curveFullParents;
 										newTrack.lines.push(newLine);
 										nextLine();

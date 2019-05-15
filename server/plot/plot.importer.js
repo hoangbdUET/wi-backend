@@ -205,6 +205,7 @@ function createTrack(track, dbConnection, idProject, idPlot, username, well, dat
 								// lineModel.createNewLineWithoutResponse(line, dbConnection, username).then(() => {
 								// 	next();
 								// });
+								delete line.idLine;
 								lineModel.createNewLine(line, function () {
 									next();
 								}, dbConnection, username);
@@ -242,6 +243,24 @@ function createTrack(track, dbConnection, idProject, idPlot, username, well, dat
 	});
 }
 
+function checkExistingPlot(payload, plotName, cb, dbConnection) {
+	if (payload.overwrite) {
+		dbConnection.Plot.findOne({where: {name: plotName}}).then(pl => {
+			if (pl) {
+				pl.destroy({force: true}).then((a) => {
+					cb(a.idPlot);
+				}).catch(() => {
+					cb(null);
+				});
+			} else {
+				cb(null);
+			}
+		});
+	} else {
+		cb(null);
+	}
+}
+
 module.exports = function (req, done, dbConnection, username, logger) {
 	createdBy = req.createdBy;
 	updatedBy = req.updatedBy;
@@ -260,51 +279,54 @@ module.exports = function (req, done, dbConnection, username, logger) {
 			if (!well) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No well found by id"));
 			let idProject = req.body.idProject || well.idProject;
 			myPlot.name = dataset ? req.body.plotName + "-" + well.name + "/" + dataset.name : req.body.plotName + "-" + well.name;
-			createPlot(myPlot, dbConnection, idProject, well, dataset).then(pl => {
-				async.series([
-					function (cb) {
-						async.each(myPlot.tracks, (track, nextTrack) => {
-							createTrack(track, dbConnection, idProject, pl.idPlot, username, well, dataset).then(() => {
-								nextTrack();
-							});
-						}, cb);
-					},
-					function (cb) {
-						async.each(myPlot.depth_axes, (depth_axis, nextDepth) => {
-							createDepthAxis(depth_axis, dbConnection, idProject, pl.idPlot, well, {name: 'INDEX'}).then(() => {
-								nextDepth();
-							});
-						}, cb());
-					},
-					function (cb) {
-						async.each(myPlot.zone_tracks, (zone_track, nextZoneTrack) => {
-							createZoneTrack(zone_track, dbConnection, idProject, pl.idPlot, well, dataset).then(() => {
-								nextZoneTrack();
-							});
-						}, cb)
-					},
-					function (cb) {
-						async.each(myPlot.image_tracks, (image_track, nextImageTrack) => {
-							createImageTrack(image_track, dbConnection, idProject, pl.idPlot, well, dataset).then(() => {
-								nextImageTrack();
-							});
-						}, cb)
-					}
-				], () => {
-					logger.info("PLOT", pl.idPlot, "Created from template");
-					dbConnection.Plot.findByPk(pl.idPlot, {include: {all: true, include: {all: true}}}).then(p => {
-						done(ResponseJSON(ErrorCodes.SUCCESS, "Done", p));
+			checkExistingPlot(req.body, myPlot.name, (idPlot => {
+				if (idPlot) myPlot.idPlot = idPlot;
+				createPlot(myPlot, dbConnection, idProject, well, dataset).then(pl => {
+					async.series([
+						function (cb) {
+							async.each(myPlot.tracks, (track, nextTrack) => {
+								createTrack(track, dbConnection, idProject, pl.idPlot, username, well, dataset).then(() => {
+									nextTrack();
+								});
+							}, cb);
+						},
+						function (cb) {
+							async.each(myPlot.depth_axes, (depth_axis, nextDepth) => {
+								createDepthAxis(depth_axis, dbConnection, idProject, pl.idPlot, well, {name: 'INDEX'}).then(() => {
+									nextDepth();
+								});
+							}, cb());
+						},
+						function (cb) {
+							async.each(myPlot.zone_tracks, (zone_track, nextZoneTrack) => {
+								createZoneTrack(zone_track, dbConnection, idProject, pl.idPlot, well, dataset).then(() => {
+									nextZoneTrack();
+								});
+							}, cb)
+						},
+						function (cb) {
+							async.each(myPlot.image_tracks, (image_track, nextImageTrack) => {
+								createImageTrack(image_track, dbConnection, idProject, pl.idPlot, well, dataset).then(() => {
+									nextImageTrack();
+								});
+							}, cb)
+						}
+					], () => {
+						logger.info("PLOT", pl.idPlot, "Created from template");
+						dbConnection.Plot.findByPk(pl.idPlot, {include: {all: true, include: {all: true}}}).then(p => {
+							done(ResponseJSON(ErrorCodes.SUCCESS, "Done", p));
+						});
 					});
+				}).catch(err => {
+					if (err.name === "SequelizeUniqueConstraintError") {
+						dbConnection.Plot.findOne({where: {name: myPlot.name}}).then(pl => {
+							done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot's name already exists! " + myPlot.name, pl));
+						});
+					} else {
+						done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+					}
 				});
-			}).catch(err => {
-				if (err.name === "SequelizeUniqueConstraintError") {
-					dbConnection.Plot.findOne({where: {name: myPlot.name}}).then(pl => {
-						done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot's name already exists! " + myPlot.name, pl));
-					})
-				} else {
-					done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
-				}
-			});
+			}), dbConnection);
 		}
 	});
 };
