@@ -27,13 +27,13 @@ module.exports = (username, project) => {
 				idObject: idObject,
 				level: "info"
 			};
-			request(options, (err, resp, body) => {
-				if (err) {
-					console.log("error push log ", err.message);
-				} else {
-					console.log("Pushed ", body ? body.content._id : "null body", JSON.stringify(options.body));
-				}
-			});
+			// request(options, (err, resp, body) => {
+			// 	if (err) {
+			// 		console.log("error push log ", err.message);
+			// 	} else {
+			// 		console.log("Pushed ", body ? body.content._id : "null body", JSON.stringify(options.body));
+			// 	}
+			// });
 		},
 		error(object, idObject, message) {
 			options.body = {
