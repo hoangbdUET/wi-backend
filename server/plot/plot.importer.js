@@ -60,6 +60,32 @@ function findWell(well, dbConnection, idProject) {
 	}));
 }
 
+function findImageSet(imageSet, dbConnection, idProject, well) {
+	console.log(imageSet, idProject, well.name);
+	return new Promise(resolve => {
+		if (!imageSet) return resolve(null);
+		dbConnection.Well.findOne({where: {name: well.name, idProject: idProject}}).then(w => {
+			if (!w) {
+				console.log("No well found")
+				resolve(null);
+			} else {
+				dbConnection.ImageSet.findOne({where: {idWell: w.idWell, name: imageSet.name}}).then(ims => {
+					if (!ims) {
+						console.log("NO image found")
+						resolve(null);
+					} else {
+						console.log("FOUND NE")
+						resolve(ims);
+					}
+				})
+			}
+		}).catch(err => {
+			console.log(err);
+			resolve(null);
+		});
+	});
+}
+
 function findZoneSet(zoneSet, dbConnection, idProject, well) {
 	return new Promise((resolve => {
 		if (!zoneSet) return resolve(null);
@@ -146,28 +172,13 @@ async function createZoneTrack(zone_track, dbConnection, idProject, idPlot, well
 	return dbConnection.ZoneTrack.create(zone_track);
 }
 
-function createImageTrack(image_track, dbConnection, idProject, idPlot) {
-	return new Promise(resolve => {
-		image_track.idPlot = idPlot;
-		image_track.createdBy = createdBy;
-		image_track.updatedBy = updatedBy;
-		dbConnection.ImageTrack.create(image_track).then(imt => {
-			// async.each(image_track.image_of_tracks, (image, nextImg) => {
-			// 	image.idImageTrack = imt.idImageTrack;
-			// 	image.createdBy = createdBy;
-			// 	image.updatedBy = updatedBy;
-			// 	dbConnection.ImageOfTrack.create(image).then(() => {
-			// 		nextImg();
-			// 	}).catch(err => {
-			// 		console.log(err);
-			// 		nextImg();
-			// 	});
-			// }, () => {
-			// 	resolve();
-			// });
-			resolve();
-		});
-	})
+async function createImageTrack(image_track, dbConnection, idProject, idPlot, well) {
+	image_track.idPlot = idPlot;
+	image_track.createdBy = createdBy;
+	image_track.updatedBy = updatedBy;
+	let image_set = await findImageSet(image_track.image_set, dbConnection, idProject, well);
+	image_track.idImageSet = image_set ? image_set.idImageSet : null;
+	return dbConnection.ImageTrack.create(image_track);
 }
 
 function createTrack(track, dbConnection, idProject, idPlot, username, well, dataset) {
