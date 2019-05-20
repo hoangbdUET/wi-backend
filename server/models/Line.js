@@ -152,7 +152,7 @@ module.exports = function (sequelize, DataTypes) {
 		textDisplayPalette: {
 			type: DataTypes.STRING(50),
 			allowNull: false,
-			defaultValue: "HFU"
+			defaultValue: "Facies"
 		},
 		textDisplayStep: {
 			type: DataTypes.INTEGER,
