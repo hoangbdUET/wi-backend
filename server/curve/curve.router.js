@@ -148,6 +148,7 @@ router.post('/curve/scale', function (req, res) {
 });
 
 router.post('/curve/processing', upload.single('data'), function (req, res) {
+	console.log(req.createdBy, "===", req.updatedBy);
 	fs.readFile(req.file.path, function (err, data) {
 		if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
 		if (err) return res.send(err);
@@ -232,6 +233,7 @@ router.post('/curve/processing-array-data-curve', upload.single('data'), (req, r
 });
 
 router.post('/curve/merge-curve', (req, res) => {
+	console.log(req.createdBy, "===", req.updatedBy);
 	curveModel.mergeCurvesIntoArrayCurve(req.body, (status) => {
 		res.send(status);
 	}, req.dbConnection, req.decoded.username);

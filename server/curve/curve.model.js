@@ -526,6 +526,7 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy, l
 							updatedBy: updatedBy,
 							dimension: dimension
 						}).then(curve => {
+							console.log("===", req.decoded.username);
 							let newPath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, req.decoded.username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
 							fs.copy(filePath, newPath, function (err) {
 								if (err) {
@@ -889,7 +890,7 @@ function processingArrayCurve(req, done, dbConnection, createdBy, updatedBy, log
 		if (!req.body.columnIndex || (curve.dimension < +req.body.columnIndex + 1 || +req.body.columnIndex < 0))
 			return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Not valid column index"));
 		curveFunction.getFullCurveParents({idCurve: req.body.idCurve}, dbConnection).then(curveParent => {
-			let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, createdBy + curveParent.project + curveParent.well + curveParent.dataset + curveParent.curve, curveParent.curve + '.txt');
+			let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, req.decoded.username + curveParent.project + curveParent.well + curveParent.dataset + curveParent.curve, curveParent.curve + '.txt');
 			let tmpPath = Date.now() + '';
 			let output = fs.createWriteStream(tmpPath);
 			// output.write('');
@@ -1095,7 +1096,7 @@ function createArrayCurve(payload, done, dbConnection, createdBy, updatedBy, log
 			if (curve) {
 				Object.assign(curve, payload.body).save().then(c => {
 					curveFunction.getFullCurveParents(c, dbConnection).then(curveParent => {
-						let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, createdBy + curveParent.project + curveParent.well + curveParent.dataset + curveParent.curve, curveParent.curve + '.txt');
+						let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, payload.decoded.username + curveParent.project + curveParent.well + curveParent.dataset + curveParent.curve, curveParent.curve + '.txt');
 						fs.copy(payload.file.path, path, function (err) {
 							if (err) {
 								console.log("ERR COPY FILE : ", err);
@@ -1125,7 +1126,7 @@ function createArrayCurve(payload, done, dbConnection, createdBy, updatedBy, log
 			idFamily: payload.body.idFamily || null
 		}).then(c => {
 			curveFunction.getFullCurveParents(c, dbConnection).then(curveParent => {
-				let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, createdBy + curveParent.project + curveParent.well + curveParent.dataset + curveParent.curve, curveParent.curve + '.txt');
+				let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, payload.decoded.username + curveParent.project + curveParent.well + curveParent.dataset + curveParent.curve, curveParent.curve + '.txt');
 				fs.copy(payload.file.path, path, function (err) {
 					if (err) {
 						console.log("ERR COPY FILE : ", err);
