@@ -11,6 +11,7 @@ COPY ./config/kubernetes.json /app/config
 
 # Install npm package
 COPY package.json /app
+RUN mkdir /app/data
 RUN npm install
 
 # Set Environment
@@ -18,4 +19,4 @@ ENV NODE_ENV=kubernetes
 
 EXPOSE 80
 
-CMD ["node", "app.js"]
+CMD ["/bin/sh", "startup.sh"]

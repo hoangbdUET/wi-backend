@@ -7,7 +7,7 @@ const sequelize = new Sequelize(process.env.BACKEND_DBNAME || config.dbName, pro
     define: {
         freezeTableName: true
     },
-    dialect: process.env.BACKEND_DBDIALECT || config.dialect,
+    dialect: process.env.BACKEND_DBDIALECT || config.dialect || "mysql",
     port: process.env.BACKEND_DBPORT || config.port,
     logging: false,
     pool: {
