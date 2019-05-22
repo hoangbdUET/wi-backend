@@ -87,4 +87,5 @@ yarn.lock
 /config/prod10.json
 /config/prod11.json
 /config/prod12.json
+/config/local-service.json
 
