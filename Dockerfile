@@ -19,4 +19,5 @@ ENV NODE_ENV=kubernetes
 
 EXPOSE 80
 
-CMD ["/bin/sh", "startup.sh"]
+#CMD ["/bin/sh", "startup.sh"]
+CMD ["node", "app.js"]

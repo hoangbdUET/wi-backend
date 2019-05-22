@@ -691,71 +691,46 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
 		curve.description = curveInfo.description;
 		curve.idDataset = dataset.idDataset;
 		curve.dimension = curveInfo.dimension;
-		dbConnection.Curve.findOrCreate({
-			where: {
-				name: curve.name,
-				idDataset: curve.idDataset
-			},
-			defaults: {
-				name: curve.name,
-				idDataset: curve.idDataset,
-				unit: curve.unit,
-				type: curve.type,
-				dimension: curve.dimension,
-				createdBy: createdBy,
-				updatedBy: updatedBy,
-				description: curve.description
-			}
-		}).then(rs => {
-			let _curve = rs[0];
-			let curvePath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + _curve.name, _curve.name + '.txt');
-			console.log("Import ", curvePath);
-			// if (_curve.type === "ARRAY") {
-			// 	if (false) {
-			// 	// const {Transform} = require('stream');
-			// 	const byline = require('byline');
-			// 	fs.writeFileSync(hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + _curve.name, 'DEPTH.txt'), '');
-			// 	for (let i = 0; i < _curve.dimension; i++) {
-			// 		fs.writeFileSync(hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + _curve.name, _curve.name + '_' + i + '.txt'), '');
-			// 	}
-			// 	const splitData = new Transform({
-			// 		transform(chunk, encoding, callback) {
-			// 			this.push(chunk);
-			// 			let arr = chunk.toString().split(/\s+/);
-			// 			fs.appendFileSync(hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + _curve.name, 'DEPTH.txt'), arr[0] + '\n');
-			// 			for (let i = 1; i < arr.length; i++) {
-			// 				fs.appendFileSync(hashDir.createPath(config.curveBasePath, username + project.name + well.name + dataset.name + _curve.name, _curve.name + '_' + (i - 1) + '.txt'), arr[i] + '\n');
-			// 			}
-			// 			callback();
-			// 		}
-			// 	});
-			// 	let stream = byline.createStream(request(options)).pipe(splitData);
-			// 	stream.on('close', () => {
-			// 		resolve(_curve);
-			// 	});
-			// 	stream.on('error', (err) => {
-			// 		console.log(err);
-			// 		reject(err);
-			// 	});
-			// } else {
-			try {
-				let stream = request(options).pipe(fs.createWriteStream(curvePath));
-				stream.on('close', function () {
+		let curvePath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+		console.log("Import ", curvePath);
+		try {
+			let stream = request(options).pipe(fs.createWriteStream(curvePath));
+			console.log("Get data from inventory");
+			stream.on('close', function () {
+				console.log("Get data from inventory done");
+				dbConnection.Curve.findOrCreate({
+					where: {
+						name: curve.name,
+						idDataset: curve.idDataset
+					},
+					defaults: {
+						name: curve.name,
+						idDataset: curve.idDataset,
+						unit: curve.unit,
+						type: curve.type,
+						dimension: curve.dimension,
+						createdBy: createdBy,
+						updatedBy: updatedBy,
+						description: curve.description
+					}
+				}).then(rs => {
+					let _curve = rs[0];
 					logger.info("CURVE", _curve.idCurve, "Created");
 					console.log("Import Done ", curvePath, " : ", new Date() - start, "ms");
 					resolve(_curve);
-				});
-				stream.on('error', function (err) {
+					// }
+				}).catch(err => {
+					console.log(err);
 					reject(err);
 				});
-			} catch (err) {
+			});
+			stream.on('error', function (err) {
+				console.log("Get data from inventory error");
 				reject(err);
-			}
-			// }
-		}).catch(err => {
-			console.log(err);
+			});
+		} catch (err) {
 			reject(err);
-		});
+		}
 	});
 }
 
