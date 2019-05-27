@@ -40,7 +40,36 @@ Object.defineProperty(Array.prototype, "forEachDone", {
 
 setTimeout(function () {
 	fs.appendFileSync('./pids.pid', process.pid + '\n');
-	main();
+	// main();
+	// Check connection to database
+	let Sequelize = require('sequelize');
+	let config = require('config').Database;
+	const sequelize = new Sequelize(process.env.BACKEND_DBNAME || config.dbName, process.env.BACKEND_DBUSER || config.user, process.env.BACKEND_DBPASSWORD || config.password, {
+		host: process.env.BACKEND_DBHOST || config.host,
+		define: {
+			freezeTableName: true
+		},
+		dialect: process.env.BACKEND_DBDIALECT || config.dialect || "mysql",
+		port: process.env.BACKEND_DBPORT || config.port,
+		logging: false,
+		pool: {
+			max: 20,
+			min: 0,
+			idle: 200
+		},
+		operatorsAliases: Sequelize.Op,
+		storage: process.env.BACKEND_DBSTORAGE || config.storage
+	});
+	sequelize.authenticate()
+	.then(() => {
+		console.log('Connection has been established successfully.');
+		main();
+	  })
+	  .catch(err => {
+		console.error('Unable to connect to the database:', err);
+		process.exit(0);
+	  });
+	//
 	// let familySystemSync = require('./server/family/FamilySystemSync');
 	// familySystemSync(function () {
 	//     overlayLineUpdate(function () {
@@ -356,6 +385,19 @@ function main() {
 	http.listen(process.env.BACKEND_PORT || config.port, function () {
 		console.log("Listening on port " + (process.env.BACKEND_PORT || config.port));
 		console.log("Server ID: ", serverId);
+		// 
+		const request = require("request");
+		setTimeout(() => {
+			const URL = `http://localhost:3000/update`;
+			request.get(URL, (err, response, body) => {
+				if (err) {
+					console.log("Error", err);
+				}
+				if (!err && response.statusCode == 200) {
+					console.log("Body", body)
+				}
+			});
+		}, 10*1000);
 	});
 }
 
