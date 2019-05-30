@@ -293,6 +293,7 @@ router.post('/files', function (req, res) {
 		req.decoded.username,
 		req.body.fileName
 	);
+	console.log(filePath)
 	fs.exists(filePath, async function (exists) {
 		if (exists) {
 			const currentSize = getFilesizeInBytes(filePath);
