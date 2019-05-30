@@ -289,7 +289,7 @@ function sleep(ms) {
 
 router.post('/files', function (req, res) {
 	let filePath = path.join(
-		config.exportPath,
+		config.exportPath || process.env.BACKEND_EXPORT_PATH,
 		req.decoded.username,
 		req.body.fileName
 	);
