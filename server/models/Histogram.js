@@ -76,7 +76,7 @@ module.exports = function (sequelize, DataTypes) {
         colorBy: {
             type: DataTypes.STRING(15),
             allowNull: false,
-            defaultValue: 'zone'
+            defaultValue: 'Zone'
         },
         showZones:{
             type: DataTypes.BOOLEAN,
