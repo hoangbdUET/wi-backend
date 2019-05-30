@@ -12,6 +12,41 @@ let importFromInventory = require('../import-from-inventory/import.model');
 let asyncSeries = require('async/series');
 let checkPermisson = require('../utils/permission/check-permisison');
 
+let wellHeaders = [
+	{header: "NULL", value: -9999, unit: '', description: ""},
+	{header: "WELL", value: '', unit: '', description: ""},
+	{header: "UWI", value: '', unit: '', description: ""},
+	{header: "API", value: '', unit: '', description: ""},
+	{header: "LATI", value: '', unit: '', description: ""},
+	{header: "LONG", value: '', unit: '', description: ""},
+	{header: "E", value: '', unit: '', description: ""},
+	{header: "N", value: '', unit: '', description: ""},
+	{header: "KB", value: '', unit: '', description: ""},
+	{header: "GL", value: '', unit: '', description: ""},
+	{header: "ID", value: '', unit: '', description: ""},
+	{header: "NAME", value: '', unit: '', description: ""},
+	{header: "COMP", value: '', unit: '', description: ""},
+	{header: "OPERATOR", value: '', unit: '', description: ""},
+	{header: "AUTHOR", value: '', unit: '', description: ""},
+	{header: "DATE", value: '', unit: '', description: ""},
+	{header: "LOGDATE", value: '', unit: '', description: ""},
+	{header: "SRVC", value: '', unit: '', description: ""},
+	{header: "GDAT", value: '', unit: '', description: ""},
+	{header: "LIC", value: '', unit: '', description: ""},
+	{header: "CNTY", value: '', unit: '', description: ""},
+	{header: "STATE", value: '', unit: '', description: ""},
+	{header: "PROV", value: '', unit: '', description: ""},
+	{header: "CTRY", value: '', unit: '', description: ""},
+	{header: "LOC", value: '', unit: '', description: ""},
+	{header: "FLD", value: '', unit: '', description: ""},
+	{header: "PROJ", value: '', unit: '', description: ""},
+	{header: "CODE", value: '', unit: '', description: ""},
+	{header: "AREA", value: '', unit: '', description: ""},
+	{header: "TYPE", value: '', unit: '', description: ""},
+	{header: "STATUS", value: '', unit: '', description: ""},
+	{header: "WTYPE", value: '', unit: '', description: ""}
+];
+
 function createNewWell(wellInfo, done, dbConnection) {
 	let Well = dbConnection.Well;
 	Well.sync()
@@ -20,6 +55,15 @@ function createNewWell(wellInfo, done, dbConnection) {
 				let well = Well.build(wellInfo);
 				well.save()
 					.then(function (well) {
+						wellHeaders.forEach(hd => {
+							dbConnection.WellHeader.create({
+								idWell: well.idWell,
+								header: hd.header,
+								value: hd.header === "NAME" || hd.header === "WELL" ? well.name : hd.value,
+								unit: hd.unit,
+								description: hd.description
+							});
+						})
 						done(ResponseJSON(ErrorCodes.SUCCESS, "Create new well success", well.toJSON()));
 					})
 					.catch(function (err) {
