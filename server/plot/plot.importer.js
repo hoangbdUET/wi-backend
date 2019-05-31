@@ -181,7 +181,7 @@ async function createImageTrack(image_track, dbConnection, idProject, idPlot, we
 	return dbConnection.ImageTrack.create(image_track);
 }
 
-function createTrack(track, dbConnection, idProject, idPlot, username, well, dataset) {
+function createTrack(track, dbConnection, idProject, idPlot, username, well, dataset, reversedMappingOptions) {
 	return new Promise(async resolve => {
 		track.idPlot = idPlot;
 		track.createdBy = createdBy;
@@ -211,15 +211,30 @@ function createTrack(track, dbConnection, idProject, idPlot, username, well, dat
 							if (!curve) {
 								resolve();
 							} else {
-								line.idCurve = curve.idCurve;
 								let lineModel = require('../line/line.model');
+								line.idCurve = curve.idCurve;
+								if (line.taskCurve && reversedMappingOptions) {
+									line.idCurve = reversedMappingOptions[line.taskCurve] || line.idCurve
+									dbConnection.Curve.findByPk(line.idCurve, {
+										model: dbConnection.FamilySpec,
+										as: 'family_spec'
+									}).then(c => {
+										line.alias = c.name;
+										line.unit = c.unit;
+										delete line.idLine;
+										lineModel.createNewLine(line, function () {
+											next();
+										}, dbConnection, username);
+									})
+								} else {
+									delete line.idLine;
+									lineModel.createNewLine(line, function () {
+										next();
+									}, dbConnection, username);
+								}
 								// lineModel.createNewLineWithoutResponse(line, dbConnection, username).then(() => {
 								// 	next();
 								// });
-								delete line.idLine;
-								lineModel.createNewLine(line, function () {
-									next();
-								}, dbConnection, username);
 							}
 						})
 					}, cb)
@@ -296,7 +311,7 @@ module.exports = function (req, done, dbConnection, username, logger) {
 					async.series([
 						function (cb) {
 							async.each(myPlot.tracks, (track, nextTrack) => {
-								createTrack(track, dbConnection, idProject, pl.idPlot, username, well, dataset).then(() => {
+								createTrack(track, dbConnection, idProject, pl.idPlot, username, well, dataset, req.body.reversedMappingOptions).then(() => {
 									nextTrack();
 								});
 							}, cb);

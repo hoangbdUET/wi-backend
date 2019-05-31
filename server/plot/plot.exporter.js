@@ -139,6 +139,7 @@ module.exports = function (body, done, error, dbConnection, username, logger) {
 									let newLine = {};
 									curveFunction.getFullCurveParents({idCurve: line.idCurve}, dbConnection).then(curveFullParents => {
 										Object.assign(newLine, line);
+										if (body.nameMappingOptions) newLine.taskCurve = body.nameMappingOptions[line.idLine];
 										delete newLine.idLine;
 										delete newLine.idTrack;
 										delete newLine.idCurve;
@@ -286,6 +287,14 @@ module.exports = function (body, done, error, dbConnection, username, logger) {
 			}
 		], () => {
 			createTempfile(newEportPlot, done);
+			dbConnection.ParameterSet.create({
+				name: "template-" + newEportPlot.name + "-" + Date.now(),
+				content: newEportPlot,
+				type: "PT",
+				idProject: 1,
+				createdBy: "hoang",
+				updatedBy: "hoang"
+			});
 			logger.info("PLOT", plot.idPlot, "Exported");
 			// createTempfile(plot, done);
 		});
