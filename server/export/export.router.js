@@ -177,8 +177,8 @@ router.post('/CSV/rv', function (req, res) {
 							exporter.exportCsvRVFromProject(
 								project,
 								idObj.datasets,
-								config.exportPath,
-								config.curveBasePath,
+								process.env.BACKEND_EXPORT_PATH || config.exportPath,
+								process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath,
 								req.decoded.username,
 								function (err, result) {
 									if (err) {
@@ -244,8 +244,8 @@ router.post('/CSV/wdrv', function (req, res) {
 							exporter.exportCsvWDRVFromProject(
 								project,
 								idObj.datasets,
-								config.exportPath,
-								config.curveBasePath,
+								process.env.BACKEND_EXPORT_PATH || config.exportPath,
+								process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath,
 								req.decoded.username,
 								function (err, result) {
 									if (err) {
