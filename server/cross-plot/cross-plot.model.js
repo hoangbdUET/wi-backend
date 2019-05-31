@@ -47,6 +47,7 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection, logger) {
 			idProject: crossPlotInfo.idProject,
 			name: crossPlotInfo.name,
 			axisColors: crossPlotInfo.axisColors,
+			colorBy: crossPlotInfo.colorBy,
 			createdBy: crossPlotInfo.createdBy,
 			updatedBy: crossPlotInfo.updatedBy,
 			configs: crossPlotInfo.configs
@@ -150,6 +151,7 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection, logger) {
 			idProject: crossPlotInfo.idProject,
 			name: crossPlotInfo.name,
 			axisColors: crossPlotInfo.axisColors,
+			colorBy: crossPlotInfo.colorBy,
 			createdBy: crossPlotInfo.createdBy,
 			updatedBy: crossPlotInfo.updatedBy,
 			configs: crossPlotInfo.configs
