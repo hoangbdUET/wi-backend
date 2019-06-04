@@ -383,6 +383,8 @@ router.post("/update-curve-data", (req, res) => {
 		where: {name: "B9_HARMONIZE"},
 		include: {model: dbConnection.Well, include: {model: dbConnection.Dataset}}
 	}).then(async project => {
+		let countSucc = 0;
+		let countErr = 0;
 		if (project) {
 			async.eachSeries(project.wells, (well, nextWell) => {
 				async.eachSeries(well.datasets, (dataset, nextDataset) => {
@@ -391,13 +393,15 @@ router.post("/update-curve-data", (req, res) => {
 							let curvePath = dataTool.hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
 							let martinPath = dataTool.hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, "ess_martin" + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
 							console.log(martinPath, curvePath);
-							fsExtra.copy(curvePath, notExsitedPath).then(() => {
+							fsExtra.copy(martinPath, curvePath).then(() => {
 								sleep(500).then(() => {
+									countSucc++;
 									console.log("Done");
 									nextCurve();
 								});
 							}).catch(err => {
 								sleep(500).then(() => {
+									countErr++;
 									console.log("Error :", err);
 									nextCurve();
 								});
@@ -410,6 +414,7 @@ router.post("/update-curve-data", (req, res) => {
 					nextWell();
 				});
 			}, () => {
+				console.log("Done all ", countSucc + countErr, " curves. ", countSucc, " curves success. ", countErr, " curves error.");
 				res.json("Done");
 			});
 		} else {
