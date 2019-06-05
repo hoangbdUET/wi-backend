@@ -160,7 +160,6 @@ async function createDepthAxis(depth_axis, dbConnection, idProject, idPlot, well
 	let curve = await findCurve(depth_axis.curve, dbConnection, idProject, well, dataset);
 	depth_axis.idWell = well ? well.idWell : null;
 	depth_axis.idCurve = curve ? curve.idCurve : null;
-	console.log("Create depth ===============================")
 	return await dbConnection.DepthAxis.create(depth_axis);
 }
 
@@ -320,7 +319,6 @@ module.exports = function (req, done, dbConnection, username, logger) {
 						function (cb) {
 							async.eachSeries(myPlot.depth_axes, (depth_axis, nextDepth) => {
 								createDepthAxis(depth_axis, dbConnection, idProject, pl.idPlot, well, {name: 'INDEX'}).then(() => {
-									console.log("Callback depth")
 									nextDepth();
 								});
 							}, cb);
@@ -341,7 +339,6 @@ module.exports = function (req, done, dbConnection, username, logger) {
 						}
 					], () => {
 						logger.info("PLOT", pl.idPlot, "Created from template");
-						console.log("Callback ????????????????")
 						dbConnection.Plot.findByPk(pl.idPlot, {include: {all: true, include: {all: true}}}).then(p => {
 							done(ResponseJSON(ErrorCodes.SUCCESS, "Done", p));
 						});
