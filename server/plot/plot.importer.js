@@ -169,7 +169,7 @@ async function createZoneTrack(zone_track, dbConnection, idProject, idPlot, well
 	zone_track.updatedBy = updatedBy;
 	let zone_set = await findZoneSet(zone_track.zone_set, dbConnection, idProject, well);
 	zone_track.idZoneSet = zone_set ? zone_set.idZoneSet : null;
-	return dbConnection.ZoneTrack.create(zone_track);
+	return await dbConnection.ZoneTrack.create(zone_track);
 }
 
 async function createImageTrack(image_track, dbConnection, idProject, idPlot, well) {
@@ -178,7 +178,7 @@ async function createImageTrack(image_track, dbConnection, idProject, idPlot, we
 	image_track.updatedBy = updatedBy;
 	let image_set = await findImageSet(image_track.image_set, dbConnection, idProject, well);
 	image_track.idImageSet = image_set ? image_set.idImageSet : null;
-	return dbConnection.ImageTrack.create(image_track);
+	return await dbConnection.ImageTrack.create(image_track);
 }
 
 function createTrack(track, dbConnection, idProject, idPlot, username, well, dataset, reversedMappingOptions) {
@@ -191,7 +191,7 @@ function createTrack(track, dbConnection, idProject, idPlot, username, well, dat
 		track.idZoneSet = zone_set ? zone_set.idZoneSet : null;
 		track.idMarkerSet = marker_set ? marker_set.idMarkerSet : null;
 		dbConnection.Track.create(track).then(_track => {
-			async.series([
+			async.waterfall([
 				function (cb) {
 					async.eachSeries(track.annotations, (annotation, next) => {
 						annotation.idTrack = _track.idTrack;
@@ -211,6 +211,7 @@ function createTrack(track, dbConnection, idProject, idPlot, username, well, dat
 							if (!curve) {
 								resolve();
 							} else {
+								console.log("========= Found curve ", curve.name);
 								let lineModel = require('../line/line.model');
 								line.idCurve = curve.idCurve;
 								if (line.taskCurve && reversedMappingOptions) {
@@ -308,7 +309,7 @@ module.exports = function (req, done, dbConnection, username, logger) {
 			checkExistingPlot(req.body, myPlot.name, (idPlot => {
 				if (idPlot) myPlot.idPlot = idPlot;
 				createPlot(myPlot, dbConnection, idProject, well, dataset).then(pl => {
-					async.series([
+					async.waterfall([
 						function (cb) {
 							async.eachSeries(myPlot.tracks, (track, nextTrack) => {
 								createTrack(track, dbConnection, idProject, pl.idPlot, username, well, dataset, req.body.reversedMappingOptions).then(() => {
