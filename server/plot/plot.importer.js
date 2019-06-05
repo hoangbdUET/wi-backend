@@ -148,7 +148,7 @@ async function createPlot(plot, dbConnection, idProject, well, dataset) {
 	plot.idProject = idProject;
 	let curve = await findCurve(plot.reference_curve, dbConnection, idProject, well, dataset);
 	if (curve) plot.referenceCurve = curve.idCurve;
-	return dbConnection.Plot.create(plot);
+	return await dbConnection.Plot.create(plot);
 }
 
 async function createDepthAxis(depth_axis, dbConnection, idProject, idPlot, well, dataset) {
@@ -160,7 +160,8 @@ async function createDepthAxis(depth_axis, dbConnection, idProject, idPlot, well
 	let curve = await findCurve(depth_axis.curve, dbConnection, idProject, well, dataset);
 	depth_axis.idWell = well ? well.idWell : null;
 	depth_axis.idCurve = curve ? curve.idCurve : null;
-	return dbConnection.DepthAxis.create(depth_axis);
+	console.log("Create depth ===============================")
+	return await dbConnection.DepthAxis.create(depth_axis);
 }
 
 async function createZoneTrack(zone_track, dbConnection, idProject, idPlot, well) {
@@ -191,7 +192,7 @@ function createTrack(track, dbConnection, idProject, idPlot, username, well, dat
 		track.idZoneSet = zone_set ? zone_set.idZoneSet : null;
 		track.idMarkerSet = marker_set ? marker_set.idMarkerSet : null;
 		dbConnection.Track.create(track).then(_track => {
-			async.eachSeries([
+			async.series([
 				function (cb) {
 					async.eachSeries(track.annotations, (annotation, next) => {
 						annotation.idTrack = _track.idTrack;
@@ -319,9 +320,10 @@ module.exports = function (req, done, dbConnection, username, logger) {
 						function (cb) {
 							async.eachSeries(myPlot.depth_axes, (depth_axis, nextDepth) => {
 								createDepthAxis(depth_axis, dbConnection, idProject, pl.idPlot, well, {name: 'INDEX'}).then(() => {
+									console.log("Callback depth")
 									nextDepth();
 								});
-							}, cb());
+							}, cb);
 						},
 						function (cb) {
 							async.eachSeries(myPlot.zone_tracks, (zone_track, nextZoneTrack) => {
@@ -339,6 +341,7 @@ module.exports = function (req, done, dbConnection, username, logger) {
 						}
 					], () => {
 						logger.info("PLOT", pl.idPlot, "Created from template");
+						console.log("Callback ????????????????")
 						dbConnection.Plot.findByPk(pl.idPlot, {include: {all: true, include: {all: true}}}).then(p => {
 							done(ResponseJSON(ErrorCodes.SUCCESS, "Done", p));
 						});
