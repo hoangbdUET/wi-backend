@@ -209,7 +209,7 @@ function createTrack(track, dbConnection, idProject, idPlot, username, well, dat
 						line.updatedBy = _track.updatedBy;
 						findCurve(line.curve, dbConnection, idProject, well, dataset).then(curve => {
 							if (!curve) {
-								resolve();
+								next();
 							} else {
 								console.log("========= Found curve ", curve.name);
 								let lineModel = require('../line/line.model');
