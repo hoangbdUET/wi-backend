@@ -310,28 +310,28 @@ module.exports = function (req, done, dbConnection, username, logger) {
 				createPlot(myPlot, dbConnection, idProject, well, dataset).then(pl => {
 					async.series([
 						function (cb) {
-							async.each(myPlot.tracks, (track, nextTrack) => {
+							async.eachSeries(myPlot.tracks, (track, nextTrack) => {
 								createTrack(track, dbConnection, idProject, pl.idPlot, username, well, dataset, req.body.reversedMappingOptions).then(() => {
 									nextTrack();
 								});
 							}, cb);
 						},
 						function (cb) {
-							async.each(myPlot.depth_axes, (depth_axis, nextDepth) => {
+							async.eachSeries(myPlot.depth_axes, (depth_axis, nextDepth) => {
 								createDepthAxis(depth_axis, dbConnection, idProject, pl.idPlot, well, {name: 'INDEX'}).then(() => {
 									nextDepth();
 								});
 							}, cb());
 						},
 						function (cb) {
-							async.each(myPlot.zone_tracks, (zone_track, nextZoneTrack) => {
+							async.eachSeries(myPlot.zone_tracks, (zone_track, nextZoneTrack) => {
 								createZoneTrack(zone_track, dbConnection, idProject, pl.idPlot, well, dataset).then(() => {
 									nextZoneTrack();
 								});
 							}, cb)
 						},
 						function (cb) {
-							async.each(myPlot.image_tracks, (image_track, nextImageTrack) => {
+							async.eachSeries(myPlot.image_tracks, (image_track, nextImageTrack) => {
 								createImageTrack(image_track, dbConnection, idProject, pl.idPlot, well, dataset).then(() => {
 									nextImageTrack();
 								});
