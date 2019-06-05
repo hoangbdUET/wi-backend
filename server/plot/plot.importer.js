@@ -191,9 +191,9 @@ function createTrack(track, dbConnection, idProject, idPlot, username, well, dat
 		track.idZoneSet = zone_set ? zone_set.idZoneSet : null;
 		track.idMarkerSet = marker_set ? marker_set.idMarkerSet : null;
 		dbConnection.Track.create(track).then(_track => {
-			async.series([
+			async.eachSeries([
 				function (cb) {
-					async.each(track.annotations, (annotation, next) => {
+					async.eachSeries(track.annotations, (annotation, next) => {
 						annotation.idTrack = _track.idTrack;
 						annotation.createdBy = createdBy;
 						annotation.updatedBy = updatedBy;
@@ -203,7 +203,7 @@ function createTrack(track, dbConnection, idProject, idPlot, username, well, dat
 					}, cb);
 				},
 				function (cb) {
-					async.each(track.lines, (line, next) => {
+					async.eachSeries(track.lines, (line, next) => {
 						line.idTrack = _track.idTrack;
 						line.createdBy = _track.createdBy;
 						line.updatedBy = _track.updatedBy;
@@ -240,7 +240,7 @@ function createTrack(track, dbConnection, idProject, idPlot, username, well, dat
 					}, cb)
 				},
 				function (cb) {
-					async.each(track.shadings, (shading, next) => {
+					async.eachSeries(track.shadings, (shading, next) => {
 						shading.idTrack = _track.idTrack;
 						shading.createdBy = createdBy;
 						shading.updatedBy = updatedBy;
