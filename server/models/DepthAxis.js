@@ -75,7 +75,7 @@ module.exports = function (sequelize, DataTypes) {
 		},
 		majorTickLength: {
 			type: DataTypes.FLOAT,
-			defaultValue: 0,
+			defaultValue: 10,
 			allowNull: true
 		},
 		minorTickNum: {
