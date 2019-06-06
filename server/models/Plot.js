@@ -57,6 +57,21 @@ module.exports = function (sequelize, DataTypes) {
 			allowNull: true,
 			defaultValue: 'inch'
 		},
+		tickMode: {
+			type: DataTypes.STRING(15),
+			allowNull: true,
+			defaultValue: 'default'
+		},
+		majorTickLength: {
+			type: DataTypes.FLOAT,
+			defaultValue: 0,
+			allowNull: true
+		},
+		minorTickNum: {
+			type: DataTypes.INTEGER,
+			defaultValue: 5,
+			allowNull: true
+		},
 		note: {
 			type: DataTypes.STRING(255),
 			allowNull: true,
