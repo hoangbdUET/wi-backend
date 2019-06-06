@@ -64,12 +64,12 @@ module.exports = function (sequelize, DataTypes) {
 		},
 		majorTickLength: {
 			type: DataTypes.FLOAT,
-			defaultValue: 10,
+			defaultValue: 5,
 			allowNull: true
 		},
 		minorTickNum: {
 			type: DataTypes.INTEGER,
-			defaultValue: 5,
+			defaultValue: 2,
 			allowNull: true
 		},
 		note: {
