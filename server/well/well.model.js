@@ -231,7 +231,7 @@ function deleteWell(wellInfo, done, dbConnection) {
 
 function getWellInfo(well, done, dbConnection) {
 	let Well = dbConnection.Well;
-	Well.findByPk(well.idWell, {include: [{all: true}]})
+	Well.findByPk(well.idWell, {include: [{model: dbConnection.Dataset}]})
 		.then(function (well) {
 			let wellObj = well.toJSON();
 			asyncSeries([
