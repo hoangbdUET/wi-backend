@@ -5,6 +5,7 @@ let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
 let createdBy;
 let updatedBy;
+let lineModel = require('../line/line.model');
 
 function findCurve(curve, dbConnection, idProject, well, dataset) {
 	return new Promise((resolve => {
@@ -207,37 +208,33 @@ function createTrack(track, dbConnection, idProject, idPlot, username, well, dat
 						line.idTrack = _track.idTrack;
 						line.createdBy = _track.createdBy;
 						line.updatedBy = _track.updatedBy;
-						findCurve(line.curve, dbConnection, idProject, well, dataset).then(curve => {
-							if (!curve) {
-								next();
-							} else {
-								console.log("========= Found curve ", curve.name);
-								let lineModel = require('../line/line.model');
-								line.idCurve = curve.idCurve;
-								if (line.taskCurve && reversedMappingOptions) {
-									line.idCurve = reversedMappingOptions[line.taskCurve] || line.idCurve
-									dbConnection.Curve.findByPk(line.idCurve, {
-										model: dbConnection.FamilySpec,
-										as: 'family_spec'
-									}).then(c => {
-										line.alias = c.name;
-										line.unit = c.unit;
-										delete line.idLine;
-										lineModel.createNewLine(line, function () {
-											next();
-										}, dbConnection, username);
-									})
-								} else {
+						if (line.taskCurve && reversedMappingOptions) {
+							line.idCurve = reversedMappingOptions[line.taskCurve];
+							dbConnection.Curve.findByPk(line.idCurve, {model: dbConnection.FamilySpec, as: 'family_spec'}).then(c => {
+								if (c) {
+									line.alias = c.name;
+									line.unit = c.unit;
 									delete line.idLine;
 									lineModel.createNewLine(line, function () {
 										next();
 									}, dbConnection, username);
 								}
-								// lineModel.createNewLineWithoutResponse(line, dbConnection, username).then(() => {
-								// 	next();
-								// });
-							}
-						})
+							})
+						} else {
+							findCurve(line.curve, dbConnection, idProject, well, dataset).then(curve => {
+								if (!curve) {
+									next();
+								} else {
+									console.log("========= Found curve ", curve.name);
+									line.idCurve = curve.idCurve;
+									delete line.idLine;
+									lineModel.createNewLine(line, function () {
+										next();
+									}, dbConnection, username);
+
+								}
+							})
+						}
 					}, cb)
 				},
 				function (cb) {
