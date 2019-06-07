@@ -287,14 +287,14 @@ module.exports = function (body, done, error, dbConnection, username, logger) {
 			}
 		], () => {
 			createTempfile(newEportPlot, done);
-			dbConnection.ParameterSet.create({
-				name: "template-" + newEportPlot.name + "-" + Date.now(),
-				content: newEportPlot,
-				type: "PT",
-				idProject: 1,
-				createdBy: "hoang",
-				updatedBy: "hoang"
-			});
+			// dbConnection.ParameterSet.create({
+			// 	name: "template-" + newEportPlot.name + "-" + Date.now(),
+			// 	content: newEportPlot,
+			// 	type: "PT",
+			// 	idProject: 1,
+			// 	createdBy: "hoang",
+			// 	updatedBy: "hoang"
+			// });
 			logger.info("PLOT", plot.idPlot, "Exported");
 			// createTempfile(plot, done);
 		});
