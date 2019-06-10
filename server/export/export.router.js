@@ -10,6 +10,9 @@ const csv = require('fast-csv');
 const ErrorCodes = require('../../error-codes').CODES;
 let convertLength = require('../utils/convert-length');
 const serverAddress = require('../utils/information').serverAddress;
+const hashDir = require('../utils/data-tool').hashDir;
+const Op = require('sequelize').Op;
+const dlisExport = require('dlis_export')(config);
 
 function getFullProjectObj(idProject, idWell, dbConnection) {
 	return new Promise(async resolve => {
@@ -440,4 +443,84 @@ router.post('/marker-set', async function (req, res) {
 	}
 });
 
+router.post('/dlisv1', async function(req, res){
+    try {
+        const results = [];
+        const wells = [];
+        let fileName = Date.now();
+        let wellName = '';
+        const username = req.decoded.username;
+
+        for (const obj of req.body.idObjs) {
+            const datasetIDs = [];
+            let curveIDs = [];
+            for(const dataset of obj.datasets){
+                datasetIDs.push(dataset.idDataset)
+                curveIDs = curveIDs.concat(dataset.idCurves)
+            }
+
+            let project = await req.dbConnection.Project.findByPk(obj.idProject, {
+                include: [{
+                    model: req.dbConnection.Well,
+					where: {
+						idWell: obj.idWell
+					},
+					include: [{
+                    	model: req.dbConnection.WellHeader
+					},
+					{
+                    	model: req.dbConnection.Dataset,
+						where: {
+                    		idDataset: {
+                    			[Op.in]: datasetIDs
+							}
+						},
+						include: {
+                    		model: req.dbConnection.Curve,
+							where: [{
+                    			idCurve: {
+                    				[Op.in]: curveIDs
+								}
+							}]
+						}
+					}]
+                }]
+            })
+
+            project = project.toJSON();
+			for(const well of project.wells) {
+                for (const dataset of well.datasets) {
+                    for (const curve of dataset.curves) {
+                        curve.path = (process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath) + '/' +
+							hashDir.getHashPath(username + project.name + well.name + dataset.name + curve.name) + curve.name + '.txt';
+                    }
+                }
+                fileName += '_' + well.name;
+                if(wellName.length <= 0){
+                    wellName = well.name;
+                }else {
+                    wellName += '_' + well.name;
+                }
+                wells.push(well);
+            }
+        }
+
+        const exportDir = (process.env.BACKEND_EXPORT_PATH || config.exportPath) + '/' + req.decoded.username;
+        fileName += '.dlis';
+        if(!fs.existsSync(exportDir)){
+            fs.mkdirSync(exportDir, {recursive: true});
+        }
+        await dlisExport.export(wells, exportDir + '/' + fileName);
+        results.push({
+            fileName: fileName,
+            wellName: wellName
+        })
+
+        res.send(ResponseJSON(200, 'SUCCESSFULLY', results));
+
+    }catch (err){
+        console.log(err)
+        res.send(ResponseJSON(404, err));
+    }
+})
 module.exports = router;
