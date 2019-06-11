@@ -420,11 +420,18 @@ function duplicateCrossplot(payload, done, dbConnection, logger) {
 	})
 }
 
+function listCrossPlot(payload, done, dbConnection) {
+	dbConnection.CrossPlot.findAll({where: {idProject: payload.idProject}}).then(crs => {
+		done(ResponseJSON(ErrorCodes.SUCCESS, "Done", crs))
+	});
+}
+
 module.exports = {
 	createNewCrossPlot: createNewCrossPlot,
 	editCrossPlot: editCrossPlot,
 	deleteCrossPlot: deleteCrossPlot,
 	getCrossPlotInfo: getCrossPlotInfo,
-	duplicateCrossplot: duplicateCrossplot
+	duplicateCrossplot: duplicateCrossplot,
+	listCrossPlot: listCrossPlot
 };
 
