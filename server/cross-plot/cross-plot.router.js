@@ -30,7 +30,7 @@ router.post('/cross-plot/duplicate', function (req, res) {
 		res.send(status);
 	}, req.dbConnection, req.logger);
 });
-router.post('/crpss-plot/list', function (req, res) {
+router.post('/cross-plot/list', function (req, res) {
 	crossPlotModel.listCrossPlot(req.body, function (status) {
 		res.send(status)
 	}, req.dbConnection);
