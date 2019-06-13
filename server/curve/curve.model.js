@@ -1068,7 +1068,7 @@ function _createDataTmp(curves, newCurveName, username) {
 function createArrayCurve(payload, done, dbConnection, createdBy, updatedBy, logger) {
 	let idCurve = payload.body.idCurve || payload.body.idDesCurve;
 	if (idCurve) {
-		dbConnection.Curve.findByPk(payload.body.idDesCurve).then(curve => {
+		dbConnection.Curve.findByPk(idCurve).then(curve => {
 			if (curve) {
 				Object.assign(curve, payload.body).save().then(c => {
 					curveFunction.getFullCurveParents(c, dbConnection).then(curveParent => {
