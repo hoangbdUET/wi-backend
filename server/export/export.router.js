@@ -513,7 +513,8 @@ router.post('/dlisv1', async function(req, res){
         await dlisExport.export(wells, exportDir + '/' + fileName);
         results.push({
             fileName: fileName,
-            wellName: wellName
+            wellName: wellName,
+			ip: serverAddress
         })
 
         res.send(ResponseJSON(200, 'SUCCESSFULLY', results));
