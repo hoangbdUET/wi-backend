@@ -524,4 +524,22 @@ router.post('/dlisv1', async function(req, res){
         res.send(ResponseJSON(404, err));
     }
 })
+
+router.post('/clear', function(req, res){
+    try{
+        const dir = (process.env.BACKEND_EXPORT_PATH || config.exportPath) + '/' + req.decoded.username;
+        fs.readdir(dir, (err, files) => {
+            if (err) throw err;
+
+            for (const file of files) {
+                fs.unlink(path.join(dir, file), err => {
+                    if (err) throw err;
+                });
+            }
+        });
+    } catch (err){
+        console.log(err);
+    }
+    res.send(ResponseJSON(200, 'SUCCESSFULLY'));
+})
 module.exports = router;
