@@ -78,4 +78,11 @@ router.post('/plot/new-from-parameter', function (req, res) {
 		res.send(status);
 	}, req.dbConnection, req.decoded.username, req.logger);
 });
+
+router.post('/plot/list', (req, res) => {
+	plotModel.listPlot(req.body, status => {
+		res.send(status);
+	}, req.dbConnection)
+});
+
 module.exports = router;

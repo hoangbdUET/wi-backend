@@ -395,11 +395,18 @@ function editHistogramCurveSet(payload, done, dbConnection) {
 	});
 }
 
+function listHistogram(payload, done, dbConnection) {
+	dbConnection.Histogram.findAll({where: {idProject: payload.idProject}}).then(hs => {
+		done(ResponseJSON(ErrorCodes.SUCCESS, "Done", hs));
+	});
+}
+
 module.exports = {
 	createNewHistogram: createNewHistogram,
 	getHistogram: getHistogram,
 	editHistogram: editHistogram,
 	deleteHistogram: deleteHistogram,
 	duplicateHistogram: duplicateHistogram,
-	editHistogramCurveSet: editHistogramCurveSet
+	editHistogramCurveSet: editHistogramCurveSet,
+	listHistogram: listHistogram
 };

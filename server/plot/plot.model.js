@@ -641,11 +641,19 @@ let duplicatePlot = function (payload, done, dbConnection, isSave, logger) {
 		done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Err", err.message));
 	});
 };
+
+function listPlot(payload, done, dbConnection) {
+	dbConnection.Plot.findAll({where: {idProject: payload.idProject}}).then(pls => {
+		done(ResponseJSON(ErrorCodes.SUCCESS, "Done", pls))
+	});
+}
+
 module.exports = {
 	duplicatePlot: duplicatePlot,
 	createNewPlot: createNewPlot,
 	editPlot: editPlot,
 	deletePlot: deletePlot,
 	getPlotInfo: getPlotInfo,
+	listPlot: listPlot
 	// importPlotTemplate: importPlotTemplate
 };

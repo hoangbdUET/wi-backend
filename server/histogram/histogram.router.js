@@ -41,4 +41,10 @@ router.post('/histogram/histogram-curve-set/edit', function (req, res) {
     }, req.dbConnection, req.logger);
 });
 
+router.post('/histogram/list', function (req, res) {
+		histogramModel.listHistogram(req.body, function (status) {
+			res.send(status)
+		}, req.dbConnection);
+});
+
 module.exports = router;
