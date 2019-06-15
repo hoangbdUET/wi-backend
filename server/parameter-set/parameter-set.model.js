@@ -79,7 +79,8 @@ function downloadParameterSet(payload, done, dbConnection) {
 					type: p.type,
 					content: p.content,
 					node: p.note,
-					idTaskSpec: p.idTaskSpec
+					idTaskSpec: p.idTaskSpec,
+					idParameterSet: p.idParameterSet
 				}));
 				done(null, tempfile);
 			} else {
