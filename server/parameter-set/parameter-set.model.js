@@ -1,5 +1,6 @@
 const ResponseJSON = require('../response');
 const ErrorCodes = require('../../error-codes').CODES;
+const fs = require('fs');
 
 let createNewParameterSet = function (data, done, dbConnection) {
 	dbConnection.ParameterSet.findOrCreate({
@@ -68,10 +69,43 @@ let updateParameterSet = function (data, done, dbConnection) {
 	});
 };
 
+function downloadParameterSet(payload, done, dbConnection) {
+	if (payload.idParameterSet) {
+		dbConnection.ParameterSet.findByPk(payload.idParameterSet).then(p => {
+			if (p) {
+				let tempfile = require('tempfile')('.json');
+				fs.writeFileSync(tempfile, JSON.stringify({
+					name: p.name,
+					type: p.type,
+					content: p.content,
+					node: p.note,
+					idTaskSpec: p.idTaskSpec
+				}));
+				done(null, tempfile);
+			} else {
+				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No params found by id"));
+			}
+		})
+	} else if (payload.type) {
+		dbConnection.ParameterSet.findAll({where: {type: payload.type}}).then(ps => {
+			if (ps) {
+				let tempfile = require('tempfile')('.json');
+				fs.writeFileSync(tempfile, JSON.stringify(ps.toJSON()));
+				done(null, tempfile);
+			} else {
+				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No params found by id"));
+			}
+		})
+	} else {
+		done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Need id or type"));
+	}
+}
+
 module.exports = {
 	createNewParameterSet: createNewParameterSet,
 	listParameterSet: listParameterSet,
 	infoParameterSet: infoParameterSet,
 	deleteParameterSet: deleteParameterSet,
-	updateParameterSet: updateParameterSet
+	updateParameterSet: updateParameterSet,
+	downloadParameterSet: downloadParameterSet
 };
