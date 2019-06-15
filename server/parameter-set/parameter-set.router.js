@@ -29,11 +29,13 @@ router.delete('/parameter-set/delete', function (req, res) {
 });
 
 router.post('/parameter-set/download', function (req, res) {
+	const fs = require('fs');
 	model.downloadParameterSet(req.body, function (err, success) {
 		if (err) {
 			res.send(err)
 		} else {
 			res.sendFile(success);
+			fs.unlinkSync(success)
 		}
 	}, req.dbConnection);
 });
