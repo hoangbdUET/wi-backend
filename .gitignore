@@ -88,4 +88,4 @@ yarn.lock
 /config/prod11.json
 /config/prod12.json
 /config/local-service.json
-
+/server/models-gen

@@ -1,4 +1,4 @@
-FROM node:8.12.0-alpine
+FROM node:8.12.0
 
 MAINTAINER I2G
 
@@ -12,7 +12,7 @@ COPY package.json /app
 RUN npm install
 
 # Set Environment
-#ENV NODE_ENV=local-service
+ENV NODE_ENV=kubernetes
 
 EXPOSE 3000
 
