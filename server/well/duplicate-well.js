@@ -219,6 +219,52 @@ module.exports = function (idWell, done, dbConnection, username, createdBy, upda
 							callback();
 						});
 					});
+				},
+				function (callback) {
+					dbConnection.ImageSet.findAll({
+						where: {idWell: well.idWell},
+						include: {model: dbConnection.Image}
+					}).then(imagesets => {
+						asyncEach(imagesets, function (imageset, next) {
+							dbConnection.ImageSet.create({
+								name: imageset.name,
+								idWell: _well.idWell,
+								note: imageset.note,
+								lockable: imageset.lockable,
+								createdBy: createdBy,
+								updatedBy: updatedBy
+							}).then(imgs => {
+								asyncEach(imageset.images, (image, nextImage) => {
+									dbConnection.Image.create({
+										name: image.name,
+										imageurl: image.imageurl,
+										fill: image.fill,
+										spec: image.spec,
+										orderNum: image.orderNum,
+										showOnTrack: image.showOnTrack,
+										topDepth: image.topDepth,
+										bottomDepth: image.bottomDepth,
+										right: image.right,
+										left: image.left,
+										idImageSet: imgs.idImageSet,
+										createdBy: image.createdBy,
+										updatedBy: image.updatedBy
+									}).then(() => {
+										nextImage();
+									}).catch(err => {
+										nextImage();
+									});
+								}, function () {
+									next();
+								})
+							}).catch(err => {
+								console.log(err);
+								next();
+							});
+						}, function () {
+							callback();
+						});
+					});
 				}
 			], function () {
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", _well));

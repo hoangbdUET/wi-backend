@@ -2,7 +2,9 @@ const express = require('express');
 const router = express.Router();
 const async = require('async');
 const dbMaster = require('../models-master');
-
+const dataTool = require('../utils/data-tool');
+const config = require('config');
+const fsExtra = require('fs-extra');
 router.post('/migrate/clone-zone-set-template', async (req, res) => {
 	let dbConnection = req.dbConnection;
 	let projects = await dbConnection.Project.findAll();
@@ -366,6 +368,59 @@ router.post('/migrate/add-zone-template-to-existed-project', (req, res) => {
 		})
 
 	});
+});
+
+function sleep(ms) {
+	return new Promise(resolve => {
+		setTimeout(resolve, ms);
+	});
+}
+
+router.post("/update-curve-data", (req, res) => {
+	const dbConnection = req.dbConnection;
+	let username = req.decoded.username;
+	dbConnection.Project.findOne({
+		where: {name: "B9_HARMONIZE"},
+		include: {model: dbConnection.Well, include: {model: dbConnection.Dataset}}
+	}).then(async project => {
+		let countSucc = 0;
+		let countErr = 0;
+		if (project) {
+			async.eachSeries(project.wells, (well, nextWell) => {
+				async.eachSeries(well.datasets, (dataset, nextDataset) => {
+					dbConnection.Curve.findAll({where: {idDataset: dataset.idDataset}}).then(curves => {
+						async.eachSeries(curves, (curve, nextCurve) => {
+							let curvePath = dataTool.hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+							let martinPath = dataTool.hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, "ess_martin" + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
+							console.log(martinPath, curvePath);
+							fsExtra.copy(martinPath, curvePath).then(() => {
+								sleep(500).then(() => {
+									countSucc++;
+									console.log("Done");
+									nextCurve();
+								});
+							}).catch(err => {
+								sleep(500).then(() => {
+									countErr++;
+									console.log("Error :", err);
+									nextCurve();
+								});
+							});
+						}, () => {
+							nextDataset();
+						})
+					});
+				}, () => {
+					nextWell();
+				});
+			}, () => {
+				console.log("Done all ", countSucc + countErr, " curves. ", countSucc, " curves success. ", countErr, " curves error.");
+				res.json("Done");
+			});
+		} else {
+			res.json("Project not found");
+		}
+	})
 });
 
 module.exports = router;

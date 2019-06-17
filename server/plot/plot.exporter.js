@@ -8,6 +8,23 @@ function createTempfile(data, callback) {
 	callback(200, tempfile);
 }
 
+function getFullImageParents(imageset, dbConnection) {
+	return new Promise((resolve => {
+		dbConnection.ImageSet.findByPk(imageset.idImageSet).then(ims => {
+			if (ims) {
+				dbConnection.Well.findByPk(ims.idWell).then(well => {
+					resolve({
+						name: ims.name,
+						well: well.name
+					});
+				})
+			} else {
+				resolve(null);
+			}
+		});
+	}))
+}
+
 function getFullZoneParents(zoneset, dbConnection) {
 	return new Promise((resolve => {
 		dbConnection.ZoneSet.findByPk(zoneset.idZoneSet).then(zs => {
@@ -61,7 +78,7 @@ module.exports = function (body, done, error, dbConnection, username, logger) {
 				]
 			},
 			{model: dbConnection.DepthAxis},
-			{model: dbConnection.ImageTrack, include: {model: dbConnection.ImageOfTrack}},
+			{model: dbConnection.ImageTrack, include: {model: dbConnection.ImageSet}},
 			{model: dbConnection.ObjectTrack, include: {model: dbConnection.ObjectOfTrack}},
 			{model: dbConnection.ZoneTrack, include: {model: dbConnection.ZoneSet}}
 		]
@@ -122,6 +139,7 @@ module.exports = function (body, done, error, dbConnection, username, logger) {
 									let newLine = {};
 									curveFunction.getFullCurveParents({idCurve: line.idCurve}, dbConnection).then(curveFullParents => {
 										Object.assign(newLine, line);
+										if (body.nameMappingOptions) newLine.taskCurve = body.nameMappingOptions[line.idLine];
 										delete newLine.idLine;
 										delete newLine.idTrack;
 										delete newLine.idCurve;
@@ -224,33 +242,19 @@ module.exports = function (body, done, error, dbConnection, username, logger) {
 			},
 			function (cb) {
 				async.each(plot.image_tracks, (image_track, nextImageTrack) => {
-					let newImageTrack = {
-						showTitle: image_track.showTitle,
-						title: image_track.title,
-						topJustification: image_track.topJustification,
-						orderNum: image_track.orderNum,
-						background: image_track.background,
-						width: image_track.width,
-						widthUnit: image_track.widthUnit,
-						zoomFactor: image_track.zoomFactor,
-						trackOffset: image_track.trackOffset,
-						image_of_tracks: []
-					};
-					async.each(image_track.image_of_tracks, (image, next) => {
-						newImageTrack.image_of_tracks.push({
-							name: image.name,
-							fill: image.fill,
-							showName: image.showName,
-							imageUrl: image.imageUrl,
-							topDepth: image.topDepth,
-							bottomDepth: image.bottomDepth,
-							left: image.left,
-							right: image.right,
-							smartDisplay: image.smartDisplay
+					getFullImageParents(image_track.image_set, dbConnection).then(image_set => {
+						newExportImageTracks.push({
+							showTitle: image_track.showTitle,
+							title: image_track.title,
+							topJustification: image_track.topJustification,
+							orderNum: image_track.orderNum,
+							background: image_track.background,
+							width: image_track.width,
+							widthUnit: image_track.widthUnit,
+							zoomFactor: image_track.zoomFactor,
+							trackOffset: image_track.trackOffset,
+							image_set: image_set,
 						});
-						next();
-					}, () => {
-						newExportImageTracks.push(newImageTrack);
 						nextImageTrack();
 					});
 				}, () => {
@@ -283,6 +287,14 @@ module.exports = function (body, done, error, dbConnection, username, logger) {
 			}
 		], () => {
 			createTempfile(newEportPlot, done);
+			// dbConnection.ParameterSet.create({
+			// 	name: "template-" + newEportPlot.name + "-" + Date.now(),
+			// 	content: newEportPlot,
+			// 	type: "PT",
+			// 	idProject: 1,
+			// 	createdBy: "hoang",
+			// 	updatedBy: "hoang"
+			// });
 			logger.info("PLOT", plot.idPlot, "Exported");
 			// createTempfile(plot, done);
 		});

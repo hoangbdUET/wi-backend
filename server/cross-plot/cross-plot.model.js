@@ -47,6 +47,7 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection, logger) {
 			idProject: crossPlotInfo.idProject,
 			name: crossPlotInfo.name,
 			axisColors: crossPlotInfo.axisColors,
+			colorBy: crossPlotInfo.colorBy,
 			createdBy: crossPlotInfo.createdBy,
 			updatedBy: crossPlotInfo.updatedBy,
 			configs: crossPlotInfo.configs
@@ -150,6 +151,7 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection, logger) {
 			idProject: crossPlotInfo.idProject,
 			name: crossPlotInfo.name,
 			axisColors: crossPlotInfo.axisColors,
+			colorBy: crossPlotInfo.colorBy,
 			createdBy: crossPlotInfo.createdBy,
 			updatedBy: crossPlotInfo.updatedBy,
 			configs: crossPlotInfo.configs
@@ -418,11 +420,18 @@ function duplicateCrossplot(payload, done, dbConnection, logger) {
 	})
 }
 
+function listCrossPlot(payload, done, dbConnection) {
+	dbConnection.CrossPlot.findAll({where: {idProject: payload.idProject}}).then(crs => {
+		done(ResponseJSON(ErrorCodes.SUCCESS, "Done", crs))
+	});
+}
+
 module.exports = {
 	createNewCrossPlot: createNewCrossPlot,
 	editCrossPlot: editCrossPlot,
 	deleteCrossPlot: deleteCrossPlot,
 	getCrossPlotInfo: getCrossPlotInfo,
-	duplicateCrossplot: duplicateCrossplot
+	duplicateCrossplot: duplicateCrossplot,
+	listCrossPlot: listCrossPlot
 };
 
