@@ -46,12 +46,8 @@
     "sqlite3": "^3.1.8",
     "tempfile": "^2.0.0",
     "wi-etl": "^1.0.4",
-<<<<<<< HEAD
-    "wi-export-test": "^1.2.21",
     "wi-import": "^1.1.75",
-=======
     "wi-export-test": "^1.2.40",
->>>>>>> master-r2
     "wi-palettify": "^1.0.3",
     "winston": "^3.1.0",
     "winston-daily-rotate-file": "^3.6.0",
