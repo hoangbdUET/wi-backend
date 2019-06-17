@@ -34,8 +34,10 @@ router.post('/parameter-set/download', function (req, res) {
 		if (err) {
 			res.send(err)
 		} else {
-			res.sendFile(success);
-			fs.unlinkSync(success)
+			res.sendFile(success, err => {
+				console.log(success)
+				fs.unlinkSync(success)
+			});
 		}
 	}, req.dbConnection);
 });

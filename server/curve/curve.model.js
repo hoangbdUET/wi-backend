@@ -276,14 +276,13 @@ function getDataFile(param, successFunc, errorFunc, dbConnection, username) {
 							if (well) {
 								Project.findByPk(well.idProject).then(project => {
 									console.log("Hash : ", process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curve.name + '.txt');
-									let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
-									const streamData = fs.createReadStream(path);
-									streamData.on('error', function(err) {
-										console.log("error func getDataFile", err);
+									let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt')
+									const dataStream = fs.createReadStream(path);
+									dataStream.on('error', function(err) {
 										errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found"));
 									});
-									successFunc(streamData);
-								});
+									successFunc(dataStream);
+								})
 							}
 						});
 					}
