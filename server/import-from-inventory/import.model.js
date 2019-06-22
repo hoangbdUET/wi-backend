@@ -56,74 +56,96 @@ function importDataset(datasets, token, callback, dbConnection, username, create
 						message: "Bat dau chay nay",
 						content: {}
 					}), {qos: 2});
-					if (rs[1]) {
-						//created
-						logger.info("DATASET", _dataset.idDataset, "Created");
-						// response.datasets.push(_dataset);
-						async.eachSeries(dataset.curves, function (curve, nextCurve) {
-							curve.idDesDataset = _dataset.idDataset;
-							curveModels.getCurveDataFromInventoryPromise(curve, token, dbConnection, username, createdBy, updatedBy, logger).then(curve => {
-								// response.curves.push(curve);
-								MqttClient.publish(topic, JSON.stringify({
-									status: "__CURVE",
-									message: "__DONE",
-									content: {name: curve.name, idCurve: curve.idCurve}
-								}), {qos: 2});
-								nextCurve();
-							}).catch(err => {
-								// response.curves.push(err);
-								MqttClient.publish(topic, JSON.stringify({
-									status: "__CURVE",
-									message: "__ERROR",
-									content: {name: curve.name}
-								}), {qos: 2});
-								nextCurve();
-							});
-						}, function () {
-							// next();
-						});
-					} else {
-						//found
-						logger.info("DATASET", _dataset.idDataset, "Updated");
-						let newDataset = _dataset.toJSON();
-						newDataset.name = (newDataset.name + "_CP" + newDataset.duplicated).toUpperCase();
-						_dataset.duplicated++;
-						_dataset.save();
-						delete newDataset.idDataset;
-						newDataset.step = dataset.step;
-						newDataset.top = dataset.top;
-						newDataset.bottom = dataset.bottom;
-						newDataset.unit = dataset.unit;
-						newDataset.datasetKey = dataset.name;
-						newDataset.datasetLabel = dataset.name;
-						dbConnection.Dataset.create(newDataset).then(d => {
-							// response.datasets.push(d);
-							async.eachSeries(dataset.curves, function (curve, nextCurve) {
-								curve.idDesDataset = d.idDataset;
-								curveModels.getCurveDataFromInventoryPromise(curve, token, dbConnection, username, createdBy, updatedBy, logger).then(curve => {
-									MqttClient.publish(topic, JSON.stringify({
-										status: "__CURVE",
-										message: "__DONE",
-										content: {name: curve.name, idCurve: curve.idCurve}
-									}), {qos: 2});
-									// response.curves.push(curve);
-									nextCurve();
-								}).catch(err => {
-									// response.curves.push(err);
-									MqttClient.publish(topic, JSON.stringify({
-										status: "__CURVE",
-										message: "__ERROR",
-										content: {name: curve.name}
-									}), {qos: 2});
-									nextCurve();
-								});
-							}, function () {
-
-							});
+					async.eachSeries(dataset.curves, function (curve, nextCurve) {
+						curve.idDesDataset = _dataset.idDataset;
+						curveModels.getCurveDataFromInventoryPromise(curve, token, dbConnection, username, createdBy, updatedBy, logger).then(curve => {
+							// response.curves.push(curve);
+							MqttClient.publish(topic, JSON.stringify({
+								status: "__CURVE",
+								message: "__DONE",
+								content: {name: curve.name, idCurve: curve.idCurve}
+							}), {qos: 2});
+							nextCurve();
 						}).catch(err => {
-							console.log(err);
+							// response.curves.push(err);
+							MqttClient.publish(topic, JSON.stringify({
+								status: "__CURVE",
+								message: "__ERROR",
+								content: {name: curve.name}
+							}), {qos: 2});
+							nextCurve();
 						});
-					}
+					}, function () {
+						// next();
+					});
+					// if (rs[1]) {
+					// 	//created
+					// 	logger.info("DATASET", _dataset.idDataset, "Created");
+					// 	// response.datasets.push(_dataset);
+					// 	async.eachSeries(dataset.curves, function (curve, nextCurve) {
+					// 		curve.idDesDataset = _dataset.idDataset;
+					// 		curveModels.getCurveDataFromInventoryPromise(curve, token, dbConnection, username, createdBy, updatedBy, logger).then(curve => {
+					// 			// response.curves.push(curve);
+					// 			MqttClient.publish(topic, JSON.stringify({
+					// 				status: "__CURVE",
+					// 				message: "__DONE",
+					// 				content: {name: curve.name, idCurve: curve.idCurve}
+					// 			}), {qos: 2});
+					// 			nextCurve();
+					// 		}).catch(err => {
+					// 			// response.curves.push(err);
+					// 			MqttClient.publish(topic, JSON.stringify({
+					// 				status: "__CURVE",
+					// 				message: "__ERROR",
+					// 				content: {name: curve.name}
+					// 			}), {qos: 2});
+					// 			nextCurve();
+					// 		});
+					// 	}, function () {
+					// 		// next();
+					// 	});
+					// } else {
+					// 	//found
+					// 	logger.info("DATASET", _dataset.idDataset, "Updated");
+					// 	let newDataset = _dataset.toJSON();
+					// 	newDataset.name = (newDataset.name + "_CP" + newDataset.duplicated).toUpperCase();
+					// 	_dataset.duplicated++;
+					// 	_dataset.save();
+					// 	delete newDataset.idDataset;
+					// 	newDataset.step = dataset.step;
+					// 	newDataset.top = dataset.top;
+					// 	newDataset.bottom = dataset.bottom;
+					// 	newDataset.unit = dataset.unit;
+					// 	newDataset.datasetKey = dataset.name;
+					// 	newDataset.datasetLabel = dataset.name;
+					// 	dbConnection.Dataset.create(newDataset).then(d => {
+					// 		// response.datasets.push(d);
+					// 		async.eachSeries(dataset.curves, function (curve, nextCurve) {
+					// 			curve.idDesDataset = d.idDataset;
+					// 			curveModels.getCurveDataFromInventoryPromise(curve, token, dbConnection, username, createdBy, updatedBy, logger).then(curve => {
+					// 				MqttClient.publish(topic, JSON.stringify({
+					// 					status: "__CURVE",
+					// 					message: "__DONE",
+					// 					content: {name: curve.name, idCurve: curve.idCurve}
+					// 				}), {qos: 2});
+					// 				// response.curves.push(curve);
+					// 				nextCurve();
+					// 			}).catch(err => {
+					// 				// response.curves.push(err);
+					// 				MqttClient.publish(topic, JSON.stringify({
+					// 					status: "__CURVE",
+					// 					message: "__ERROR",
+					// 					content: {name: curve.name}
+					// 				}), {qos: 2});
+					// 				nextCurve();
+					// 			});
+					// 		}, function () {
+					//
+					// 		});
+					// 	}).catch(err => {
+					// 		console.log(err);
+					// 	});
+					// }
 				}).catch(err => {
 					console.log(err);
 					// response.curves.push(err);
