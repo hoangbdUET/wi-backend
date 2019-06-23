@@ -222,14 +222,16 @@ router.post('/migrate/add-flow-default', async (req, res) => {
 	async.series([
 		(cb) => {
 			dbMaster.Flow.findAll().then(flows => {
-				async.each(flows, (flow, next) => {
+				async.eachSeries(flows, (flow, nextFlow) => {
 					flow = flow.toJSON();
 					console.log("Create flow ", flow.name);
 					flow.createdBy = req.createdBy;
 					flow.updatedBy = req.createdBy;
-					dbConnection.Flow.create(flow).then(next).catch((err) => {
+					dbConnection.Flow.create(flow).then(() => {
+						nextFlow()
+					}).catch((err) => {
 						console.log("error flow");
-						next();
+						nextFlow();
 					});
 				}, () => {
 					cb();
@@ -238,12 +240,14 @@ router.post('/migrate/add-flow-default', async (req, res) => {
 		},
 		(cb) => {
 			dbMaster.Task.findAll().then(tasks => {
-				async.each(tasks, (task, next) => {
+				async.eachSeries(tasks, (task, next) => {
 					task = task.toJSON();
 					console.log("Create task ", task.name);
 					task.createdBy = req.createdBy;
 					task.updatedBy = req.createdBy;
-					dbConnection.Task.create(task).then(next).catch((err) => {
+					dbConnection.Task.create(task).then(() => {
+						next();
+					}).catch((err) => {
 						console.log("Error task");
 						next();
 					});
