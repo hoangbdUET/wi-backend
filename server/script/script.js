@@ -228,7 +228,7 @@ router.post('/migrate/add-flow-default', async (req, res) => {
 					flow.createdBy = req.createdBy;
 					flow.updatedBy = req.createdBy;
 					dbConnection.Flow.create(flow).then(next).catch((err) => {
-						console.log(err);
+						console.log("error flow");
 						next();
 					});
 				}, () => {
@@ -244,7 +244,7 @@ router.post('/migrate/add-flow-default', async (req, res) => {
 					task.createdBy = req.createdBy;
 					task.updatedBy = req.createdBy;
 					dbConnection.Task.create(task).then(next).catch((err) => {
-						console.log(err);
+						console.log("Error task");
 						next();
 					});
 				}, () => {
