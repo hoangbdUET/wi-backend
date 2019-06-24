@@ -99,6 +99,10 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: false,
             defaultValue: 0
         },
+	      limitingSpec: {
+        	  type: DataTypes.STRING("150"),
+		        allowNull: true
+	      },
         createdBy: {
             type: DataTypes.STRING(50),
             allowNull: false,
