@@ -116,7 +116,7 @@ function main() {
 	let axisColorRouter = require('./server/cross-plot/axis-color-template/index');
 	let dustbinRouter = require('./server/dustbin/dustbin.router');
 	let selectionToolRouter = require('./server/selection-tool/selection-tool.router');
-	let testRouter = require('./test.js');
+	// let testRouter = require('./test.js');
 	let combinedBoxToolRouter = require('./server/combined-box-tool/combined-box-tool.router');
 	let combinedBoxRouter = require('./server/combined-box/combined-box.router');
 	let asyncQueue = require('async/queue');
@@ -140,6 +140,7 @@ function main() {
 	let analysisRouter = require('./server/analysis/analysis.router');
 	// let projectLogRouter = require('./server/project-log/project-log.router');
 	let utmZoneRouter = require('./server/utm-zone/index');
+	let testRouter = require('./server/test/test.router');
 	let queue = {};
 	let http = require('http').Server(app);
 	let bodyParser = require('body-parser');
@@ -348,6 +349,7 @@ function main() {
 	app.use('/project/plot/image-track', imageOfTrackRouter);
 	app.use('/export', exportRouter);
 	app.use('/log-view', logViewRouter);
+	app.use('/test', testRouter);
 
 
 	accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});

@@ -36,6 +36,7 @@ module.exports = function () {
 									// console.log("=============", decoded.realUser);
 									next();
 								}).catch(err => {
+									console.log(err);
 									return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Error connecting to database", "Error connecting to database"));
 								});
 							} else {
@@ -54,6 +55,7 @@ module.exports = function () {
 									req.body.updatedBy = decoded.username;
 									next();
 								}).catch(err => {
+									console.log(err);
 									return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Error connecting to database", "Error connecting to database"));
 								});
 							}
