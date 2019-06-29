@@ -1,18 +1,21 @@
 "use strict";
 
+const config = require('config');
 let ErrorCodes = require('../../error-codes').CODES;
 const ResponseJSON = require('../response');
 let express = require('express');
 let router = express.Router();
 let bodyParser = require('body-parser');
-let fs = require('fs');
+let fs = require('fs-extra');
 router.use(bodyParser.json());
-const extractArr = require('./extract-attr');
 const Transporter = require('./transporter.model');
+const hashDir = require('../utils/data-tool').hashDir;
+const path = require('path');
 
 router.post('/clone-project',async (req, res)=>{
     let payload = req.body;
     let dbConnection = req.dbConnection;
+    let username = req.updatedBy;
     
     let project = {};
     project.info = {};
@@ -28,6 +31,7 @@ router.post('/clone-project',async (req, res)=>{
         }
     };
 
+    let projectName = project.info.name;
 
     //EVERYTHING IN PROJECT
     project.wells = await dbConnection.Well.findAll(checkIdProject)
@@ -80,7 +84,9 @@ router.post('/clone-project',async (req, res)=>{
         };
         let result = await dbConnection.Dataset.findAll(checkIdWell);
         for (let j in result) {
-            project.datasets.push(result[j].dataValues);
+            result[j] = result[j].dataValues;
+            result[j].wellName = project.wells[i].name;
+            project.datasets.push(result[j]);
         }
         result = await dbConnection.WellHeader.findAll(checkIdWell);
         for (let j in result) {
@@ -111,7 +117,10 @@ router.post('/clone-project',async (req, res)=>{
         };
         let result = await dbConnection.Curve.findAll(checkIdDataset);
         for (let j in result) {
-            project.curves.push(result[j].dataValues);
+            result[j] = result[j].dataValues;
+            result[j].wellName = project.datasets[i].wellName;
+            result[j].datasetName = project.datasets[i].name;
+            project.curves.push(result[j]);
         }
         result = await dbConnection.DatasetParams.findAll(checkIdDataset);
         for (let j in result) {
@@ -297,9 +306,24 @@ router.post('/clone-project',async (req, res)=>{
         }
     }
 
-    
+    let curves = project.curves;
     fs.writeFile('project.export.json', JSON.stringify(project));
+    for (let i in curves) {
+        let src = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, 
+            username + projectName + curves[i].wellName + curves[i].datasetName + curves[i].name, curves[i].name + '.txt');
+        let dest = hashDir.createPath(config.curveExports, 
+            projectName + curves[i].wellName + curves[i].datasetName + curves[i].name, curves[i].name + '.txt');
+        try {
+            await fs.copy(src,dest);
+            console.log('Coppied from: ', src,' to: ', dest);
+        } catch (err) {
+            console.log(dest);
+            console.log('Copy file get err');
+        }
+    }
+
     res.json(project);
+
 });
 
 
@@ -307,6 +331,7 @@ router.post('/apply-clone-project', async (req, res) => {
     let project = JSON.parse(fs.readFileSync('project.export.json', 'utf8'));
     let dbConnection = req.dbConnection;
     let transporter = new Transporter();
+    let username = req.updatedBy;
     
     //save project
     let oldId = project.info.idProject;
@@ -364,6 +389,19 @@ router.post('/apply-clone-project', async (req, res) => {
             transporter.updateTransTable('idCurveZ3', oldId, rs.idCurve);
             transporter.updateTransTable('referenceCurve', oldId, rs.idCurve);
 
+
+            //COPY FILE
+            let dest = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, 
+                username + projectName + curves[i].wellName + curves[i].datasetName + curves[i].name, curves[i].name + '.txt');
+            let src = hashDir.createPath(config.curveExports, 
+                projectName + curves[i].wellName + curves[i].datasetName + curves[i].name, curves[i].name + '.txt');
+            try {
+                await fs.copy(src,dest);
+                console.log('Coppied from: ', src,' to: ', dest);
+            } catch (err) {
+                console.log(dest);
+                console.log('Copy file get err');
+            }
         } catch (err) {
             continue;
         }
