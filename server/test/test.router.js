@@ -317,8 +317,9 @@ router.post('/clone-project',async (req, res)=>{
             await fs.copy(src,dest);
             console.log('Coppied from: ', src,' to: ', dest);
         } catch (err) {
-            console.log(dest);
-            console.log('Copy file get err');
+            // console.log(src);
+            // console.log(dest);
+            // console.log('Copy file get err');
         }
     }
 
@@ -332,10 +333,12 @@ router.post('/apply-clone-project', async (req, res) => {
     let dbConnection = req.dbConnection;
     let transporter = new Transporter();
     let username = req.updatedBy;
+    let errs = [];
     
     //save project
     let oldId = project.info.idProject;
     delete project.info.idProject;
+    let projectName = project.info.name;
     
     try {
         let rs = await dbConnection.Project.create(project.info);
@@ -392,16 +395,13 @@ router.post('/apply-clone-project', async (req, res) => {
 
             //COPY FILE
             let dest = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, 
-                username + projectName + curves[i].wellName + curves[i].datasetName + curves[i].name, curves[i].name + '.txt');
+                username + projectName + curve.wellName + curve.datasetName + curve.name, curve.name + '.txt');
             let src = hashDir.createPath(config.curveExports, 
-                projectName + curves[i].wellName + curves[i].datasetName + curves[i].name, curves[i].name + '.txt');
-            try {
-                await fs.copy(src,dest);
-                console.log('Coppied from: ', src,' to: ', dest);
-            } catch (err) {
-                console.log(dest);
-                console.log('Copy file get err');
-            }
+                projectName + curve.wellName + curve.datasetName + curve.name, curve.name + '.txt');
+            await fs.copy(src,dest);
+            console.log('Coppied from: ', src,' to: ', dest);
+            // console.log('CURVE: ', curves[i]);
+            // errs.push(curve);
         } catch (err) {
             continue;
         }
@@ -890,7 +890,7 @@ router.post('/apply-clone-project', async (req, res) => {
         }
     }
 
-    res.json(project);
+    res.json(errs);
 
 });
 

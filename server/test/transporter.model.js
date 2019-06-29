@@ -22,6 +22,9 @@ class Transporter {
         if (type == 'idWorkflowSpec' || type == 'idTaskSpec') {
             return oldId;
         }
+        if (type == 'idFamily') {
+            return null;
+        }
         if (this.transTable[type]) {
             let n = this.transTable[type].length;
             for (let i = 0; i < n; i++) {
