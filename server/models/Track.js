@@ -103,12 +103,12 @@ module.exports = function (sequelize, DataTypes) {
 			type: DataTypes.TEXT,
 			allowNull: true
 		},
-		showName: {
+		showMarkerName: {
 			type: DataTypes.BOOLEAN,
 			allowNull: true,
 			defaultValue: true
 		},
-		showDepth: {
+		showMarkerDepth: {
 			type: DataTypes.BOOLEAN,
 			allowNull: true,
 			defaultValue: true
