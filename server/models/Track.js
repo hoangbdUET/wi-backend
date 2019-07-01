@@ -100,7 +100,7 @@ module.exports = function (sequelize, DataTypes) {
             defaultValue: 0
         },
 	      limitingSpec: {
-        	  type: DataTypes.STRING("150"),
+        	  type: DataTypes.TEXT,
 		        allowNull: true
 	      },
         createdBy: {
