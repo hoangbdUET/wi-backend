@@ -16,7 +16,7 @@ router.use(bodyParser.json());
 router.post('/database/update', function (req, res) {
 	let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');
 	if (token) {
-		jwt.verify(token, 'secretKey', function (err, decoded) {
+		jwt.verify(token, process.env.BACKEND_JWTKEY || 'secretKey', function (err, decoded) {
 			if (err) {
 				return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Authentication failed", "Authentication failed"));
 			} else {
