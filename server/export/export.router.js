@@ -507,11 +507,14 @@ router.post('/dlisv1', async function (req, res) {
 										},
 										include: {
 											model: req.dbConnection.Curve,
-											where: [{
+											where: {
 												idCurve: {
 													[Op.in]: curveIDs
+												},
+												name: {
+													[Op.ne]: "__MD"
 												}
-											}]
+											}
 										}
 									}]
 							}]
