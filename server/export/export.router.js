@@ -89,7 +89,7 @@ router.post('/las2', function (req, res) {
 						);
 					},
 					function (err, results) {
-						console.log('callback called');
+						// console.log('callback called');
 						if (err) {
 							res.send(ResponseJSON(512, err));
 						} else {
@@ -215,7 +215,7 @@ router.post('/CSV/rv', function (req, res) {
 						);
 					},
 					function (err, results) {
-						console.log('callback called');
+						// console.log('callback called');
 						if (err) {
 							res.send(ResponseJSON(512, err));
 						} else {
@@ -321,14 +321,14 @@ router.post('/files', function (req, res) {
 		req.decoded.username,
 		req.body.fileName
 	);
-	console.log(filePath)
+	// console.log(filePath)
 	fs.exists(filePath, async function (exists) {
 		if (exists) {
 			const currentSize = getFilesizeInBytes(filePath);
-			console.log('Current size : ', currentSize);
+			// console.log('Current size : ', currentSize);
 			await sleep(4000);
 			const newSize = getFilesizeInBytes(filePath);
-			console.log('New size : ', newSize);
+			// console.log('New size : ', newSize);
 			if (currentSize !== newSize) {
 				res.send(
 					ResponseJSON(
@@ -399,7 +399,7 @@ router.post('/zone-set', async function (req, res) {
 			}
 		}
 		arrData.sort(compareFn);
-		console.log(arrData);
+		// console.log(arrData);
 		arrData.unshift(['', '', exportUnit, exportUnit]);
 		arrData.unshift(['', '', '', '']); //??????????????
 		console.log(exportUnit, '\n', arrData);
@@ -553,7 +553,7 @@ router.post('/dlisv1', async function (req, res) {
 				res.send(ResponseJSON(200, 'SUCCESSFULLY', results));
 
 			} catch (err) {
-				console.log(err)
+				// console.log(err)
 				res.send(ResponseJSON(404, err));
 			}
 		}
