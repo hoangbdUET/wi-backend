@@ -69,7 +69,7 @@ function syncMasterParamSet(cb) {
 		masterDb.ParameterSet.create(param).then(() => {
 			next();
 		}).catch(err => {
-			console.log("Err new params");
+			// console.log("Err new params");
 			next();
 		});
 	}, () => {

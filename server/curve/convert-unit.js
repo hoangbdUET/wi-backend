@@ -24,7 +24,7 @@ module.exports = function (data, callback, dbConnection, username, logger) {
 				let fd = fs.openSync(tempfile, 'w');
 				rl.on('line', function (line) {
 					let result = [];
-					let lineArray = line.split(" ");
+					let lineArray = line.trim().split(/\s+/);
 					let index = lineArray.splice(0, 1);
 					lineArray.forEach(valueString => {
 						if (valueString === 'null' || valueString === 'NaN') {

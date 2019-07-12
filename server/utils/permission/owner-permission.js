@@ -1,4 +1,6 @@
 module.exports = {
+		'project.import': true,
+		'project.export': true,
     'well.get': true,
     'well.create': true,
     'well.update': true,

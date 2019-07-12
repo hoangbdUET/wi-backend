@@ -129,7 +129,10 @@ module.exports = function (body, done, error, dbConnection, username, logger) {
 							zoneAboveCurve: track.zoneAboveCurve,
 							zoneOpacity: track.zoneOpacity,
 							trackOffset: track.trackOffset,
-							showValueGrid: track.showValueGrid
+							showValueGrid: track.showValueGrid,
+							limitingSpec: track.limitingSpec,
+							showMarkerName: track.showMarkerName,
+							showMarkerDepth: track.showMarkerDepth
 						};
 						getFullZoneParents({idZoneSet: track.idZoneSet}, dbConnection).then(zone_set => {
 							newTrack.zone_set = zone_set;
@@ -232,6 +235,10 @@ module.exports = function (body, done, error, dbConnection, username, logger) {
 						newDepthAxis.width = depth_axis.width;
 						newDepthAxis.widthUnit = depth_axis.widthUnit;
 						newDepthAxis.trackOffset = depth_axis.trackOffset;
+						newDepthAxis.tickMode = depth_axis.tickMode;
+						newDepthAxis.majorTickLength = depth_axis.majorTickLength;
+						newDepthAxis.minorTickNum = depth_axis.minorTickNum;
+						newDepthAxis.limitingSpec = depth_axis.limitingSpec;
 						newExportDeptAxes.push(newDepthAxis);
 						nextDepth();
 					})
@@ -254,6 +261,7 @@ module.exports = function (body, done, error, dbConnection, username, logger) {
 							zoomFactor: image_track.zoomFactor,
 							trackOffset: image_track.trackOffset,
 							image_set: image_set,
+							limitingSpec: image_track.limitingSpec
 						});
 						nextImageTrack();
 					});
@@ -276,6 +284,7 @@ module.exports = function (body, done, error, dbConnection, username, logger) {
 							widthUnit: zone_track.widthUnit,
 							zoomFactor: zone_track.zoomFactor,
 							trackOffset: zone_track.trackOffset,
+							limitingSpec: zone_track.limitingSpec,
 							zone_set: zoneset
 						});
 						next();

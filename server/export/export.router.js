@@ -13,6 +13,7 @@ const serverAddress = require('../utils/information').serverAddress;
 const hashDir = require('../utils/data-tool').hashDir;
 const Op = require('sequelize').Op;
 const dlisExport = require('dlis_export')(config);
+const checkPermisson = require('../utils/permission/check-permisison');
 
 function getFullProjectObj(idProject, idWell, dbConnection) {
 	return new Promise(async resolve => {
@@ -50,231 +51,255 @@ function getFullProjectObj(idProject, idWell, dbConnection) {
 }
 
 router.post('/las2', function (req, res) {
-	let token =
-		req.body.token ||
-		req.query.token ||
-		req.header['x-access-token'] ||
-		req.get('Authorization');
-	exporter.setUnitTable(convertLength.getUnitTable(), function () {
-		async.map(
-			req.body.idObjs,
-			function (idObj, callback) {
-				getFullProjectObj(idObj.idProject, idObj.idWell, req.dbConnection).then(
-					project => {
-						if (project && project.createdBy === req.decoded.username) {
-							exporter.exportLas2FromProject(
-								project,
-								idObj.datasets,
-								process.env.BACKEND_EXPORT_PATH || config.exportPath,
-								process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath,
-								req.decoded.username,
-								function (err, result) {
-									console.log('exportLas2 callback called');
+	checkPermisson(req.updatedBy, 'project.import', perm => {
+		if (!perm) {
+			res.send(ResponseJSON(512, "Export: Do not have permission", "Export: Do not have permission"));
+		} else {
+			let token =
+				req.body.token ||
+				req.query.token ||
+				req.header['x-access-token'] ||
+				req.get('Authorization');
+			exporter.setUnitTable(convertLength.getUnitTable(), function () {
+				async.map(
+					req.body.idObjs,
+					function (idObj, callback) {
+						getFullProjectObj(idObj.idProject, idObj.idWell, req.dbConnection).then(
+							project => {
+								if (project && project.createdBy === req.decoded.username) {
+									exporter.exportLas2FromProject(
+										project,
+										idObj.datasets,
+										process.env.BACKEND_EXPORT_PATH || config.exportPath,
+										process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath,
+										req.decoded.username,
+										function (err, result) {
+											console.log('exportLas2 callback called');
+											if (err) {
+												callback(err, null);
+											} else {
+												callback(null, result);
+											}
+										}
+									);
+								} else {
+									callback(null, null);
+								}
+							}
+						);
+					},
+					function (err, results) {
+						console.log('callback called');
+						if (err) {
+							res.send(ResponseJSON(512, err));
+						} else {
+							let responseArr = [];
+							async.each(
+								results,
+								function (rs, next) {
+									async.each(
+										rs,
+										function (r, _next) {
+											r.ip = serverAddress;
+											responseArr.push(r);
+											_next();
+										},
+										function (err) {
+											next();
+										}
+									);
+								},
+								function (err) {
 									if (err) {
-										callback(err, null);
+										res.send(ResponseJSON(512, err));
 									} else {
-										callback(null, result);
+										res.send(ResponseJSON(200, 'SUCCESSFULLY', responseArr));
 									}
 								}
 							);
-						} else {
-							callback(null, null);
 						}
 					}
 				);
-			},
-			function (err, results) {
-				console.log('callback called');
-				if (err) {
-					res.send(ResponseJSON(512, err));
-				} else {
-					let responseArr = [];
-					async.each(
-						results,
-						function (rs, next) {
-							async.each(
-								rs,
-								function (r, _next) {
-									r.ip = serverAddress;
-									responseArr.push(r);
-									_next();
-								},
-								function (err) {
-									next();
-								}
-							);
-						},
-						function (err) {
-							if (err) {
-								res.send(ResponseJSON(512, err));
-							} else {
-								res.send(ResponseJSON(200, 'SUCCESSFULLY', responseArr));
-							}
-						}
-					);
-				}
-			}
-		);
+			});
+		}
 	});
 });
 router.post('/las3', function (req, res) {
-	let token =
-		req.body.token ||
-		req.query.token ||
-		req.header['x-access-token'] ||
-		req.get('Authorization');
-	exporter.setUnitTable(convertLength.getUnitTable(), function () {
-		async.map(
-			req.body.idObjs,
-			function (idObj, callback) {
-				getFullProjectObj(idObj.idProject, idObj.idWell, req.dbConnection).then(
-					project => {
-						if (project && project.createdBy === req.decoded.username) {
-							exporter.exportLas3FromProject(
-								project,
-								idObj.datasets,
-								process.env.BACKEND_EXPORT_PATH || config.exportPath,
-								process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath,
-								req.decoded.username,
-								function (err, result) {
-									if (err) {
-										callback(err, null);
-									} else if (result) {
-										callback(null, result);
-									} else {
-										callback(null, null);
-									}
+	checkPermisson(req.updatedBy, 'project.import', perm => {
+		if (!perm) {
+			res.send(ResponseJSON(512, "Export: Do not have permission", "Export: Do not have permission"));
+		} else {
+			let token =
+				req.body.token ||
+				req.query.token ||
+				req.header['x-access-token'] ||
+				req.get('Authorization');
+			exporter.setUnitTable(convertLength.getUnitTable(), function () {
+				async.map(
+					req.body.idObjs,
+					function (idObj, callback) {
+						getFullProjectObj(idObj.idProject, idObj.idWell, req.dbConnection).then(
+							project => {
+								if (project && project.createdBy === req.decoded.username) {
+									exporter.exportLas3FromProject(
+										project,
+										idObj.datasets,
+										process.env.BACKEND_EXPORT_PATH || config.exportPath,
+										process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath,
+										req.decoded.username,
+										function (err, result) {
+											if (err) {
+												callback(err, null);
+											} else if (result) {
+												callback(null, result);
+											} else {
+												callback(null, null);
+											}
+										}
+									);
+								} else {
+									callback(null, null);
 								}
-							);
+							}
+						);
+					},
+					function (err, result) {
+						if (err) {
+							res.send(ResponseJSON(404, err));
 						} else {
-							callback(null, null);
+							result.map(r => (r.ip = serverAddress));
+							res.send(ResponseJSON(200, 'SUCCESSFULLY', result));
 						}
 					}
 				);
-			},
-			function (err, result) {
-				if (err) {
-					res.send(ResponseJSON(404, err));
-				} else {
-					result.map(r => (r.ip = serverAddress));
-					res.send(ResponseJSON(200, 'SUCCESSFULLY', result));
-				}
-			}
-		);
+			});
+		}
 	});
 });
 
 router.post('/CSV/rv', function (req, res) {
-	let token =
-		req.body.token ||
-		req.query.token ||
-		req.header['x-access-token'] ||
-		req.get('Authorization');
-	exporter.setUnitTable(convertLength.getUnitTable(), function () {
-		async.map(
-			req.body.idObjs,
-			function (idObj, callback) {
-				getFullProjectObj(idObj.idProject, idObj.idWell, req.dbConnection).then(
-					project => {
-						if (project && project.createdBy === req.decoded.username) {
-							exporter.exportCsvRVFromProject(
-								project,
-								idObj.datasets,
-								process.env.BACKEND_EXPORT_PATH || config.exportPath,
-								process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath,
-								req.decoded.username,
-								function (err, result) {
+	checkPermisson(req.updatedBy, 'project.import', perm => {
+		if (!perm) {
+			res.send(ResponseJSON(512, "Export: Do not have permission", "Export: Do not have permission"));
+		} else {
+			let token =
+				req.body.token ||
+				req.query.token ||
+				req.header['x-access-token'] ||
+				req.get('Authorization');
+			exporter.setUnitTable(convertLength.getUnitTable(), function () {
+				async.map(
+					req.body.idObjs,
+					function (idObj, callback) {
+						getFullProjectObj(idObj.idProject, idObj.idWell, req.dbConnection).then(
+							project => {
+								if (project && project.createdBy === req.decoded.username) {
+									exporter.exportCsvRVFromProject(
+										project,
+										idObj.datasets,
+										process.env.BACKEND_EXPORT_PATH || config.exportPath,
+										process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath,
+										req.decoded.username,
+										function (err, result) {
+											if (err) {
+												callback(err, null);
+											} else {
+												callback(null, result);
+											}
+										}
+									);
+								} else {
+									callback(null, null);
+								}
+							}
+						);
+					},
+					function (err, results) {
+						console.log('callback called');
+						if (err) {
+							res.send(ResponseJSON(512, err));
+						} else {
+							let responseArr = [];
+							async.each(
+								results,
+								function (rs, next) {
+									async.each(
+										rs,
+										function (r, _next) {
+											responseArr.push(r);
+											_next();
+										},
+										function (err) {
+											next();
+										}
+									);
+								},
+								function (err) {
 									if (err) {
-										callback(err, null);
+										res.send(ResponseJSON(512, err));
 									} else {
-										callback(null, result);
+										responseArr.map(r => (r.ip = serverAddress));
+										res.send(ResponseJSON(200, 'SUCCESSFULLY', responseArr));
 									}
 								}
 							);
-						} else {
-							callback(null, null);
 						}
 					}
 				);
-			},
-			function (err, results) {
-				console.log('callback called');
-				if (err) {
-					res.send(ResponseJSON(512, err));
-				} else {
-					let responseArr = [];
-					async.each(
-						results,
-						function (rs, next) {
-							async.each(
-								rs,
-								function (r, _next) {
-									responseArr.push(r);
-									_next();
-								},
-								function (err) {
-									next();
-								}
-							);
-						},
-						function (err) {
-							if (err) {
-								res.send(ResponseJSON(512, err));
-							} else {
-								responseArr.map(r => (r.ip = serverAddress));
-								res.send(ResponseJSON(200, 'SUCCESSFULLY', responseArr));
-							}
-						}
-					);
-				}
-			}
-		);
+			});
+		}
 	});
 });
 router.post('/CSV/wdrv', function (req, res) {
-	let token =
-		req.body.token ||
-		req.query.token ||
-		req.header['x-access-token'] ||
-		req.get('Authorization');
-	exporter.setUnitTable(convertLength.getUnitTable(), function () {
-		async.map(
-			req.body.idObjs,
-			function (idObj, callback) {
-				getFullProjectObj(idObj.idProject, idObj.idWell, req.dbConnection).then(
-					project => {
-						if (project && project.createdBy === req.decoded.username) {
-							exporter.exportCsvWDRVFromProject(
-								project,
-								idObj.datasets,
-								process.env.BACKEND_EXPORT_PATH || config.exportPath,
-								process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath,
-								req.decoded.username,
-								function (err, result) {
-									if (err) {
-										callback(err, null);
-									} else if (result) {
-										callback(null, result);
-									} else {
-										callback(null, null);
-									}
+	checkPermisson(req.updatedBy, 'project.import', perm => {
+		if (!perm) {
+			res.send(ResponseJSON(512, "Export: Do not have permission", "Export: Do not have permission"));
+		} else {
+			let token =
+				req.body.token ||
+				req.query.token ||
+				req.header['x-access-token'] ||
+				req.get('Authorization');
+			exporter.setUnitTable(convertLength.getUnitTable(), function () {
+				async.map(
+					req.body.idObjs,
+					function (idObj, callback) {
+						getFullProjectObj(idObj.idProject, idObj.idWell, req.dbConnection).then(
+							project => {
+								if (project && project.createdBy === req.decoded.username) {
+									exporter.exportCsvWDRVFromProject(
+										project,
+										idObj.datasets,
+										process.env.BACKEND_EXPORT_PATH || config.exportPath,
+										process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath,
+										req.decoded.username,
+										function (err, result) {
+											if (err) {
+												callback(err, null);
+											} else if (result) {
+												callback(null, result);
+											} else {
+												callback(null, null);
+											}
+										}
+									);
+								} else {
+									callback(null, null);
 								}
-							);
+							}
+						);
+					},
+					function (err, result) {
+						if (err) {
+							res.send(ResponseJSON(404, err));
 						} else {
-							callback(null, null);
+							result.map(r => (r.ip = serverAddress));
+							res.send(ResponseJSON(200, 'SUCCESSFULLY', result));
 						}
 					}
 				);
-			},
-			function (err, result) {
-				if (err) {
-					res.send(ResponseJSON(404, err));
-				} else {
-					result.map(r => (r.ip = serverAddress));
-					res.send(ResponseJSON(200, 'SUCCESSFULLY', result));
-				}
-			}
-		);
+			});
+		}
 	});
 });
 
@@ -443,103 +468,113 @@ router.post('/marker-set', async function (req, res) {
 	}
 });
 
-router.post('/dlisv1', async function(req, res){
-    try {
-        const results = [];
-        const wells = [];
-        let fileName = Date.now();
-        let wellName = '';
-        const username = req.decoded.username;
+router.post('/dlisv1', async function (req, res) {
+	checkPermisson(req.updatedBy, 'project.import', async perm => {
+		if (!perm) {
+			res.send(ResponseJSON(512, "Export: Do not have permission", "Export: Do not have permission"));
+		} else {
+			try {
+				const results = [];
+				const wells = [];
+				let fileName = Date.now();
+				let wellName = '';
+				const username = req.decoded.username;
 
-        for (const obj of req.body.idObjs) {
-            const datasetIDs = [];
-            let curveIDs = [];
-            for(const dataset of obj.datasets){
-                datasetIDs.push(dataset.idDataset)
-                curveIDs = curveIDs.concat(dataset.idCurves)
-            }
+				for (const obj of req.body.idObjs) {
+					const datasetIDs = [];
+					let curveIDs = [];
+					for (const dataset of obj.datasets) {
+						datasetIDs.push(dataset.idDataset)
+						curveIDs = curveIDs.concat(dataset.idCurves)
+					}
 
-            let project = await req.dbConnection.Project.findByPk(obj.idProject, {
-                include: [{
-                    model: req.dbConnection.Well,
-					where: {
-						idWell: obj.idWell
-					},
-					include: [{
-                    	model: req.dbConnection.WellHeader
-					},
-					{
-                    	model: req.dbConnection.Dataset,
-						where: {
-                    		idDataset: {
-                    			[Op.in]: datasetIDs
-							}
-						},
-						include: {
-                    		model: req.dbConnection.Curve,
-							where: [{
-                    			idCurve: {
-                    				[Op.in]: curveIDs
-								}
+					let project = await
+						req.dbConnection.Project.findByPk(obj.idProject, {
+							include: [{
+								model: req.dbConnection.Well,
+								where: {
+									idWell: obj.idWell
+								},
+								include: [{
+									model: req.dbConnection.WellHeader
+								},
+									{
+										model: req.dbConnection.Dataset,
+										where: {
+											idDataset: {
+												[Op.in]: datasetIDs
+											}
+										},
+										include: {
+											model: req.dbConnection.Curve,
+											where: {
+												idCurve: {
+													[Op.in]: curveIDs
+												},
+												name: {
+													[Op.ne]: "__MD"
+												}
+											}
+										}
+									}]
 							}]
+						})
+
+					project = project.toJSON();
+					for (const well of project.wells) {
+						for (const dataset of well.datasets) {
+							for (const curve of dataset.curves) {
+								curve.path = (process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath) + '/' +
+									hashDir.getHashPath(username + project.name + well.name + dataset.name + curve.name) + curve.name + '.txt';
+							}
 						}
-					}]
-                }]
-            })
+						fileName += '_' + well.name;
+						if (wellName.length <= 0) {
+							wellName = well.name;
+						} else {
+							wellName += '_' + well.name;
+						}
+						wells.push(well);
+					}
+				}
 
-            project = project.toJSON();
-			for(const well of project.wells) {
-                for (const dataset of well.datasets) {
-                    for (const curve of dataset.curves) {
-                        curve.path = (process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath) + '/' +
-							hashDir.getHashPath(username + project.name + well.name + dataset.name + curve.name) + curve.name + '.txt';
-                    }
-                }
-                fileName += '_' + well.name;
-                if(wellName.length <= 0){
-                    wellName = well.name;
-                }else {
-                    wellName += '_' + well.name;
-                }
-                wells.push(well);
-            }
-        }
+				const exportDir = (process.env.BACKEND_EXPORT_PATH || config.exportPath) + '/' + req.decoded.username;
+				fileName += '.dlis';
+				if (!fs.existsSync(exportDir)) {
+					fs.mkdirSync(exportDir, {recursive: true});
+				}
+				await dlisExport.export(wells, exportDir + '/' + fileName);
+				results.push({
+					fileName: fileName,
+					wellName: wellName,
+					ip: serverAddress
+				})
 
-        const exportDir = (process.env.BACKEND_EXPORT_PATH || config.exportPath) + '/' + req.decoded.username;
-        fileName += '.dlis';
-        if(!fs.existsSync(exportDir)){
-            fs.mkdirSync(exportDir, {recursive: true});
-        }
-        await dlisExport.export(wells, exportDir + '/' + fileName);
-        results.push({
-            fileName: fileName,
-            wellName: wellName,
-			ip: serverAddress
-        })
+				res.send(ResponseJSON(200, 'SUCCESSFULLY', results));
 
-        res.send(ResponseJSON(200, 'SUCCESSFULLY', results));
-
-    }catch (err){
-        console.log(err)
-        res.send(ResponseJSON(404, err));
-    }
+			} catch (err) {
+				console.log(err)
+				res.send(ResponseJSON(404, err));
+			}
+		}
+	});
 })
 
-router.post('/clear', function(req, res){
-    try{
-        const dir = (process.env.BACKEND_EXPORT_PATH || config.exportPath) + '/' + req.decoded.username;
-        fs.readdir(dir, (err, files) => {
-            if (err) throw err;
+router.post('/clear', function (req, res) {
+	try {
+		const dir = (process.env.BACKEND_EXPORT_PATH || config.exportPath) + '/' + req.decoded.username;
+		fs.readdir(dir, (err, files) => {
+			if (err) throw err;
 
-            for (const file of files) {
-                fs.unlink(path.join(dir, file), err => {
-                    if (err) throw err;
-                });
-            }
-        });
-    } catch (err){
-        console.log(err);
-    }
-    res.send(ResponseJSON(200, 'SUCCESSFULLY'));
+			for (const file of files) {
+				fs.unlink(path.join(dir, file), err => {
+					if (err) throw err;
+				});
+			}
+		});
+	} catch (err) {
+		console.log(err);
+	}
+	res.send(ResponseJSON(200, 'SUCCESSFULLY'));
 })
 module.exports = router;

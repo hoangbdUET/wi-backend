@@ -72,10 +72,16 @@ router.post('/project/close', function (req, res) {
 		res.send(status);
 	}, req.dbConnection, req.decoded.realUser, req.logger);
 });
+
 router.post('/project/share/update-permission', function (req, res) {
 	projectModel.updatePermission(req, function (status) {
 		res.send(status);
 	}, req.dbConnection, req.decoded.realUser, req.logger);
 });
 
+router.post('/project/export', function (req, res) {
+	projectModel.exportProject(req.body, function (status) {
+		res.send(status);
+	}, req.dbConnection, req.decoded.username)
+});
 module.exports = router;

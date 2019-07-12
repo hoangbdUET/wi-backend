@@ -4,19 +4,23 @@ let models = require('../models');
 let ErrorCodes = require('../../error-codes').CODES;
 let ResponseJSON = require('../response');
 let openingProject = require('./opening-project');
+let validateRequest = require("../utils/validate-request");
 let skipList = [
 	'^/pattern.*\.png$',
 	'/csv/.*'
 ];
 module.exports = function () {
 	return function (req, res, next) {
+		let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization') || req.query.token;
+		if ((process.env.VALIDATION_REQUEST_STATUS = (process.env.VALIDATION_REQUEST_STATUS === "true") || config.validationRequestStatus) && validateRequest(req, token) === false) {
+			return res.status(200).send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Request validation failed", "Request validation failed"));
+		}
 		if (new RegExp(skipList.join('|')).test(req.originalUrl)) {
 			next();
 		} else {
 			openingProject.sync().then(function (opening) {
-				let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization') || req.query.token;
 				if (token) {
-					jwt.verify(token, 'secretKey', function (err, decoded) {
+					jwt.verify(token, process.env.BACKEND_JWTKEY || 'secretKey', function (err, decoded) {
 						if (err) {
 							return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Authentication failed", "Authentication failed"));
 						} else {
@@ -36,6 +40,7 @@ module.exports = function () {
 									// console.log("=============", decoded.realUser);
 									next();
 								}).catch(err => {
+									console.log(err);
 									return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Error connecting to database", "Error connecting to database"));
 								});
 							} else {
@@ -54,6 +59,7 @@ module.exports = function () {
 									req.body.updatedBy = decoded.username;
 									next();
 								}).catch(err => {
+									console.log(err);
 									return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Error connecting to database", "Error connecting to database"));
 								});
 							}

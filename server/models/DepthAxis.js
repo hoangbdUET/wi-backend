@@ -83,6 +83,10 @@ module.exports = function (sequelize, DataTypes) {
 			defaultValue: 2,
 			allowNull: true
 		},
+		limitingSpec: {
+			type: DataTypes.TEXT,
+			allowNull: true
+		},
 		createdBy: {
 			type: DataTypes.STRING(50),
 			allowNull: false,

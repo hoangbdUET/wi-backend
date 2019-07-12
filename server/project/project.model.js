@@ -8,7 +8,11 @@ let models = require('../models');
 let openProject = require('../authenticate/opening-project');
 let dbMaster = require('../models-master');
 let async = require('async');
+let mqtt = require('mqtt');
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
+const uuidv4 = require('uuid/v4');
 
 function createDefaultZoneSetTemplate(zoneSetTemplates, idProject, dbConnection) {
 	return new Promise(resolve => {
@@ -610,6 +614,54 @@ function listProjectByUser(payload, done, dbConnection) {
 	});
 }
 
+
+function exportProject(payload, done, dbConnection, username) {
+	// const id = uuidv4();
+	const id = "mmmmm";
+	if (!fs.existsSync(path.join(config.exportPath, '__Project'))) fs.mkdirSync(path.join(config.exportPath, '__Project'));
+	const projectExportePath = path.join(config.exportPath, '__Project', id);
+	fs.mkdirSync(projectExportePath);
+	let projectObj = {};
+	async.waterfall([
+		function (callback) {
+			dbConnection.Project.findById(dbConnection.idProject).then(project => {
+				projectObj = project.toJSON();
+				callback(null, project);
+			});
+		},
+		function (project, callback) {
+			// do well
+			callback(null, project)
+		},
+		function (project, callback) {
+			// do logplots
+			callback(null, project)
+		},
+		function (project, callback) {
+			// do histogram
+			callback(null, project)
+		},
+		function (project, callback) {
+			// do cross plots
+			callback(null, project)
+		},
+		function (project, callback) {
+			// do zone set template
+			callback()
+		}
+	], () => {
+
+	});
+
+	done(ResponseJSON(ErrorCodes.SUCCESS, "Done", id));
+	// let mqttClient = require('../utils/mqtt');
+	// if (mqttClient) {
+	// 	mqttClient.publish("hello", dbConnection.Project.toString());
+	// } else {
+	// 	console.log("No mqtt");
+	// }
+}
+
 module.exports = {
 	createNewProject: createNewProject,
 	editProject: editProject,
@@ -622,5 +674,6 @@ module.exports = {
 	listProjectOffAllUser: listProjectOffAllUser,
 	deleteProjectOwner: deleteProjectOwner,
 	validationFlow: validationFlow,
-	listProjectByUser: listProjectByUser
+	listProjectByUser: listProjectByUser,
+	exportProject: exportProject
 };
