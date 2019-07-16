@@ -49,9 +49,14 @@ function getImageInfo(imageInfo, done, dbConnection) {
 	});
 }
 
+async function describeImage(idImage, dbConnection) {
+	return dbConnection.Image.findByPk(idImage)
+}
+
 module.exports = {
 	createNewImage: createNewImage,
 	editImage: editImage,
 	deleteImage: deleteImage,
-	getImageInfo: getImageInfo
+	getImageInfo: getImageInfo,
+	describeImage: describeImage
 };
