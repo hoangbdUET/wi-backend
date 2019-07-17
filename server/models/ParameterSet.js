@@ -8,7 +8,7 @@ module.exports = function (sequelize, DataTypes) {
         name: {
             type: DataTypes.STRING(100),
             allowNull: true,
-            unique: 'name-idProject'
+            unique: 'name-idProject-type'
         },
         content: {
             type: DataTypes.TEXT('medium'),
@@ -24,7 +24,8 @@ module.exports = function (sequelize, DataTypes) {
         type: {
             type: DataTypes.STRING(20),
             allowNull: true,
-            defaultValue: 'TASK'
+            defaultValue: 'TASK',
+	        unique: 'name-idProject-type'
         },
 	    note: {
 		    type: DataTypes.STRING(255),
