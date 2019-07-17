@@ -476,7 +476,7 @@ router.post('/dlisv1', async function (req, res) {
 			try {
 				const results = [];
 				const wells = [];
-				let fileName = Date.now();
+				const fileName = Date.now() + "_I2GExport.dlis";
 				let wellName = '';
 				const username = req.decoded.username;
 
@@ -528,7 +528,6 @@ router.post('/dlisv1', async function (req, res) {
 									hashDir.getHashPath(username + project.name + well.name + dataset.name + curve.name) + curve.name + '.txt';
 							}
 						}
-						fileName += '_' + well.name;
 						if (wellName.length <= 0) {
 							wellName = well.name;
 						} else {
@@ -539,7 +538,6 @@ router.post('/dlisv1', async function (req, res) {
 				}
 
 				const exportDir = (process.env.BACKEND_EXPORT_PATH || config.exportPath) + '/' + req.decoded.username;
-				fileName += '.dlis';
 				if (!fs.existsSync(exportDir)) {
 					fs.mkdirSync(exportDir, {recursive: true});
 				}
