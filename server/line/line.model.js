@@ -328,19 +328,22 @@ function editLine(lineInfo, done, dbConnection) {
 	let Line = dbConnection.Line;
 	Line.findByPk(lineInfo.idLine, {include: {all: true}}).then(line => {
 		if (line) {
-			if (line.idTrack != lineInfo.idTrack && lineInfo.idTrack) {
-				console.log("Vao day");
+			if (lineInfo.idTrack && line.idTrack !== lineInfo.idTrack) {
 				dbConnection.Shading.findAll({
 					where: {idTrack: line.idTrack},
 					include: {all: true}
 				}).then(shadings => {
 					asyncLoop(shadings, function (shading, next) {
 						if (shading.idLeftLine && shading.idRightLine) {
-							shading.destroy().then(() => {
+							if (shading.idLeftLine === line.idLine || shading.idRightLine === line.idLine) {
+								shading.destroy().then(() => {
+									next();
+								}).catch(err => {
+									next();
+								});
+							} else {
 								next();
-							}).catch(err => {
-								next();
-							});
+							}
 						} else {
 							asyncSeries([
 								function (cb) {
@@ -371,7 +374,6 @@ function editLine(lineInfo, done, dbConnection) {
 								}
 							], function () {
 								shading.save().then(s => {
-									console.log("Edit shading");
 									next();
 								}).catch(err => {
 									console.log(err);
