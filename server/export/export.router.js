@@ -62,7 +62,7 @@ router.post('/las2', function (req, res) {
 				req.header['x-access-token'] ||
 				req.get('Authorization');
             let wellnames = '';
-            const userFolder = (process.env.INVENTORY_EXPORTPATH || config.exportPath) + '/' + req.decoded.username + '/';
+            const userFolder = (process.env.BACKEND_EXPORT_PATH || config.exportPath) + '/' + req.decoded.username + '/';
             const zipFile = Date.now() + '_I2GExport.zip';
             const output = fs.createWriteStream(userFolder + zipFile);
             const archive = archiver('zip', {
@@ -129,7 +129,7 @@ router.post('/las3', function (req, res) {
 				req.header['x-access-token'] ||
 				req.get('Authorization');
 			let wellnames = '';
-            const userFolder = (process.env.INVENTORY_EXPORTPATH || config.exportPath) + '/' + req.decoded.username + '/';
+            const userFolder = (process.env.BACKEND_EXPORT_PATH || config.exportPath) + '/' + req.decoded.username + '/';
             const zipFile = Date.now() + '_I2GExport.zip';
             const output = fs.createWriteStream(userFolder + zipFile);
             const archive = archiver('zip', {
@@ -196,7 +196,7 @@ router.post('/CSV/rv', function (req, res) {
 				req.header['x-access-token'] ||
 				req.get('Authorization');
             let wellnames = '';
-            const userFolder = (process.env.INVENTORY_EXPORTPATH || config.exportPath) + '/' + req.decoded.username + '/';
+            const userFolder = (process.env.BACKEND_EXPORT_PATH || config.exportPath) + '/' + req.decoded.username + '/';
             const zipFile = Date.now() + '_I2GExport.zip';
             const output = fs.createWriteStream(userFolder + zipFile);
             const archive = archiver('zip', {
@@ -262,7 +262,7 @@ router.post('/CSV/wdrv', function (req, res) {
 				req.header['x-access-token'] ||
 				req.get('Authorization');
             let wellnames = '';
-            const userFolder = (process.env.INVENTORY_EXPORTPATH || config.exportPath) + '/' + req.decoded.username + '/';
+            const userFolder = (process.env.BACKEND_EXPORT_PATH || config.exportPath) + '/' + req.decoded.username + '/';
             const zipFile = Date.now() + '_I2GExport.zip';
             const output = fs.createWriteStream(userFolder + zipFile);
             const archive = archiver('zip', {
