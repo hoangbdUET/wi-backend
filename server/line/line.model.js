@@ -227,6 +227,8 @@ function createNewLine(lineInfo, done, dbConnection, username) {
 							convertUnit.getListUnitByIdFamily(family.idFamily, dbConnection).then(units => {
 								let unitConvertData = {};
 								let _line = {};
+								if (!family.family_spec[0].minScale) family.family_spec[0].minScale = result.minScale;
+								if (!family.family_spec[0].maxScale) family.family_spec[0].maxScale = result.maxScale;
 								unitConvertData.srcUnit = units.find(u => u.name === curve.unit);
 								unitConvertData.desUnit = units.find(u => u.name === family.family_spec[0].unit);
 								if (!unitConvertData.srcUnit || !unitConvertData.desUnit) {
