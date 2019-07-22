@@ -700,9 +700,9 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
 		console.log("Import ", curvePath);
 		try {
 			let stream = request(options).pipe(fs.createWriteStream(curvePath));
-			// console.log("Get data from inventory");
+			console.log("Get data from inventory");
 			stream.on('close', function () {
-				// console.log("Get data from inventory done");
+				console.log("Get data from inventory done");
 				dbConnection.Curve.findOrCreate({
 					where: {
 						name: curve.name,
@@ -730,7 +730,7 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
 				});
 			});
 			stream.on('error', function (err) {
-				// console.log("Get data from inventory error");
+				console.log("Get data from inventory error");
 				reject(err);
 			});
 		} catch (err) {

@@ -7,6 +7,34 @@ let configCommon = require('config');
 
 let hashDir = require('../utils/data-tool').hashDir;
 
+let mqtt = require('mqtt');
+
+let client = mqtt.connect('wss://mqtt-broker.i2g.cloud', {
+	clean: false,
+	clientId: 'CLOUD_BACKEND_DEV',
+	rejectUnauthorized: false
+});
+
+client.on("connect", () => {
+	console.log("Connected MQTT broker");
+});
+
+
+function noticeChange(dbName) {
+	return function (str) {
+		str = str.slice(str.indexOf(':') + 2);
+		// console.log(str);
+		if (str.indexOf('SELECT') !== 0 && str.indexOf('SHOW INDEX') !== 0) {
+			client.publish('sync/' + dbName, str.toString(), {qos: 2}, (err) => {
+				console.log("Publish message!!");
+				if (err) {
+					console.log('Miss a message:', err);
+				}
+			});
+		}
+	}
+}
+
 let sequelizeCache = new Object();
 
 function SequelizeCache() {
@@ -75,7 +103,7 @@ function newDbInstance(dbName, callback) {
 		},
 		dialect: process.env.BACKEND_DBDIALECT || config.dialect || "mysql",
 		port: process.env.BACKEND_DBPORT || config.port,
-		logging: false,
+		logging: noticeChange(dbName),
 		dialectOptions: {
 			charset: 'utf8'
 		},
