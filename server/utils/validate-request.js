@@ -4,8 +4,13 @@ const wiSalt = process.env.SALT || config.salt || "wi-hash";
 module.exports = function (req, token) {
 	if (req.get('content-type').includes("multipart/form-data")) return true;
 	let salt = SHA256(wiSalt + token);
-	if (!req.query.wiid) return false;
-	return SHA256(JSON.stringify(req.body) + salt) === req.query.wiid;
+	if (req.method === "POST" || req.method === "GET") {
+		if (!req.query.wiid) return false;
+		return SHA256(JSON.stringify(req.body) + salt) === req.query.wiid;
+	} else {
+		return true;
+	}
+
 };
 
 function SHA256(s) {

@@ -10,6 +10,7 @@
   "author": "tanlm",
   "license": "ISC",
   "dependencies": {
+    "archiver": "^3.0.0",
     "async": "^2.5.0",
     "body-parser": "^1.17.2",
     "captchapng": "0.0.1",

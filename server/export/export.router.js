@@ -14,6 +14,7 @@ const hashDir = require('../utils/data-tool').hashDir;
 const Op = require('sequelize').Op;
 const dlisExport = require('dlis_export')(config);
 const checkPermisson = require('../utils/permission/check-permisison');
+const archiver = require('archiver');
 
 function getFullProjectObj(idProject, idWell, dbConnection) {
 	return new Promise(async resolve => {
@@ -60,6 +61,14 @@ router.post('/las2', function (req, res) {
 				req.query.token ||
 				req.header['x-access-token'] ||
 				req.get('Authorization');
+            let wellnames = '';
+            const userFolder = (process.env.BACKEND_EXPORT_PATH || config.exportPath) + '/' + req.decoded.username + '/';
+            const zipFile = Date.now() + '_I2GExport.zip';
+            const output = fs.createWriteStream(userFolder + zipFile);
+            const archive = archiver('zip', {
+                zlib: {level: 9} // Sets the compression level.
+            });
+            archive.pipe(output);
 			exporter.setUnitTable(convertLength.getUnitTable(), function () {
 				async.map(
 					req.body.idObjs,
@@ -78,6 +87,13 @@ router.post('/las2', function (req, res) {
 											if (err) {
 												callback(err, null);
 											} else {
+                                                if(wellnames.length <= 0)
+                                                    wellnames = result[0].wellName;
+                                                else
+                                                    wellnames += "_" + result[0].wellName;
+                                                for(const file of result){
+                                                    archive.file(userFolder + file.fileName, {name: file.wellName + "_" + file.datasetName + '.las'});
+												}
 												callback(null, result);
 											}
 										}
@@ -89,34 +105,12 @@ router.post('/las2', function (req, res) {
 						);
 					},
 					function (err, results) {
-						console.log('callback called');
+						// console.log('callback called');
 						if (err) {
 							res.send(ResponseJSON(512, err));
 						} else {
-							let responseArr = [];
-							async.each(
-								results,
-								function (rs, next) {
-									async.each(
-										rs,
-										function (r, _next) {
-											r.ip = serverAddress;
-											responseArr.push(r);
-											_next();
-										},
-										function (err) {
-											next();
-										}
-									);
-								},
-								function (err) {
-									if (err) {
-										res.send(ResponseJSON(512, err));
-									} else {
-										res.send(ResponseJSON(200, 'SUCCESSFULLY', responseArr));
-									}
-								}
-							);
+                            archive.finalize();
+                            res.send(ResponseJSON(200, 'SUCCESSFULLY', [{fileName: zipFile, wellName: wellnames +'.zip', ip:serverAddress}]));
 						}
 					}
 				);
@@ -134,6 +128,15 @@ router.post('/las3', function (req, res) {
 				req.query.token ||
 				req.header['x-access-token'] ||
 				req.get('Authorization');
+			let wellnames = '';
+            const userFolder = (process.env.BACKEND_EXPORT_PATH || config.exportPath) + '/' + req.decoded.username + '/';
+            const zipFile = Date.now() + '_I2GExport.zip';
+            const output = fs.createWriteStream(userFolder + zipFile);
+            const archive = archiver('zip', {
+                zlib: {level: 9} // Sets the compression level.
+            });
+            archive.pipe(output);
+
 			exporter.setUnitTable(convertLength.getUnitTable(), function () {
 				async.map(
 					req.body.idObjs,
@@ -151,6 +154,11 @@ router.post('/las3', function (req, res) {
 											if (err) {
 												callback(err, null);
 											} else if (result) {
+												if(wellnames.length <= 0)
+													wellnames = result.wellName;
+												else
+													wellnames += "_" + result.wellName;
+                                                archive.file(userFolder + result.fileName, {name: result.wellName + '.las'});
 												callback(null, result);
 											} else {
 												callback(null, null);
@@ -167,9 +175,9 @@ router.post('/las3', function (req, res) {
 						if (err) {
 							res.send(ResponseJSON(404, err));
 						} else {
-							result.map(r => (r.ip = serverAddress));
-							res.send(ResponseJSON(200, 'SUCCESSFULLY', result));
-						}
+                            archive.finalize();
+							res.send(ResponseJSON(200, 'SUCCESSFULLY', [{fileName: zipFile, wellName: wellnames + '.zip', ip: serverAddress}]));
+                        }
 					}
 				);
 			});
@@ -187,6 +195,14 @@ router.post('/CSV/rv', function (req, res) {
 				req.query.token ||
 				req.header['x-access-token'] ||
 				req.get('Authorization');
+            let wellnames = '';
+            const userFolder = (process.env.BACKEND_EXPORT_PATH || config.exportPath) + '/' + req.decoded.username + '/';
+            const zipFile = Date.now() + '_I2GExport.zip';
+            const output = fs.createWriteStream(userFolder + zipFile);
+            const archive = archiver('zip', {
+                zlib: {level: 9} // Sets the compression level.
+            });
+            archive.pipe(output);
 			exporter.setUnitTable(convertLength.getUnitTable(), function () {
 				async.map(
 					req.body.idObjs,
@@ -204,6 +220,13 @@ router.post('/CSV/rv', function (req, res) {
 											if (err) {
 												callback(err, null);
 											} else {
+                                                if(wellnames.length <= 0)
+                                                    wellnames = result[0].wellName;
+                                                else
+                                                    wellnames += "_" + result[0].wellName;
+                                                for(const file of result){
+                                                    archive.file(userFolder + file.fileName, {name: file.wellName + "_" + file.datasetName + '.csv'});
+                                                }
 												callback(null, result);
 											}
 										}
@@ -215,34 +238,12 @@ router.post('/CSV/rv', function (req, res) {
 						);
 					},
 					function (err, results) {
-						console.log('callback called');
+						// console.log('callback called');
 						if (err) {
 							res.send(ResponseJSON(512, err));
 						} else {
-							let responseArr = [];
-							async.each(
-								results,
-								function (rs, next) {
-									async.each(
-										rs,
-										function (r, _next) {
-											responseArr.push(r);
-											_next();
-										},
-										function (err) {
-											next();
-										}
-									);
-								},
-								function (err) {
-									if (err) {
-										res.send(ResponseJSON(512, err));
-									} else {
-										responseArr.map(r => (r.ip = serverAddress));
-										res.send(ResponseJSON(200, 'SUCCESSFULLY', responseArr));
-									}
-								}
-							);
+                            archive.finalize();
+                            res.send(ResponseJSON(200, 'SUCCESSFULLY', [{fileName: zipFile, wellName: wellnames +'.zip', ip:serverAddress}]));
 						}
 					}
 				);
@@ -260,6 +261,14 @@ router.post('/CSV/wdrv', function (req, res) {
 				req.query.token ||
 				req.header['x-access-token'] ||
 				req.get('Authorization');
+            let wellnames = '';
+            const userFolder = (process.env.BACKEND_EXPORT_PATH || config.exportPath) + '/' + req.decoded.username + '/';
+            const zipFile = Date.now() + '_I2GExport.zip';
+            const output = fs.createWriteStream(userFolder + zipFile);
+            const archive = archiver('zip', {
+                zlib: {level: 9} // Sets the compression level.
+            });
+            archive.pipe(output);
 			exporter.setUnitTable(convertLength.getUnitTable(), function () {
 				async.map(
 					req.body.idObjs,
@@ -277,6 +286,11 @@ router.post('/CSV/wdrv', function (req, res) {
 											if (err) {
 												callback(err, null);
 											} else if (result) {
+                                                if(wellnames.length <= 0)
+                                                    wellnames = result.wellName;
+                                                else
+                                                    wellnames += "_" + result.wellName;
+                                                archive.file(userFolder + result.fileName, {name: result.wellName + '.csv'});
 												callback(null, result);
 											} else {
 												callback(null, null);
@@ -293,8 +307,8 @@ router.post('/CSV/wdrv', function (req, res) {
 						if (err) {
 							res.send(ResponseJSON(404, err));
 						} else {
-							result.map(r => (r.ip = serverAddress));
-							res.send(ResponseJSON(200, 'SUCCESSFULLY', result));
+                            archive.finalize();
+                            res.send(ResponseJSON(200, 'SUCCESSFULLY', [{fileName: zipFile, wellName: wellnames + '.zip', ip: serverAddress}]));
 						}
 					}
 				);
@@ -321,14 +335,14 @@ router.post('/files', function (req, res) {
 		req.decoded.username,
 		req.body.fileName
 	);
-	console.log(filePath)
+	// console.log(filePath)
 	fs.exists(filePath, async function (exists) {
 		if (exists) {
 			const currentSize = getFilesizeInBytes(filePath);
-			console.log('Current size : ', currentSize);
+			// console.log('Current size : ', currentSize);
 			await sleep(4000);
 			const newSize = getFilesizeInBytes(filePath);
-			console.log('New size : ', newSize);
+			// console.log('New size : ', newSize);
 			if (currentSize !== newSize) {
 				res.send(
 					ResponseJSON(
@@ -338,6 +352,8 @@ router.post('/files', function (req, res) {
 					)
 				);
 			} else {
+				console.log(filePath)
+				res.contentType('application/octet-stream');
 				res.sendFile(filePath);
 			}
 		} else {
@@ -399,7 +415,7 @@ router.post('/zone-set', async function (req, res) {
 			}
 		}
 		arrData.sort(compareFn);
-		console.log(arrData);
+		// console.log(arrData);
 		arrData.unshift(['', '', exportUnit, exportUnit]);
 		arrData.unshift(['', '', '', '']); //??????????????
 		console.log(exportUnit, '\n', arrData);
@@ -476,7 +492,7 @@ router.post('/dlisv1', async function (req, res) {
 			try {
 				const results = [];
 				const wells = [];
-				let fileName = Date.now();
+				const fileName = Date.now() + "_I2GExport.dlis";
 				let wellName = '';
 				const username = req.decoded.username;
 
@@ -528,7 +544,6 @@ router.post('/dlisv1', async function (req, res) {
 									hashDir.getHashPath(username + project.name + well.name + dataset.name + curve.name) + curve.name + '.txt';
 							}
 						}
-						fileName += '_' + well.name;
 						if (wellName.length <= 0) {
 							wellName = well.name;
 						} else {
@@ -539,21 +554,20 @@ router.post('/dlisv1', async function (req, res) {
 				}
 
 				const exportDir = (process.env.BACKEND_EXPORT_PATH || config.exportPath) + '/' + req.decoded.username;
-				fileName += '.dlis';
 				if (!fs.existsSync(exportDir)) {
 					fs.mkdirSync(exportDir, {recursive: true});
 				}
 				await dlisExport.export(wells, exportDir + '/' + fileName);
 				results.push({
 					fileName: fileName,
-					wellName: wellName,
+					wellName: wellName + '.dlis',
 					ip: serverAddress
 				})
 
 				res.send(ResponseJSON(200, 'SUCCESSFULLY', results));
 
 			} catch (err) {
-				console.log(err)
+				// console.log(err)
 				res.send(ResponseJSON(404, err));
 			}
 		}
