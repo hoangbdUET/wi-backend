@@ -31,7 +31,8 @@ function importDataset(datasets, token, callback, dbConnection, username, create
 					let _dataset = rs[0];
 					let MqttClient = mqtt.connect(process.env.BACKEND_MQTT_BROKER || config.mqttBroker || "wss://mqtt-broker.i2g.cloud:8083", {
 						rejectUnauthorized: false,
-						clientId: "wi_import_" + _dataset.updatedBy + "_" + _dataset.name + "_" + Math.random().toString(16).substr(2, 8)
+						clientId: "wi_import_" + _dataset.updatedBy + "_" + _dataset.name + "_" + Math.random().toString(16).substr(2, 8),
+						clean: false
 					});
 					MqttClient.on('connect', () => {
 						console.log("Connected to broker " + (process.env.BACKEND_MQTT_BROKER || config.mqttBroker || "wss://mqtt-broker.i2g.cloud:8083"));
