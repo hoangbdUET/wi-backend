@@ -75,7 +75,7 @@ function newDbInstance(dbName, callback) {
 		},
 		dialect: process.env.BACKEND_DBDIALECT || config.dialect || "mysql",
 		port: process.env.BACKEND_DBPORT || config.port,
-		logging: true,
+		logging: false,
 		dialectOptions: {
 			charset: 'utf8'
 		},
