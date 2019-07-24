@@ -317,7 +317,6 @@ function sleep(ms) {
 }
 
 router.post('/files', function (req, res) {
-	res.contentType('application/octet-stream');
 	if(req.body.files && req.body.files.length == 1){
         let filePath = path.join(
             process.env.BACKEND_EXPORT_PATH || config.exportPath,
@@ -341,6 +340,7 @@ router.post('/files', function (req, res) {
                         )
                     );
                 } else {
+                    res.contentType('application/octet-stream');
                     res.sendFile(filePath);
                 }
             } else {
@@ -353,9 +353,10 @@ router.post('/files', function (req, res) {
         archive.on('error', function(err) {
             res.send(ResponseJSON(500, "Zipping err", err));
         });
-        res.attachment('I2G_export.zip');
+        //res.attachment('I2G_export.zip');
+        res.contentType('application/octet-stream');
         archive.pipe(res);
-        for (const filename in req.body.files){
+        for (const filename of req.body.files){
         	const filepath = path.join(
         		process.env.BACKEND_EXPORT_PATH || config.exportPath,
                 req.decoded.username,
