@@ -14,6 +14,7 @@ const hashDir = require('../utils/data-tool').hashDir;
 const Op = require('sequelize').Op;
 const dlisExport = require('dlis_export')(config);
 const checkPermisson = require('../utils/permission/check-permisison');
+const archiver = require('archiver');
 
 function getFullProjectObj(idProject, idWell, dbConnection) {
 	return new Promise(async resolve => {
@@ -316,34 +317,55 @@ function sleep(ms) {
 }
 
 router.post('/files', function (req, res) {
-	let filePath = path.join(
-		process.env.BACKEND_EXPORT_PATH || config.exportPath,
-		req.decoded.username,
-		req.body.fileName
-	);
-	// console.log(filePath)
-	fs.exists(filePath, async function (exists) {
-		if (exists) {
-			const currentSize = getFilesizeInBytes(filePath);
-			// console.log('Current size : ', currentSize);
-			await sleep(4000);
-			const newSize = getFilesizeInBytes(filePath);
-			// console.log('New size : ', newSize);
-			if (currentSize !== newSize) {
-				res.send(
-					ResponseJSON(
-						512,
-						'Your file is currently processing',
-						'Your file is currently processing'
-					)
-				);
-			} else {
-				res.sendFile(filePath);
-			}
-		} else {
-			res.send(ResponseJSON(404, 'ERROR File does not exist'));
+	if(req.body.files && req.body.files.length == 1){
+        let filePath = path.join(
+            process.env.BACKEND_EXPORT_PATH || config.exportPath,
+            req.decoded.username,
+            req.body.files[0]
+        );
+        // console.log(filePath)
+        fs.exists(filePath, async function (exists) {
+            if (exists) {
+                const currentSize = getFilesizeInBytes(filePath);
+                // console.log('Current size : ', currentSize);
+                await sleep(4000);
+                const newSize = getFilesizeInBytes(filePath);
+                // console.log('New size : ', newSize);
+                if (currentSize !== newSize) {
+                    res.send(
+                        ResponseJSON(
+                            512,
+                            'Your file is currently processing',
+                            'Your file is currently processing'
+                        )
+                    );
+                } else {
+                    res.contentType('application/octet-stream');
+                    res.sendFile(filePath);
+                }
+            } else {
+                res.send(ResponseJSON(404, 'ERROR File does not exist'));
+            }
+        });
+	}
+	else {
+		const archive = archiver('zip');
+        archive.on('error', function(err) {
+            res.send(ResponseJSON(500, "Zipping err", err));
+        });
+        //res.attachment('I2G_export.zip');
+        res.contentType('application/octet-stream');
+        archive.pipe(res);
+        for (const filename of req.body.files){
+        	const filepath = path.join(
+        		process.env.BACKEND_EXPORT_PATH || config.exportPath,
+                req.decoded.username,
+                filename);
+        	archive.file(filepath, {name: filename})
 		}
-	});
+        archive.finalize();
+	}
+
 });
 
 function compareFn(item1, item2) {

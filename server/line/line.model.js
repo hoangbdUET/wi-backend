@@ -245,6 +245,10 @@ function createNewLine(lineInfo, done, dbConnection, username) {
 									_line.minValue = curveMinScale;
 									_line.maxValue = curveMaxScale;
 								}
+
+								if (!_.isFinite(lineInfo.minValue)) lineInfo.minValue = _line.minValue;
+								if (!_.isFinite(lineInfo.maxValue)) lineInfo.maxValue = _line.maxValue;
+
 								_line.idTrack = lineInfo.idTrack;
 								_line.idCurve = curve.idCurve;
 								_line.alias = lineInfo.alias || curve.name;
@@ -270,6 +274,7 @@ function createNewLine(lineInfo, done, dbConnection, username) {
 								_line.symbolLineWidth = lineInfo.symbolLineWidth;
 								_line.wrapMode = lineInfo.wrapMode;
 								_line.symbolName = lineInfo.symbolName;
+
 								dbConnection.Line.create(Object.assign(_line, lineInfo)).then(l => {
 									done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", l));
 								}).catch(err => {
