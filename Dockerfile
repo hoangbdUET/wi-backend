@@ -11,6 +11,7 @@ COPY ./config/kubernetes.json /app/config
 
 # Install npm package
 COPY package.json /app
+RUN apk add git
 RUN mkdir /app/data
 RUN npm install
 
