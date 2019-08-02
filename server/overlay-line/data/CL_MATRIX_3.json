@@ -4,7 +4,7 @@
   "lines": [
     {
       "names": "1",
-      "color": "Green",
+      "color": "limegreen",
       "data": [
         {
           "x": "68.8",
@@ -20,7 +20,7 @@
     },
     {
       "names": "2",
-      "color": "Black",
+      "color": "blue",
       "data": [
         {
           "x": "71.42",
@@ -36,7 +36,7 @@
     },
     {
       "names": "3",
-      "color": "Blue",
+      "color": "deeppink",
       "data": [
         {
           "x": "58.25",
