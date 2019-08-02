@@ -4,7 +4,7 @@
   "lines": [
     {
       "names": "Shale",
-      "color": "GREEN",
+      "color": "limegreen",
       "data": [
         {
           "x": "-",
@@ -90,7 +90,7 @@
     },
     {
       "names": "Sand",
-      "color": "OLIVE",
+      "color": "orange",
       "data": [
         {
           "x": "-",
@@ -176,7 +176,7 @@
     },
     {
       "names": "Lime",
-      "color": "BLUE",
+      "color": "blue",
       "data": [
         {
           "x": "-",

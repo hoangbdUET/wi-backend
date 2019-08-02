@@ -4,7 +4,7 @@
   "lines": [
     {
       "names": "0.01",
-      "color": "DkGray",
+      "color": "navy",
       "data": [
         {
           "x": "0.4000",
@@ -130,7 +130,7 @@
     },
     {
       "names": "0.02",
-      "color": "DkGray",
+      "color": "orange",
       "data": [
         {
           "x": "0.4000",
@@ -251,7 +251,7 @@
     },
     {
       "names": "0.04",
-      "color": "DkGray",
+      "color": "deeppink",
       "data": [
         {
           "x": "0.4000",
@@ -372,7 +372,7 @@
     },
     {
       "names": "0.06",
-      "color": "DkGray",
+      "color": "limegreen",
       "data": [
         {
           "x": "0.4000",
@@ -493,7 +493,7 @@
     },
     {
       "names": "0.08",
-      "color": "DkGray",
+      "color": "blue",
       "data": [
         {
           "x": "0.4000",
@@ -614,7 +614,7 @@
     },
     {
       "names": "0.1",
-      "color": "DkGray",
+      "color": "black",
       "data": [
         {
           "x": "0.4000",
@@ -725,7 +725,7 @@
     },
     {
       "names": "0.14",
-      "color": "DkGray",
+      "color": "red",
       "data": [
         {
           "x": "0.4000",
@@ -816,7 +816,7 @@
     },
     {
       "names": "0.18",
-      "color": "DkGray",
+      "color": "darkturquoise",
       "data": [
         {
           "x": "0.4000",

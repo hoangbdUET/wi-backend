@@ -4,17 +4,12 @@
   "lines": [
     {
       "names": "GR",
-      "color": "Blue",
+      "color": "limegreen",
       "data": [
         {
           "x": "48.00",
           "y": "2.68",
-          "type": "-"
-        },
-        {
-          "x": "48.00",
-          "y": "2.68",
-          "type": "0\t"
+          "type": "0"
         },
         {
           "x": "54.98",
@@ -60,17 +55,12 @@
     },
     {
       "names": "GRN",
-      "color": "Fuchsia",
+      "color": "blue",
       "data": [
         {
           "x": "49.00",
           "y": "2.75",
-          "type": "-"
-        },
-        {
-          "x": "49.00",
-          "y": "2.75",
-          "type": "0\t"
+          "type": "0"
         },
         {
           "x": "56.47",
@@ -116,7 +106,7 @@
     },
     {
       "names": "DIO",
-      "color": "Maroon",
+      "color": "deeppink",
       "data": [
         {
           "x": "45",

@@ -4,7 +4,7 @@
   "lines": [
     {
       "names": "SS",
-      "color": "DkGray",
+      "color": "limegreen",
       "data": [
         {
           "x": "-.0130",
@@ -65,7 +65,7 @@
     },
     {
       "names": "LS",
-      "color": "DkGray",
+      "color": "blue",
       "data": [
         {
           "x": "0.000",
@@ -111,22 +111,12 @@
           "x": "0.400",
           "y": "2.025",
           "type": "40"
-        },
-        {
-          "x": "-",
-          "y": "-",
-          "type": "-"
-        },
-        {
-          "x": "-",
-          "y": "-",
-          "type": "-"
         }
       ]
     },
     {
       "names": "DOL",
-      "color": "DkGray",
+      "color": "deeppink",
       "data": [
         {
           "x": ".0100",
@@ -176,11 +166,6 @@
         {
           "x": ".4000",
           "y": "2.180",
-          "type": "-"
-        },
-        {
-          "x": "-",
-          "y": "-",
           "type": "-"
         }
       ]

@@ -4,7 +4,7 @@
   "lines": [
     {
       "names": "Quartz",
-      "color": "DkGray",
+      "color": "orange",
       "data": [
         {
           "x": "56.0",
@@ -20,7 +20,7 @@
     },
     {
       "names": "Calcite",
-      "color": "DkGray",
+      "color": "blue",
       "data": [
         {
           "x": "49.0",
@@ -36,7 +36,7 @@
     },
     {
       "names": "Dolomite",
-      "color": "DkGray",
+      "color": "deeppink",
       "data": [
         {
           "x": "44.0",
