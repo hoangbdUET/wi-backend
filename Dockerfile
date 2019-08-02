@@ -9,6 +9,7 @@ COPY . /app
 RUN mkdir -p /opt/data /opt/wi-backend/wi-images /opt/wi-backend/server/export/exported-files /tmp/wiLog /opt/uploads
 # Install npm package
 COPY package.json /app
+RUN apk add git
 RUN mkdir /app/data
 RUN npm install
 
