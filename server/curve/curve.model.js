@@ -73,7 +73,7 @@ function editCurve(curveInfo, done, dbConnection, username, logger) {
 	let Project = dbConnection.Project;
 	Curve.findByPk(curveInfo.idCurve)
 		.then(curve => {
-			if (curve.name.toUpperCase() !== curveInfo.name.toUpperCase()) {
+			if (curve.name !== curveInfo.name) {
 				console.log(curve.name, "-", curveInfo.name);
 				Curve.findOne({
 					where: {

@@ -7,7 +7,8 @@ let openingProject = require('./opening-project');
 let validateRequest = require("../utils/validate-request");
 let skipList = [
 	'^/pattern.*\.png$',
-	'/csv/.*'
+	'/csv/.*',
+	// '/thumbnail'
 ];
 module.exports = function () {
 	return function (req, res, next) {
@@ -16,6 +17,7 @@ module.exports = function () {
 			return res.status(200).send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Request validation failed", "Request validation failed"));
 		}
 		if (new RegExp(skipList.join('|')).test(req.originalUrl)) {
+			req.decoded = {username: "unauthorized"};
 			next();
 		} else {
 			openingProject.sync().then(function (opening) {
