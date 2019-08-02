@@ -4,6 +4,39 @@ let User = modelMaster.User;
 let Sequelize = require('sequelize');
 let config = require('config').Database;
 let configCommon = require('config');
+let mqtt = require('mqtt');
+
+let client = mqtt.connect(configCommon.mqttBroker, {rejectUnauthorized: false});
+
+let curveFolderPath = process.env.BACKEND_CURVE_BASE_PATH || configCommon.curveBasePath;
+let curveFolderPathLength = curveFolderPath.toString().length;
+
+function getPath(fullPath, user) {
+	let path = fullPath.slice(curveFolderPathLength);
+	return JSON.stringify({
+		user: user,
+		curvePath: path,
+		updatedAt: new Date()
+	});
+}
+
+// let client = mqtt.connect('mqtt://localhost:1883', {clean:false, clientId:'MQTT_BACKEND_LOCAL_TEST'});
+//
+//
+// function noticeChange(dbName) {
+// 	return function(str, result) {
+// 		str = str.slice(str.indexOf(':') + 2);
+// 		if (str.indexOf('SELECT') != 0 && str.indexOf('SHOW INDEX') != 0) {
+// 			client.publish('sync', {qos: 2} , (err) => {
+// 				if (err) {
+// 					console.log('Miss a message:', err);
+// 				}
+// 			});
+// 		}
+// 	}
+// }
+
+
 
 let hashDir = require('../utils/data-tool').hashDir;
 
@@ -77,7 +110,8 @@ function newDbInstance(dbName, callback) {
 		port: process.env.BACKEND_DBPORT || config.port,
 		logging: false,
 		dialectOptions: {
-			charset: 'utf8'
+			charset: 'utf8',
+			supportBigNumbers: true
 		},
 		paranoid: true,
 		pool: {
@@ -568,6 +602,8 @@ function newDbInstance(dbName, callback) {
 			parents.username = username;
 			if (options.permanently) {
 				hashDir.deleteFolder(configCommon.curveBasePath, username + parents.project + parents.well + parents.dataset + parents.curve, parents.curve + '.txt');
+				let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + parents.project + parents.well + parents.dataset + parents.curve, parents.curve + '.txt');
+				client.publish("curve/delete", getPath(path, username), {qos:2});
 				resolve(curve, options);
 			} else {
 				rename(curve, function (err, newCurve) {
@@ -770,6 +806,7 @@ function newDbInstance(dbName, callback) {
 			rename(zoneset, null, 'delete');
 		}
 	});
+
 	//End register hook
 	return object;
 }
