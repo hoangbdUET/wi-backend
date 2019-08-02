@@ -18,7 +18,23 @@ const {Transform} = require('stream');
 const _ = require('lodash');
 let byline = require('byline');
 
-function createNewCurve(curveInfo, done, dbConnection, logger) {
+const client = require('mqtt').connect(process.env.BACKEND_MQTT_BROKER || config.mqttBroker, {rejectUnauthorized: false});
+const curveUpdateChannel = 'curve/update';
+const curveDeleteChannel = 'curve/delete';
+
+let curveFolderPath = process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath;
+let curveFolderPathLength = curveFolderPath.toString().length;
+
+function getPath(fullPath, user) {
+	let path = fullPath.slice(curveFolderPathLength);
+	return JSON.stringify({
+		user: user,
+		curvePath: path,
+		updatedAt: new Date()
+	});
+}
+
+function createNewCurve(curveInfo, done, dbConnection, logger) {5
 	let Curve = dbConnection.Curve;
 	Curve.sync()
 		.then(() => {
@@ -84,6 +100,8 @@ function editCurve(curveInfo, done, dbConnection, username, logger) {
 											let copy = fs.createReadStream(path).pipe(fs.createWriteStream(newPath));
 											copy.on('close', function () {
 												hashDir.deleteFolder(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curveName);
+												client.publish(curveDeleteChannel, getPath(path.toString(), username), {qos:2});
+												client.publish(curveUpdateChannel, getPath(newPath.toString(), username), {qos:2});
 											});
 											copy.on('error', function (err) {
 												return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit Curve name", err));
@@ -539,6 +557,8 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy, l
 								}
 								console.log("Copy file success!");
 								fs.unlink(filePath);
+								client.publish(curveDeleteChannel, getPath(filePath.toString(), req.decoded.username), {qos:2});
+								client.publish(curveUpdateChannel, getPath(newPath.toString(), req.decoded.username), {qos:2});
 								logger.info("CURVE", curve.idCurve, "Created");
 								done(ResponseJSON(ErrorCodes.SUCCESS, "Success", curve));
 							});
@@ -574,6 +594,8 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy, l
 											}
 											console.log("Copy file success!");
 											fs.unlink(filePath);
+											client.publish(curveDeleteChannel, getPath(filePath.toString(), req.decoded.username), {qos:2});
+											client.publish(curveUpdateChannel, getPath(newPath.toString(), req.decoded.username), {qos:2});
 											Object.assign(curve, overwriteInfo).save().then((c) => {
 												logger.info("CURVE", curve.idCurve, "Updated data");
 												done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", c));
@@ -583,11 +605,13 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy, l
 										});
 									} else {
 										fs.unlink(filePath);
+										client.publish(curveDeleteChannel, getPath(filePath.toString(), req.decoded.username), {qos:2});
 										done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve : Do not have permission"));
 									}
 								}, curve.createdBy);
 							} else {
 								fs.unlink(filePath);
+								client.publish(curveDeleteChannel, getPath(filePath.toString(), req.decoded.username), {qos:2});
 								done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve not exists"));
 							}
 						});
@@ -649,6 +673,7 @@ async function getCurveDataFromInventory(curveInfo, token, callback, dbConnectio
 		try {
 			let stream = request(options).pipe(fs.createWriteStream(curvePath));
 			stream.on('close', function () {
+				client.publish(curveUpdateChannel, getPath(curvePath.toString(), username), {qos:2});
 				callback(null, _curve);
 			});
 			stream.on('error', function (err) {
@@ -722,6 +747,7 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
 					let _curve = rs[0];
 					logger.info("CURVE", _curve.idCurve, "Created");
 					console.log("Import Done ", curvePath, " : ", new Date() - start, "ms");
+					client.publish(curveUpdateChannel, getPath(curvePath.toString(), username), {qos:2});
 					resolve(_curve);
 					// }
 				}).catch(err => {
@@ -761,6 +787,7 @@ function duplicateCurve(data, done, dbConnection, username, logger) {
 							throw err;
 						}
 						logger.info("CURVE", curve.idCurve, "Duplicated");
+						client.publish(curveUpdateChannel, getPath(newCurvePath.toString(), username), {qos:2});
 						done(ResponseJSON(ErrorCodes.SUCCESS, "Done", _Curve));
 					});
 
@@ -887,6 +914,7 @@ function processingArrayCurve(req, done, dbConnection, createdBy, updatedBy, log
 					if (err) console.log(err);
 					console.log("Edit array data done, remove tmp");
 					output.close();
+					client.publish(curveUpdateChannel, getPath(path.toString(), req.decoded.username), {qos:2});
 					if (fs.existsSync(tmpPath)) fs.unlink(tmpPath);
 				});
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", curve));
@@ -924,7 +952,9 @@ function splitArrayCurve(payload, done, dbConnection, username) {
 							});
 							let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + c.project + c.well + c.dataset + c.curve + subfix + i, c.curve + subfix + i + '.txt');
 							console.log(path);
+							client.publish(curveUpdateChannel, getPath(path.toString(), username), {qos:2});
 							outputStreams.push(mFs.createWriteStream(path, {flags: 'w'}));
+							
 						} else {
 							outputStreams.push(false);
 						}
@@ -987,6 +1017,7 @@ function mergeCurvesIntoArrayCurve(payload, done, dbConnection, username) {
 					curveFunction.getFullCurveParents(curve, dbConnection).then(c => {
 						curve.path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + c.project + c.well + c.dataset + c.curve, c.curve + '.txt');
 						curve.dataStream = mFs.createReadStream(curve.path);
+						client.publish(curveUpdateChannel, getPath(curve.path.toString(), username), {qos:2});
 						curve.parents = c;
 						curves.push(curve);
 						next();
@@ -1058,6 +1089,7 @@ function _createDataTmp(curves, newCurveName, username) {
 					writeStream.write(l.join(' ') + '\n');
 				});
 				writeStream.on('finish', () => {
+					client.publish(curveUpdateChannel, getPath(newArrayCurvePath, username), {qos:2});
 					writeStream.close();
 				});
 				resolve(newArrayCurvePath);
@@ -1083,6 +1115,7 @@ function createArrayCurve(payload, done, dbConnection, createdBy, updatedBy, log
 								console.log("ERR COPY FILE : ", err);
 							}
 							console.log("Copy file success for new raw curve!", path);
+							client.publish(curveUpdateChannel, getPath(path.toString(), payload.decoded.username), {qos:2});
 							logger.info("CURVE", c.idCurve, "Created");
 							done(ResponseJSON(ErrorCodes.SUCCESS, "Success", c));
 						});
@@ -1114,6 +1147,7 @@ function createArrayCurve(payload, done, dbConnection, createdBy, updatedBy, log
 					}
 					console.log("Copy file success for new raw curve!", path);
 					logger.info("CURVE", c.idCurve, "Created");
+					client.publish(curveUpdateChannel, getPath(path.toString(), payload.decoded.username), {qos:2});
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Success", c));
 				});
 			});
