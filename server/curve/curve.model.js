@@ -18,7 +18,7 @@ const {Transform} = require('stream');
 const _ = require('lodash');
 let byline = require('byline');
 
-const client = require('mqtt').connect(process.env.BACKEND_MQTT_BROKER || config.mqttBroker, {rejectUnauthorized: false, clientId:"BACK_CURVE_UPDATE_1"+Date.now(), clean: false});
+const client = require('mqtt').connect(process.env.BACKEND_MQTT_BROKER || config.mqttBroker, {rejectUnauthorized: false});
 const curveUpdateChannel = 'curve/update';
 const curveDeleteChannel = 'curve/delete';
 
