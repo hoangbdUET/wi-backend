@@ -65,7 +65,7 @@
     },
     {
       "names": "5.0",
-      "color": "Navy",
+      "color": "orange",
       "data": [
         {
           "x": "2.0000",
@@ -126,7 +126,7 @@
     },
     {
       "names": "50",
-      "color": "Navy",
+      "color": "deeppink",
       "data": [
         {
           "x": "2.0000",
@@ -187,7 +187,7 @@
     },
     {
       "names": "500",
-      "color": "Navy",
+      "color": "limegreen",
       "data": [
         {
           "x": "2.0000",
@@ -248,7 +248,7 @@
     },
     {
       "names": "5000",
-      "color": "Navy",
+      "color": "blue",
       "data": [
         {
           "x": "2.0000",

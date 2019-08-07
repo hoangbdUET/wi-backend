@@ -21,7 +21,7 @@ function createOrGetImageSet(payload, cb, dbConnection, logger) {
 			idWell: payload.idWell
 		}, defaults: payload
 	}).then(rs => {
-		cb(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs[0]));
+		cb(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
 	}).catch(err => {
 		cb(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
 	});

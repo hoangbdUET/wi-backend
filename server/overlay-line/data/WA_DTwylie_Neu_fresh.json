@@ -4,7 +4,7 @@
   "lines": [
     {
       "names": "SS",
-      "color": "DkGray",
+      "color": "limegreen",
       "data": [
         {
           "x": "56.000",
@@ -60,7 +60,7 @@
     },
     {
       "names": "LS",
-      "color": "DkGray",
+      "color": "blue",
       "data": [
         {
           "x": "49.000",
@@ -116,7 +116,7 @@
     },
     {
       "names": "DOL",
-      "color": "DkGray",
+      "color": "deeppink",
       "data": [
         {
           "x": "44.000",

@@ -4,7 +4,7 @@
   "lines": [
     {
       "names": "0.5",
-      "color": "Red",
+      "color": "navy",
       "data": [
         {
           "x": "0.0200",
@@ -65,7 +65,7 @@
     },
     {
       "names": "5.0",
-      "color": "Red",
+      "color": "orange",
       "data": [
         {
           "x": "0.0200",
@@ -126,7 +126,7 @@
     },
     {
       "names": "50",
-      "color": "Red",
+      "color": "deeppink",
       "data": [
         {
           "x": "0.0200",
@@ -187,7 +187,7 @@
     },
     {
       "names": "500",
-      "color": "Red",
+      "color": "limegreen",
       "data": [
         {
           "x": "0.0200",
@@ -248,7 +248,7 @@
     },
     {
       "names": "5000",
-      "color": "Red",
+      "color": "blue",
       "data": [
         {
           "x": "0.0200",
