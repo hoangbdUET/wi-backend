@@ -6,7 +6,7 @@ let config = require('config').Database;
 let configCommon = require('config');
 let mqtt = require('mqtt');
 
-let client = mqtt.connect(configCommon.mqttBroker, {rejectUnauthorized: false});
+let client = mqtt.connect(process.env.BACKEND_MQTT_BROKER || config.mqttBroker, {rejectUnauthorized: false});
 
 let curveFolderPath = process.env.BACKEND_CURVE_BASE_PATH || configCommon.curveBasePath;
 let curveFolderPathLength = curveFolderPath.toString().length;
