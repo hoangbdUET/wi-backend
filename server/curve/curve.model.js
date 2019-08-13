@@ -25,8 +25,10 @@ const curveDeleteChannel = 'curve/delete';
 let curveFolderPath = process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath;
 let curveFolderPathLength = curveFolderPath.toString().length;
 
+
 function getPath(fullPath, user) {
 	let path = fullPath.slice(curveFolderPathLength);
+	console.log(path);
 	return JSON.stringify({
 		user: user,
 		curvePath: path,
@@ -51,7 +53,7 @@ function createNewCurve(curveInfo, done, dbConnection, logger) {5
 				curve.save()
 					.then(curve => {
 						logger.info("CURVE", curve.idCurve, "Created");
-						done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Curve success", {idCurve: curve.idCurve}))
+						done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Curve success", {idCurve: curve.idCurve}));
 					})
 					.catch(err => {
 						done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Curve " + err));
@@ -295,7 +297,7 @@ function getDataFile(param, successFunc, errorFunc, dbConnection, username) {
 							if (well) {
 								Project.findByPk(well.idProject).then(project => {
 									console.log("Hash : ", process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curve.name + '.txt');
-									let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt')
+									let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
 									const dataStream = fs.createReadStream(path);
 									dataStream.on('error', function (err) {
 										errorFunc(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Curve not found"));
@@ -557,7 +559,6 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy, l
 								}
 								console.log("Copy file success!");
 								fs.unlink(filePath);
-								client.publish(curveDeleteChannel, getPath(filePath.toString(), req.decoded.username), {qos:2});
 								client.publish(curveUpdateChannel, getPath(newPath.toString(), req.decoded.username), {qos:2});
 								logger.info("CURVE", curve.idCurve, "Created");
 								done(ResponseJSON(ErrorCodes.SUCCESS, "Success", curve));
@@ -594,7 +595,6 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy, l
 											}
 											console.log("Copy file success!");
 											fs.unlink(filePath);
-											client.publish(curveDeleteChannel, getPath(filePath.toString(), req.decoded.username), {qos:2});
 											client.publish(curveUpdateChannel, getPath(newPath.toString(), req.decoded.username), {qos:2});
 											Object.assign(curve, overwriteInfo).save().then((c) => {
 												logger.info("CURVE", curve.idCurve, "Updated data");
@@ -605,13 +605,11 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy, l
 										});
 									} else {
 										fs.unlink(filePath);
-										client.publish(curveDeleteChannel, getPath(filePath.toString(), req.decoded.username), {qos:2});
 										done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve : Do not have permission"));
 									}
 								}, curve.createdBy);
 							} else {
 								fs.unlink(filePath);
-								client.publish(curveDeleteChannel, getPath(filePath.toString(), req.decoded.username), {qos:2});
 								done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Curve not exists"));
 							}
 						});
@@ -1115,7 +1113,9 @@ function createArrayCurve(payload, done, dbConnection, createdBy, updatedBy, log
 								console.log("ERR COPY FILE : ", err);
 							}
 							console.log("Copy file success for new raw curve!", path);
-							client.publish(curveUpdateChannel, getPath(path.toString(), payload.decoded.username), {qos:2});
+							client.publish(curveUpdateChannel, getPath(path.toString(), payload.decoded.username), {qos:2}, (err)=>{
+								console.log(err);
+							});
 							logger.info("CURVE", c.idCurve, "Created");
 							done(ResponseJSON(ErrorCodes.SUCCESS, "Success", c));
 						});

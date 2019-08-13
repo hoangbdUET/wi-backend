@@ -36,8 +36,6 @@ function getPath(fullPath, user) {
 // 	}
 // }
 
-
-
 let hashDir = require('../utils/data-tool').hashDir;
 
 let sequelizeCache = new Object();
@@ -602,7 +600,7 @@ function newDbInstance(dbName, callback) {
 			parents.username = username;
 			if (options.permanently) {
 				hashDir.deleteFolder(configCommon.curveBasePath, username + parents.project + parents.well + parents.dataset + parents.curve, parents.curve + '.txt');
-				let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + parents.project + parents.well + parents.dataset + parents.curve, parents.curve + '.txt');
+				let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || configCommon.curveBasePath, username + parents.project + parents.well + parents.dataset + parents.curve, parents.curve + '.txt');
 				client.publish("curve/delete", getPath(path, username), {qos:2});
 				resolve(curve, options);
 			} else {
