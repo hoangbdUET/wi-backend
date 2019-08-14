@@ -15,7 +15,7 @@ module.exports = function (url, w, h, g, e) {
 		return urlSafeBase64(hmac.digest())
 	};
 
-	const resizing_type = 'fill';
+	const resizing_type = 'fit';
 	const width = w || 300;
 	const height = h || 300;
 	const gravity = g || 'no';
