@@ -141,6 +141,7 @@ function main() {
 	// let projectLogRouter = require('./server/project-log/project-log.router');
 	let utmZoneRouter = require('./server/utm-zone/index');
 	let testRouter = require('./server/test/test.router');
+	let mlProjectRouter = require('./server/ml-project/ml-project.router');
 	let queue = {};
 	let http = require('http').Server(app);
 	let bodyParser = require('body-parser');
@@ -289,6 +290,7 @@ function main() {
 	app.use('/', markerSetTemplateRouter);
 	app.use('/', markerTemplateRouter);
 	app.use('/', taskSpecRouter);
+	app.use('/', mlProjectRouter);
 	app.use('/project/well', imageSetRouter);
 	app.use('/project/well/image-set', imageRouter);
 	app.use('/project', parameterSetRouter);
