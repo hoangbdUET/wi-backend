@@ -363,11 +363,61 @@ let deletePlot = function (plotInfo, done, dbConnection, logger) {
 		})
 };
 
-let getPlotInfo = function (plot, done, dbConnection) {
+// let getPlotInfo = function (plot, done, dbConnection) {
+// 	const Plot = dbConnection.Plot;
+// 	Plot.findByPk(plot.idPlot, {include: [{all: true, include: [{all: true}]}]})
+// 		.then(function (plot) {
+// 			if (!plot) throw "not exists";
+// 			done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Plot success", plot));
+// 		})
+// 		.catch(function () {
+// 			done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Plot not found for get info"));
+// 		})
+// };
+
+let getPlotInfo = async function (plot, done, dbConnection) {
 	const Plot = dbConnection.Plot;
-	Plot.findByPk(plot.idPlot, {include: [{all: true, include: [{all: true}]}]})
+	Plot.findByPk(plot.idPlot)
 		.then(function (plot) {
 			if (!plot) throw "not exists";
+			let tracks = await dbConnection.Track.findAll({where: {idPlot: plot.idPlot}});
+			let image_tracks = await dbConnection.ImageTrack.findAll({where: {idPlot: plot.idPlot}});
+			let object_tracks = await dbConnection.ObjectTrack.findAll({where: {idPlot: plot.idPlot}});
+			let zone_tracks = await dbConnection.ZoneTrack.findAll({where: {idPlot: plot.idPlot}});
+			let depth_axes = await dbConnection.DepthAxis.findAll({where: {idPlot: plot.idPlot}});
+			plot.curve = await dbConnection.Curve.findByPk(plot.referenceCurve);
+			
+			for (let i = 0; i < tracks.length; i++) {
+				tracks[i].lines = await dbConnection.Line.findAll({where: {idTrack: tracks[i].idTrack}});
+				tracks[i].shadings = await dbConnection.Shading.findAll({where: {idTrack: tracks[i].idTrack}});
+				tracks[i].annotations = await dbConnection.Annotation.findAll({where: {idTrack: tracks[i].idTrack}});
+				tracks[i].zone_set = await dbConnection.ZoneSet.findByPk(tracks[i].idZoneSet);
+				tracks[i].marker_set = await dbConnection.MarkerSet.findByPk(tracks[i].idMarkerSet);
+			}
+
+			for (let i = 0; i < image_tracks.length; i++) {
+				image_tracks[i].image_of_tracks = await dbConnection.ImageOfTrack.findAll({where: {idImageTrack: image_tracks[i].idImageTrack}});
+				image_tracks[i].image_set = await dbConnection.ImageSet.findByPk(image_tracks[i].idImageSet);
+			}
+
+			for (let i = 0; i < object_tracks.length; i++) {
+				object_tracks[i].object_of_tracks = await dbConnection.ObjectOfTrack.findAll({where: {idObjectTrack: object_tracks[i].idObjectTrack}});
+			}
+
+			for (let i = 0; i < depth_axes.length; i++) {
+				depth_axes[i].curve = await dbConnection.Curve.findByPk(depth_axes[i].idCurve);
+			}
+
+			for (let i = 0; i < zone_tracks.length; i++) {
+				zone_tracks[i].zone_set = await dbConnection.ZoneSet.findByPk(zone_tracks[i].idZoneSet);
+			}
+
+			plot.tracks = tracks;
+			plot.image_tracks = image_tracks;
+			plot.object_tracks = object_tracks;
+			plot.depth_axes = depth_axes;
+			plot.zone_tracks = zone_tracks;
+
 			done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Plot success", plot));
 		})
 		.catch(function () {
