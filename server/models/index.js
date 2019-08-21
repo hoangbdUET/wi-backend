@@ -154,6 +154,7 @@ function newDbInstance(dbName, callback) {
 		'MarkerSet',
 		'MarkerSetTemplate',
 		'MarkerTemplate',
+		'MlProject',
 		'ObjectOfTrack',
 		'ObjectTrack',
 		'OverlayLine',
