@@ -378,7 +378,8 @@ let deletePlot = function (plotInfo, done, dbConnection, logger) {
 let getPlotInfo = async function (plot, done, dbConnection) {
 	const Plot = dbConnection.Plot;
 	Plot.findByPk(plot.idPlot)
-		.then(function (plot) {
+		.then(async function (plot) {
+			plot = plot.toJSON();
 			if (!plot) throw "not exists";
 			let tracks = await dbConnection.Track.findAll({where: {idPlot: plot.idPlot}});
 			let image_tracks = await dbConnection.ImageTrack.findAll({where: {idPlot: plot.idPlot}});
@@ -386,7 +387,7 @@ let getPlotInfo = async function (plot, done, dbConnection) {
 			let zone_tracks = await dbConnection.ZoneTrack.findAll({where: {idPlot: plot.idPlot}});
 			let depth_axes = await dbConnection.DepthAxis.findAll({where: {idPlot: plot.idPlot}});
 			plot.curve = await dbConnection.Curve.findByPk(plot.referenceCurve);
-			
+
 			for (let i = 0; i < tracks.length; i++) {
 				tracks[i].lines = await dbConnection.Line.findAll({where: {idTrack: tracks[i].idTrack}});
 				tracks[i].shadings = await dbConnection.Shading.findAll({where: {idTrack: tracks[i].idTrack}});
