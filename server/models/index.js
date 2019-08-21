@@ -113,7 +113,7 @@ function newDbInstance(dbName, callback) {
 		},
 		paranoid: true,
 		pool: {
-			max: 20,
+			max: 3,
 			min: 0,
 			idle: 1000 * 60 * 15
 		},

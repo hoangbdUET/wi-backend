@@ -12,6 +12,7 @@ let convertLength = require('../utils/convert-length');
 const serverAddress = require('../utils/information').serverAddress;
 const hashDir = require('../utils/data-tool').hashDir;
 const Op = require('sequelize').Op;
+// const dlisExport = null;
 const dlisExport = require('dlis_export')(config);
 const checkPermisson = require('../utils/permission/check-permisison');
 const archiver = require('archiver');

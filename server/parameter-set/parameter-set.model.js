@@ -6,7 +6,8 @@ let createNewParameterSet = function (data, done, dbConnection) {
 	dbConnection.ParameterSet.findOrCreate({
 		where: {
 			idProject: data.idProject,
-			name: data.name
+			name: data.name,
+			type: data.type
 		},
 		defaults: data
 	}).then(rs => {
