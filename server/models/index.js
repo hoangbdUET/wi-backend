@@ -602,7 +602,7 @@ function newDbInstance(dbName, callback) {
 			if (options.permanently) {
 				hashDir.deleteFolder(configCommon.curveBasePath, username + parents.project + parents.well + parents.dataset + parents.curve, parents.curve + '.txt');
 				let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || configCommon.curveBasePath, username + parents.project + parents.well + parents.dataset + parents.curve, parents.curve + '.txt');
-				client.publish("curve/delete", getPath(path, username), {qos:2});
+				client.publish("curve/delete/" + username, getPath(path, username), {qos:2});
 				resolve(curve, options);
 			} else {
 				rename(curve, function (err, newCurve) {
