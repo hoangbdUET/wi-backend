@@ -26,7 +26,7 @@ router.post('/ml-project/edit', (req, res) => {
 	}, req.dbConnection);
 });
 
-router.delete('/ml-project/delete', (req, res) => {
+router.post('/ml-project/delete', (req, res) => {
 	model.deleteMlProject(req.body, status => {
 		res.send(status);
 	}, req.dbConnection);
