@@ -23,13 +23,6 @@ router.post('/plot/info', function (req, res) {
 	plotModel.getPlotInfo(req.body, function (status) {
 		res.send(status);
 	}, req.dbConnection);
-	// plotModel.getPlotInfo(req.body, req.dbConnection).then(status => {
-	// 	console.log(status);
-	// 	res.send(status);
-	// }).catch(err => {
-	// 	res.send(err);
-	// });
-
 });
 router.post('/plot/new', function (req, res) {
 	plotModel.createNewPlot(req.body, function (status) {
