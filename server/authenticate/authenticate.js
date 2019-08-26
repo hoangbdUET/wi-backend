@@ -32,6 +32,7 @@ module.exports = function () {
 								decoded.username = opening[decoded.username].owner;
 								req.dbConnection = models((process.env.BACKEND_DBPREFIX || config.Database.prefix) + decoded.username.toLowerCase());
 								req.logger = require('../utils/user-logger')(decoded.username.toLowerCase(), req.get('CurrentProject'));
+								// noinspection DuplicatedCode
 								req.dbConnection.sequelize.authenticate().then(() => {
 									req.decoded = decoded;
 									req.token = token;
@@ -52,6 +53,7 @@ module.exports = function () {
 									console.log(err);
 									if (err) return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Some err", "Some err"));
 								});
+								// noinspection DuplicatedCode
 								req.dbConnection.sequelize.authenticate().then(() => {
 									req.decoded = decoded;
 									req.token = token;

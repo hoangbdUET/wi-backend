@@ -375,7 +375,7 @@ let deletePlot = function (plotInfo, done, dbConnection, logger) {
 // 		})
 // };
 
-let getPlotInfo = async function (plot, done, dbConnection) {
+let getPlotInfo = function (plot, done, dbConnection) {
 	const Plot = dbConnection.Plot;
 	Plot.findByPk(plot.idPlot)
 		.then(async function (plot) {
@@ -389,6 +389,7 @@ let getPlotInfo = async function (plot, done, dbConnection) {
 			plot.curve = await dbConnection.Curve.findByPk(plot.referenceCurve);
 
 			for (let i = 0; i < tracks.length; i++) {
+				tracks[i] = tracks[i].toJSON();
 				tracks[i].lines = await dbConnection.Line.findAll({where: {idTrack: tracks[i].idTrack}});
 				tracks[i].shadings = await dbConnection.Shading.findAll({where: {idTrack: tracks[i].idTrack}});
 				tracks[i].annotations = await dbConnection.Annotation.findAll({where: {idTrack: tracks[i].idTrack}});
@@ -397,19 +398,23 @@ let getPlotInfo = async function (plot, done, dbConnection) {
 			}
 
 			for (let i = 0; i < image_tracks.length; i++) {
-				image_tracks[i].image_of_tracks = await dbConnection.ImageOfTrack.findAll({where: {idImageTrack: image_tracks[i].idImageTrack}});
+				// image_tracks[i].image_of_tracks = await dbConnection.ImageOfTrack.findAll({where: {idImageTrack: image_tracks[i].idImageTrack}});
+				image_tracks[i] = image_tracks[i].toJSON();
 				image_tracks[i].image_set = await dbConnection.ImageSet.findByPk(image_tracks[i].idImageSet);
 			}
 
 			for (let i = 0; i < object_tracks.length; i++) {
+				object_tracks[i] = object_tracks[i].toJSON();
 				object_tracks[i].object_of_tracks = await dbConnection.ObjectOfTrack.findAll({where: {idObjectTrack: object_tracks[i].idObjectTrack}});
 			}
 
 			for (let i = 0; i < depth_axes.length; i++) {
+				depth_axes[i] = depth_axes[i].toJSON();
 				depth_axes[i].curve = await dbConnection.Curve.findByPk(depth_axes[i].idCurve);
 			}
 
 			for (let i = 0; i < zone_tracks.length; i++) {
+				zone_tracks[i] = zone_tracks[i].toJSON();
 				zone_tracks[i].zone_set = await dbConnection.ZoneSet.findByPk(zone_tracks[i].idZoneSet);
 			}
 
