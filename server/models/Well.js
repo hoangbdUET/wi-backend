@@ -21,7 +21,7 @@ module.exports = function (sequelize, DataTypes) {
             defaultValue: 1
         },
         color: {
-            type: DataTypes.STRING(30),
+            type: DataTypes.STRING(2000),
             allowNull: true,
             defaultValue: '#f3b86d'
         },
