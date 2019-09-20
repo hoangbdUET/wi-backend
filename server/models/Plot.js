@@ -60,16 +60,16 @@ module.exports = function (sequelize, DataTypes) {
 		tickMode: {
 			type: DataTypes.STRING(15),
 			allowNull: true,
-			defaultValue: 'default'
+			defaultValue: 'custom'
 		},
 		majorTickLength: {
 			type: DataTypes.FLOAT,
-			defaultValue: 10,
+			defaultValue: 20,
 			allowNull: true
 		},
 		minorTickNum: {
 			type: DataTypes.INTEGER,
-			defaultValue: 2,
+			defaultValue: 4,
 			allowNull: true
 		},
 		note: {
