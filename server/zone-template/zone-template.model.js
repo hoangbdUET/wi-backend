@@ -58,9 +58,21 @@ function createZoneSetTemplateFromXLSX(callback) {
 
 function newZoneTemplate(payload, done, dbConnection) {
     dbConnection.ZoneTemplate.create(payload).then(rs => {
+        // if(rs)
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
     }).catch(err => {
-        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
+        if (err.name === "SequelizeUniqueConstraintError") {
+            dbConnection.ZoneTemplate.findOne({
+                where: {
+                    idZoneSetTemplate: payload.idZoneSetTemplate,
+                    name: payload.name
+                }
+            }).then(z => {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Zone template's name already exists!", z));
+            })
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+        }
     })
 }
 
