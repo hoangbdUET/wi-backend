@@ -309,7 +309,7 @@ let createNewPlot = function (plotInfo, done, dbConnection, username, logger) {
 				}
 			}
 		}).catch(err => {
-			console.log(err);
+			// console.log(err);
 			if (err.name === "SequelizeUniqueConstraintError") {
 				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot's name already exists!"));
 			} else {
