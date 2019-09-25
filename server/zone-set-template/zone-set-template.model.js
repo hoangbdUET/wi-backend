@@ -6,7 +6,18 @@ function createNewZoneSetTemplate(payload, done, dbConnection) {
     dbConnection.ZoneSetTemplate.create(payload).then(rs => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
     }).catch(err => {
-        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
+        if (err.name === "SequelizeUniqueConstraintError") {
+            dbConnection.ZoneSetTemplate.findOne({
+                where: {
+                    idProject: payload.idProject,
+                    name: payload.name
+                }
+            }).then(z => {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Zone set template's name already exists!", z));
+            })
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+        }
     });
 }
 
