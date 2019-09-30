@@ -174,6 +174,8 @@ function createNewProject(projectInfo, done, dbConnection, username, company) {
             return Project.create(projectInfo);
         })
         .then(async function (project) {
+            project = project.toJSON();
+            project.storage_location = projectInfo.storage_location;
             let zsts = await dbConnection.ZoneSetTemplate.findAll({
                 where: {idProject: null},
                 include: {model: dbConnection.ZoneTemplate}
@@ -182,14 +184,9 @@ function createNewProject(projectInfo, done, dbConnection, username, company) {
                 where: {idProject: null},
                 include: {model: dbConnection.MarkerTemplate}
             });
-            // let flows = await dbConnection.Flow.findAll({
-            // 	where: {idProject: null},
-            // 	include: {model: dbConnection.Task}
-            // });
             await createDefaultZoneSetTemplate(zsts, project.idProject, dbConnection);
             await createDefaultMarkerSetTemplate(msks, project.idProject, dbConnection);
-            // await createNewFlowTemplate(flows, project.idProject, dbConnection, username);
-            await createStorageIfNotExsited(project.idProject, dbConnection, username, company);
+            await createStorageIfNotExsited(project, dbConnection, username, company);
             await createDefaultPramSet(project.idProject, dbConnection, username);
             done(ResponseJSON(ErrorCodes.SUCCESS, "Create new project success", project));
         })
@@ -284,7 +281,8 @@ function getRandomHash() {
     return (crypto.createHash('sha1').update(current_date + random).digest('hex'));
 }
 
-function createStorageIfNotExsited(idProject, dbConnection, username, company) {
+function createStorageIfNotExsited(project, dbConnection, username, company) {
+    let idProject = project.idProject;
     return new Promise(resolve => {
         dbConnection.StorageDatabase.findAll({where: {idProject: idProject}}).then(sd => {
             if (!sd || sd.length === 0) {
@@ -292,7 +290,7 @@ function createStorageIfNotExsited(idProject, dbConnection, username, company) {
                     idProject: idProject,
                     name: company + "-" + username,
                     company: company,
-                    input_directory: getRandomHash(),
+                    input_directory: project.storage_location || getRandomHash(),
                     createdBy: username,
                     updatedBy: username
                 }).then(() => {
