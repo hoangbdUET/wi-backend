@@ -68,7 +68,7 @@ function newZoneTemplate(payload, done, dbConnection) {
                     name: payload.name
                 }
             }).then(z => {
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Zone template's name already exists!", z));
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Zone template's name already exists!", z));
             })
         } else {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
