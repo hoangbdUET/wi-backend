@@ -185,8 +185,8 @@ function createNewProject(projectInfo, done, dbConnection, username, company) {
                 include: {model: dbConnection.MarkerTemplate}
             });
             await createDefaultZoneSetTemplate(zsts, project.idProject, dbConnection);
-            await createDefaultMarkerSetTemplate(msks, project.idProject, dbConnection);
-            // await createStorageIfNotExsited(project, dbConnection, username, company);
+            // await createDefaultMarkerSetTemplate(msks, project.idProject, dbConnection);
+            await createStorageIfNotExsited(project, dbConnection, username, company);
             await createDefaultPramSet(project.idProject, dbConnection, username);
             done(ResponseJSON(ErrorCodes.SUCCESS, "Create new project success", project));
         })
