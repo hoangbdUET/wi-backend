@@ -174,8 +174,6 @@ function createNewProject(projectInfo, done, dbConnection, username, company) {
             return Project.create(projectInfo);
         })
         .then(async function (project) {
-            project = project.toJSON();
-            project.storage_location = projectInfo.storage_location;
             let zsts = await dbConnection.ZoneSetTemplate.findAll({
                 where: {idProject: null},
                 include: {model: dbConnection.ZoneTemplate}
@@ -186,7 +184,7 @@ function createNewProject(projectInfo, done, dbConnection, username, company) {
             });
             await createDefaultZoneSetTemplate(zsts, project.idProject, dbConnection);
             await createDefaultMarkerSetTemplate(msks, project.idProject, dbConnection);
-            await createStorageIfNotExsited(project, dbConnection, username, company);
+            await createStorageIfNotExsited({idProject: project.idProject, storage_location: projectInfo.storage_location}, dbConnection, username, company);
             await createDefaultPramSet(project.idProject, dbConnection, username);
             done(ResponseJSON(ErrorCodes.SUCCESS, "Create new project success", project));
         })
