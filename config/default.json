@@ -30,5 +30,6 @@
   },
   "curveBasePath": "../data",
   "imageBasePath": "wi-images",
-  "exportPath": "./server/export/exported-files"
+  "exportPath": "./server/export/exported-files",
+  "mqttBroker": "mqtt://localhost:30883"
 }
