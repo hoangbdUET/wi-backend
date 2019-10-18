@@ -279,8 +279,7 @@ function getRandomHash() {
     return (crypto.createHash('sha1').update(current_date + random).digest('hex'));
 }
 
-function createStorageIfNotExsited(project, dbConnection, username, company) {
-    let idProject = project.idProject;
+function createStorageIfNotExsited(idProject, dbConnection, username, company) {
     return new Promise(resolve => {
         dbConnection.StorageDatabase.findAll({where: {idProject: idProject}}).then(sd => {
             if (!sd || sd.length === 0) {
@@ -305,7 +304,7 @@ function createStorageIfNotExsited(project, dbConnection, username, company) {
 }
 
 async function getProjectList(payload, done, dbConnection, username, realUser, token, company, logger, role) {
-    if (payload.username && role <= 1) {
+    if (payload.username && (role <= 1 || role === 3)) {
         dbConnection = models((process.env.BACKEND_DBPREFIX || config.Database.prefix) + payload.username, (err) => {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Err", err));
         });
