@@ -45,6 +45,7 @@
     "tempfile": "^2.0.0",
     "wi-etl": "^1.0.4",
     "wi-export-test": "^1.2.42",
+    "wi-logger": "^1.0.0",
     "wi-palettify": "^1.0.3",
     "winston": "^3.1.0",
     "winston-daily-rotate-file": "^3.6.0",
