@@ -30,7 +30,7 @@ let findFamilyIdByName = function (familyName, dbConnection, callback) {
 	})
 };
 
-function createNewHistogram(histogramInfo, done, dbConnection, logger) {
+function createNewHistogram(histogramInfo, done, dbConnection) {
 	let curves = histogramInfo.curves ? histogramInfo.curves : [];
 	if (histogramInfo.histogramTemplate && histogramInfo.datasets) {
 		console.log("NEW HISTOGRAM TEMPLATE ", histogramInfo.histogramTemplate);
@@ -74,7 +74,6 @@ function createNewHistogram(histogramInfo, done, dbConnection, logger) {
 				});
 			}, function () {
 				histogram.setCurves(curves).then(() => {
-					logger.info("HISTOGRAM", histogram.idHistogram, "Created");
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Done", histogram));
 				});
 			});
@@ -89,7 +88,6 @@ function createNewHistogram(histogramInfo, done, dbConnection, logger) {
 		dbConnection.Histogram.create(histogramInfo).then(async histogram => {
 			await histogram.setCurves(curves);
 			dbConnection.Histogram.findByPk(histogram.idHistogram, {include: {all: true}}).then(h => {
-				logger.info("HISTOGRAM", h.idHistogram, "Created");
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Successfull", h));
 			});
 		}).catch(err => {
@@ -287,7 +285,7 @@ function getHistogram(histogramId, done, dbConnection) {
 	})
 }
 
-function editHistogram(histogramInfo, done, dbConnection, logger) {
+function editHistogram(histogramInfo, done, dbConnection) {
 	let curves = histogramInfo.curves ? histogramInfo.curves : [];
 	delete histogramInfo.createdBy;
 	let Histogram = dbConnection.Histogram;
@@ -301,7 +299,6 @@ function editHistogram(histogramInfo, done, dbConnection, logger) {
 					if (!isRename) {
 						await result.setCurves(curves);
 					}
-					logger.info("HISTOGRAM", result.idHistogram, "Updated");
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Edit histogram success", result));
 				})
 				.catch(function (err) {
@@ -317,14 +314,13 @@ function editHistogram(histogramInfo, done, dbConnection, logger) {
 		})
 }
 
-function deleteHistogram(histogramInfo, done, dbConnection, logger) {
+function deleteHistogram(histogramInfo, done, dbConnection) {
 	let Histogram = dbConnection.Histogram;
 	Histogram.findByPk(histogramInfo.idHistogram)
 		.then(function (histogram) {
 			histogram.setDataValue('updatedBy', histogramInfo.updatedBy);
 			histogram.destroy({permanently: true, force: true})
 				.then(function () {
-					logger.info("HISTOGRAM", histogram.idHistogram, "Deleted");
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Histogram is deleted", histogram));
 				})
 				.catch(function (err) {
@@ -336,7 +332,7 @@ function deleteHistogram(histogramInfo, done, dbConnection, logger) {
 		})
 }
 
-function duplicateHistogram(payload, done, dbConnection, logger) {
+function duplicateHistogram(payload, done, dbConnection) {
 	let Histogram = dbConnection.Histogram;
 	Histogram.findByPk(payload.idHistogram, {include: {all: true}}).then(histogram => {
 		let newHistogram;
@@ -370,7 +366,6 @@ function duplicateHistogram(payload, done, dbConnection, logger) {
 				// rs.setCurves(histogram.curves).then(r => {
 				//     console.log(r);
 				// });
-				logger.info("HISTOGRAM", histogram.idHistogram, "Duplicated");
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", histogram));
 			}).catch(err => {
 				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));

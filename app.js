@@ -91,6 +91,8 @@ setTimeout(function () {
 }, 100);
 
 function main() {
+    let WiLog = require('wi-logger');
+    let logger = new WiLog('./logs');
 	let authenticate;
 	let accessLogStream;
 	let express = require('express');
@@ -291,6 +293,7 @@ function main() {
 			let duration = Date.now() - start;
 			// profiles.emit('route', {req, elapsedMS: duration});
 			console.log(req.decoded.username, (req.header('x-real-ip') || req.ip), req.method, req.originalUrl, `${duration}ms`);
+			logger.info({message: `${req.method} --- ${req.originalUrl} ${duration}ms`, username: req.decoded.username, project: req.CurrentProject})
 			// influx.writePoints([
 			// 	{
 			// 		measurement: 'response_times',

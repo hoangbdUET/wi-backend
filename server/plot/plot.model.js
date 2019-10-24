@@ -247,7 +247,7 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
 	});
 };
 
-let createNewPlot = function (plotInfo, done, dbConnection, username, logger) {
+let createNewPlot = function (plotInfo, done, dbConnection, username) {
 	// searchReferenceCurvePromise(plotInfo.idProject, dbConnection).then(idRefCurve => {
 	//     plotInfo.referenceCurve = idRefCurve;
 	// });
@@ -288,7 +288,6 @@ let createNewPlot = function (plotInfo, done, dbConnection, username, logger) {
 		}).then(rs => {
 			if (rs[1]) {
 				//created new
-				logger.info("PLOT", rs[0].idPlot, "Created");
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Plot success", rs[0]));
 			} else {
 				//existed
@@ -297,7 +296,6 @@ let createNewPlot = function (plotInfo, done, dbConnection, username, logger) {
 						delPlot.destroy({force: true}).then(() => {
 							newPlot.idPlot = delPlot.idPlot;
 							dbConnection.Plot.create(newPlot).then((p) => {
-								logger.info("PLOT", p.idPlot, "Created");
 								done(ResponseJSON(ErrorCodes.SUCCESS, "Override plot success", p.toJSON()));
 							}).catch(err => {
 								done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
@@ -319,7 +317,7 @@ let createNewPlot = function (plotInfo, done, dbConnection, username, logger) {
 	}
 };
 
-let editPlot = function (plotInfo, done, dbConnection, logger) {
+let editPlot = function (plotInfo, done, dbConnection) {
 	delete plotInfo.createdBy;
 	if (typeof(plotInfo.currentState) === "object") plotInfo.currentState = JSON.stringify(plotInfo.currentState);
 	const Plot = dbConnection.Plot;
@@ -328,7 +326,6 @@ let editPlot = function (plotInfo, done, dbConnection, logger) {
 			Object.assign(plot, plotInfo)
 				.save()
 				.then(function (a) {
-					logger.info("PLOT", a.idPlot, "Updated");
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Plot success", plotInfo));
 				})
 				.catch(function (err) {
@@ -344,14 +341,13 @@ let editPlot = function (plotInfo, done, dbConnection, logger) {
 		})
 };
 
-let deletePlot = function (plotInfo, done, dbConnection, logger) {
+let deletePlot = function (plotInfo, done, dbConnection) {
 	const Plot = dbConnection.Plot;
 	Plot.findByPk(plotInfo.idPlot)
 		.then(function (plot) {
 			plot.setDataValue('updatedBy', plotInfo.updatedBy);
 			plot.destroy({permanently: true, force: true})
 				.then(function () {
-					logger.info("PLOT", plot.idPlot, "Deleted");
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Plot is deleted", plot));
 				})
 				.catch(function (err) {
@@ -431,7 +427,7 @@ let getPlotInfo = function (plot, done, dbConnection) {
 		})
 };
 
-let duplicatePlot = function (payload, done, dbConnection, isSave, logger) {
+let duplicatePlot = function (payload, done, dbConnection, isSave) {
 	let Plot = dbConnection.Plot;
 	let Track = dbConnection.Track;
 	let ImageTrack = dbConnection.ImageTrack;
