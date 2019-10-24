@@ -67,7 +67,7 @@ function getFullMarkerSetParents(markerSet, dbConnection) {
 	}));
 }
 
-module.exports = function (body, done, error, dbConnection, username, logger) {
+module.exports = function (body, done, error, dbConnection, username) {
 	dbConnection.Plot.findByPk(body.idPlot, {
 		include: [
 			{
@@ -304,7 +304,6 @@ module.exports = function (body, done, error, dbConnection, username, logger) {
 			// 	createdBy: "hoang",
 			// 	updatedBy: "hoang"
 			// });
-			logger.info("PLOT", plot.idPlot, "Exported");
 			// createTempfile(plot, done);
 		});
 	}).catch(err => {

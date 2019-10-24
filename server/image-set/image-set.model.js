@@ -1,9 +1,8 @@
 const ResponseJSON = require('../response');
 const ErrorCodes = require('../../error-codes').CODES;
 
-function createImageSet(payload, cb, dbConnection, logger) {
+function createImageSet(payload, cb, dbConnection) {
 	dbConnection.ImageSet.create(payload).then(rs => {
-		logger.info("IMAGE_SET", rs.idImageSet, "Created");
 		cb(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
 	}).catch(err => {
 		if (err.name === "SequelizeUniqueConstraintError") {
@@ -14,7 +13,7 @@ function createImageSet(payload, cb, dbConnection, logger) {
 	});
 }
 
-function createOrGetImageSet(payload, cb, dbConnection, logger) {
+function createOrGetImageSet(payload, cb, dbConnection) {
 	dbConnection.ImageSet.findOrCreate({
 		where: {
 			name: payload.name,
@@ -37,11 +36,10 @@ function infoImageSet(payload, cb, dbConnection) {
 	});
 }
 
-function updateImageSet(payload, cb, dbConnection, logger) {
+function updateImageSet(payload, cb, dbConnection) {
 	dbConnection.ImageSet.findByPk(payload.idImageSet).then(rs => {
 		if (rs) {
 			Object.assign(rs, payload).save().then(r => {
-				logger.info("IMAGE_SET", r.idImageSet, "Updated");
 				cb(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
 			}).catch(err => {
 				cb(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
@@ -52,11 +50,10 @@ function updateImageSet(payload, cb, dbConnection, logger) {
 	});
 }
 
-function deleteImageSet(payload, cb, dbConnection, logger) {
+function deleteImageSet(payload, cb, dbConnection) {
 	dbConnection.ImageSet.findByPk(payload.idImageSet).then(rs => {
 		if (rs) {
 			rs.destroy().then(() => {
-				logger.info("IMAGE_SET", rs.idImageSet, "Deleted");
 				cb(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
 			}).catch(err => {
 				cb(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));

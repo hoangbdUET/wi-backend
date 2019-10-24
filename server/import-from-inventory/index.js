@@ -15,7 +15,7 @@ router.post('/inventory/import/dataset', function (req, res) {
 		} else {
 			res.send(ResponseJSON(ErrorCodes.SUCCESS, "Successful", response));
 		}
-	}, req.dbConnection, req.decoded.username, req.createdBy, req.updatedBy, req.logger);
+	}, req.dbConnection, req.decoded.username, req.createdBy, req.updatedBy);
 });
 
 module.exports = router;

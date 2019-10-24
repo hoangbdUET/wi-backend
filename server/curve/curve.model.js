@@ -4,21 +4,18 @@ const config = require('config');
 const exporter = require('./export');
 const ResponseJSON = require('../response');
 const ErrorCodes = require('../../error-codes').CODES;
-const asyncLoop = require('async/each');
 const fs = require('fs-extra');
 const mFs = require('fs');
 const request = require('request');
-const rename = require('../utils/function').renameObjectForDustbin;
 const curveFunction = require('../utils/curve.function');
 const checkPermisson = require('../utils/permission/check-permisison');
 const hashDir = require('../utils/data-tool').hashDir;
 const async = require('async');
 const convertLength = require('../utils/convert-length');
-const {Transform} = require('stream');
 const _ = require('lodash');
-let byline = require('byline');
+const byline = require('byline');
 
-function createNewCurve(curveInfo, done, dbConnection, logger) {
+function createNewCurve(curveInfo, done, dbConnection) {
 	let Curve = dbConnection.Curve;
 	Curve.sync()
 		.then(() => {
@@ -34,7 +31,6 @@ function createNewCurve(curveInfo, done, dbConnection, logger) {
 				}, curveInfo));
 				curve.save()
 					.then(curve => {
-						logger.info("CURVE", curve.idCurve, "Created");
 						done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Curve success", {idCurve: curve.idCurve}))
 					})
 					.catch(err => {
@@ -45,10 +41,9 @@ function createNewCurve(curveInfo, done, dbConnection, logger) {
 				done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
 			}
 		)
-
 }
 
-function editCurve(curveInfo, done, dbConnection, username, logger) {
+function editCurve(curveInfo, done, dbConnection, username) {
 	curveInfo.name = curveInfo.name ? curveInfo.name.toUpperCase() : '';
 	delete curveInfo.createdBy;
 	let Curve = dbConnection.Curve;
@@ -88,7 +83,6 @@ function editCurve(curveInfo, done, dbConnection, username, logger) {
 											copy.on('error', function (err) {
 												return done(ResponseJSON(ErrorCodes.INTERNAL_SERVER_ERROR, "Can't edit Curve name", err));
 											});
-											logger.info("CURVE", curveInfo.idCurve, "Edit curve success");
 											done(ResponseJSON(ErrorCodes.SUCCESS, "Edit curve success", curveInfo));
 										})
 										.catch(err => {
@@ -137,7 +131,6 @@ function editCurve(curveInfo, done, dbConnection, username, logger) {
 						//     console.log(err);
 						//     done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Curve " + err.meesage));
 						// });
-						logger.info("CURVE", curveInfo.idCurve, "Edit curve success");
 						done(ResponseJSON(ErrorCodes.SUCCESS, "Edit curve success", rs));
 					})
 					.catch(err => {
@@ -246,14 +239,13 @@ function getCurveInfo(curve, done, dbConnection, username) {
 		});
 }
 
-async function deleteCurve(curveInfo, done, dbConnection, username, logger) {
+async function deleteCurve(curveInfo, done, dbConnection, username) {
 	let Curve = dbConnection.Curve;
 	let curve = await Curve.findByPk(curveInfo.idCurve);
 	curve.setDataValue('updatedBy', curveInfo.updatedBy);
 	if (!curve) return done(ErrorCodes.ERROR_INVALID_PARAMS, "No curve found by id");
 
 	curve.destroy({permanently: true, force: true}).then(() => {
-		logger.info("CURVE", curve.idCurve, "Curve deleted");
 		done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", curve));
 	}).catch(err => {
 		done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
@@ -502,7 +494,7 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
 		})
 };
 
-let processingCurve = function (req, done, dbConnection, createdBy, updatedBy, logger) {
+let processingCurve = function (req, done, dbConnection, createdBy, updatedBy) {
 	let Curve = dbConnection.Curve;
 	let Dataset = dbConnection.Dataset;
 	let Well = dbConnection.Well;
@@ -539,7 +531,6 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy, l
 								}
 								console.log("Copy file success!");
 								fs.unlink(filePath);
-								logger.info("CURVE", curve.idCurve, "Created");
 								done(ResponseJSON(ErrorCodes.SUCCESS, "Success", curve));
 							});
 						}).catch(err => {
@@ -575,7 +566,6 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy, l
 											console.log("Copy file success!");
 											fs.unlink(filePath);
 											Object.assign(curve, overwriteInfo).save().then((c) => {
-												logger.info("CURVE", curve.idCurve, "Updated data");
 												done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", c));
 											}).catch(err => {
 												done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err, err));
@@ -670,7 +660,7 @@ function checkCurveIsReference(curveInfo) {
 	return !!(referenceName.includes(curveInfo.name.toUpperCase()) && referenceUnit[curveInfo.unit]);
 }
 
-function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, username, createdBy, updatedBy, logger) {
+function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, username, createdBy, updatedBy) {
 	let start = new Date();
 	return new Promise(async function (resolve, reject) {
 		let options = {
@@ -720,7 +710,6 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
 					}
 				}).then(rs => {
 					let _curve = rs[0];
-					logger.info("CURVE", _curve.idCurve, "Created");
 					console.log("Import Done ", curvePath, " : ", new Date() - start, "ms");
 					resolve(_curve);
 					// }
@@ -739,7 +728,7 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
 	});
 }
 
-function duplicateCurve(data, done, dbConnection, username, logger) {
+function duplicateCurve(data, done, dbConnection, username) {
 	dbConnection.Curve.findByPk(data.idCurve).then(async curve => {
 		if (curve) {
 			try {
@@ -760,7 +749,6 @@ function duplicateCurve(data, done, dbConnection, username, logger) {
 						if (err) {
 							throw err;
 						}
-						logger.info("CURVE", curve.idCurve, "Duplicated");
 						done(ResponseJSON(ErrorCodes.SUCCESS, "Done", _Curve));
 					});
 
@@ -863,7 +851,7 @@ function resyncFamily(payload, done, dbConnection) {
 	});
 }
 
-function processingArrayCurve(req, done, dbConnection, createdBy, updatedBy, logger) {
+function processingArrayCurve(req, done, dbConnection, createdBy, updatedBy) {
 	dbConnection.Curve.findByPk(req.body.idCurve).then(curve => {
 		if (!curve) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No curve found by id"));
 		if (curve.type !== "ARRAY") return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "This is not array curve"));
@@ -1070,7 +1058,7 @@ function _createDataTmp(curves, newCurveName, username) {
 	});
 }
 
-function createArrayCurve(payload, done, dbConnection, createdBy, updatedBy, logger) {
+function createArrayCurve(payload, done, dbConnection, createdBy, updatedBy) {
 	let idCurve = payload.body.idCurve || payload.body.idDesCurve;
 	if (idCurve) {
 		dbConnection.Curve.findByPk(idCurve).then(curve => {
@@ -1083,7 +1071,6 @@ function createArrayCurve(payload, done, dbConnection, createdBy, updatedBy, log
 								console.log("ERR COPY FILE : ", err);
 							}
 							console.log("Copy file success for new raw curve!", path);
-							logger.info("CURVE", c.idCurve, "Created");
 							done(ResponseJSON(ErrorCodes.SUCCESS, "Success", c));
 						});
 					});
@@ -1113,7 +1100,6 @@ function createArrayCurve(payload, done, dbConnection, createdBy, updatedBy, log
 						console.log("ERR COPY FILE : ", err);
 					}
 					console.log("Copy file success for new raw curve!", path);
-					logger.info("CURVE", c.idCurve, "Created");
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Success", c));
 				});
 			});

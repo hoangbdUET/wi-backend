@@ -285,7 +285,7 @@ function checkExistingPlot(payload, plotName, cb, dbConnection) {
 	}
 }
 
-module.exports = function (req, done, dbConnection, username, logger) {
+module.exports = function (req, done, dbConnection, username) {
 	createdBy = req.createdBy;
 	updatedBy = req.updatedBy;
 	dbConnection.ParameterSet.findByPk(req.body.idParameterSet).then(async param => {
@@ -336,7 +336,6 @@ module.exports = function (req, done, dbConnection, username, logger) {
 							}, cb)
 						}
 					], () => {
-						logger.info("PLOT", pl.idPlot, "Created from template");
 						dbConnection.Plot.findByPk(pl.idPlot, {include: {all: true, include: {all: true}}}).then(p => {
 							done(ResponseJSON(ErrorCodes.SUCCESS, "Done", p));
 						});
