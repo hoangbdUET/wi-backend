@@ -4,7 +4,7 @@ const router = express.Router();
 const logViewModel = require('./log-view.model');
 const bodyParser = require('body-parser');
 const axios = require('axios');
-const getJsonResponse = require('../response');
+const getJsonResponse = require('../response');;
 
 router.use(bodyParser.json());
 
@@ -27,6 +27,9 @@ router.post('/view-by-user', (req, res) => {
             }
         }
     }
+    query.body.index  = req.body.index;
+    if (req.body.fulltext)
+        query.body.fulltext = req.body.fulltext;
     getFromElasticSearch(query, res);
 });
 
