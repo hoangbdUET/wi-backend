@@ -7,7 +7,7 @@ let fs = require('fs');
 let asyncEach = require('async/each');
 let curveFunction = require('../utils/curve.function');
 
-function createNewDataset(datasetInfo, done, dbConnection, logger) {
+function createNewDataset(datasetInfo, done, dbConnection) {
 	let Dataset = dbConnection.Dataset;
 	Dataset.sync()
 		.then(function () {
@@ -25,7 +25,6 @@ function createNewDataset(datasetInfo, done, dbConnection, logger) {
 				});
 				dataset.save()
 					.then(function (dataset) {
-						logger.info("DATASET", dataset.idDataset, "Created");
 						done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Dataset success", dataset));
 					})
 					.catch(function (err) {
@@ -43,7 +42,7 @@ function createNewDataset(datasetInfo, done, dbConnection, logger) {
 		);
 }
 
-function editDataset(datasetInfo, done, dbConnection, username, logger) {
+function editDataset(datasetInfo, done, dbConnection, username) {
 	delete datasetInfo.createdBy;
 	dbConnection.Dataset.findByPk(datasetInfo.idDataset).then(dataset => {
 		if (dataset) {
@@ -75,7 +74,6 @@ function editDataset(datasetInfo, done, dbConnection, username, logger) {
 									if (err) {
 										return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
 									}
-									logger.info("DATASET", dataset.idDataset, "Updated");
 									done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", dataset));
 								});
 							});
@@ -103,14 +101,13 @@ function editDataset(datasetInfo, done, dbConnection, username, logger) {
 	});
 }
 
-function deleteDataset(datasetInfo, done, dbConnection, logger) {
+function deleteDataset(datasetInfo, done, dbConnection) {
 	let Dataset = dbConnection.Dataset;
 	Dataset.findByPk(datasetInfo.idDataset, {include: {all: true}})
 		.then(function (dataset) {
 			dataset.setDataValue('updatedBy', datasetInfo.updatedBy);
 			dataset.destroy({permanently: true, force: true})
 				.then(function () {
-					logger.info("DATASET", dataset.idDataset, "Deleted");
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Dataset is deleted", dataset));
 				})
 				.catch(function (err) {
@@ -134,7 +131,7 @@ function getDatasetInfo(dataset, done, dbConnection) {
 		});
 }
 
-function duplicateDataset(data, done, dbConnection, username, logger) {
+function duplicateDataset(data, done, dbConnection, username) {
 	let fsExtra = require('fs-extra');
 	dbConnection.Dataset.findByPk(data.idDataset, {include: {all: true}}).then(async dataset => {
 		let well = await dbConnection.Well.findByPk(dataset.idWell);
@@ -198,7 +195,6 @@ function duplicateDataset(data, done, dbConnection, username, logger) {
 					if (err) {
 						done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
 					}
-					logger.info("DATASET", dataset.idDataset, "Duplicated");
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Done", _dataset));
 				});
 			});
@@ -299,7 +295,7 @@ async function createMdCurve(payload, done, dbConnection, username) {
 	done(ResponseJSON(ErrorCodes.SUCCESS, "Done", result));
 }
 
-async function copyDataset(payload, dbConnection, username, logger) {
+async function copyDataset(payload, dbConnection, username) {
 	function copyCurves(curves, idDataset, parents) {
 		return new Promise(resolve => {
 			asyncEach(curves, (curve, next) => {
@@ -373,7 +369,6 @@ async function copyDataset(payload, dbConnection, username, logger) {
 				desDataset: newDataset.name
 			});
 		}
-		logger.info("DATASET", sourceDataset.idDataset, "Copied");
 		return ResponseJSON(ErrorCodes.SUCCESS, "Done", newDataset);
 	} catch (err) {
 		if (err.name === "SequelizeUniqueConstraintError") {

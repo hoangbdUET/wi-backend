@@ -304,8 +304,8 @@ function createStorageIfNotExsited(project, dbConnection, username, company) {
     });
 }
 
-async function getProjectList(payload, done, dbConnection, username, realUser, token, company, logger, role) {
-    if (payload.username && role <= 1) {
+async function getProjectList(payload, done, dbConnection, username, realUser, token, company, role) {
+    if (payload.username && (role <= 1 || role === 3)) {
         dbConnection = models((process.env.BACKEND_DBPREFIX || config.Database.prefix) + payload.username, (err) => {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Err", err));
         });
@@ -328,7 +328,7 @@ async function getProjectList(payload, done, dbConnection, username, realUser, t
                 project = project.toJSON();
                 project.displayName = project.alias || project.name;
                 response.push(project);
-                createStorageIfNotExsited(project.idProject, dbConnection, username, company).then(() => {
+                createStorageIfNotExsited({idProject: project.idProject}, dbConnection, username, company).then(() => {
                     next();
                 });
             }, function () {
@@ -354,11 +354,9 @@ async function getProjectList(payload, done, dbConnection, username, realUser, t
                             next();
                         }
                     }, function () {
-                        logger.info("PROJECT", "", "Get List Project success");
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Get List Project success", response));
                     });
                 } else {
-                    logger.info("PROJECT", "", "Get List Project success");
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Get List Project success", response));
                 }
             });
@@ -425,7 +423,6 @@ async function getProjectFullInfo(payload, done, req) {
     response.combined_boxes = combined_boxes;
     response.storage_databases = storage_databases;
     if (wells.length === 0) {
-        req.logger.info("PROJECT", "", "Get full info Project success");
         return done(ResponseJSON(ErrorCodes.SUCCESS, "Get full info Project success", response));
     }
     asyncLoop(wells, function (well, nextWell) {
@@ -523,7 +520,6 @@ async function getProjectFullInfo(payload, done, req) {
             nextWell();
         });
     }, function () {
-        req.logger.info("PROJECT", "", "Get full info Project success");
         done(ResponseJSON(ErrorCodes.SUCCESS, "Get full info Project success", response));
     });
 }

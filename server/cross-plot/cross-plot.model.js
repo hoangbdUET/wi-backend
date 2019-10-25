@@ -31,7 +31,7 @@ let findFamilyIdByName = function (familyName, dbConnection, callback) {
 }
 
 
-function createNewCrossPlot(crossPlotInfo, done, dbConnection, logger) {
+function createNewCrossPlot(crossPlotInfo, done, dbConnection) {
 	if (crossPlotInfo.axisColors && typeof(crossPlotInfo.axisColors === "object")) {
 		JSON.stringify(crossPlotInfo.axisColors);
 	}
@@ -40,7 +40,6 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection, logger) {
 		try {
 			myData = require('./cross-template/' + crossPlotInfo.crossTemplate + '.json');
 		} catch (err) {
-			logger.error("CROSS_PLOT", "", "CrossPlot type not found");
 			return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "CrossPlot type not found"));
 		}
 		dbConnection.CrossPlot.create({
@@ -133,16 +132,13 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection, logger) {
 					});
 				});
 			}, function () {
-				logger.info("CROSS_PLOT", _cr.idCrossPlot, "Create new CrossPlot success");
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Create new CrossPlot success", _cr));
 			});
 		}).catch(err => {
 
 			if (err.name === "SequelizeUniqueConstraintError") {
-				logger.error("CROSS_PLOT", "", "Cross plot's name already exists");
 				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Cross plot's name already exists"));
 			} else {
-				logger.error("CROSS_PLOT", "", err.message);
 				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
 			}
 		});
@@ -156,14 +152,11 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection, logger) {
 			updatedBy: crossPlotInfo.updatedBy,
 			configs: crossPlotInfo.configs
 		}).then(function (crossPlot) {
-			logger.info("CROSS_PLOT", crossPlot.idCrossPlot, "Create new CrossPlot success");
 			done(ResponseJSON(ErrorCodes.SUCCESS, "Create new CrossPlot success", crossPlot.toJSON()));
 		}).catch(function (err) {
 			if (err.name === "SequelizeUniqueConstraintError") {
-				logger.error("CROSS_PLOT", "", "Cross plot's name already exists");
 				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Cross plot's name already exists"));
 			} else {
-				logger.error("CROSS_PLOT", "", err.message);
 				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
 			}
 		});
@@ -171,7 +164,7 @@ function createNewCrossPlot(crossPlotInfo, done, dbConnection, logger) {
 }
 
 
-function editCrossPlot(crossPlotInfo, done, dbConnection, logger) {
+function editCrossPlot(crossPlotInfo, done, dbConnection) {
 	delete crossPlotInfo.createdBy;
 	if (typeof(crossPlotInfo.axisColors === "object")) {
 		JSON.stringify(crossPlotInfo.axisColors);
@@ -185,7 +178,6 @@ function editCrossPlot(crossPlotInfo, done, dbConnection, logger) {
 				crossPlot.save()
 					.then(function (c) {
 						dbConnection.CrossPlot.findByPk(c.idCrossPlot, {include: {all: true}}).then(_c => {
-							logger.info("CROSS_PLOT", _c.idCrossPlot, "Edit CrossPlot success");
 							done(ResponseJSON(ErrorCodes.SUCCESS, "Edit CrossPlot success", _c));
 						});
 					})
@@ -207,14 +199,13 @@ function editCrossPlot(crossPlotInfo, done, dbConnection, logger) {
 		})
 }
 
-function deleteCrossPlot(crossPlotInfo, done, dbConnection, logger) {
+function deleteCrossPlot(crossPlotInfo, done, dbConnection) {
 	let CrossPlot = dbConnection.CrossPlot;
 	CrossPlot.findByPk(crossPlotInfo.idCrossPlot)
 		.then(function (crossPlot) {
 			crossPlot.setDataValue('updatedBy', crossPlotInfo.updatedBy);
 			crossPlot.destroy({permanently: true, force: true})
 				.then(function () {
-					logger.info("CROSS_PLOT", crossPlot.idCrossPlot, "CrossPlot is deleted");
 					done(ResponseJSON(ErrorCodes.SUCCESS, "CrossPlot is deleted", crossPlot));
 				})
 				.catch(function (err) {
@@ -294,7 +285,7 @@ function getCrossPlotInfo(crossPlot, done, dbConnection) {
 		})
 }
 
-function duplicateCrossplot(payload, done, dbConnection, logger) {
+function duplicateCrossplot(payload, done, dbConnection) {
 	let CrossPLot = dbConnection.CrossPlot;
 	CrossPLot.findByPk(payload.idCrossPlot, {include: {all: true, include: {all: true}}}).then(crossplot => {
 		let newCrossPlot;
@@ -406,7 +397,6 @@ function duplicateCrossplot(payload, done, dbConnection, logger) {
 						}
 					],
 					function (err, result) {
-						logger.info("CROSS_PLOT", crossplot.idCrossPlot, "CrossPlot is duplicated");
 						done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", result));
 					});
 			}).catch(err => {

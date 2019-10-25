@@ -5,7 +5,7 @@ let async = require('async');
 let mqtt = require('mqtt');
 let config = require('config');
 
-function importDataset(datasets, token, callback, dbConnection, username, createdBy, updatedBy, logger) {
+function importDataset(datasets, token, callback, dbConnection, username, createdBy, updatedBy) {
 	checkPermisson(updatedBy, 'project.import', perm => {
 		if (!perm) {
 			callback([], "Import: Do not have permission");
@@ -49,7 +49,7 @@ function importDataset(datasets, token, callback, dbConnection, username, create
 					next();
 					async.eachSeries(dataset.curves, function (curve, nextCurve) {
 						curve.idDesDataset = _dataset.idDataset;
-						curveModels.getCurveDataFromInventoryPromise(curve, token, dbConnection, username, createdBy, updatedBy, logger).then(curve => {
+						curveModels.getCurveDataFromInventoryPromise(curve, token, dbConnection, username, createdBy, updatedBy).then(curve => {
 							MqttClient.publish(topic, JSON.stringify({
 								name: curve.name, idCurve: curve.idCurve
 							}), {qos: 2});

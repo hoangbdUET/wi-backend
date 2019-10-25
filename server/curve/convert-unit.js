@@ -8,7 +8,7 @@ let config = require('config');
 let readline = require('readline');
 let checkPerm = require('../utils/permission/check-permisison');
 
-module.exports = function (data, callback, dbConnection, username, logger) {
+module.exports = function (data, callback, dbConnection, username) {
 	checkPerm(data.updatedBy, 'curve.update', function (pass) {
 		if (pass) {
 			// let ratio = data.desUnit.rate / data.srcUnit.rate;
@@ -51,7 +51,6 @@ module.exports = function (data, callback, dbConnection, username, logger) {
 							dbConnection.Curve.findByPk(data.idCurve).then(curve => {
 								curve.unit = data.desUnit.name;
 								curve.save().then(() => {
-									logger.info("CURVE", curve.idCurve, "Unit Converted");
 									callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", curveParents));
 								});
 							});

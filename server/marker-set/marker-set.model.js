@@ -2,7 +2,7 @@ const ResponseJSON = require('../response');
 const ErrorCodes = require('../../error-codes').CODES;
 const async = require('async');
 
-function createNew(payload, done, dbConnection, logger) {
+function createNew(payload, done, dbConnection) {
 	if (payload.idMarkerSetTemplate) {
 		dbConnection.MarkerSet.create(payload).then(markerSet => {
 			let Op = require('sequelize').Op;
@@ -22,7 +22,6 @@ function createNew(payload, done, dbConnection, logger) {
 							updatedBy: payload.updatedBy,
 							createdBy: payload.createdBy
 						}).then((m) => {
-							logger.info("MARKER", m.idMarker, "Created");
 							start = start + range;
 							next();
 						}).catch(err => {
@@ -36,7 +35,6 @@ function createNew(payload, done, dbConnection, logger) {
 								include: {model: dbConnection.MarkerTemplate}
 							}]
 						}).then(rs => {
-							logger.info("MARKER_SET", rs.idMarkerSet, "Created");
 							done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
 						});
 					})
@@ -58,7 +56,6 @@ function createNew(payload, done, dbConnection, logger) {
 		})
 	} else {
 		dbConnection.MarkerSet.create(payload).then(m => {
-			logger.info("MARKER_SET", m.idMarkerSet, "Created");
 			done(ResponseJSON(ErrorCodes.SUCCESS, "Done", m));
 		}).catch(err => {
 			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
@@ -66,7 +63,7 @@ function createNew(payload, done, dbConnection, logger) {
 	}
 }
 
-function edit(payload, done, dbConnection, logger) {
+function edit(payload, done, dbConnection) {
 	dbConnection.MarkerSet.findByPk(payload.idMarkerSet).then(m => {
 		if (m) {
 			Object.assign(m, payload).save().then(r => {
@@ -76,7 +73,6 @@ function edit(payload, done, dbConnection, logger) {
 						include: {model: dbConnection.MarkerTemplate}
 					}]
 				}).then(rs => {
-					logger.info("MARKER_SET", rs.idMarkerSet, "Updated");
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
 				});
 			}).catch(err => {
@@ -90,9 +86,8 @@ function edit(payload, done, dbConnection, logger) {
 	});
 }
 
-function del(payload, done, dbConnection, logger) {
+function del(payload, done, dbConnection) {
 	dbConnection.MarkerSet.destroy({where: {idMarkerSet: payload.idMarkerSet}}).then(r => {
-		logger.info("MARKER_SET", r.idMarkerSet, "Deleted");
 		done(ResponseJSON(ErrorCodes.SUCCESS, "Done"));
 	}).catch(err => {
 		done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
