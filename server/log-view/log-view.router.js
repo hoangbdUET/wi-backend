@@ -95,3 +95,5 @@ function getFromElasticSearch(req, res) {
         res.status(512).json(getJsonResponse(512, 'Require match field in request', {}));
     }
 }
+
+module.exports = router;
