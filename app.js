@@ -392,7 +392,7 @@ function main() {
 		// 
 		const request = require("request");
 		setTimeout(() => {
-			const URL = `http://localhost:3000/update`;
+			const URL = 'http://localhost:' + require('config').get("Application.port") + '/update';
 			request.get(URL, (err, response, body) => {
 				if (err) {
 					console.log("Error", err);

@@ -389,7 +389,7 @@ module.exports = function() {
 			//
 			const request = require("request");
 			setTimeout(() => {
-				const URL = `http://localhost:3000/update`;
+				const URL = require('config').get("Service.authenticate") + '/update';
 			request.get(URL, (err, response, body) => {
 				if (err) {
 					console.log("Error", err);
