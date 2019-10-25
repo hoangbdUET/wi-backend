@@ -30,6 +30,7 @@ router.post('/view-by-user', (req, res) => {
     query.body.index  = req.body.index;
     if (req.body.fulltext)
         query.body.fulltext = req.body.fulltext;
+    console.log(query);
     getFromElasticSearch(query, res);
 });
 
@@ -48,6 +49,7 @@ router.post('/put-log', (req, res) => {
 function getFromElasticSearch(req, res) {
     let obj = {};
     let eLink = elasticLink;
+    console.log(req);
     if (req.body.index) {
         eLink = elasticLink + '/' + req.body.index + '/_search';
     } else {
