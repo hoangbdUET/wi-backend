@@ -20,15 +20,14 @@ let options = {
 };
 
 function viewByUserName(userName, cb, token, project) {
-    options.headers.Authorization = token;
-    options.body.username = userName;
-    options.body.project = project;
+    
     cb(ResponseJSON(200, "Done", []));
 }
 
 function viewByObject(data, cb, token) {
     cb(ResponseJSON(200, "Done", []))
 }
+
 
 
 function putLog(data, cb, username, owner) {
