@@ -4,6 +4,7 @@ const router = express.Router();
 const logViewModel = require('./log-view.model');
 const bodyParser = require('body-parser');
 const axios = require('axios');
+const getJsonResponse = require('../response');
 
 router.use(bodyParser.json());
 
