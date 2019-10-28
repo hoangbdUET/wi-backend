@@ -13,6 +13,7 @@ router.get('/image/thumbnail', (req, res) => {
 		let getThumbnail = require('../utils/thumbnail');
 		let url = getThumbnail((config.publicAddress || process.env.PUBLIC_ADDRESS) + img.imageUrl, req.query.width, req.query.height, req.query.gravity, req.query.enlarge);
 		url = (config.thumbnailService || process.env.THUMBNAIL_SERVICE) + url;
+        console.log(url)
 		req.pipe(
 			request({
 				url,
