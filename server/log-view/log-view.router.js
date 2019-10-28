@@ -35,6 +35,10 @@ router.post('/view-by-user', (req, res) => {
 });
 
 
+router.post('/search', (req, res)=>{
+    getFromElasticSearch(req, res);
+});
+
 
 router.post('/view-by-object', (req, res) => {
     logViewModel.viewByObject(req.body, respData => res.send(respData), req.token, req.get('CurrentProject'));
@@ -49,7 +53,6 @@ router.post('/put-log', (req, res) => {
 function getFromElasticSearch(req, res) {
     let obj = {};
     let eLink = elasticLink;
-    console.log(req);
     if (req.body.index) {
         eLink = elasticLink + '/' + req.body.index + '/_search';
     } else {
@@ -82,9 +85,16 @@ function getFromElasticSearch(req, res) {
             }
             obj.query.bool.must.push(match);
         }
+        obj.size = parseInt(req.body.limit || 50);
+        obj.from = parseInt(req.body.from || 0);
+        if (req.body.to) {
+            obj.to = parseInt(req.body.to);
+        }
+        console.log('Query:', obj);
         axios.get(eLink, obj)
             .then((rs) => {
                 rs = rs.data;
+                console.log(rs.hits.hits.length);
                 if (rs.hits) {
                     res.status(200).json(getJsonResponse(200, 'successfully', rs.hits));
                 } else {
