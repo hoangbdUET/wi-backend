@@ -94,6 +94,7 @@ function getFromElasticSearch(req, res) {
         axios.get(eLink, obj)
             .then((rs) => {
                 rs = rs.data;
+                console.log(rs.hits.hits.length);
                 if (rs.hits) {
                     res.status(200).json(getJsonResponse(200, 'successfully', rs.hits));
                 } else {
