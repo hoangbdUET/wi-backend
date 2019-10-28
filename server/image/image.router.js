@@ -11,10 +11,8 @@ router.get('/image/thumbnail', (req, res) => {
     imageModel.describeImage(req.query.idImage, req.dbConnection).then((img) => {
         if (!img) return res.status(200).send("Img not found by id");
         let getThumbnail = require('../utils/thumbnail');
-        console.log("====", (config.publicAddress || process.env.PUBLIC_ADDRESS) + img.imageUrl)
         let url = getThumbnail((config.publicAddress || process.env.PUBLIC_ADDRESS) + img.imageUrl, req.query.width, req.query.height, req.query.gravity, req.query.enlarge);
         url = (config.thumbnailService || process.env.THUMBNAIL_SERVICE) + url;
-        console.log(url)
         req.pipe(
             request({
                 url,
