@@ -85,11 +85,12 @@ function getFromElasticSearch(req, res) {
             }
             obj.query.bool.must.push(match);
         }
-        obj.size = req.body.limit || 50;
-        obj.from = req.body.from || 0;
+        obj.size = parseInt(req.body.limit || 50);
+        obj.from = parseInt(req.body.from || 0);
         if (req.body.to) {
-            obj.to = req.body.to;
+            obj.to = parseInt(req.body.to);
         }
+        console.log('Query:', obj);
         axios.get(eLink, obj)
             .then((rs) => {
                 rs = rs.data;
