@@ -142,6 +142,12 @@ router.post('/las3', function (req, res) {
 					function (idObj, callback) {
 						getFullProjectObj(idObj.idProject, idObj.idWell, req.dbConnection).then(
 							project => {
+								if(project) {
+                                    console.log("dodv log: " + project.createdBy + "\t" + req.decoded.username);
+                                } else {
+									console.log("dodv log: there is no project");
+								}
+
 								if (project && project.createdBy === req.decoded.username) {
 									exporter.exportLas3FromProject(
 										project,
@@ -574,7 +580,7 @@ router.post('/dlisv1', async function (req, res) {
 				res.send(ResponseJSON(200, 'SUCCESSFULLY', results));
 
 			} catch (err) {
-				// console.log(err)
+				console.log("==> " + err)
 				res.send(ResponseJSON(404, err));
 			}
 		}
