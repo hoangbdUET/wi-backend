@@ -30,7 +30,7 @@ router.post('/view-by-user', (req, res) => {
     query.body.index  = req.body.index;
     if (req.body.fulltext)
         query.body.fulltext = req.body.fulltext;
-    console.log(query);
+    //console.log(query);
     getFromElasticSearch(query, res);
 });
 
@@ -47,7 +47,6 @@ router.post('/view-by-object', (req, res) => {
 router.post('/put-log', (req, res) => {
     logViewModel.putLog(req.body, data => res.send(data), req.decoded.username);
 });
-
 
 
 function getFromElasticSearch(req, res) {
@@ -85,22 +84,22 @@ function getFromElasticSearch(req, res) {
             }
             obj.query.bool.must.push(match);
         }
-        obj.size = parseInt(req.body.limit || 50);
+        let size = parseInt(req.body.limit || 50);
         obj.from = parseInt(req.body.from || 0);
         if (req.body.to) {
             obj.to = parseInt(req.body.to);
         }
-        console.log('Query:', obj);
-        axios.get(eLink, obj)
-            .then((rs) => {
-                rs = rs.data;
-                console.log(rs.hits.hits.length);
-                if (rs.hits) {
-                    res.status(200).json(getJsonResponse(200, 'successfully', rs.hits));
-                } else {
-                    res.status(512).json(getJsonResponse(512, 'Require match field in request', {}));
-                }
-            })
+        //console.log('Query:', obj);
+        axios.get(eLink + '?size=' + size, obj)
+        .then((rs) => {
+            rs = rs.data;
+            //console.log(rs.hits);
+            if (rs.hits) {
+                res.status(200).json(getJsonResponse(200, 'successfully', rs.hits));
+            } else {
+                res.status(512).json(getJsonResponse(512, 'Require match field in request', {}));
+            }
+        })
     } else {
         res.status(512).json(getJsonResponse(512, 'Require match field in request', {}));
     }

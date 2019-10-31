@@ -45,8 +45,14 @@ function putLog(data, cb, username, owner) {
     if (data.level === "error") {
         logger.error({message: data.message, username: data.username, project: data.project, updatedBy: data.updatedBy});
         cb(ResponseJSON(200, "Done"));
-    } else {
+    } else if (data.level === "info"){
         logger.info({message: data.message, username: data.username, project: data.project, updatedBy: data.updatedBy});
+        cb(ResponseJSON(200, "Done"));
+    } else if (data.level === "success") {
+        logger.success({message: data.message, username: data.username, project: data.project, updatedBy: data.updatedBy});
+        cb(ResponseJSON(200, "Done"));
+    } else {
+        logger.warn({message: data.message, username: data.username, project: data.project, updatedBy: data.updatedBy});
         cb(ResponseJSON(200, "Done"));
     }
 }

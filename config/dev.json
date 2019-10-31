@@ -1,0 +1,41 @@
+{
+    "Database": {
+      "dialect": "mysql",
+      "host": "192.168.0.6",
+      "port": 32236,
+      "user": "hoangbd",
+      "password": "@Abc123456",
+      "logging": false,
+      "storage": "/tmp/wi_backend.sqlite",
+      "dbName": "wi_backend",
+      "prefix": "wi1004_"
+    },
+    "Application": {
+      "port": 3000
+    },
+    "influx": {
+      "host": "localhost",
+      "port": 8086,
+      "username": "root",
+      "password": "root",
+      "database": "wi_backend"
+    },
+    "redis": {
+        "host": "127.0.0.1",
+        "port": 6379
+    },
+    "Service": {
+      "inventory": "13.250.197.210",
+      "authenticate": "admin.dev.i2g.cloud"
+    },
+    "elasticsearch": "http://192.168.0.7:30925",
+    "curveBasePath": "D:/code/widata/curves",
+    "imageBasePath": "D:/code/widata/images",
+    "exportPath": "D:/code/widata/exports",
+    "userLogPath": "D:/code/widata/logs",
+    "uploadPath": "D:/code/widata/upload",
+    "curveExports": "D:/code/widata/curveExports",
+    "sqlMessagePath": "D:/code/widata/sqlMessages" ,
+    "mqttBroker": "mqtt://localhost:30883"
+  }
+  
