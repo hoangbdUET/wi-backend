@@ -86,8 +86,13 @@ async function getFromElasticSearch(req, res) {
                     }
                 }
             }
+            if (req.body.time.last) {
+                //do nothing
+            } else {
+                rangeQuery.range.timestamp = req.body.time;
+            }
             obj.query.bool.must.push(rangeQuery);
-        }
+        } 
         if (req.body.fulltext) {
             let match = {
                 match: fulltext
@@ -123,7 +128,7 @@ async function getFromElasticSearch(req, res) {
             });
             res.json(getJsonResponse(200, 'Successfully', rs.body.hits));
         } catch (e) {
-            res.status(512).json(getJsonResponse(512, 'Elastic search error', {}));
+            res.status(512).json(getJsonResponse(512, e.message, {}));
         }
     } else {
         res.status(512).json(getJsonResponse(512, 'Require match field in request', {}));
