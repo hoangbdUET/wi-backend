@@ -4,11 +4,14 @@ const router = express.Router();
 const logViewModel = require('./log-view.model');
 const bodyParser = require('body-parser');
 const axios = require('axios');
-const getJsonResponse = require('../response');;
+const getJsonResponse = require('../response');
 
 router.use(bodyParser.json());
 
 let elasticLink = process.env.BACKEND_ELASTICSEARCH || require('config').get("elasticsearch") || "http://localhost:9200";
+
+const { Client } = require('@elastic/elasticsearch')
+const client = new Client({ node: elasticLink });
 
 router.post('/view-by-user', (req, res) => {
     let username = req.body.username;
@@ -35,8 +38,8 @@ router.post('/view-by-user', (req, res) => {
 });
 
 
-router.post('/search', (req, res)=>{
-    getFromElasticSearch(req, res);
+router.post('/search', async (req, res)=>{
+    await getFromElasticSearch(req, res);
 });
 
 
@@ -49,24 +52,31 @@ router.post('/put-log', (req, res) => {
 });
 
 
-function getFromElasticSearch(req, res) {
+async function getFromElasticSearch(req, res) {
     let obj = {};
-    let eLink = elasticLink;
     if (req.body.index) {
-        eLink = elasticLink + '/' + req.body.index + '/_search';
+        //do nothing
     } else {
         res.status(512).json(getJsonResponse(512, 'Require index field in request', {}));
         return;
     }
     if (req.body.match) {
         obj = {
+            sort: {
+                "timestamp": "desc"
+            },
             query: {
                 bool: {
                     must: [
-                        {term: req.body.match}
                     ]
                 }
             }
+        }
+        let arr = Object.keys(req.body.match);
+        for (let i = 0; i < arr.length; i++) {
+            let aObj = {};
+            aObj[arr[i]] = req.body.match[arr[i]];
+            obj.query.bool.must.push({term: aObj});
         }
         if (req.body.time) {
             let rangeQuery = {
@@ -89,17 +99,32 @@ function getFromElasticSearch(req, res) {
         if (req.body.to) {
             obj.to = parseInt(req.body.to);
         }
-        //console.log('Query:', obj);
-        axios.get(eLink + '?size=' + size, obj)
-        .then((rs) => {
-            rs = rs.data;
-            //console.log(rs.hits);
-            if (rs.hits) {
-                res.status(200).json(getJsonResponse(200, 'successfully', rs.hits));
-            } else {
-                res.status(512).json(getJsonResponse(512, 'Require match field in request', {}));
-            }
-        })
+        obj.size = size;
+        //console.log(obj.query.bool.must);
+        // axios.get(eLink + '?size=' + size, obj, {
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     }
+        // })
+        // .then((rs) => {
+        //     rs = rs.data;
+        //     console.log(rs);
+        //     if (rs.hits) {
+        //         res.status(200).json(getJsonResponse(200, 'successfully', rs.hits));
+        //     } else {
+        //         res.status(512).json(getJsonResponse(512, 'Require match field in request', {}));
+        //     }
+        // })
+        try {
+            let rs = await client.search({
+                index: req.body.index,
+                type: '_doc',
+                body: obj
+            });
+            res.json(getJsonResponse(200, 'Successfully', rs.body.hits));
+        } catch (e) {
+            res.status(512).json(getJsonResponse(512, 'Elastic search error', {}));
+        }
     } else {
         res.status(512).json(getJsonResponse(512, 'Require match field in request', {}));
     }
