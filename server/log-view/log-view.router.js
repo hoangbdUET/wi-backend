@@ -39,6 +39,27 @@ router.post('/view-by-user', (req, res) => {
 
 
 router.post('/search', async (req, res)=>{
+    console.log(req.decoded);
+    //if this is company admin
+    if (req.decoded.role == 1) {
+        //this is company admin
+        //see only his company
+        if (req.body.match) {
+            req.body.match.company = req.decoded.company
+        } else {
+            req.body.match = {};
+            req.body.match.company = req.decoded.company
+        }
+    } else if (req.decoded.role == 0) {
+        //normal user, see only their log
+        if (req.body.match) {
+            req.body.match.username = req.decoded.username
+        } else {
+            req.body.match = {};
+            req.body.match.username = req.decoded.username
+        }
+    }
+    console.log(req.body);
     await getFromElasticSearch(req, res);
 });
 
