@@ -39,7 +39,6 @@ router.post('/view-by-user', (req, res) => {
 
 
 router.post('/search', async (req, res)=>{
-    console.log(req.decoded);
     //if this is company admin
     if (req.decoded.role == 1) {
         //this is company admin
@@ -50,7 +49,7 @@ router.post('/search', async (req, res)=>{
             req.body.match = {};
             req.body.match.company = req.decoded.company
         }
-    } else if (req.decoded.role == 0) {
+    } else if (req.decoded.role == 2) {
         //normal user, see only their log
         if (req.body.match) {
             req.body.match.username = req.decoded.username
@@ -59,7 +58,7 @@ router.post('/search', async (req, res)=>{
             req.body.match.username = req.decoded.username
         }
     }
-    console.log(req.body);
+    //console.log(req.body);
     await getFromElasticSearch(req, res);
 });
 
@@ -103,14 +102,10 @@ async function getFromElasticSearch(req, res) {
             let rangeQuery = {
                 range: {
                     timestamp: {
-                        gte: "now-" + req.body.time.last
+                        gte: req.body.time.from || "now",
+                        lte: req.body.time.to || "now"
                     }
                 }
-            }
-            if (req.body.time.last) {
-                //do nothing
-            } else {
-                rangeQuery.range.timestamp = req.body.time;
             }
             obj.query.bool.must.push(rangeQuery);
         } 
@@ -126,21 +121,6 @@ async function getFromElasticSearch(req, res) {
             obj.to = parseInt(req.body.to);
         }
         obj.size = size;
-        //console.log(obj.query.bool.must);
-        // axios.get(eLink + '?size=' + size, obj, {
-        //     headers: {
-        //         'Content-Type': 'application/json'
-        //     }
-        // })
-        // .then((rs) => {
-        //     rs = rs.data;
-        //     console.log(rs);
-        //     if (rs.hits) {
-        //         res.status(200).json(getJsonResponse(200, 'successfully', rs.hits));
-        //     } else {
-        //         res.status(512).json(getJsonResponse(512, 'Require match field in request', {}));
-        //     }
-        // })
         try {
             let rs = await client.search({
                 index: req.body.index,
