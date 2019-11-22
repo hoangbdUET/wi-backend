@@ -1,5 +1,5 @@
 module.exports = function (sequelize, DataTypes) {
-	return sequelize.define('GenericObjectTrack', {
+	return sequelize.define('generic-object-track', {
 		idGenericObjectTrack: {
 			type: DataTypes.INTEGER,
 			autoIncrement: true,

@@ -141,6 +141,7 @@ function main() {
 	let logViewRouter = require('./server/log-view/log-view.router');
 	let analysisRouter = require('./server/analysis/analysis.router');
 	let tadpoleTrackRouter = require('./server/tadpole-track/tadpole-track.router');
+	let genericObjectTrackRouter = require('./server/generic-object-track/generic-object-track.router');
 	// let projectLogRouter = require('./server/project-log/project-log.router');
 	let utmZoneRouter = require('./server/utm-zone/index');
 	let testRouter = require('./server/test/test.router');
@@ -339,6 +340,7 @@ function main() {
 	app.use('/project/plot', zoneTrackRouter);
 	app.use('/project/plot', objectTrackRouter);
 	app.use('/project/plot', tadpoleTrackRouter);
+	app.use('/project/plot', genericObjectTrackRouter);
 	app.use('/project/well/marker-set', markerRouter);
 	app.use('/project/plot/track', shadingRouter);
 	app.use('/project/plot/track', lineRouter);
