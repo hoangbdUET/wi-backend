@@ -29,7 +29,7 @@ router.post('/view-by-user', (req, res) => {
                 last: req.body.time.last
             }
         }
-    }
+    }   
     query.body.index  = req.body.index;
     if (req.body.fulltext)
         query.body.fulltext = req.body.fulltext;

@@ -150,7 +150,8 @@ function newDbInstance(dbName, callback) {
 		'ZoneSet',
 		'ZoneSetTemplate',
 		'ZoneTemplate',
-		'ZoneTrack'
+		'ZoneTrack',
+		'TadpoleTrack'
 	];
 	models.forEach(function (model) {
 		object[model] = sequelize.import(__dirname + '/' + model);
@@ -250,6 +251,7 @@ function newDbInstance(dbName, callback) {
 			}, onDelete: 'CASCADE'
 		});
 		m.Plot.hasMany(m.Track, {foreignKey: {name: "idPlot", allowNull: false}, onDelete: 'CASCADE'});
+		m.Plot.hasMany(m.TadpoleTrack, {foreignKey: {name: "idPlot", allowNull: false}, onDelete: 'CASCADE'});
 		m.Plot.hasMany(m.DepthAxis, {
 			foreignKey: {name: "idPlot", allowNull: false},
 			onDelete: 'CASCADE'
@@ -507,6 +509,19 @@ function newDbInstance(dbName, callback) {
 		});
 		m.Project.hasMany(m.Analysis, {
 			foreignKey: {name: "idProject", allowNull: false, unique: 'name-project-type'}, onDelete: "CASCADE"
+		});
+
+		m.TadpoleTrack.belongsTo(m.Curve, {
+			foreignKey: {name: 'idDipAngleCurve', allowNull: true}, onDelete: 'CASCADE'
+		});
+		m.TadpoleTrack.belongsTo(m.Curve, {
+			foreignKey: {name: 'idDipAzimuthCurve', allowNull: true}, onDelete: 'CASCADE'
+		});
+		m.TadpoleTrack.belongsTo(m.Curve, {
+			foreignKey: {name: 'idTypeCurve', allowNull: true}, onDelete: 'CASCADE'
+		});
+		m.TadpoleTrack.belongsTo(m.MarkerSetTemplate, {
+			foreignKey: {name: 'idMarkerSetTemplate', allowNull: true}, onDelete: 'CASCADE'
 		});
 	})(object);
 
