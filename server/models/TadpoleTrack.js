@@ -1,5 +1,5 @@
 module.exports = function (sequelize, DataTypes) {
-	return sequelize.define('TadpoleTrack', {
+	return sequelize.define('tadpole_track', {
 		idTadpoleTrack: {
 			type: DataTypes.INTEGER,
 			autoIncrement: true,
