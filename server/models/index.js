@@ -151,7 +151,8 @@ function newDbInstance(dbName, callback) {
 		'ZoneSetTemplate',
 		'ZoneTemplate',
 		'ZoneTrack',
-		'TadpoleTrack'
+		'TadpoleTrack',
+		'GenericObjectTrack'
 	];
 	models.forEach(function (model) {
 		object[model] = sequelize.import(__dirname + '/' + model);
@@ -256,6 +257,7 @@ function newDbInstance(dbName, callback) {
 			foreignKey: {name: "idPlot", allowNull: false},
 			onDelete: 'CASCADE'
 		});
+		m.Plot.hasMany(m.GenericObjectTrack,  {foreignKey: {name: "idPlot", allowNull: false}, onDelete: 'CASCADE'});
 		m.Plot.hasMany(m.ImageTrack, {foreignKey: {name: "idPlot", allowNull: false}, onDelete: 'CASCADE'});
 		m.ImageTrack.hasMany(m.ImageOfTrack, {
 			foreignKey: {name: "idImageTrack", allowNull: false},
@@ -268,7 +270,6 @@ function newDbInstance(dbName, callback) {
 		});
 		m.Plot.hasMany(m.ZoneTrack, {foreignKey: {name: "idPlot", allowNull: false}, onDelete: 'CASCADE'});
 		m.ZoneTrack.belongsTo(m.ZoneSet, {foreignKey: {name: "idZoneSet", allowNull: true}});//TODO allowNull??
-
 
 		m.Project.hasMany(m.ZoneSetTemplate, {
 			foreignKey: {
