@@ -427,7 +427,8 @@ let getPlotInfo = function (plot, done, dbConnection) {
 
 			done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Plot success", plot));
 		})
-		.catch(function () {
+		.catch(function (e) {
+            console.log(e);
 			done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Plot not found for get info"));
 		})
 };
