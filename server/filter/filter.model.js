@@ -3,7 +3,7 @@ let ErrorCodes = require('../../error-codes').CODES;
 
 function create(info, done, dbConnection) {
 	dbConnection.Filter.create(info).then(info => {
-		done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Generic Object Track success", info));
+		done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Filter success", info));
 	}).catch(err => {
 		done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, err.message, err.message));
 	});
