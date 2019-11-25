@@ -382,6 +382,8 @@ let getPlotInfo = function (plot, done, dbConnection) {
 			let object_tracks = await dbConnection.ObjectTrack.findAll({where: {idPlot: plot.idPlot}});
 			let zone_tracks = await dbConnection.ZoneTrack.findAll({where: {idPlot: plot.idPlot}});
 			let depth_axes = await dbConnection.DepthAxis.findAll({where: {idPlot: plot.idPlot}});
+			let generic_object_tracks = await dbConnection.GenericObjectTrack.findAll({where: {idPlot: plot.idPlot}});
+			let tadpole_tracks = await dbConnection.TadpoleTrack.findAll({where: {idPlot: plot.idPlot}});
 			plot.curve = await dbConnection.Curve.findByPk(plot.referenceCurve);
 
 			for (let i = 0; i < tracks.length; i++) {
@@ -414,11 +416,14 @@ let getPlotInfo = function (plot, done, dbConnection) {
 				zone_tracks[i].zone_set = await dbConnection.ZoneSet.findByPk(zone_tracks[i].idZoneSet);
 			}
 
+
 			plot.tracks = tracks;
 			plot.image_tracks = image_tracks;
 			plot.object_tracks = object_tracks;
 			plot.depth_axes = depth_axes;
 			plot.zone_tracks = zone_tracks;
+			plot.generic_object_tracks = generic_object_tracks;
+			plot.tadpole_tracks = tadpole_tracks;
 
 			done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Plot success", plot));
 		})
