@@ -43,7 +43,7 @@ function deleteTrack(trackInfo, done, dbConnection) {
 
 function getTrackInfo(track, done, dbConnection) {
 	let Track = dbConnection.TadpoleTrack;
-    Track.findByPk(info.idTadpoleTrack, {include: {all: true}}).then(result => {
+    Track.findByPk(track.idTadpoleTrack, {include: {all: true}}).then(result => {
         if (!result) {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Tadpole Track Found"));
         } else {

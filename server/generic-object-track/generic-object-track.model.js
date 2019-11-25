@@ -43,7 +43,7 @@ function deleteTrack(trackInfo, done, dbConnection) {
 
 function getTrackInfo(track, done, dbConnection) {
 	let Track = dbConnection.GenericObjectTrack;
-    Track.findByPk(info.idGenericObjectTrack, {include: {all: true}}).then(result => {
+    Track.findByPk(track.idGenericObjectTrack, {include: {all: true}}).then(result => {
         if (!result) {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Generic Object Track Found"));
         } else {
