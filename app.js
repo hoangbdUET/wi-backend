@@ -142,6 +142,7 @@ function main() {
 	let analysisRouter = require('./server/analysis/analysis.router');
 	let tadpoleTrackRouter = require('./server/tadpole-track/tadpole-track.router');
 	let genericObjectTrackRouter = require('./server/generic-object-track/generic-object-track.router');
+	let filterRouter = require('./server/filter/filter.router');
 	// let projectLogRouter = require('./server/project-log/project-log.router');
 	let utmZoneRouter = require('./server/utm-zone/index');
 	let testRouter = require('./server/test/test.router');
@@ -359,6 +360,7 @@ function main() {
 	app.use('/export', exportRouter);
 	app.use('/log-view', logViewRouter);
 	app.use('/test', testRouter);
+	app.use('/', filterRouter);
 
 
 	accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});

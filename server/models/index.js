@@ -152,7 +152,8 @@ function newDbInstance(dbName, callback) {
 		'ZoneTemplate',
 		'ZoneTrack',
 		'TadpoleTrack',
-		'GenericObjectTrack'
+		'GenericObjectTrack',
+		'Filter'
 	];
 	models.forEach(function (model) {
 		object[model] = sequelize.import(__dirname + '/' + model);
