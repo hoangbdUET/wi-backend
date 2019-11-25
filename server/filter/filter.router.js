@@ -1,5 +1,6 @@
 let filterModel = require('./filter.model');
-
+const express = require('express');
+let router = express.Router();
 router.use(bodyParser.json());
 
 router.post('/filter/new', function (req, res) {
