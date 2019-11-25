@@ -33,7 +33,7 @@ function deleteTrack(trackInfo, done, dbConnection) {
 		.then(function (track) {
 			track.setDataValue('updatedBy', trackInfo.updatedBy);
 			track.destroy().then(() => {
-                done(ResponseJSON(ErrorCodes.SUCCESS, "Delete successful", info));
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Delete successful", track));
             });
 		})
 		.catch(function (err) {
