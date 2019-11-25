@@ -20,6 +20,11 @@ module.exports = function (sequelize, DataTypes) {
 			allowNull: false,
 			defaultValue: "Track 1"
 		},
+		type: {
+			type: DataTypes.STRING(100),
+			allowNull: false,
+			defaultValue: ""
+		},
 		topJustification: {
 			type: DataTypes.ENUM('Left', 'Center', 'Right'),
 			allowNull: false,
