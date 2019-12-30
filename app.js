@@ -143,6 +143,7 @@ function main() {
 	let tadpoleTrackRouter = require('./server/tadpole-track/tadpole-track.router');
 	let genericObjectTrackRouter = require('./server/generic-object-track/generic-object-track.router');
 	let filterRouter = require('./server/filter/filter.router');
+	let managementDashboardRouter = require('./server/managementdashboard/managementdashboard.router');
 	// let projectLogRouter = require('./server/project-log/project-log.router');
 	let utmZoneRouter = require('./server/utm-zone/index');
 	let testRouter = require('./server/test/test.router');

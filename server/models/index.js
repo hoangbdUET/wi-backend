@@ -153,7 +153,8 @@ function newDbInstance(dbName, callback) {
 		'ZoneTrack',
 		'TadpoleTrack',
 		'GenericObjectTrack',
-		'Filter'
+		'Filter',
+		'ManagementDashboard'
 	];
 	models.forEach(function (model) {
 		object[model] = sequelize.import(__dirname + '/' + model);
@@ -525,6 +526,7 @@ function newDbInstance(dbName, callback) {
 		m.TadpoleTrack.belongsTo(m.MarkerSetTemplate, {
 			foreignKey: {name: 'idMarkerSetTemplate', allowNull: true}, onDelete: 'CASCADE'
 		});
+
 	})(object);
 
 	object.sequelize = sequelize;
