@@ -319,6 +319,8 @@ function main() {
 	app.use('/project', flowRouter);
 	app.use('/project/flow', taskRouter);
 	app.use('/project', analysisRouter);
+
+	app.use('/', managementDashboardRouter);
 	// app.use('/project', projectLogRouter);
 	//middleware for all curve router to block spam request
 	app.use('/project/well/dataset/curve', function (req, res, next) {
