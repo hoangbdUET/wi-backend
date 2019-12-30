@@ -5,25 +5,25 @@ var bodyParser = require('body-parser');
 
 router.use(bodyParser.json());
 
-router.post('/management/new', function (req, res) {
+router.post('/managementdashboard/new', function (req, res) {
     model.createNew(req.body, function (status) {
         res.send(status);
     },req.dbConnection);
 });
 
-router.post('/management/info', function (req, res) {
+router.post('/managementdashboard/info', function (req, res) {
     model.info(req.body, function (status) {
         res.send(status);
     },req.dbConnection)
 });
 
-router.post('/management/edit', function (req, res) {
+router.post('/managementdashboard/edit', function (req, res) {
     model.edit(req.body, function (status) {
         res.send(status);
     },req.dbConnection);
 });
 
-router.delete('/management/delete', function (req, res) {
+router.delete('/managementdashboard/delete', function (req, res) {
     model.delete(req.body, function (status) {
         res.send(status);
     },req.dbConnection);
