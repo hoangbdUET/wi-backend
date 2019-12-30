@@ -29,4 +29,10 @@ router.delete('/managementdashboard/delete', function (req, res) {
     },req.dbConnection);
 });
 
+router.delete('/managementdashboard/list', function (req, res) {
+    model.list(req.body, function (status) {
+        res.send(status);
+    },req.dbConnection);
+});
+
 module.exports = router;
