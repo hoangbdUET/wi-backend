@@ -6,7 +6,7 @@ var bodyParser = require('body-parser');
 router.use(bodyParser.json());
 
 router.post('/managementdashboard/new', function (req, res) {
-    model.createNew(req.body, function (status) {
+    model.create(req.body, function (status) {
         res.send(status);
     },req.dbConnection);
 });
