@@ -570,7 +570,7 @@ router.post('/dlisv1', async function (req, res) {
 				if (!fs.existsSync(exportDir)) {
 					fs.mkdirSync(exportDir, {recursive: true});
 				}
-				await dlisExport.export(wells, exportDir + '/' + fileName);
+				await dlisExport.export(wells, exportDir + '/' + fileName, (curve) => fs.createReadStream(curve.path));
 				results.push({
 					fileName: fileName,
 					wellName: wellName,
