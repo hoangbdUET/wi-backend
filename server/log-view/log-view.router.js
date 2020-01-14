@@ -102,7 +102,7 @@ async function getFromElasticSearch(req, res) {
             let rangeQuery = {
                 range: {
                     timestamp: {
-                        gt: req.body.time.from || "now",
+                        gte: req.body.time.from || "now",
                         lt: req.body.time.to || "now"
                     }
                 }

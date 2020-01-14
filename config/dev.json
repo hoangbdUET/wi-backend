@@ -28,7 +28,7 @@
     "inventory": "13.250.197.210",
     "authenticate": "localhost:2999"
   },
-  "elasticsearch": "http://192.168.0.7:30925",
+  "elasticsearch": "http://127.0.0.1:30092",
   "curveBasePath": "D:/code/widata/curves",
   "imageBasePath": "D:/code/widata/images",
   "exportPath": "D:/code/widata/exports",
