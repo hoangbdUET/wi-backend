@@ -14,7 +14,11 @@ function createNew(payload, done, dbConnection) {
 
 function edit(payload, done, dbConnection) {
 	dbConnection.ManagementDashboard.findByPk(payload.idManagementDashboard).then(m => {
-		done(ResponseJSON(ErrorCodes.SUCCESS, 'get management dashboard successfully', m));
+		if (m) {
+			Object.assign(m, payload).save().then((rs)=>{
+				done(ResponseJSON(ErrorCodes.SUCCESS, 'edit management dashboard successfully', rs));
+			});
+		}
 	}).catch(err => {
 		done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
 	});
