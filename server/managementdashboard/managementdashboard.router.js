@@ -23,7 +23,7 @@ router.post('/managementdashboard/edit', function (req, res) {
     },req.dbConnection);
 });
 
-router.delete('/managementdashboard/delete', function (req, res) {
+router.post('/managementdashboard/delete', function (req, res) {
     model.delete(req.body, function (status) {
         res.send(status);
     },req.dbConnection);
