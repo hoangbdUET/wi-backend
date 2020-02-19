@@ -16,6 +16,7 @@ const Op = require('sequelize').Op;
 const dlisExport = require('dlis_export')(config);
 const checkPermisson = require('../utils/permission/check-permisison');
 const archiver = require('archiver');
+const curveModel = require('../curve/curve.model')
 
 function getFullProjectObj(idProject, idWell, dbConnection) {
 	return new Promise(async resolve => {
@@ -603,5 +604,38 @@ router.post('/clear', function (req, res) {
 		console.log(err);
 	}
 	res.send(ResponseJSON(200, 'SUCCESSFULLY'));
+})
+
+router.post('/rawcurves', async function(req, res){
+/*
+	req.body = {
+		idCurves: [4, 5]
+	}
+*/
+	const archive = archiver('zip');
+	archive.on('error', function(err) {
+		res.send(ResponseJSON(500, "Zipping err", err));
+	});
+	//res.attachment('I2G_export.zip');
+	res.contentType('application/octet-stream');
+	archive.pipe(res);
+
+	const Curve = req.dbConnection.Curve;
+	const Dataset = req.dbConnection.Dataset;
+	const Well = req.dbConnection.Well;
+	const Project = req.dbConnection.Project;
+	const username = req.decoded.username;
+	for(const curveID of req.body.idCurves){
+		const curve = await Curve.findByPk(curveID);
+		const dataset = await Dataset.findByPk(curve.idDataset);
+		const well = await Well.findByPk(dataset.idWell);
+		const project = await Project.findByPk(well.idProject);
+		let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt')
+		console.log(path)
+		archive.file(path, {name: curve.name + '.txt'})
+		console.log("Hash : ", process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curve.name + '.txt');
+	}
+	archive.finalize()
+
 })
 module.exports = router;
