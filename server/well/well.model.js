@@ -43,7 +43,8 @@ let wellHeaders = [
     {header: "AREA", value: '', unit: '', description: ""},
     {header: "TYPE", value: '', unit: '', description: ""},
     {header: "STATUS", value: '', unit: '', description: ""},
-    {header: "WTYPE", value: '', unit: '', description: ""}
+    {header: "WTYPE", value: '', unit: '', description: ""},
+    {header: "FLUID", value: '', unit: '', description: ""}
 ];
 
 function createNewWell(wellInfo, done, dbConnection) {
