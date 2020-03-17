@@ -149,7 +149,7 @@ router.post('/las3', function (req, res) {
 									console.log("dodv log: there is no project");
 								}
 
-								if (project && project.createdBy === req.decoded.username) {
+								if (project && project.createdBy === req.decoded.username && idObj.datasets.length > 0) {
 									exporter.exportLas3FromProject(
 										project,
 										idObj.datasets,
@@ -176,7 +176,7 @@ router.post('/las3', function (req, res) {
 						if (err) {
 							res.send(ResponseJSON(404, err));
 						} else {
-							result.map(r => (r.ip = serverAddress));
+							result.map(r => {if (r) r.ip = serverAddress});
 							res.send(ResponseJSON(200, 'SUCCESSFULLY', result));
 						}
 					}
@@ -275,7 +275,7 @@ router.post('/CSV/wdrv', function (req, res) {
 					function (idObj, callback) {
 						getFullProjectObj(idObj.idProject, idObj.idWell, req.dbConnection).then(
 							project => {
-								if (project && project.createdBy === req.decoded.username) {
+								if (project && project.createdBy === req.decoded.username && idObj.datasets.length > 0) {
 									exporter.exportCsvWDRVFromProject(
 										project,
 										idObj.datasets,
@@ -302,7 +302,7 @@ router.post('/CSV/wdrv', function (req, res) {
 						if (err) {
 							res.send(ResponseJSON(404, err));
 						} else {
-							result.map(r => (r.ip = serverAddress));
+							result.map(r => {if (r) r.ip = serverAddress});
 							res.send(ResponseJSON(200, 'SUCCESSFULLY', result));
 						}
 					}
