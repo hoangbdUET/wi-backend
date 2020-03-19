@@ -69,7 +69,10 @@ router.post('/las2', function (req, res) {
 					function (idObj, callback) {
 						getFullProjectObj(idObj.idProject, idObj.idWell, req.dbConnection).then(
 							project => {
-								if (project && project.createdBy === req.decoded.username) {
+								if(idObj.datasets.length <= 0){
+									callback(null, [{error: true, wellName: project.wells[0].name}])
+								}
+								else if (project && project.createdBy === req.decoded.username) {
 									exporter.exportLas2FromProject(
 										project,
 										idObj.datasets,
@@ -85,7 +88,8 @@ router.post('/las2', function (req, res) {
 											}
 										}
 									);
-								} else {
+								}
+								else {
 									callback(null, null);
 								}
 							}
@@ -148,8 +152,10 @@ router.post('/las3', function (req, res) {
                                 } else {
 									console.log("dodv log: there is no project");
 								}
-
-								if (project && project.createdBy === req.decoded.username && idObj.datasets.length > 0) {
+								if(idObj.datasets.length <= 0){
+									callback(null, {error: true, wellName: project.wells[0].name})
+								}
+								else if (project && project.createdBy === req.decoded.username) {
 									exporter.exportLas3FromProject(
 										project,
 										idObj.datasets,
@@ -202,7 +208,10 @@ router.post('/CSV/rv', function (req, res) {
 					function (idObj, callback) {
 						getFullProjectObj(idObj.idProject, idObj.idWell, req.dbConnection).then(
 							project => {
-								if (project && project.createdBy === req.decoded.username) {
+								if(idObj.datasets.length <= 0){
+									callback(null, [{error: true, wellName: project.wells[0].name}])
+								}
+								else if (project && project.createdBy === req.decoded.username) {
 									exporter.exportCsvRVFromProject(
 										project,
 										idObj.datasets,
@@ -275,7 +284,10 @@ router.post('/CSV/wdrv', function (req, res) {
 					function (idObj, callback) {
 						getFullProjectObj(idObj.idProject, idObj.idWell, req.dbConnection).then(
 							project => {
-								if (project && project.createdBy === req.decoded.username && idObj.datasets.length > 0) {
+								if(idObj.datasets.length <= 0){
+									callback(null, {error: true, wellName: project.wells[0].name})
+								}
+								else if (project && project.createdBy === req.decoded.username) {
 									exporter.exportCsvWDRVFromProject(
 										project,
 										idObj.datasets,
