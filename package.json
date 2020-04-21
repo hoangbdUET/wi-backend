@@ -44,7 +44,6 @@
     "request": "^2.87.0",
     "sequelize": "^4.42.0",
     "socket.io": "^2.0.3",
-    "sqlite3": "^3.1.8",
     "tempfile": "^2.0.0",
     "wi-etl": "^1.0.4",
     "wi-export-test": "^1.2.49",

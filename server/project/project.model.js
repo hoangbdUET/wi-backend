@@ -79,7 +79,7 @@ function createDefaultMarkerSetTemplate(markerSetTemplates, idProject, dbConnect
 
 function validationFlow(idFlow, dbConnection) {
     return new Promise((resolve => {
-        dbConnection.Flow.findByPk(idFlow, {include: {model: dbConnection.Task}}).then(flow => {
+        dbConnection.Flow.findByPk(idFlow, { include: { model: dbConnection.Task } }).then(flow => {
             let content = flow.content;
             async.each(flow.tasks, (task, next) => {
                 let name = task.name;
@@ -175,16 +175,16 @@ function createNewProject(projectInfo, done, dbConnection, username, company) {
         })
         .then(async function (project) {
             let zsts = await dbConnection.ZoneSetTemplate.findAll({
-                where: {idProject: null},
-                include: {model: dbConnection.ZoneTemplate}
+                where: { idProject: null },
+                include: { model: dbConnection.ZoneTemplate }
             });
             let msks = await dbConnection.MarkerSetTemplate.findAll({
-                where: {idProject: null},
-                include: {model: dbConnection.MarkerTemplate}
+                where: { idProject: null },
+                include: { model: dbConnection.MarkerTemplate }
             });
             await createDefaultZoneSetTemplate(zsts, project.idProject, dbConnection);
             await createDefaultMarkerSetTemplate(msks, project.idProject, dbConnection);
-            await createStorageIfNotExsited({idProject: project.idProject, storage_location: projectInfo.storage_location}, dbConnection, username, company);
+            await createStorageIfNotExsited({ idProject: project.idProject, storage_location: projectInfo.storage_location }, dbConnection, username, company);
             await createDefaultPramSet(project.idProject, dbConnection, username);
             done(ResponseJSON(ErrorCodes.SUCCESS, "Create new project success", project));
         })
@@ -247,7 +247,7 @@ function getSharedProject(token, username) {
                 'Authorization': token,
                 'Content-Type': 'application/json'
             },
-            body: {username: username},
+            body: { username: username },
             json: true,
             strictSSL: false
         };
@@ -266,7 +266,7 @@ async function getDatabases() {
     const modelMaster = require('../models-master');
     const sequelize = require('sequelize');
     let result = [];
-    let dbs = await modelMaster.sequelize.query("SHOW DATABASES LIKE '" + (process.env.BACKEND_DBPREFIX || config.Database.prefix) + "%'", {type: sequelize.QueryTypes.SELECT});
+    let dbs = await modelMaster.sequelize.query("SHOW DATABASES LIKE '" + (process.env.BACKEND_DBPREFIX || config.Database.prefix) + "%'", { type: sequelize.QueryTypes.SELECT });
     dbs.forEach(db => {
         result.push(db[Object.keys(db)]);
     });
@@ -282,7 +282,7 @@ function getRandomHash() {
 function createStorageIfNotExsited(project, dbConnection, username, company) {
     let idProject = project.idProject;
     return new Promise(resolve => {
-        dbConnection.StorageDatabase.findAll({where: {idProject: idProject}}).then(sd => {
+        dbConnection.StorageDatabase.findAll({ where: { idProject: idProject } }).then(sd => {
             if (!sd || sd.length === 0) {
                 dbConnection.StorageDatabase.create({
                     idProject: idProject,
@@ -310,7 +310,7 @@ async function getProjectList(payload, done, dbConnection, username, realUser, t
             done(ResponseJSON(ErrorCodes.SUCCESS, "Err", err));
         });
         dbConnection.Project.findAll({
-            include: {model: dbConnection.StorageDatabase},
+            include: { model: dbConnection.StorageDatabase },
             order: ['alias']
         }).then(projects => {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Done", projects));
@@ -328,7 +328,7 @@ async function getProjectList(payload, done, dbConnection, username, realUser, t
                 project = project.toJSON();
                 project.displayName = project.alias || project.name;
                 response.push(project);
-                createStorageIfNotExsited({idProject: project.idProject}, dbConnection, username, company).then(() => {
+                createStorageIfNotExsited({ idProject: project.idProject }, dbConnection, username, company).then(() => {
                     next();
                 });
             }, function () {
@@ -337,7 +337,7 @@ async function getProjectList(payload, done, dbConnection, username, realUser, t
                         let dbName = (process.env.BACKEND_DBPREFIX || config.Database.prefix) + prj.owner;
                         if (databasesList.indexOf(dbName) !== -1) {
                             let shareDbConnection = models(dbName);
-                            shareDbConnection.Project.findOne({where: {name: prj.name}}).then(p => {
+                            shareDbConnection.Project.findOne({ where: { name: prj.name } }).then(p => {
                                 if (!p) {
                                     next();
                                 } else {
@@ -373,7 +373,7 @@ function deleteProject(projectInfo, done, dbConnection) {
     let dbName = (process.env.BACKEND_DBPREFIX || config.Database.prefix) + projectInfo.owner;
     let query = "DELETE FROM " + dbName + ".project WHERE idProject = " + projectInfo.idProject;
     console.log(query);
-    dbConnection.sequelize.query(query, {type: sequelize.QueryTypes.UPDATE}).then(rs => {
+    dbConnection.sequelize.query(query, { type: sequelize.QueryTypes.UPDATE }).then(rs => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
@@ -392,13 +392,13 @@ async function getProjectFullInfo(payload, done, req) {
     if (payload.shared && payload.shared.toString() === 'true') {
         // console.log("LOAD SHARED PROJECT");
         await userPermission.loadUserPermission(req.token, payload.name, req.decoded.realUser);
-        await openProject.removeRow({username: req.decoded.realUser});
-        await openProject.addRow({username: req.decoded.realUser, project: payload.name, owner: payload.owner});
+        await openProject.removeRow({ username: req.decoded.realUser, client: req.get("WHOAMI") });
+        await openProject.addRow({ username: req.decoded.realUser, project: payload.name, owner: payload.owner, client: req.get("WHOAMI") });
         req.dbConnection = models((process.env.BACKEND_DBPREFIX || config.Database.prefix) + payload.owner.toLowerCase());
     } else {
         // console.log("LOAD USER PROJECT");
         await userPermission.loadUserPermission(req.token, payload.name, req.decoded.realUser, true);
-        await openProject.removeRow({username: req.decoded.realUser});
+        await openProject.removeRow({ username: req.decoded.realUser, clien: req.get("WHOAMI") });
         req.dbConnection = models((process.env.BACKEND_DBPREFIX || config.Database.prefix) + req.decoded.realUser);
     }
     let dbConnection = req.dbConnection;
@@ -408,13 +408,13 @@ async function getProjectFullInfo(payload, done, req) {
     let response = project.toJSON();
     response.owner = payload.owner ? payload.owner : null;
     response.shared = payload.shared ? payload.shared : null;
-    let wells = await dbConnection.Well.findAll({where: {idProject: project.idProject}});
-    let groups = await dbConnection.Groups.findAll({where: {idProject: project.idProject}});
-    let plots = await dbConnection.Plot.findAll({where: {idProject: project.idProject}});
-    let crossplots = await dbConnection.CrossPlot.findAll({where: {idProject: project.idProject}});
-    let histograms = await dbConnection.Histogram.findAll({where: {idProject: project.idProject}});
-    let combined_boxes = await dbConnection.CombinedBox.findAll({where: {idProject: project.idProject}});
-    let storage_databases = await dbConnection.StorageDatabase.findAll({where: {idProject: project.idProject}});
+    let wells = await dbConnection.Well.findAll({ where: { idProject: project.idProject } });
+    let groups = await dbConnection.Groups.findAll({ where: { idProject: project.idProject } });
+    let plots = await dbConnection.Plot.findAll({ where: { idProject: project.idProject } });
+    let crossplots = await dbConnection.CrossPlot.findAll({ where: { idProject: project.idProject } });
+    let histograms = await dbConnection.Histogram.findAll({ where: { idProject: project.idProject } });
+    let combined_boxes = await dbConnection.CombinedBox.findAll({ where: { idProject: project.idProject } });
+    let storage_databases = await dbConnection.StorageDatabase.findAll({ where: { idProject: project.idProject } });
     response.wells = [];
     response.groups = groups;
     response.plots = plots;
@@ -429,12 +429,12 @@ async function getProjectFullInfo(payload, done, req) {
         let wellObj = well.toJSON();
         asyncSeries([
             function (cb) {
-                dbConnection.Dataset.findAll({where: {idWell: well.idWell}}).then(datasets => {
+                dbConnection.Dataset.findAll({ where: { idWell: well.idWell } }).then(datasets => {
                     let datasetArr = [];
                     asyncLoop(datasets, function (dataset, nextDataset) {
                         let datasetObj = dataset.toJSON();
                         dbConnection.Curve.findAll({
-                            where: {idDataset: dataset.idDataset},
+                            where: { idDataset: dataset.idDataset },
                             include: {
                                 model: dbConnection.Family,
                                 as: "LineProperty",
@@ -477,35 +477,35 @@ async function getProjectFullInfo(payload, done, req) {
             },
             function (cb) {
                 dbConnection.ZoneSet.findAll({
-                    where: {idWell: well.idWell},
+                    where: { idWell: well.idWell },
                     include: [{
                         model: dbConnection.Zone,
-                        include: {model: dbConnection.ZoneTemplate}
-                    }, {model: dbConnection.ZoneSetTemplate}]
+                        include: { model: dbConnection.ZoneTemplate }
+                    }, { model: dbConnection.ZoneSetTemplate }]
                 }).then(zonesets => {
                     cb(null, zonesets);
                 });
             },
             function (cb) {
-                dbConnection.WellHeader.findAll({where: {idWell: well.idWell}}).then(headers => {
+                dbConnection.WellHeader.findAll({ where: { idWell: well.idWell } }).then(headers => {
                     cb(null, headers);
                 });
             },
             function (cb) {
                 dbConnection.MarkerSet.findAll({
-                    where: {idWell: well.idWell},
+                    where: { idWell: well.idWell },
                     include: [{
                         model: dbConnection.Marker,
-                        include: {model: dbConnection.MarkerTemplate}
-                    }, {model: dbConnection.MarkerSetTemplate}]
+                        include: { model: dbConnection.MarkerTemplate }
+                    }, { model: dbConnection.MarkerSetTemplate }]
                 }).then(markersets => {
                     cb(null, markersets);
                 });
             },
             function (cb) {
                 dbConnection.ImageSet.findAll({
-                    where: {idWell: well.idWell},
-                    include: {model: dbConnection.Image}
+                    where: { idWell: well.idWell },
+                    include: { model: dbConnection.Image }
                 }).then(imagesets => {
                     cb(null, imagesets);
                 });
@@ -530,7 +530,7 @@ function genLocationOfNewProject() {
 
 function closeProject(payload, done, dbConnection, username) {
     let openingProject = require('../authenticate/opening-project');
-    openingProject.removeRow({username: username}).then(() => {
+    openingProject.removeRow({ username: username }).then(() => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Successful"));
     });
 }
@@ -569,7 +569,7 @@ async function listProjectOffAllUser(payload, done, dbConnection, token) {
         asyncLoop(databaseList, (db, next) => {
             if (dbs.indexOf(db) !== -1) {
                 let query = "SELECT * FROM `" + db + "`.project";
-                dbConnection.sequelize.query(query, {type: sequelize.QueryTypes.SELECT}).then(projects => {
+                dbConnection.sequelize.query(query, { type: sequelize.QueryTypes.SELECT }).then(projects => {
                     projects.forEach(project => {
                         if (!response.find(p => p.name === project.name && p.createdBy === project.createdBy)) {
                             let shared = sharedProjectList.find(s => s.project_name === project.name && s.user.username === project.createdBy);
@@ -610,7 +610,7 @@ function deleteProjectOwner(payload, done, dbConnection) {
 function listProjectByUser(payload, done, dbConnection) {
     const sequelize = require('sequelize');
     let query = "SELECT * FROM `" + (process.env.BACKEND_DBPREFIX || config.Database.prefix) + payload.username + "`.project";
-    dbConnection.sequelize.query(query, {type: sequelize.QueryTypes.SELECT}).then(projects => {
+    dbConnection.sequelize.query(query, { type: sequelize.QueryTypes.SELECT }).then(projects => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", projects));
     }).catch(err => {
         console.log("LOI : ", query);
@@ -666,6 +666,35 @@ function exportProject(payload, done, dbConnection, username) {
     // }
 }
 
+function addShareSession(req, done, dbConnection, username) {
+    openProject.addRow({
+        username: req.decoded.realUser || req.body.username || username,
+        client: req.body.client || req.get("WHOAMI"),
+        project: req.body.name || req.body.project,
+        owner: req.body.owner
+    }).then(async r => {
+        let userPermission = require('../utils/permission/user-permission');
+        await userPermission.loadUserPermission(req.token, req.body.name || req.body.project, req.decoded.realUser);
+        return done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
+    }).catch(e => {
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, e.message, e))
+    });
+}
+
+function removeShareSession(req, done, dbConnection, username) {
+    openProject.removeRow({
+        username: username,
+        client: req.get("WHOAMI")
+    }).then(async r => {
+        let userPermission = require('../utils/permission/user-permission');
+        await userPermission.loadUserPermission(req.token, req.body.name || req.body.project, req.decoded.realUser, true);
+        return done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
+    }).catch(e => {
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, e.message, e))
+    })
+}
+
+
 module.exports = {
     createNewProject: createNewProject,
     editProject: editProject,
@@ -679,5 +708,7 @@ module.exports = {
     deleteProjectOwner: deleteProjectOwner,
     validationFlow: validationFlow,
     listProjectByUser: listProjectByUser,
-    exportProject: exportProject
+    exportProject: exportProject,
+    addShareSession: addShareSession,
+    removeShareSession: removeShareSession
 };

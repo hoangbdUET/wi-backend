@@ -11,7 +11,7 @@ router.use(bodyParser.json());
 let elasticLink = process.env.BACKEND_ELASTICSEARCH || require('config').get("elasticsearch") || "http://localhost:9200";
 
 const { Client } = require('@elastic/elasticsearch')
-const client = new Client({ node: elasticLink });
+// const client = new Client({ node: elasticLink });
 
 router.post('/view-by-user', (req, res) => {
     let username = req.body.username;

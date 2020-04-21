@@ -80,4 +80,18 @@ router.post('/project/export', function (req, res) {
 		res.send(status);
 	}, req.dbConnection, req.decoded.username)
 });
+
+
+router.post('/project/add-share-session', function (req, res) {
+	projectModel.addShareSession(req, function (status) {
+		res.send(status);
+	}, req.dbConnection, req.decoded.username);
+});
+
+router.post('/project/add-share-session', function (req, res) {
+	projectModel.removeShareSession(req, function (status) {
+		res.send(status);
+	}, req.dbConnection, req.decoded.username);
+});
+
 module.exports = router;

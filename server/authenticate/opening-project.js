@@ -6,9 +6,10 @@ function sync() {
         let opening = [];
         modelMaster.OpenSharedProject.findAll().then(rows => {
             async.each(rows, function (row, next) {
-                opening[row.username] = {
+                opening[row.username + row.client] = {
                     project: row.project,
-                    owner: row.owner
+                    owner: row.owner,
+                    client: row.client
                 };
                 next();
             }, function () {
@@ -20,10 +21,11 @@ function sync() {
 }
 
 function addRow(row, callback) {
+    // row.client = "WI_ANGULAR";
     return new Promise(function (resolve, reject) {
         modelMaster.OpenSharedProject.findOrCreate({
-            where: {username: row.username},
-            defaults: {username: row.username, project: row.project, owner: row.owner}
+            where: { username: row.username, client: row.client },
+            defaults: { username: row.username, project: row.project, owner: row.owner, client: row.client }
         }).then(rs => {
             resolve(rs);
         }).catch(err => {
@@ -33,8 +35,9 @@ function addRow(row, callback) {
 }
 
 function removeRow(row, callback) {
+    // row.client = "WI_ANGULAR";
     return new Promise(function (resolve, reject) {
-        modelMaster.OpenSharedProject.findOne({where: {username: row.username}}).then((r => {
+        modelMaster.OpenSharedProject.findOne({ where: { username: row.username, client: row.client } }).then((r => {
             if (r) {
                 r.destroy().then(() => {
                     resolve(r);

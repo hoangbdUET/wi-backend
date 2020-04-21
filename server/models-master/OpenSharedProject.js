@@ -16,6 +16,10 @@ module.exports = function (sequelize, DataTypes) {
         owner: {
             type: DataTypes.STRING(50),
             allowNull: false
+        },
+        client: {
+            type: DataTypes.STRING(50),
+            allowNull: false
         }
     });
 };

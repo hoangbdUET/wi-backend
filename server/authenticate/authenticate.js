@@ -17,7 +17,7 @@ module.exports = function () {
 			return res.status(200).send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Request validation failed", "Request validation failed"));
 		}
 		if (new RegExp(skipList.join('|')).test(req.originalUrl)) {
-			req.decoded = {username: "unauthorized"};
+			req.decoded = { username: "unauthorized" };
 			next();
 		} else {
 			openingProject.sync().then(function (opening) {
@@ -27,11 +27,11 @@ module.exports = function () {
 							return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Authentication failed", "Authentication failed"));
 						} else {
 							decoded.realUser = decoded.username;
-							if (opening[decoded.username]) {
-								console.log(decoded.realUser + " --- Working with shared session from : ", opening[decoded.username].owner);
-								decoded.username = opening[decoded.username].owner;
+							if (opening[decoded.username + req.get("WHOAMI")]) {
+								console.log(decoded.realUser + " --- Working with shared session from : ", opening[decoded.username + req.get("WHOAMI")].owner, " at : ", req.get("WHOAMI"));
+								decoded.username = opening[decoded.username + req.get("WHOAMI")].owner;
 								req.dbConnection = models((process.env.BACKEND_DBPREFIX || config.Database.prefix) + decoded.username.toLowerCase());
-                                req.CurrentProject = req.get('CurrentProject') || null;
+								req.CurrentProject = req.get('CurrentProject') || null;
 								// noinspection DuplicatedCode
 								req.dbConnection.sequelize.authenticate().then(() => {
 									req.decoded = decoded;
@@ -48,7 +48,7 @@ module.exports = function () {
 								});
 							} else {
 								console.log(decoded.username + " --- Working with master session");
-                                req.CurrentProject = req.get('CurrentProject') || null;
+								req.CurrentProject = req.get('CurrentProject') || null;
 								req.dbConnection = models((process.env.BACKEND_DBPREFIX || config.Database.prefix) + decoded.username.toLowerCase(), (err) => {
 									console.log(err);
 									if (err) return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Some err", "Some err"));
