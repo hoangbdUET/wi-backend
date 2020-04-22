@@ -398,7 +398,7 @@ async function getProjectFullInfo(payload, done, req) {
     } else {
         // console.log("LOAD USER PROJECT");
         await userPermission.loadUserPermission(req.token, payload.name, req.decoded.realUser, true);
-        await openProject.removeRow({ username: req.decoded.realUser, clien: req.get("WHOAMI") });
+        await openProject.removeRow({ username: req.decoded.realUser, client: req.get("WHOAMI") });
         req.dbConnection = models((process.env.BACKEND_DBPREFIX || config.Database.prefix) + req.decoded.realUser);
     }
     let dbConnection = req.dbConnection;
