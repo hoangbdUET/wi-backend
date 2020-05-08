@@ -21,7 +21,7 @@
     "compute-median": "^2.0.0",
     "config": "^1.29.0",
     "cors": "^2.8.3",
-    "dlis_export": "^1.0.38",
+    "dlis_export": "^1.0.39",
     "elasticsearch": "^15.4.1",
     "express": "^4.15.3",
     "formidable": "^1.1.1",
