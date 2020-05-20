@@ -189,6 +189,7 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
 			wiFunctions.getWellByDataset(myPlot.idDataset, dbConnection).then((well) => {
 				depth_axis.idWell = well ? well.idWell : null;
 				depth_axis.idPlot = idPlot;
+				depth_axis.unitType = depth_axis.unitType || myPlot.unit;
 				depth_axis.createdBy = myPlot.createdBy;
 				depth_axis.updatedBy = myPlot.updatedBy;
 				dbConnection.DepthAxis.create(depth_axis).then(() => {
