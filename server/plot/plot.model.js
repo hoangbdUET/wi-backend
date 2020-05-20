@@ -180,6 +180,7 @@ let createPlotTemplate = function (myPlot, dbConnection, callback, username) {
 		option: myPlot.option,
 		idProject: myPlot.idProject,
 		referenceCurve: myPlot.referenceCurve,
+		unit: myPlot.unit,
 		createdBy: myPlot.createdBy,
 		updatedBy: myPlot.updatedBy
 	}).then(plot => {
@@ -264,6 +265,7 @@ let createNewPlot = function (plotInfo, done, dbConnection, username) {
 		myPlot.createdBy = plotInfo.createdBy;
 		myPlot.updatedBy = plotInfo.updatedBy;
 		myPlot.idDataset = plotInfo.idDataset || null;
+		myPlot.unit = plotInfo.unit;
 		createPlotTemplate(myPlot, dbConnection, function (err, result) {
 			if (err) {
 				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot's name already exists", "PLOT NAME EXISTED"));
