@@ -650,4 +650,71 @@ router.post('/rawcurves', async function(req, res){
 	archive.finalize()
 
 })
+
+router.post('/wellheader', function(req, res) {
+	checkPermisson(req.updatedBy, 'project.import', async perm => {
+		if(!perm) {
+			return res.send(ResponseJSON(512,  "Export: Do not have permission", "Export: Do not have permission"));
+		}
+		let exportAll = req.body.exportAll;
+		let exportWells = req.body.wells || [];
+		let dbConnection = req.dbConnection;
+		let project = await dbConnection.Project.findByPk(req.body.idProject);
+		if (!project) return res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Project not found"));
+		let wells = null;
+		if(exportAll) {
+			wells = await dbConnection.Well.findAll({ where: { idProject: project.idProject } });
+		}else {
+			let wellIds = exportWells.map(w => w.idWell);
+			wells = await dbConnection.Well	
+					.findAll({ 
+						where: { 
+							idProject: project.idProject,
+							idWell: {
+								[Op.in] : wellIds
+							}
+						} 
+					});
+		}
+		if(!wells || !wells.length) return res.send(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Well not found"));
+		let listParamHeader = ['Well Name'];
+		let listWell = [];
+		async.eachSeries(wells, function(well, next) {
+			dbConnection.WellHeader.findAll({ where: { idWell: well.idWell } }).then(headers => {
+				headers.forEach(h => {
+					if(!listParamHeader.includes(h.header)) {
+						listParamHeader.push(h.header);
+					}
+				})
+				listWell.push({well, headers});
+				next();
+			});
+		}, function(err) {
+			if(err) {
+				return res.send(ResponseJSON(512, err));
+			}
+			let dataExport = listWell.map(() => []);
+			listParamHeader.forEach(param => {
+				listWell.forEach((well, index) => {
+					if(param === 'Well Name') {
+						dataExport[index].push(well.well.name);
+					}else {
+						let data = null;
+						for(let w of well.headers) {
+							if(w.header === param) {
+								data = w.value;
+								break;
+							}
+						}
+						dataExport[index].push(data);
+					}
+				})
+			})
+			csv
+			.write([listParamHeader, ...dataExport])
+			.pipe(res)
+			// res.send(new ResponseJSON(200, "Success", {listParamHeader, listWell, values}))
+		})		
+	})
+})
 module.exports = router;
