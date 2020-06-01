@@ -531,8 +531,9 @@ function bulkUpdateWellHeader(headers, idWell, done, dbConnection) {
                 //create
                 response.push({header: rs[0], result: "CREATED"});
                 next();
-            } else {
-                //found
+            } else if (header.value.length > 0){
+                // found
+                // update the well property if new property has not null value
                 rs[0].value = header.value;
                 rs[0].unit = header.unit;
                 rs[0].description = header.description;
@@ -543,6 +544,10 @@ function bulkUpdateWellHeader(headers, idWell, done, dbConnection) {
                     response.push({header: header, result: "ERROR : " + err.message});
                     next();
                 });
+            }
+            else {
+                // ignore if the property of new well has the NULL value
+                next()
             }
         }).catch(err => {
             console.log(err);
