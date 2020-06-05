@@ -513,7 +513,14 @@ function updateWellHeader(payload, done, dbConnection) {
     })
 }
 
-function bulkUpdateWellHeader(headers, idWell, done, dbConnection) {
+function bulkUpdateWellHeader(headers, idWell, mode='override', done, dbConnection) {
+    /*
+    mode presents the way well headers will be updated
+    mode = 'override': override all
+    mode = 'ignore_if_exists': do not override if the headers already exist
+    mode = 'no_delete': override the header if new value is not null
+    default value for mode is 'override'
+     */
     let response = [];
 
     asyncEach(headers, function (header, next) {
@@ -531,7 +538,8 @@ function bulkUpdateWellHeader(headers, idWell, done, dbConnection) {
                 //create
                 response.push({header: rs[0], result: "CREATED"});
                 next();
-            } else if (header.value.length > 0){
+            } else if ((header.value.length > 0 && mode == 'no_delete')
+                || mode == 'override'){
                 // found
                 // update the well property if new property has not null value
                 rs[0].value = header.value;

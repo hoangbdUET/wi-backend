@@ -64,7 +64,13 @@ router.post('/well/update-well-header', function (req, res) {
 });
 
 router.post('/well/bulk-update-well-header', function (req, res) {
-    wellModel.bulkUpdateWellHeader(req.body.headers, req.body.idWell, function (status) {
+    /*
+    req.body.mode presents the way well headers will be updated
+    mode = 'override': override all
+    mode = 'ignore_if_exists': do not override if the headers already exist
+    mode = 'no_delete': override the header if new value is not null
+     */
+    wellModel.bulkUpdateWellHeader(req.body.headers, req.body.idWell, req.body.mode,function (status) {
         res.send(status);
     }, req.dbConnection);
 });
