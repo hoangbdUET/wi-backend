@@ -88,7 +88,7 @@ router.post('/project/add-share-session', function (req, res) {
 	}, req.dbConnection, req.decoded.username);
 });
 
-router.post('/project/add-share-session', function (req, res) {
+router.post('/project/remove-share-session', function (req, res) {
 	projectModel.removeShareSession(req, function (status) {
 		res.send(status);
 	}, req.dbConnection, req.decoded.username);
