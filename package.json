@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "bash": "bash.exe -c 'NODE_ENV=production node /mnt/d/Workspace/wi-backend/app.js'"
+    "bash": "bash.exe -c 'NODE_ENV=production node /mnt/d/Workspace/wi-backend/app.js'",
+    "start": "export NODE_ENV=production && nodemon app.js"
   },
   "author": "tanlm",
   "license": "ISC",
@@ -21,6 +22,7 @@
     "compute-median": "^2.0.0",
     "config": "^1.29.0",
     "cors": "^2.8.3",
+    "csv-parse": "^4.10.1",
     "dlis_export": "^1.0.39",
     "elasticsearch": "^15.4.1",
     "express": "^4.15.3",
