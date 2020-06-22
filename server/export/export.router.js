@@ -467,22 +467,20 @@ router.post('/zone-set', async function (req, res) {
                         cEndDepth
                     ];
                     if (tvdInfo) {
-                        row = [...row, ...getTVDValue(tvdData, tvdInfo, startDepth, endDepth)
-                            // .map(v => {
-                            //     return convertLength
-                            //         .convertDistance(v, 'm', exportUnit)
-                            //         .toFixed(4);
-                            // })
-                        ];
+                        row = [...row, ...getTVDValue(tvdData, tvdInfo, startDepth, endDepth)];
+                        // row = [...row, ...getTVDValue(tvdData, tvdInfo, startDepth, endDepth).map(v => {
+                        //     return convertLength
+                        //         .convertDistance(v, 'm', exportUnit)
+                        //         .toFixed(4);
+                        // })];
                     }
                     if (tvdssInfo) {
-                        row = [...row, ...getTVDValue(tvdssData, tvdssInfo, startDepth, endDepth)
-                            // .map(v => {
-                            //     return convertLength
-                            //         .convertDistance(v, 'm', exportUnit)
-                            //         .toFixed(4);
-                            // })
-                        ];
+                        row = [...row, ...getTVDValue(tvdssData, tvdssInfo, startDepth, endDepth)];
+                        // row = [...row, ...getTVDValue(tvdssData, tvdssInfo, startDepth, endDepth).map(v => {
+                        //     return convertLength
+                        //         .convertDistance(v, 'm', exportUnit)
+                        //         .toFixed(4);
+                        // })];
                     }
                     arrData.push(row);
                 });
@@ -584,20 +582,20 @@ router.post('/marker-set', async function (req, res) {
                         cDepth
                     ];
                     if (tvdInfo) {
-                        row = [...row, ...getTVDValue(tvdData, tvdInfo, depth).map(v => {
-                            return convertLength
-                                .convertDistance(v, 'm', exportUnit)
-                                .toFixed(4);
-                        })];
+                        row = [...row, ...getTVDValue(tvdData, tvdInfo, depth)];
+                        // row = [...row, ...getTVDValue(tvdData, tvdInfo, depth).map(v => {
+                        //     return convertLength
+                        //         .convertDistance(v, 'm', exportUnit)
+                        //         .toFixed(4);
+                        // })];
                     }
                     if (tvdssInfo) {
-                        row = [...row, ...getTVDValue(tvdssData, tvdssInfo, depth)
-                            // .map(v => {
-                            //     return convertLength
-                            //         .convertDistance(v, 'm', exportUnit)
-                            //         .toFixed(4);
-                            // })
-                        ];
+                        row = [...row, ...getTVDValue(tvdssData, tvdssInfo, depth)];
+                        // row = [...row, ...getTVDValue(tvdssData, tvdssInfo, depth).map(v => {
+                        //     return convertLength
+                        //         .convertDistance(v, 'm', exportUnit)
+                        //         .toFixed(4);
+                        // })];
                     }
                     arrData.push(row);
                 });
