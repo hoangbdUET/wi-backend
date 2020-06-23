@@ -19,24 +19,24 @@ function createNewCurve(curveInfo, done, dbConnection) {
 	let Curve = dbConnection.Curve;
 	Curve.sync()
 		.then(() => {
-				let curve = Curve.build(Object.assign({
-					idDataset: curveInfo.idDataset,
-					name: curveInfo.name,
-					dataset: curveInfo.dataset,
-					unit: curveInfo.unit,
-					type: curveInfo.type,
-					dimension: curveInfo.dimension || 1,
-					createdBy: curveInfo.createdBy,
-					updatedBy: curveInfo.updatedBy
-				}, curveInfo));
-				curve.save()
-					.then(curve => {
-						done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Curve success", {idCurve: curve.idCurve}))
-					})
-					.catch(err => {
-						done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Curve " + err));
-					});
-			},
+			let curve = Curve.build(Object.assign({
+				idDataset: curveInfo.idDataset,
+				name: curveInfo.name,
+				dataset: curveInfo.dataset,
+				unit: curveInfo.unit,
+				type: curveInfo.type,
+				dimension: curveInfo.dimension || 1,
+				createdBy: curveInfo.createdBy,
+				updatedBy: curveInfo.updatedBy
+			}, curveInfo));
+			curve.save()
+				.then(curve => {
+					done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Curve success", { idCurve: curve.idCurve }))
+				})
+				.catch(err => {
+					done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Curve " + err));
+				});
+		},
 			() => {
 				done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
 			}
@@ -245,7 +245,7 @@ async function deleteCurve(curveInfo, done, dbConnection, username) {
 	curve.setDataValue('updatedBy', curveInfo.updatedBy);
 	if (!curve) return done(ErrorCodes.ERROR_INVALID_PARAMS, "No curve found by id");
 
-	curve.destroy({permanently: true, force: true}).then(() => {
+	curve.destroy({ permanently: true, force: true }).then(() => {
 		done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", curve));
 	}).catch(err => {
 		done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
@@ -331,11 +331,11 @@ function getData(param, successFunc, errorFunc, dbConnection, username) {
 													successFunc(stream);
 												}
 											}, {
-												isCore: (dataset.step === 0 || dataset.step === '0'),
-												rate: rate,
-												type: curve.type,
-												columnIndex: param.columnIndex,
-											}
+											isCore: (dataset.step === 0 || dataset.step === '0'),
+											rate: rate,
+											type: curve.type,
+											columnIndex: param.columnIndex,
+										}
 										);
 									} catch (e) {
 										console.log("LOI ", e);
@@ -413,16 +413,16 @@ let calculateScale = function (idCurve, username, dbConnection, callback) {
 	let Dataset = dbConnection.Dataset;
 	let Project = dbConnection.Project;
 	let Well = dbConnection.Well;
-	Curve.findByPk(idCurve, {paranoid: false})
+	Curve.findByPk(idCurve, { paranoid: false })
 		.then(function (curve) {
 			if (curve) {
-				Dataset.findByPk(curve.idDataset, {paranoid: false}).then((dataset) => {
+				Dataset.findByPk(curve.idDataset, { paranoid: false }).then((dataset) => {
 					if (!dataset) {
 						console.log("No dataset");
 					} else {
-						Well.findByPk(dataset.idWell, {paranoid: false}).then(well => {
+						Well.findByPk(dataset.idWell, { paranoid: false }).then(well => {
 							if (well && curve.type === "NUMBER") {
-								Project.findByPk(well.idProject, {paranoid: false}).then(project => {
+								Project.findByPk(well.idProject, { paranoid: false }).then(project => {
 									console.log("Hash : ", process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curve.name + '.txt');
 									let inputStream = hashDir.createReadStream(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
 									inputStream.on("error", function () {
@@ -554,9 +554,9 @@ let processingCurve = function (req, done, dbConnection, createdBy, updatedBy) {
 											type: type,
 											dimension: dimension
 										} : {
-											unit: unit || curve.unit,
-											idFamily: idFamily || curve.idFamily,
-										};
+												unit: unit || curve.unit,
+												idFamily: idFamily || curve.idFamily,
+											};
 										let response = {};
 										let newPath = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, req.decoded.username + project.name + well.name + dataset.name + curve.name, curve.name + '.txt');
 										fs.copy(filePath, newPath, function (err) {
@@ -597,11 +597,11 @@ async function getCurveDataFromInventory(curveInfo, token, callback, dbConnectio
 		method: 'POST',
 		url: (process.env.BACKEND_INV_SERVICE || config.Service.inventory) + '/user/well/dataset/curve/data',
 		headers:
-			{
-				Authorization: token,
-				'Content-Type': 'application/json'
-			},
-		body: {idCurve: curveInfo.idInvCurve},
+		{
+			Authorization: token,
+			'Content-Type': 'application/json'
+		},
+		body: { idCurve: curveInfo.idInvCurve },
 		json: true,
 		strictSSL: false
 	};
@@ -667,11 +667,11 @@ function getCurveDataFromInventoryPromise(curveInfo, token, dbConnection, userna
 			method: 'POST',
 			url: (process.env.BACKEND_INV_SERVICE || config.Service.inventory) + '/user/well/dataset/curve/data',
 			headers:
-				{
-					Authorization: token,
-					'Content-Type': 'application/json'
-				},
-			body: {idCurve: curveInfo.idInvCurve},
+			{
+				Authorization: token,
+				'Content-Type': 'application/json'
+			},
+			body: { idCurve: curveInfo.idInvCurve },
 			json: true,
 			strictSSL: false
 		};
@@ -840,8 +840,8 @@ function resyncFamily(payload, done, dbConnection) {
 									curve.setLineProperty(aFamily);
 									next();
 								}).catch(() => {
-								next();
-							});
+									next();
+								});
 						}
 					});
 			}
@@ -857,7 +857,7 @@ function processingArrayCurve(req, done, dbConnection, createdBy, updatedBy) {
 		if (curve.type !== "ARRAY") return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "This is not array curve"));
 		if (!req.body.columnIndex || (curve.dimension < +req.body.columnIndex + 1 || +req.body.columnIndex < 0))
 			return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Not valid column index"));
-		curveFunction.getFullCurveParents({idCurve: req.body.idCurve}, dbConnection).then(curveParent => {
+		curveFunction.getFullCurveParents({ idCurve: req.body.idCurve }, dbConnection).then(curveParent => {
 			let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, req.decoded.username + curveParent.project + curveParent.well + curveParent.dataset + curveParent.curve, curveParent.curve + '.txt');
 			let tmpPath = Date.now() + '';
 			let output = fs.createWriteStream(tmpPath);
@@ -912,12 +912,12 @@ function splitArrayCurve(payload, done, dbConnection, username) {
 							});
 							let path = hashDir.createPath(process.env.BACKEND_CURVE_BASE_PATH || config.curveBasePath, username + c.project + c.well + c.dataset + c.curve + subfix + i, c.curve + subfix + i + '.txt');
 							console.log(path);
-							outputStreams.push(mFs.createWriteStream(path, {flags: 'w'}));
+							outputStreams.push(mFs.createWriteStream(path, { flags: 'w' }));
 						} else {
 							outputStreams.push(false);
 						}
 					}
-					let byLineSteam = byline(mFs.createReadStream(curvePath, {flags: 'r'}));
+					let byLineSteam = byline(mFs.createReadStream(curvePath, { flags: 'r' }));
 					byLineSteam.on('data', line => {
 						line = line.toString();
 						let depthToken = line.substr(0, line.indexOf(' '));
@@ -1041,7 +1041,7 @@ function _createDataTmp(curves, newCurveName, username) {
 					next();
 				}
 			}, () => {
-				let writeStream = mFs.createWriteStream(newArrayCurvePath, {flags: 'w'});
+				let writeStream = mFs.createWriteStream(newArrayCurvePath, { flags: 'w' });
 				arrayData.forEach(l => {
 					writeStream.write(l.join(' ') + '\n');
 				});
@@ -1113,6 +1113,16 @@ function createArrayCurve(payload, done, dbConnection, createdBy, updatedBy) {
 	}
 }
 
+function getCurveList(payload, done, dbConnection) {
+	dbConnection.Curve.findAll({
+		where: { idDataset: payload.idDataset }
+	}).then(curves => {
+		done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", curves));
+	}).catch(err => {
+		done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
+	});
+}
+
 module.exports = {
 	resyncFamily: resyncFamily,
 	createNewCurve: createNewCurve,
@@ -1134,5 +1144,6 @@ module.exports = {
 	processingArrayCurve: processingArrayCurve,
 	splitArrayCurve: splitArrayCurve,
 	mergeCurvesIntoArrayCurve: mergeCurvesIntoArrayCurve,
-	createArrayCurve: createArrayCurve
+	createArrayCurve: createArrayCurve,
+	getCurveList: getCurveList
 };

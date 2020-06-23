@@ -23,7 +23,7 @@ let storage = multer.diskStorage({
 	}
 });
 
-let upload = multer({storage: storage});
+let upload = multer({ storage: storage });
 
 router.post('/curve/copy', (req, res) => {
 	res.send({
@@ -254,6 +254,11 @@ router.post('/curve/new-raw-curve', upload.single('data'), (req, res) => {
 			content: e
 		});
 	}
+});
+router.post('/curve/list', function (req, res) {
+	curveModel.getCurveList(req.body, function (status) {
+		res.send(status);
+	}, req.dbConnection);
 });
 
 module.exports = router;
