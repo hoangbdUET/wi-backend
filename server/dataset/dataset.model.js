@@ -11,31 +11,31 @@ function createNewDataset(datasetInfo, done, dbConnection) {
 	let Dataset = dbConnection.Dataset;
 	Dataset.sync()
 		.then(function () {
-				let dataset = Dataset.build({
-					idWell: datasetInfo.idWell,
-					name: datasetInfo.name,
-					step: datasetInfo.step,
-					top: datasetInfo.top,
-					bottom: datasetInfo.bottom,
-					unit: datasetInfo.unit,
-					datasetKey: datasetInfo.datasetKey,
-					datasetLabel: datasetInfo.datasetLabel,
-					createdBy: datasetInfo.createdBy,
-					updatedBy: datasetInfo.updatedBy
+			let dataset = Dataset.build({
+				idWell: datasetInfo.idWell,
+				name: datasetInfo.name,
+				step: datasetInfo.step,
+				top: datasetInfo.top,
+				bottom: datasetInfo.bottom,
+				unit: datasetInfo.unit,
+				datasetKey: datasetInfo.datasetKey,
+				datasetLabel: datasetInfo.datasetLabel,
+				createdBy: datasetInfo.createdBy,
+				updatedBy: datasetInfo.updatedBy
+			});
+			dataset.save()
+				.then(function (dataset) {
+					done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Dataset success", dataset));
+				})
+				.catch(function (err) {
+					console.log(err);
+					if (err.name === "SequelizeUniqueConstraintError") {
+						done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Dataset's name already exists"));
+					} else {
+						done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+					}
 				});
-				dataset.save()
-					.then(function (dataset) {
-						done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Dataset success", dataset));
-					})
-					.catch(function (err) {
-						console.log(err);
-						if (err.name === "SequelizeUniqueConstraintError") {
-							done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Dataset's name already exists"));
-						} else {
-							done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
-						}
-					});
-			},
+		},
 			function () {
 				done(ResponseJSON(ErrorCodes.ERROR_SYNC_TABLE, "Connect to database fail or create table not success"));
 			}
@@ -56,7 +56,7 @@ function editDataset(datasetInfo, done, dbConnection, username) {
 					dbConnection.Well.findByPk(dataset.idWell).then(well => {
 						dbConnection.Project.findByPk(well.idProject).then(project => {
 							dbConnection.Curve.findAll({
-								where: {idDataset: datasetInfo.idDataset},
+								where: { idDataset: datasetInfo.idDataset },
 								paranoid: false
 							}).then(curves => {
 								asyncEach(curves, function (curve, next) {
@@ -103,10 +103,10 @@ function editDataset(datasetInfo, done, dbConnection, username) {
 
 function deleteDataset(datasetInfo, done, dbConnection) {
 	let Dataset = dbConnection.Dataset;
-	Dataset.findByPk(datasetInfo.idDataset, {include: {all: true}})
+	Dataset.findByPk(datasetInfo.idDataset, { include: { all: true } })
 		.then(function (dataset) {
 			dataset.setDataValue('updatedBy', datasetInfo.updatedBy);
-			dataset.destroy({permanently: true, force: true})
+			dataset.destroy({ permanently: true, force: true })
 				.then(function () {
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Dataset is deleted", dataset));
 				})
@@ -121,7 +121,7 @@ function deleteDataset(datasetInfo, done, dbConnection) {
 
 function getDatasetInfo(dataset, done, dbConnection) {
 	let Dataset = dbConnection.Dataset;
-	Dataset.findByPk(dataset.idDataset, {include: [{all: true}]})
+	Dataset.findByPk(dataset.idDataset, { include: [{ all: true }] })
 		.then(function (dataset) {
 			if (!dataset) throw "not exist";
 			done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Dataset success", dataset));
@@ -133,7 +133,7 @@ function getDatasetInfo(dataset, done, dbConnection) {
 
 function duplicateDataset(data, done, dbConnection, username) {
 	let fsExtra = require('fs-extra');
-	dbConnection.Dataset.findByPk(data.idDataset, {include: {all: true}}).then(async dataset => {
+	dbConnection.Dataset.findByPk(data.idDataset, { include: { all: true } }).then(async dataset => {
 		let well = await dbConnection.Well.findByPk(dataset.idWell);
 		let project = await dbConnection.Project.findByPk(well.idProject);
 		let newDataset = dataset.toJSON();
@@ -211,7 +211,7 @@ function getDatasetInfoByName(dataset, done, dbConnection) {
 			name: dataset.name,
 			idWell: dataset.idWell
 		},
-		include: [{all: true}]
+		include: [{ all: true }]
 	}).then(function (dataset) {
 		if (!dataset) throw "not exist";
 		done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Dataset success", dataset));
@@ -249,7 +249,7 @@ function updateDatasetParams(payload, done, dbConnection) {
 					}).then(rs => {
 						if (rs[1]) {
 							//create
-							response.push({param: rs[0], result: "CREATED"});
+							response.push({ param: rs[0], result: "CREATED" });
 							next();
 						} else {
 							//found
@@ -258,16 +258,16 @@ function updateDatasetParams(payload, done, dbConnection) {
 							rs[0].unit = param.unit;
 							rs[0].description = param.description;
 							rs[0].save().then(() => {
-								response.push({param: param, result: "UPDATED"});
+								response.push({ param: param, result: "UPDATED" });
 								next();
 							}).catch(err => {
-								response.push({param: param, result: "ERROR : " + err.message});
+								response.push({ param: param, result: "ERROR : " + err.message });
 								next();
 							});
 						}
 					}).catch(err => {
 						console.log(err);
-						response.push({param: param, result: "Error " + err});
+						response.push({ param: param, result: "Error " + err });
 						next();
 					})
 				}, function () {
@@ -343,7 +343,7 @@ async function copyDataset(payload, dbConnection, username) {
 	}
 
 	try {
-		let sourceDataset = await dbConnection.Dataset.findByPk(payload.idDataset, {include: {model: dbConnection.Curve}});
+		let sourceDataset = await dbConnection.Dataset.findByPk(payload.idDataset, { include: { model: dbConnection.Curve } });
 		let sourceWell = await dbConnection.Well.findByPk(sourceDataset.idWell);
 		let desWell = await dbConnection.Well.findByPk(payload.idDesWell);
 		let project = await dbConnection.Project.findByPk(desWell.idProject);
@@ -393,6 +393,17 @@ function deleteDatasetParam(payload, done, dbConnection) {
 	});
 }
 
+function getDatasetList(payload, done, dbConnection) {
+	dbConnection.Dataset.findAll({
+		where: { idProject: payload.idProject },
+		include: { model: dbConnection.WellHeader }
+	}).then(datasets => {
+		done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", datasets));
+	}).catch(err => {
+		done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err.message));
+	});
+}
+
 module.exports = {
 	createNewDataset: createNewDataset,
 	editDataset: editDataset,
@@ -403,5 +414,6 @@ module.exports = {
 	updateDatasetParams: updateDatasetParams,
 	createMdCurve: createMdCurve,
 	copyDataset: copyDataset,
-	deleteDatasetParam: deleteDatasetParam
+	deleteDatasetParam: deleteDatasetParam,
+	getDatasetList: getDatasetList
 };

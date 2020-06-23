@@ -61,4 +61,10 @@ router.post('/dataset/copy', async (req, res) => {
 	res.send(status);
 });
 
+router.post('/dataset/list', function (req, res) {
+	datasetModel.getDatasetList(req.body, function (status) {
+		res.send(status);
+	}, req.dbConnection);
+});
+
 module.exports = router;
