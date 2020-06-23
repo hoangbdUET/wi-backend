@@ -395,8 +395,7 @@ function deleteDatasetParam(payload, done, dbConnection) {
 
 function getDatasetList(payload, done, dbConnection) {
 	dbConnection.Dataset.findAll({
-		where: { idProject: payload.idProject }
-		// include: { model: dbConnection.WellHeader }
+		where: { idWell: payload.idWell }
 	}).then(datasets => {
 		done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", datasets));
 	}).catch(err => {
