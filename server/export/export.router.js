@@ -415,7 +415,7 @@ function getCurveDataPromise(idCurve, dbConnection, username) {
             }
         }, function (status) {
             console.log(status);
-            reject(stattus);
+            reject(status);
         }, dbConnection, username);
     })
 }
@@ -424,18 +424,44 @@ router.post('/zone-set', async function (req, res) {
     let headers = ['Well', 'Zone', 'Top_Depth', 'Bottom_Depth'];
     let dbConnection = req.dbConnection;
     let username = req.decoded.username;
-    let tvdInfo = req.body.tvdInfo;
-    let tvdssInfo = req.body.tvdssInfo;
-    let tvdData;
-    let tvdssData;
-    if (tvdInfo)
-        tvdData = await getCurveDataPromise(tvdInfo.idCurve, dbConnection, username);
-    if (tvdssInfo)
-        tvdssData = await getCurveDataPromise(tvdssInfo.idCurve, dbConnection, username);
+    let tvdInfos = req.body.tvdInfos || [];
+    let tvdssInfos = req.body.tvdssInfos || [];
+    let tvdDatas = [];
+    let tvdssDatas = [];
+    if (tvdInfos && tvdInfos.length) {
+        for (let i = 0; i < tvdInfos.length; i++) {
+            let tvdInfo = tvdInfos[i];
+            if (!tvdInfo) {
+                tvdDatas[i] = null;
+                continue;
+            }
+            tvdDatas[i] = await getCurveDataPromise(tvdInfo.idCurve, dbConnection, username);
+        }
+    }
+    if (tvdssInfos && tvdssInfos.length) {
+        for (let i = 0; i < tvdssInfos.length; i++) {
+            let tvdssInfo = tvdssInfos[i];
+            if (!tvdssInfo) {
+                tvdssDatas[i] = null;
+                continue;
+            }
+            tvdssDatas[i] = await getCurveDataPromise(tvdssInfo.idCurve, dbConnection, username);
+        }
+    }
+    // tvdDatas = tvdInfos.map(async tvdInfo => {
+    //     if (!tvdInfo) return null;
+    //     return await getCurveDataPromise(tvdInfo.idCurve, dbConnection, username);
+    // })
+    // if (tvdssInfos && tvdssInfos.length)
+    //     tvdssDatas = tvdssInfos.map(async tvdssInfo => {
+    //         if (!tvdssInfo) return null;
+    //         return await getCurveDataPromise(tvdssInfo.idCurve, dbConnection, username);
+    //     })
     if (req.body.idZoneSets) {
         let exportUnit = req.body.exportUnit;
         let arrData = [];
         for (const id of req.body.idZoneSets) {
+            zonesetIdx = req.body.idZoneSets.indexOf(id);
             const zoneSet = await req.dbConnection.ZoneSet.findByPk(id, {
                 include: [
                     {
@@ -466,16 +492,16 @@ router.post('/zone-set', async function (req, res) {
                         cStartDepth,
                         cEndDepth
                     ];
-                    if (tvdInfo) {
-                        row = [...row, ...getTVDValue(tvdData, tvdInfo, startDepth, endDepth)];
+                    if (tvdInfos[zonesetIdx]) {
+                        row = [...row, ...getTVDValue(tvdDatas[zonesetIdx], tvdInfos[zonesetIdx], startDepth, endDepth)];
                         // row = [...row, ...getTVDValue(tvdData, tvdInfo, startDepth, endDepth).map(v => {
                         //     return convertLength
                         //         .convertDistance(v, 'm', exportUnit)
                         //         .toFixed(4);
                         // })];
                     }
-                    if (tvdssInfo) {
-                        row = [...row, ...getTVDValue(tvdssData, tvdssInfo, startDepth, endDepth)];
+                    if (tvdssInfos[zonesetIdx]) {
+                        row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth)];
                         // row = [...row, ...getTVDValue(tvdssData, tvdssInfo, startDepth, endDepth).map(v => {
                         //     return convertLength
                         //         .convertDistance(v, 'm', exportUnit)
@@ -492,13 +518,18 @@ router.post('/zone-set', async function (req, res) {
                         zoneSet.well.name,
                         zone.zone_template.name.replace(/,/g, ''),
                         startDepth,
-                        endDepth 
+                        endDepth
                     ]
-                    if (tvdInfo) {
-                        row = [...row, ...getTVDValue(tvdData, tvdInfo, startDepth, endDepth)];
+                    if (tvdInfos[zonesetIdx]) {
+                        // row = [...row, ...getTVDValue(tvdDatas[zonesetIdx], tvdInfos[zonesetIdx], startDepth, endDepth)];
+                        row = [...row, ...getTVDValue(tvdDatas[zonesetIdx], tvdInfos[zonesetIdx], startDepth, endDepth).map(v => {
+                            return convertLength
+                                .convertDistance(v, tvdInfos[zonesetIdx].unit, exportUnit)
+                                .toFixed(4);
+                        })];
                     }
-                    if (tvdssInfo) {
-                        row = [...row, ...getTVDValue(tvdssData, tvdssInfo, startDepth, endDepth)];
+                    if (tvdssInfos[zonesetIdx]) {
+                        row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth)];
                     }
                     arrData.push(row);
                 });
@@ -507,14 +538,14 @@ router.post('/zone-set', async function (req, res) {
         arrData.sort(compareFn);
         arrData.unshift(['', '', exportUnit, exportUnit]);
         arrData.unshift(['', '', '', '']); //??????????????
-        if (tvdInfo)
+        if (tvdInfos && tvdInfos.length)
             headers = [...headers, 'Top_TVD', 'Bottom_TVD'];
-        if (tvdssInfo)
+        if (tvdssInfos && tvdssInfos.length)
             headers = [...headers, 'Top_TVDSS', 'Bottom_TVDSS'];
         csv
             .write(arrData, { headers })
             .pipe(res);
-        
+
         function getTVDValue(curveData, tvdInfo, startDepth, endDepth) {
             let tvdStart = 0;
             let tvdEnd = 0;
@@ -539,7 +570,7 @@ router.post('/zone-set', async function (req, res) {
 });
 
 router.post('/marker-set', async function (req, res) {
-    let headers = ['Well_name', 'Maker_name', 'Depth'] ;
+    let headers = ['Well_name', 'Maker_name', 'Depth'];
     let dbConnection = req.dbConnection;
     let username = req.decoded.username;
     let tvdInfo = req.body.tvdInfo;
