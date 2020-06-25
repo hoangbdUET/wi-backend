@@ -448,6 +448,7 @@ router.post('/zone-set', async function (req, res) {
             tvdssDatas[i] = await getCurveDataPromise(tvdssInfo.idCurve, dbConnection, username);
         }
     }
+    // console.log(tvdDatas[0].map(((d, idx) => `${d.x} - ${tvdssDatas[0][idx].x}`)));
     // tvdDatas = tvdInfos.map(async tvdInfo => {
     //     if (!tvdInfo) return null;
     //     return await getCurveDataPromise(tvdInfo.idCurve, dbConnection, username);
