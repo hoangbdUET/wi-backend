@@ -493,20 +493,20 @@ router.post('/zone-set', async function (req, res) {
                         cEndDepth
                     ];
                     if (tvdInfos[zonesetIdx]) {
-                        row = [...row, ...getTVDValue(tvdDatas[zonesetIdx], tvdInfos[zonesetIdx], startDepth, endDepth)];
-                        // row = [...row, ...getTVDValue(tvdData, tvdInfo, startDepth, endDepth).map(v => {
-                        //     return convertLength
-                        //         .convertDistance(v, 'm', exportUnit)
-                        //         .toFixed(4);
-                        // })];
+                        // row = [...row, ...getTVDValue(tvdDatas[zonesetIdx], tvdInfos[zonesetIdx], startDepth, endDepth)];
+                        row = [...row, ...getTVDValue(tvdDatas[zonesetIdx], tvdInfos[zonesetIdx], startDepth, endDepth).map(v => {
+                            return convertLength
+                                .convertDistance(v, tvdInfos[zonesetIdx].unit, exportUnit)
+                                .toFixed(4);
+                        })];
                     }
                     if (tvdssInfos[zonesetIdx]) {
-                        row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth)];
-                        // row = [...row, ...getTVDValue(tvdssData, tvdssInfo, startDepth, endDepth).map(v => {
-                        //     return convertLength
-                        //         .convertDistance(v, 'm', exportUnit)
-                        //         .toFixed(4);
-                        // })];
+                        // row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth)];
+                        row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth).map(v => {
+                            return convertLength
+                                .convertDistance(v, tvdssInfos[zonesetIdx].unit, exportUnit)
+                                .toFixed(4);
+                        })];
                     }
                     arrData.push(row);
                 });
@@ -529,7 +529,12 @@ router.post('/zone-set', async function (req, res) {
                         })];
                     }
                     if (tvdssInfos[zonesetIdx]) {
-                        row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth)];
+                        // row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth)];
+                        row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth).map(v => {
+                            return convertLength
+                                .convertDistance(v, tvdssInfos[zonesetIdx].unit, exportUnit)
+                                .toFixed(4);
+                        })];
                     }
                     arrData.push(row);
                 });
