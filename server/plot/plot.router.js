@@ -5,6 +5,7 @@ let bodyParser = require('body-parser');
 let fs = require('fs');
 let uploadDir = process.env.BACKEND_USER_UPLOAD_PATH || require('config').uploadPath;
 const multer = require('multer');
+const parameterSetModel = require('../parameter-set/parameter-set.model');
 
 router.use(bodyParser.json());
 
@@ -48,11 +49,8 @@ router.post('/plot/duplicate', function (req, res) {
 
 router.post('/plot/export', function (req, res) {
 	let exporter = require('./plot.exporter');
-	exporter(req.body, function (code, fileResult) {
-		res.status(code).sendFile(fileResult, function (err) {
-			if (err) console.log('Export plot: ' + err);
-			fs.unlinkSync(fileResult);
-		});
+	exporter(req.body, function (plot) {
+		parameterSetModel.createNewParameterSet({ ...req.body, content: plot }, (status) => res.send(status), req.dbConnection);
 	}, function (code) {
 		res.status(code).end();
 	}, req.dbConnection, req.decoded.username)

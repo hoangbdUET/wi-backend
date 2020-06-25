@@ -295,7 +295,8 @@ module.exports = function (body, done, error, dbConnection, username) {
 				});
 			}
 		], () => {
-			createTempfile(newEportPlot, done);
+			done(newEportPlot);
+			// createTempfile(newEportPlot, done);
 			// dbConnection.ParameterSet.create({
 			// 	name: "template-" + newEportPlot.name + "-" + Date.now(),
 			// 	content: newEportPlot,
