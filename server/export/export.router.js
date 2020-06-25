@@ -448,16 +448,6 @@ router.post('/zone-set', async function (req, res) {
             tvdssDatas[i] = await getCurveDataPromise(tvdssInfo.idCurve, dbConnection, username);
         }
     }
-    // console.log(tvdDatas[0].map(((d, idx) => `${d.x} - ${tvdssDatas[0][idx].x}`)));
-    // tvdDatas = tvdInfos.map(async tvdInfo => {
-    //     if (!tvdInfo) return null;
-    //     return await getCurveDataPromise(tvdInfo.idCurve, dbConnection, username);
-    // })
-    // if (tvdssInfos && tvdssInfos.length)
-    //     tvdssDatas = tvdssInfos.map(async tvdssInfo => {
-    //         if (!tvdssInfo) return null;
-    //         return await getCurveDataPromise(tvdssInfo.idCurve, dbConnection, username);
-    //     })
     if (req.body.idZoneSets) {
         let exportUnit = req.body.exportUnit;
         let arrData = [];
@@ -579,19 +569,36 @@ router.post('/marker-set', async function (req, res) {
     let headers = ['Well_name', 'Maker_name', 'Depth'];
     let dbConnection = req.dbConnection;
     let username = req.decoded.username;
-    let tvdInfo = req.body.tvdInfo;
-    let tvdssInfo = req.body.tvdssInfo;
-    let tvdData;
-    let tvdssData;
-    if (tvdInfo)
-        tvdData = await getCurveDataPromise(tvdInfo.idCurve, dbConnection, username);
-    if (tvdssInfo)
-        tvdssData = await getCurveDataPromise(tvdssInfo.idCurve, dbConnection, username);
+    let tvdInfos = req.body.tvdInfos || [];
+    let tvdssInfos = req.body.tvdssInfos || [];
+    let tvdDatas = [];
+    let tvdssDatas = [];
+    if (tvdInfos && tvdInfos.length) {
+        for (let i = 0; i < tvdInfos.length; i++) {
+            let tvdInfo = tvdInfos[i];
+            if (!tvdInfo) {
+                tvdDatas[i] = null;
+                continue;
+            }
+            tvdDatas[i] = await getCurveDataPromise(tvdInfo.idCurve, dbConnection, username);
+        }
+    }
+    if (tvdssInfos && tvdssInfos.length) {
+        for (let i = 0; i < tvdssInfos.length; i++) {
+            let tvdssInfo = tvdssInfos[i];
+            if (!tvdssInfo) {
+                tvdssDatas[i] = null;
+                continue;
+            }
+            tvdssDatas[i] = await getCurveDataPromise(tvdssInfo.idCurve, dbConnection, username);
+        }
+    }
     if (req.body.idMarkerSets) {
         let arrData = [];
         // let exportUnit = null;
         let exportUnit = req.body.exportUnit;
         for (const id of req.body.idMarkerSets) {
+            markersetIdx = req.body.idMarkerSets.indexOf(id);
             const markerSet = await req.dbConnection.MarkerSet.findByPk(id, {
                 include: [
                     {
@@ -618,21 +625,19 @@ router.post('/marker-set', async function (req, res) {
                         marker.marker_template.name.replace(/,/g, ''),
                         cDepth
                     ];
-                    if (tvdInfo) {
-                        row = [...row, ...getTVDValue(tvdData, tvdInfo, depth)];
-                        // row = [...row, ...getTVDValue(tvdData, tvdInfo, depth).map(v => {
-                        //     return convertLength
-                        //         .convertDistance(v, 'm', exportUnit)
-                        //         .toFixed(4);
-                        // })];
+                    if (tvdInfos[markersetIdx]) {
+                        row = [...row, ...getTVDValue(tvdDatas[markersetIdx], tvdInfos[markersetIdx], depth).map(v => {
+                            return convertLength
+                                .convertDistance(v, tvdInfos[markersetIdx].unit, exportUnit)
+                                .toFixed(4);
+                        })];
                     }
-                    if (tvdssInfo) {
-                        row = [...row, ...getTVDValue(tvdssData, tvdssInfo, depth)];
-                        // row = [...row, ...getTVDValue(tvdssData, tvdssInfo, depth).map(v => {
-                        //     return convertLength
-                        //         .convertDistance(v, 'm', exportUnit)
-                        //         .toFixed(4);
-                        // })];
+                    if (tvdssInfos[markersetIdx]) {
+                        row = [...row, ...getTVDValue(tvdssDatas[markersetIdx], tvdssInfos[markersetIdx], depth).map(v => {
+                            return convertLength
+                                .convertDistance(v, tvdssInfos[markersetIdx].unit, exportUnit)
+                                .toFixed(4);
+                        })];
                     }
                     arrData.push(row);
                 });
@@ -644,11 +649,19 @@ router.post('/marker-set', async function (req, res) {
                         marker.marker_template.name.replace(/,/g, ''),
                         depth
                     ];
-                    if (tvdInfo) {
-                        row = [...row, ...getTVDValue(tvdData, tvdInfo, depth)];
+                    if (tvdInfos[markersetIdx]) {
+                        row = [...row, ...getTVDValue(tvdDatas[markersetIdx], tvdInfos[markersetIdx], depth).map(v => {
+                            return convertLength
+                                .convertDistance(v, tvdInfos[markersetIdx].unit, exportUnit)
+                                .toFixed(4);
+                        })];
                     }
-                    if (tvdssInfo) {
-                        row = [...row, ...getTVDValue(tvdssData, tvdssInfo, depth)];
+                    if (tvdssInfos[markersetIdx]) {
+                        row = [...row, ...getTVDValue(tvdssDatas[markersetIdx], tvdssInfos[markersetIdx], depth).map(v => {
+                            return convertLength
+                                .convertDistance(v, tvdssInfos[markersetIdx].unit, exportUnit)
+                                .toFixed(4);
+                        })];
                     }
                     arrData.push(row);
                 });
@@ -658,9 +671,9 @@ router.post('/marker-set', async function (req, res) {
         arrData.sort(compareFn);
         arrData.unshift(['', '', exportUnit]);
         arrData.unshift(['', '', '']);
-        if (tvdInfo)
+        if (tvdInfos && tvdInfos.length)
             headers = [...headers, 'TVD'];
-        if (tvdssInfo)
+        if (tvdssInfos && tvdssInfos.length)
             headers = [...headers, 'TVDSS'];
         csv
             .write(arrData, { headers })
