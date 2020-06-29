@@ -399,7 +399,11 @@ function compareFn(item1, item2) {
 
 function getCurveDataPromise(idCurve, dbConnection, username) {
     return new Promise((resolve, reject) => {
-        curveModel.getData({ idCurve }, function (resultStream) {
+        console.log('Phuc');
+        curveModel.getCurveInfo({ idCurve }, (result) => {
+            console.log(result);
+        }, dbConnection, username);
+        curveModel.getData({ idCurve, isRaw: true }, function (resultStream) {
             if (resultStream) {
                 let arrData = "";
                 let lineReader = require('readline').createInterface({
@@ -486,20 +490,21 @@ router.post('/zone-set', async function (req, res) {
                     if (tvdInfos[zonesetIdx]) {
                         row = [...row, ...getTVDValue(tvdDatas[zonesetIdx], tvdInfos[zonesetIdx], startDepth, endDepth).map(v => {
                             return convertLength
-                                .convertDistance(v, 'm', exportUnit)
+                                .convertDistance(v, tvdInfos[zonesetIdx].unit, exportUnit)
                                 .toFixed(4);
                         })];
                     }
                     if (tvdssInfos[zonesetIdx]) {
                         row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth).map(v => {
                             return convertLength
-                                .convertDistance(v, 'm', exportUnit)
+                                .convertDistance(v, tvdssInfos[zonesetIdx].unit, exportUnit)
                                 .toFixed(4);
                         })];
                     }
                     arrData.push(row);
                 });
             } else {
+                console.log(tvdDatas[0]);
                 zoneSet.zones.forEach(zone => {
                     let startDepth = parseFloat(zone.startDepth).toFixed(4);
                     let endDepth = parseFloat(zone.endDepth).toFixed(4);
@@ -510,20 +515,20 @@ router.post('/zone-set', async function (req, res) {
                         endDepth
                     ]
                     if (tvdInfos[zonesetIdx]) {
-                        row = [...row, ...getTVDValue(tvdDatas[zonesetIdx], tvdInfos[zonesetIdx], startDepth, endDepth)];
-                        // row = [...row, ...getTVDValue(tvdDatas[zonesetIdx], tvdInfos[zonesetIdx], startDepth, endDepth).map(v => {
-                        //     return convertLength
-                        //         .convertDistance(v, tvdInfos[zonesetIdx].unit, exportUnit)
-                        //         .toFixed(4);
-                        // })];
+                        // row = [...row, ...getTVDValue(tvdDatas[zonesetIdx], tvdInfos[zonesetIdx], startDepth, endDepth)];
+                        row = [...row, ...getTVDValue(tvdDatas[zonesetIdx], tvdInfos[zonesetIdx], startDepth, endDepth).map(v => {
+                            return convertLength
+                                .convertDistance(v, tvdInfos[zonesetIdx].unit, exportUnit)
+                                .toFixed(4);
+                        })];
                     }
                     if (tvdssInfos[zonesetIdx]) {
-                        row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth)];
-                        // row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth).map(v => {
-                        //     return convertLength
-                        //         .convertDistance(v, tvdssInfos[zonesetIdx].unit, exportUnit)
-                        //         .toFixed(4);
-                        // })];
+                        // row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth)];
+                        row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth).map(v => {
+                            return convertLength
+                                .convertDistance(v, tvdssInfos[zonesetIdx].unit, exportUnit)
+                                .toFixed(4);
+                        })];
                     }
                     arrData.push(row);
                 });
