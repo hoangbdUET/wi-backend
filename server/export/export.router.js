@@ -484,7 +484,6 @@ router.post('/zone-set', async function (req, res) {
                         cEndDepth
                     ];
                     if (tvdInfos[zonesetIdx]) {
-                        // row = [...row, ...getTVDValue(tvdDatas[zonesetIdx], tvdInfos[zonesetIdx], startDepth, endDepth)];
                         row = [...row, ...getTVDValue(tvdDatas[zonesetIdx], tvdInfos[zonesetIdx], startDepth, endDepth).map(v => {
                             return convertLength
                                 .convertDistance(v, 'm', exportUnit)
@@ -492,7 +491,6 @@ router.post('/zone-set', async function (req, res) {
                         })];
                     }
                     if (tvdssInfos[zonesetIdx]) {
-                        // row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth)];
                         row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth).map(v => {
                             return convertLength
                                 .convertDistance(v, 'm', exportUnit)
@@ -512,7 +510,6 @@ router.post('/zone-set', async function (req, res) {
                         endDepth
                     ]
                     if (tvdInfos[zonesetIdx]) {
-                        // row = [...row, ...getTVDValue(tvdDatas[zonesetIdx], tvdInfos[zonesetIdx], startDepth, endDepth)];
                         row = [...row, ...getTVDValue(tvdDatas[zonesetIdx], tvdInfos[zonesetIdx], startDepth, endDepth)];
                         // row = [...row, ...getTVDValue(tvdDatas[zonesetIdx], tvdInfos[zonesetIdx], startDepth, endDepth).map(v => {
                         //     return convertLength
@@ -521,7 +518,6 @@ router.post('/zone-set', async function (req, res) {
                         // })];
                     }
                     if (tvdssInfos[zonesetIdx]) {
-                        // row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth)];
                         row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth)];
                         // row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth).map(v => {
                         //     return convertLength
@@ -547,7 +543,6 @@ router.post('/zone-set', async function (req, res) {
         function getTVDValue(curveData, tvdInfo, startDepth, endDepth) {
             let tvdStart = 0;
             let tvdEnd = 0;
-            console.log(tvdInfo);
             if (tvdInfo.step) {
                 tvdStart = (curveData[Math.ceil((parseFloat(startDepth).toFixed(4) - parseFloat(tvdInfo.top).toFixed(4)) / parseFloat(tvdInfo.step).toFixed(4))] || { x: 0 }).x;
                 tvdEnd = (curveData[Math.ceil((parseFloat(endDepth).toFixed(4) - parseFloat(tvdInfo.top).toFixed(4)) / parseFloat(tvdInfo.step).toFixed(4))] || { x: 0 }).x;
