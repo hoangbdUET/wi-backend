@@ -530,7 +530,12 @@ router.post('/zone-set', async function (req, res) {
             }
         }
         arrData.sort(compareFn);
-        arrData.unshift(['', '', exportUnit, exportUnit]);
+        let unitArr = ['', '', exportUnit, exportUnit];
+        if (tvdInfos && tvdInfos.length)
+            unitArr = [...unitArr, exportUnit, exportUnit];
+        if (tvdssInfos && tvdssInfos.length)
+            unitArr = [...unitArr, exportUnit, exportUnit];
+        arrData.unshift(unitArr);
         arrData.unshift(['', '', '', '']); //??????????????
         if (tvdInfos && tvdInfos.length)
             headers = [...headers, 'Top_TVD', 'Bottom_TVD'];
@@ -669,7 +674,12 @@ router.post('/marker-set', async function (req, res) {
         }
         // console.log(arrData);
         arrData.sort(compareFn);
-        arrData.unshift(['', '', exportUnit]);
+        let unitArr = ['', '', exportUnit];
+        if (tvdInfos && tvdInfos.length)
+            unitArr = [...unitArr, exportUnit];
+        if (tvdssInfos && tvdssInfos.length)
+            unitArr = [...unitArr, exportUnit];
+        arrData.unshift(unitArr);
         arrData.unshift(['', '', '']);
         if (tvdInfos && tvdInfos.length)
             headers = [...headers, 'TVD'];
