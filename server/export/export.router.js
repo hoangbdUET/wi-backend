@@ -552,10 +552,10 @@ router.post('/zone-set', async function (req, res) {
                 tvdEnd = (curveData[Math.floor((endDepth - tvdInfo.top) / tvdInfo.step)] || { x: 0 }).x;
             } else {
                 tvdStart = curveData.find((d, idx) => {
-                    return d.y >= startDepth;
+                    return parseFloat(d.y).toFixed(4) >=parseFloat(startDepth).toFixed(4);
                 }).x
                 tvdEnd = curveData.find((d, idx) => {
-                    return d.y >= endDepth;
+                    return parseFloat(d.y).toFixed(4) >= parseFloat(endDepth).toFixed(4);
                 }).x
             }
             return [parseFloat(tvdStart).toFixed(4), parseFloat(tvdEnd).toFixed(4)];
@@ -689,7 +689,7 @@ router.post('/marker-set', async function (req, res) {
                 tvd = (curveData[Math.floor((depth - tvdInfo.top) / tvdInfo.step)] || { x: 0 }).x;
             } else {
                 tvd = curveData.find((d, idx) => {
-                    return d.y >= depth;
+                    return parseFloat(d.y).toFixed(4) >= parseFloat(depth).toFixed(4);
                 }).x
             }
             return [parseFloat(tvd).toFixed(4)];
