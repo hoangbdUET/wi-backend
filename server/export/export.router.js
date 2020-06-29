@@ -636,14 +636,14 @@ router.post('/marker-set', async function (req, res) {
                     if (tvdInfos[markersetIdx]) {
                         row = [...row, ...getTVDValue(tvdDatas[markersetIdx], tvdInfos[markersetIdx], depth).map(v => {
                             return convertLength
-                                .convertDistance(v, 'm', exportUnit)
+                                .convertDistance(v, tvdInfos[markersetIdx].unit, exportUnit)
                                 .toFixed(4);
                         })];
                     }
                     if (tvdssInfos[markersetIdx]) {
                         row = [...row, ...getTVDValue(tvdssDatas[markersetIdx], tvdssInfos[markersetIdx], depth).map(v => {
                             return convertLength
-                                .convertDistance(v, 'm', exportUnit)
+                                .convertDistance(v, tvdssInfos[markersetIdx].unit, exportUnit)
                                 .toFixed(4);
                         })];
                     }
@@ -658,20 +658,20 @@ router.post('/marker-set', async function (req, res) {
                         depth
                     ];
                     if (tvdInfos[markersetIdx]) {
-                        row = [...row, ...getTVDValue(tvdDatas[markersetIdx], tvdInfos[markersetIdx], depth)];
-                        // row = [...row, ...getTVDValue(tvdDatas[markersetIdx], tvdInfos[markersetIdx], depth).map(v => {
-                        //     return convertLength
-                        //         .convertDistance(v, tvdInfos[markersetIdx].unit, exportUnit)
-                        //         .toFixed(4);
-                        // })];
+                        // row = [...row, ...getTVDValue(tvdDatas[markersetIdx], tvdInfos[markersetIdx], depth)];
+                        row = [...row, ...getTVDValue(tvdDatas[markersetIdx], tvdInfos[markersetIdx], depth).map(v => {
+                            return convertLength
+                                .convertDistance(v, tvdInfos[markersetIdx].unit, exportUnit)
+                                .toFixed(4);
+                        })];
                     }
                     if (tvdssInfos[markersetIdx]) {
-                        row = [...row, ...getTVDValue(tvdssDatas[markersetIdx], tvdssInfos[markersetIdx], depth)];
-                        // row = [...row, ...getTVDValue(tvdssDatas[markersetIdx], tvdssInfos[markersetIdx], depth).map(v => {
-                        //     return convertLength
-                        //         .convertDistance(v, tvdssInfos[markersetIdx].unit, exportUnit)
-                        //         .toFixed(4);
-                        // })];
+                        // row = [...row, ...getTVDValue(tvdssDatas[markersetIdx], tvdssInfos[markersetIdx], depth)];
+                        row = [...row, ...getTVDValue(tvdssDatas[markersetIdx], tvdssInfos[markersetIdx], depth).map(v => {
+                            return convertLength
+                                .convertDistance(v, tvdssInfos[markersetIdx].unit, exportUnit)
+                                .toFixed(4);
+                        })];
                     }
                     arrData.push(row);
                 });
