@@ -547,12 +547,13 @@ router.post('/zone-set', async function (req, res) {
         function getTVDValue(curveData, tvdInfo, startDepth, endDepth) {
             let tvdStart = 0;
             let tvdEnd = 0;
+            console.log(tvdInfo);
             if (tvdInfo.step) {
-                tvdStart = (curveData[Math.floor((startDepth - tvdInfo.top) / tvdInfo.step)] || { x: 0 }).x;
-                tvdEnd = (curveData[Math.floor((endDepth - tvdInfo.top) / tvdInfo.step)] || { x: 0 }).x;
+                tvdStart = (curveData[Math.ceil((parseFloat(startDepth).toFixed(4) - parseFloat(tvdInfo.top).toFixed(4)) / parseFloat(tvdInfo.step).toFixed(4))] || { x: 0 }).x;
+                tvdEnd = (curveData[Math.ceil((parseFloat(endDepth).toFixed(4) - parseFloat(tvdInfo.top).toFixed(4)) / parseFloat(tvdInfo.step).toFixed(4))] || { x: 0 }).x;
             } else {
                 tvdStart = curveData.find((d, idx) => {
-                    return parseFloat(d.y).toFixed(4) >=parseFloat(startDepth).toFixed(4);
+                    return parseFloat(d.y).toFixed(4) >= parseFloat(startDepth).toFixed(4);
                 }).x
                 tvdEnd = curveData.find((d, idx) => {
                     return parseFloat(d.y).toFixed(4) >= parseFloat(endDepth).toFixed(4);
@@ -686,7 +687,7 @@ router.post('/marker-set', async function (req, res) {
         function getTVDValue(curveData, tvdInfo, depth) {
             let tvd = 0;
             if (tvdInfo.step) {
-                tvd = (curveData[Math.floor((depth - tvdInfo.top) / tvdInfo.step)] || { x: 0 }).x;
+                tvd = (curveData[Math.floor((parseFloat(depth).toFixed(4) - parseFloat(tvdInfo.top).toFixed(4)) / parseFloat(tvdInfo.step).toFixed(4))] || { x: 0 }).x;
             } else {
                 tvd = curveData.find((d, idx) => {
                     return parseFloat(d.y).toFixed(4) >= parseFloat(depth).toFixed(4);
