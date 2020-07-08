@@ -399,9 +399,7 @@ function compareFn(item1, item2) {
 
 function getCurveDataPromise(idCurve, dbConnection, username) {
     return new Promise((resolve, reject) => {
-        console.log('Phuc');
         curveModel.getCurveInfo({ idCurve }, (result) => {
-            console.log(result);
         }, dbConnection, username);
         curveModel.getData({ idCurve, isRaw: true }, function (resultStream) {
             if (resultStream) {
@@ -418,7 +416,6 @@ function getCurveDataPromise(idCurve, dbConnection, username) {
                 });
             }
         }, function (status) {
-            console.log(status);
             reject(status);
         }, dbConnection, username);
     })
@@ -439,7 +436,9 @@ router.post('/zone-set', async function (req, res) {
                 tvdDatas[i] = null;
                 continue;
             }
+            console.log('getting', tvdInfo[i].idCurve);
             tvdDatas[i] = await getCurveDataPromise(tvdInfo.idCurve, dbConnection, username);
+            console.log('got', tvdInfo[i].idCurve);
         }
     }
     if (tvdssInfos && tvdssInfos.length) {
@@ -449,7 +448,9 @@ router.post('/zone-set', async function (req, res) {
                 tvdssDatas[i] = null;
                 continue;
             }
+            console.log('getting', tvdInfo[i].idCurve);
             tvdssDatas[i] = await getCurveDataPromise(tvdssInfo.idCurve, dbConnection, username);
+            console.log('got', tvdInfo[i].idCurve);
         }
     }
     if (req.body.idZoneSets) {
@@ -471,7 +472,7 @@ router.post('/zone-set', async function (req, res) {
             if (!exportUnit) {
                 exportUnit = zoneSet.well.unit;
             }
-            if (exportUnit != 'm' && exportUnit != 'M') {
+            if (convertLength.convertDistance(1, exportUnit, 'm') === 1) {
                 zoneSet.zones.forEach(zone => {
                     let startDepth = parseFloat(zone.startDepth).toFixed(4);
                     let endDepth = parseFloat(zone.endDepth).toFixed(4);
@@ -504,7 +505,6 @@ router.post('/zone-set', async function (req, res) {
                     arrData.push(row);
                 });
             } else {
-                console.log(tvdDatas[0]);
                 zoneSet.zones.forEach(zone => {
                     let startDepth = parseFloat(zone.startDepth).toFixed(4);
                     let endDepth = parseFloat(zone.endDepth).toFixed(4);
