@@ -436,9 +436,9 @@ router.post('/zone-set', async function (req, res) {
                 tvdDatas[i] = null;
                 continue;
             }
-            console.log('getting', tvdInfo[i].idCurve);
+            console.log('getting', tvdInfo.idCurve);
             tvdDatas[i] = await getCurveDataPromise(tvdInfo.idCurve, dbConnection, username);
-            console.log('got', tvdInfo[i].idCurve);
+            console.log('got', tvdInfo.idCurve);
         }
     }
     if (tvdssInfos && tvdssInfos.length) {
@@ -448,9 +448,9 @@ router.post('/zone-set', async function (req, res) {
                 tvdssDatas[i] = null;
                 continue;
             }
-            console.log('getting', tvdInfo[i].idCurve);
+            console.log('getting', tvdssInfo.idCurve);
             tvdssDatas[i] = await getCurveDataPromise(tvdssInfo.idCurve, dbConnection, username);
-            console.log('got', tvdInfo[i].idCurve);
+            console.log('got', tvdssInfo.idCurve);
         }
     }
     if (req.body.idZoneSets) {
