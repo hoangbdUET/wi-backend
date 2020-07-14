@@ -427,37 +427,53 @@ router.post('/zone-set', async function (req, res) {
     let username = req.decoded.username;
     let tvdInfos = req.body.tvdInfos || [];
     let tvdssInfos = req.body.tvdssInfos || [];
-    let tvdDatas = [];
-    let tvdssDatas = [];
+    let tvdDatas = {};
+    let tvdssDatas = {};
     if (tvdInfos && tvdInfos.length) {
-        for (let i = 0; i < tvdInfos.length; i++) {
-            let tvdInfo = tvdInfos[i];
-            if (!tvdInfo) {
-                tvdDatas[i] = null;
-                continue;
-            }
-            console.log('getting', tvdInfo.idCurve);
-            tvdDatas[i] = await getCurveDataPromise(tvdInfo.idCurve, dbConnection, username);
-            console.log('got', tvdInfo.idCurve);
-        }
+        await new Promise((res, rej) => {
+            async.eachOf(tvdInfos,
+                (tvdInfo, i, next) => {
+                    if (!tvdInfo) {
+                        tvdDatas[i] = null;
+                        return next();
+                    }
+                    getCurveDataPromise(tvdInfo.idCurve, dbConnection, username).then(d => {
+                        tvdDatas[i] = d;
+                        next();
+                    });
+                },
+                (err) => {
+                    if (err) rej(err);
+                    res();
+                }
+            );
+        });
     }
     if (tvdssInfos && tvdssInfos.length) {
-        for (let i = 0; i < tvdssInfos.length; i++) {
-            let tvdssInfo = tvdssInfos[i];
-            if (!tvdssInfo) {
-                tvdssDatas[i] = null;
-                continue;
-            }
-            console.log('getting', tvdssInfo.idCurve);
-            tvdssDatas[i] = await getCurveDataPromise(tvdssInfo.idCurve, dbConnection, username);
-            console.log('got', tvdssInfo.idCurve);
-        }
+        await new Promise((res, rej) => {
+            async.eachOf(tvdssInfos,
+                (tvdssInfo, i, next) => {
+                    if (!tvdssInfo) {
+                        tvdssDatas[i] = null;
+                        return next();
+                    }
+                    getCurveDataPromise(tvdssInfo.idCurve, dbConnection, username).then(d => {
+                        tvdssDatas[i] = d;
+                        next();
+                    });
+                },
+                (err) => {
+                    if (err) rej(err);
+                    res();
+                }
+            );
+        });
     }
     if (req.body.idZoneSets) {
         let exportUnit = req.body.exportUnit;
         let arrData = [];
-        for (const id of req.body.idZoneSets) {
-            zonesetIdx = req.body.idZoneSets.indexOf(id);
+        for (let zonesetIdx = 0; zonesetIdx < req.body.idZoneSets.length; zonesetIdx++) {
+            const id = req.body.idZoneSets[zonesetIdx]
             const zoneSet = await req.dbConnection.ZoneSet.findByPk(id, {
                 include: [
                     {
