@@ -488,67 +488,31 @@ router.post('/zone-set', async function (req, res) {
             if (!exportUnit) {
                 exportUnit = zoneSet.well.unit;
             }
-            if (convertLength.convertDistance(1, exportUnit, 'm') === 1) {
-                zoneSet.zones.forEach(zone => {
-                    let startDepth = parseFloat(zone.startDepth).toFixed(4);
-                    let endDepth = parseFloat(zone.endDepth).toFixed(4);
-                    let cStartDepth = convertLength
-                        .convertDistance(zone.startDepth, 'm', exportUnit)
-                        .toFixed(4);
-                    let cEndDepth = convertLength
-                        .convertDistance(zone.endDepth, 'm', exportUnit)
-                        .toFixed(4);
-                    let row = [
-                        zoneSet.well.name,
-                        zone.zone_template.name.replace(/,/g, ''),
-                        cStartDepth,
-                        cEndDepth
-                    ];
-                    if (tvdInfos[zonesetIdx]) {
-                        row = [...row, ...getTVDValue(tvdDatas[zonesetIdx], tvdInfos[zonesetIdx], startDepth, endDepth).map(v => {
-                            return convertLength
-                                .convertDistance(v, tvdInfos[zonesetIdx].unit, exportUnit)
-                                .toFixed(4);
-                        })];
-                    }
-                    if (tvdssInfos[zonesetIdx]) {
-                        row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth).map(v => {
-                            return convertLength
-                                .convertDistance(v, tvdssInfos[zonesetIdx].unit, exportUnit)
-                                .toFixed(4);
-                        })];
-                    }
-                    arrData.push(row);
-                });
-            } else {
-                zoneSet.zones.forEach(zone => {
-                    let startDepth = parseFloat(zone.startDepth).toFixed(4);
-                    let endDepth = parseFloat(zone.endDepth).toFixed(4);
-                    let row = [
-                        zoneSet.well.name,
-                        zone.zone_template.name.replace(/,/g, ''),
-                        startDepth,
-                        endDepth
-                    ]
-                    if (tvdInfos[zonesetIdx]) {
-                        // row = [...row, ...getTVDValue(tvdDatas[zonesetIdx], tvdInfos[zonesetIdx], startDepth, endDepth)];
-                        row = [...row, ...getTVDValue(tvdDatas[zonesetIdx], tvdInfos[zonesetIdx], startDepth, endDepth).map(v => {
-                            return convertLength
-                                .convertDistance(v, tvdInfos[zonesetIdx].unit, exportUnit)
-                                .toFixed(4);
-                        })];
-                    }
-                    if (tvdssInfos[zonesetIdx]) {
-                        // row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth)];
-                        row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth).map(v => {
-                            return convertLength
-                                .convertDistance(v, tvdssInfos[zonesetIdx].unit, exportUnit)
-                                .toFixed(4);
-                        })];
-                    }
-                    arrData.push(row);
-                });
-            }
+            zoneSet.zones.forEach(zone => {
+                let startDepth = parseFloat(zone.startDepth).toFixed(4);
+                let endDepth = parseFloat(zone.endDepth).toFixed(4);
+                let row = [
+                    zoneSet.well.name,
+                    zone.zone_template.name.replace(/,/g, ''),
+                    convertLength.convertDistance(startDepth, zoneSet.well.unit, exportUnit).toFixed(4),
+                    convertLength.convertDistance(endDepth, zoneSet.well.unit, exportUnit).toFixed(4),
+                ]
+                if (tvdInfos[zonesetIdx]) {
+                    row = [...row, ...getTVDValue(tvdDatas[zonesetIdx], tvdInfos[zonesetIdx], startDepth, endDepth).map(v => {
+                        return convertLength
+                            .convertDistance(v, tvdInfos[zonesetIdx].unit, exportUnit)
+                            .toFixed(4);
+                    })];
+                }
+                if (tvdssInfos[zonesetIdx]) {
+                    row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth).map(v => {
+                        return convertLength
+                            .convertDistance(v, tvdssInfos[zonesetIdx].unit, exportUnit)
+                            .toFixed(4);
+                    })];
+                }
+                arrData.push(row);
+            });
         }
         arrData.sort(compareFn);
         let unitArr = ['', '', exportUnit, exportUnit];
