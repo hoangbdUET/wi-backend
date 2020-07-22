@@ -499,6 +499,7 @@ router.post('/zone-set', async function (req, res) {
                 ]
                 if (tvdInfos[zonesetIdx]) {
                     row = [...row, ...getTVDValue(tvdDatas[zonesetIdx], tvdInfos[zonesetIdx], startDepth, endDepth).map(v => {
+                        if (v === null) return -9999;
                         return convertLength
                             .convertDistance(v, tvdInfos[zonesetIdx].unit, exportUnit)
                             .toFixed(4);
@@ -506,6 +507,7 @@ router.post('/zone-set', async function (req, res) {
                 }
                 if (tvdssInfos[zonesetIdx]) {
                     row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth).map(v => {
+                        if (v === null) return -9999;
                         return convertLength
                             .convertDistance(v, tvdssInfos[zonesetIdx].unit, exportUnit)
                             .toFixed(4);
@@ -534,17 +536,19 @@ router.post('/zone-set', async function (req, res) {
             let tvdStart = 0;
             let tvdEnd = 0;
             if (tvdInfo.step) {
-                tvdStart = (curveData[Math.ceil((parseFloat(startDepth).toFixed(4) - parseFloat(tvdInfo.top).toFixed(4)) / parseFloat(tvdInfo.step).toFixed(4))] || { x: 0 }).x;
-                tvdEnd = (curveData[Math.ceil((parseFloat(endDepth).toFixed(4) - parseFloat(tvdInfo.top).toFixed(4)) / parseFloat(tvdInfo.step).toFixed(4))] || { x: 0 }).x;
+                tvdStart = curveData[Math.ceil((parseFloat(startDepth).toFixed(4) - parseFloat(tvdInfo.top).toFixed(4)) / parseFloat(tvdInfo.step).toFixed(4))];
+                tvdEnd = curveData[Math.ceil((parseFloat(endDepth).toFixed(4) - parseFloat(tvdInfo.top).toFixed(4)) / parseFloat(tvdInfo.step).toFixed(4))];
             } else {
                 tvdStart = curveData.find((d, idx) => {
                     return parseFloat(d.y).toFixed(4) >= parseFloat(startDepth).toFixed(4);
-                }).x
+                })
                 tvdEnd = curveData.find((d, idx) => {
                     return parseFloat(d.y).toFixed(4) >= parseFloat(endDepth).toFixed(4);
-                }).x
+                })
             }
-            return [parseFloat(tvdStart).toFixed(4), parseFloat(tvdEnd).toFixed(4)];
+            tvdStart = tvdStart ? parseFloat(tvdStart.x).toFixed(4) : null;
+            tvdEnd = tvdEnd ? parseFloat(tvdEnd.x).toFixed(4) : null;
+            return [tvdStart, tvdEnd];
         }
     } else {
         res.send(
