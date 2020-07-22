@@ -499,7 +499,7 @@ router.post('/zone-set', async function (req, res) {
                 ]
                 if (tvdInfos[zonesetIdx]) {
                     row = [...row, ...getTVDValue(tvdDatas[zonesetIdx], tvdInfos[zonesetIdx], startDepth, endDepth).map(v => {
-                        if (v === null) return -9999;
+                        if (!v) return v;
                         return convertLength
                             .convertDistance(v, tvdInfos[zonesetIdx].unit, exportUnit)
                             .toFixed(4);
@@ -507,7 +507,7 @@ router.post('/zone-set', async function (req, res) {
                 }
                 if (tvdssInfos[zonesetIdx]) {
                     row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth).map(v => {
-                        if (v === null) return -9999;
+                        if (!v) return v;
                         return convertLength
                             .convertDistance(v, tvdssInfos[zonesetIdx].unit, exportUnit)
                             .toFixed(4);
