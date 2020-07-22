@@ -494,8 +494,8 @@ router.post('/zone-set', async function (req, res) {
                 let row = [
                     zoneSet.well.name,
                     zone.zone_template.name.replace(/,/g, ''),
-                    convertLength.convertDistance(startDepth, zoneSet.well.unit, exportUnit).toFixed(4),
-                    convertLength.convertDistance(endDepth, zoneSet.well.unit, exportUnit).toFixed(4),
+                    convertLength.convertDistance(startDepth, 'm', exportUnit).toFixed(4),
+                    convertLength.convertDistance(endDepth, 'm', exportUnit).toFixed(4),
                 ]
                 if (tvdInfos[zonesetIdx]) {
                     row = [...row, ...getTVDValue(tvdDatas[zonesetIdx], tvdInfos[zonesetIdx], startDepth, endDepth).map(v => {
