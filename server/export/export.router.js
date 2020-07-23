@@ -425,22 +425,28 @@ router.post('/zone-set', async function (req, res) {
     let headers = ['Well', 'Zone', 'Top_Depth', 'Bottom_Depth'];
     let dbConnection = req.dbConnection;
     let username = req.decoded.username;
-    let tvdInfos = req.body.tvdInfos || [];
-    let tvdssInfos = req.body.tvdssInfos || [];
+    const idZoneSets = req.body.idZoneSets;
+    const _tvdInfos = req.body.tvdInfos || [];
+    const _tvdssInfos = req.body.tvdssInfos || [];
+    const tvdInfos = _tvdInfos.reduce((obj, cur, idx) => {
+        obj[idZoneSets[idx]] = cur;
+        return obj;
+    }, {});
+    const tvdssInfos = _tvdssInfos.reduce((obj, cur, idx) => {
+        obj[idZoneSets[idx]] = cur;
+        return obj;
+    }, {});
     let tvdDatas = {};
     let tvdssDatas = {};
-    if (tvdInfos && tvdInfos.length) {
         await new Promise((res, rej) => {
-            async.eachOfSeries(tvdInfos,
-                (tvdInfo, i, next) => {
+            async.eachOf(tvdInfos,
+                (tvdInfo, zonesetId, next) => {
                     if (!tvdInfo) {
-                        tvdDatas[i] = null;
+                        tvdDatas[zonesetId] = null;
                         return next();
                     }
-                    console.log('get tvd ', i);
                     getCurveDataPromise(tvdInfo.idCurve, dbConnection, username).then(d => {
-                        console.log('done tvd ', i);
-                        tvdDatas[i] = d;
+                        tvdDatas[zonesetId] = d;
                         next();
                     });
                 },
@@ -450,17 +456,15 @@ router.post('/zone-set', async function (req, res) {
                 }
             );
         });
-    }
-    if (tvdssInfos && tvdssInfos.length) {
         await new Promise((res, rej) => {
-            async.eachOfSeries(tvdssInfos,
-                (tvdssInfo, i, next) => {
+            async.eachOf(tvdssInfos,
+                (tvdssInfo, zonesetId, next) => {
                     if (!tvdssInfo) {
-                        tvdssDatas[i] = null;
+                        tvdssDatas[zonesetId] = null;
                         return next();
                     }
                     getCurveDataPromise(tvdssInfo.idCurve, dbConnection, username).then(d => {
-                        tvdssDatas[i] = d;
+                        tvdssDatas[zonesetId] = d;
                         next();
                     });
                 },
@@ -470,7 +474,6 @@ router.post('/zone-set', async function (req, res) {
                 }
             );
         });
-    }
     if (req.body.idZoneSets) {
         let exportUnit = req.body.exportUnit;
         let arrData = [];
@@ -499,19 +502,19 @@ router.post('/zone-set', async function (req, res) {
                     convertLength.convertDistance(startDepth, 'm', exportUnit).toFixed(4),
                     convertLength.convertDistance(endDepth, 'm', exportUnit).toFixed(4),
                 ]
-                if (tvdInfos[zonesetIdx]) {
-                    row = [...row, ...getTVDValue(tvdDatas[zonesetIdx], tvdInfos[zonesetIdx], startDepth, endDepth).map(v => {
+                if (tvdInfos[id]) {
+                    row = [...row, ...getTVDValue(tvdDatas[id], tvdInfos[id], startDepth, endDepth).map(v => {
                         if (!v) return v;
                         return convertLength
-                            .convertDistance(v, tvdInfos[zonesetIdx].unit, exportUnit)
+                            .convertDistance(v, tvdInfos[id].unit, exportUnit)
                             .toFixed(4);
                     })];
                 }
-                if (tvdssInfos[zonesetIdx]) {
-                    row = [...row, ...getTVDValue(tvdssDatas[zonesetIdx], tvdssInfos[zonesetIdx], startDepth, endDepth).map(v => {
+                if (tvdssInfos[id]) {
+                    row = [...row, ...getTVDValue(tvdssDatas[id], tvdssInfos[id], startDepth, endDepth).map(v => {
                         if (!v) return v;
                         return convertLength
-                            .convertDistance(v, tvdssInfos[zonesetIdx].unit, exportUnit)
+                            .convertDistance(v, tvdssInfos[id].unit, exportUnit)
                             .toFixed(4);
                     })];
                 }
