@@ -431,13 +431,15 @@ router.post('/zone-set', async function (req, res) {
     let tvdssDatas = {};
     if (tvdInfos && tvdInfos.length) {
         await new Promise((res, rej) => {
-            async.eachOf(tvdInfos,
+            async.eachOfSeries(tvdInfos,
                 (tvdInfo, i, next) => {
                     if (!tvdInfo) {
                         tvdDatas[i] = null;
                         return next();
                     }
+                    console.log('get tvd ', i);
                     getCurveDataPromise(tvdInfo.idCurve, dbConnection, username).then(d => {
+                        console.log('done tvd ', i);
                         tvdDatas[i] = d;
                         next();
                     });
@@ -451,7 +453,7 @@ router.post('/zone-set', async function (req, res) {
     }
     if (tvdssInfos && tvdssInfos.length) {
         await new Promise((res, rej) => {
-            async.eachOf(tvdssInfos,
+            async.eachOfSeries(tvdssInfos,
                 (tvdssInfo, i, next) => {
                     if (!tvdssInfo) {
                         tvdssDatas[i] = null;
