@@ -161,6 +161,16 @@ function main() {
 	app.get('/info', (req, res) => {
 		res.send(require('./server/utils/information').serverInfo);
 	});
+	app.post('/refresh-token', (req, res)=>{
+		res.json({
+			code: 200,
+			content: {
+				refreshToken: req.body.refreshToken,
+				token: req.body.token
+			},
+			reason: "Successfull"
+		})
+	})
 	app.use(express.static(process.env.BACKEND_IMAGE_BASE_PATH || fullConfig.imageBasePath));
 	app.use('/', utmZoneRouter);
 	app.use('/pattern', express.static(path.join(__dirname, '/server/pattern/files')));
