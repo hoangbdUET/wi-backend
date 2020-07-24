@@ -470,8 +470,6 @@ router.post('/zone-set', async function (req, res) {
             }
         );
     });
-    console.log('DEBUG', 'tvdinfos', tvdInfos);
-    console.log('DEBUG', 'tvdssinfos', tvdssInfos);
     if (req.body.idZoneSets) {
         let exportUnit = req.body.exportUnit;
         let arrData = [];
@@ -516,6 +514,7 @@ router.post('/zone-set', async function (req, res) {
                             .toFixed(4);
                     })];
                 }
+                console.log('DEBUG', JSON.stringify(row, null, 2));
                 arrData.push(row);
             }
         }
