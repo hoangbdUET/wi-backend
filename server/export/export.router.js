@@ -436,49 +436,46 @@ router.post('/zone-set', async function (req, res) {
         obj[idZoneSets[idx]] = cur;
         return obj;
     }, {});
-    let tvdDatas = {};
-    let tvdssDatas = {};
-        await new Promise((res, rej) => {
-            async.eachOf(tvdInfos,
-                (tvdInfo, zonesetId, next) => {
-                    if (!tvdInfo) {
-                        tvdDatas[zonesetId] = null;
-                        return next();
-                    }
-                    getCurveDataPromise(tvdInfo.idCurve, dbConnection, username).then(d => {
-                        tvdDatas[zonesetId] = d;
-                        next();
-                    });
-                },
-                (err) => {
-                    if (err) rej(err);
-                    res();
+    await new Promise((res, rej) => {
+        async.each(tvdInfos,
+            (tvdInfo, next) => {
+                if (!tvdInfo) {
+                    return next();
                 }
-            );
-        });
-        await new Promise((res, rej) => {
-            async.eachOf(tvdssInfos,
-                (tvdssInfo, zonesetId, next) => {
-                    if (!tvdssInfo) {
-                        tvdssDatas[zonesetId] = null;
-                        return next();
-                    }
-                    getCurveDataPromise(tvdssInfo.idCurve, dbConnection, username).then(d => {
-                        tvdssDatas[zonesetId] = d;
-                        next();
-                    });
-                },
-                (err) => {
-                    if (err) rej(err);
-                    res();
+                getCurveDataPromise(tvdInfo.idCurve, dbConnection, username).then(d => {
+                    tvdInfo.data = d;
+                    next();
+                });
+            },
+            (err) => {
+                if (err) rej(err);
+                res();
+            }
+        );
+    });
+    await new Promise((res, rej) => {
+        async.each(tvdssInfos,
+            (tvdssInfo, next) => {
+                if (!tvdssInfo) {
+                    return next();
                 }
-            );
-        });
+                getCurveDataPromise(tvdssInfo.idCurve, dbConnection, username).then(d => {
+                    tvdssInfo.data = d;
+                    next();
+                });
+            },
+            (err) => {
+                if (err) rej(err);
+                res();
+            }
+        );
+    });
+    console.log('DEBUG', 'tvdinfos', tvdInfos);
+    console.log('DEBUG', 'tvdssinfos', tvdssInfos);
     if (req.body.idZoneSets) {
         let exportUnit = req.body.exportUnit;
         let arrData = [];
-        for (let zonesetIdx = 0; zonesetIdx < req.body.idZoneSets.length; zonesetIdx++) {
-            const id = req.body.idZoneSets[zonesetIdx]
+        for (const id of req.body.idZoneSets) {
             const zoneSet = await req.dbConnection.ZoneSet.findByPk(id, {
                 include: [
                     {
@@ -493,7 +490,7 @@ router.post('/zone-set', async function (req, res) {
             if (!exportUnit) {
                 exportUnit = zoneSet.well.unit;
             }
-            zoneSet.zones.forEach(zone => {
+            for (const zone of zoneSet.zones) {
                 let startDepth = parseFloat(zone.startDepth).toFixed(4);
                 let endDepth = parseFloat(zone.endDepth).toFixed(4);
                 let row = [
@@ -502,8 +499,9 @@ router.post('/zone-set', async function (req, res) {
                     convertLength.convertDistance(startDepth, 'm', exportUnit).toFixed(4),
                     convertLength.convertDistance(endDepth, 'm', exportUnit).toFixed(4),
                 ]
+                console.log('DEBUG', 'well', zoneSet.well.name, 'idZoneSet', id);
                 if (tvdInfos[id]) {
-                    row = [...row, ...getTVDValue(tvdDatas[id], tvdInfos[id], startDepth, endDepth).map(v => {
+                    row = [...row, ...getTVDValue(tvdInfos[id].data, tvdInfos[id], startDepth, endDepth).map(v => {
                         if (!v) return v;
                         return convertLength
                             .convertDistance(v, tvdInfos[id].unit, exportUnit)
@@ -511,7 +509,7 @@ router.post('/zone-set', async function (req, res) {
                     })];
                 }
                 if (tvdssInfos[id]) {
-                    row = [...row, ...getTVDValue(tvdssDatas[id], tvdssInfos[id], startDepth, endDepth).map(v => {
+                    row = [...row, ...getTVDValue(tvdssInfos[id].data, tvdssInfos[id], startDepth, endDepth).map(v => {
                         if (!v) return v;
                         return convertLength
                             .convertDistance(v, tvdssInfos[id].unit, exportUnit)
@@ -519,22 +517,22 @@ router.post('/zone-set', async function (req, res) {
                     })];
                 }
                 arrData.push(row);
-            });
+            }
         }
         arrData.sort(compareFn);
         let unitArr = ['', '', exportUnit, exportUnit];
-        if (tvdInfos && tvdInfos.length)
+        if (Object.keys(tvdInfos).length)
             unitArr = [...unitArr, exportUnit, exportUnit];
-        if (tvdssInfos && tvdssInfos.length)
+        if (Object.keys(tvdssInfos).length)
             unitArr = [...unitArr, exportUnit, exportUnit];
         arrData.unshift(unitArr);
-        arrData.unshift(['', '', '', '']); //??????????????
-        if (tvdInfos && tvdInfos.length)
+        if (Object.keys(tvdInfos).length)
             headers = [...headers, 'Top_TVD', 'Bottom_TVD'];
-        if (tvdssInfos && tvdssInfos.length)
+        if (Object.keys(tvdssInfos).length)
             headers = [...headers, 'Top_TVDSS', 'Bottom_TVDSS'];
+        arrData.unshift(headers);
         csv
-            .write(arrData, { headers })
+            .write(arrData)
             .pipe(res);
 
         function getTVDValue(curveData, tvdInfo, startDepth, endDepth) {
