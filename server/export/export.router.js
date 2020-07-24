@@ -497,7 +497,6 @@ router.post('/zone-set', async function (req, res) {
                     convertLength.convertDistance(startDepth, 'm', exportUnit).toFixed(4),
                     convertLength.convertDistance(endDepth, 'm', exportUnit).toFixed(4),
                 ]
-                console.log('DEBUG', 'well', zoneSet.well.name, 'idZoneSet', id);
                 if (tvdInfos[id]) {
                     row = [...row, ...getTVDValue(tvdInfos[id].data, tvdInfos[id], startDepth, endDepth).map(v => {
                         if (!v) return v;
@@ -514,11 +513,13 @@ router.post('/zone-set', async function (req, res) {
                             .toFixed(4);
                     })];
                 }
-                console.log('DEBUG', JSON.stringify(row, null, 2));
+                console.log('DEBUG', row);
                 arrData.push(row);
             }
         }
+        console.log('DEBUG', arrData);
         arrData.sort(compareFn);
+        console.log('DEBUG sorted', arrData);
         let unitArr = ['', '', exportUnit, exportUnit];
         if (Object.keys(tvdInfos).length)
             unitArr = [...unitArr, exportUnit, exportUnit];
