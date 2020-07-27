@@ -428,6 +428,10 @@ router.post('/zone-set', async function (req, res) {
     const idZoneSets = req.body.idZoneSets;
     const _tvdInfos = req.body.tvdInfos || [];
     const _tvdssInfos = req.body.tvdssInfos || [];
+    console.log('DEBUG', req.body);
+    console.log('idZoneSets', idZoneSets);
+    console.log('tvdInfos', _tvdInfos);
+    console.log('tvdssInfos', _tvdssInfos);
     const tvdInfos = _tvdInfos.reduce((obj, cur, idx) => {
         obj[idZoneSets[idx]] = cur;
         return obj;
@@ -502,7 +506,6 @@ router.post('/zone-set', async function (req, res) {
                         convertLength.convertDistance(startDepth, 'm', exportUnit).toFixed(4),
                         convertLength.convertDistance(endDepth, 'm', exportUnit).toFixed(4),
                     ]
-                    console.log(tvdInfos[id]);
                     if (tvdInfos[id]) {
                         row.push(...getTVDValue(tvdInfos[id].data, tvdInfos[id], startDepth, endDepth).map(v => {
                             if (!v) return v;
@@ -510,8 +513,6 @@ router.post('/zone-set', async function (req, res) {
                                 .convertDistance(v, tvdInfos[id].unit, exportUnit)
                                 .toFixed(4);
                         }));
-                    }
-                    console.log(tvdssInfos[id]);
                     if (tvdssInfos[id]) {
                         row.push(...getTVDValue(tvdssInfos[id].data, tvdssInfos[id], startDepth, endDepth).map(v => {
                             if (!v) return v;
@@ -520,7 +521,6 @@ router.post('/zone-set', async function (req, res) {
                                 .toFixed(4);
                         }));
                     }
-                    console.log('DEBUG', row);
                     arrData.push(row);
                 }
                 next();
@@ -532,9 +532,7 @@ router.post('/zone-set', async function (req, res) {
             }
         );
     });
-    console.log('DEBUG', JSON.stringify(arrData.map(d => d.join(' ')), null, 2));
     arrData.sort(compareFn);
-    console.log('DEBUG sorted', JSON.stringify(arrData.map(d => d.join(' ')), null, 2));
     let unitArr = ['', '', exportUnit, exportUnit];
     if (Object.keys(tvdInfos).length)
         unitArr = [...unitArr, exportUnit, exportUnit];
