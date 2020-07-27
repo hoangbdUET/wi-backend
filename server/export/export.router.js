@@ -470,11 +470,16 @@ router.post('/zone-set', async function (req, res) {
             }
         );
     });
-    if (req.body.idZoneSets) {
-        let exportUnit = req.body.exportUnit;
-        let arrData = [];
-        for (const id of req.body.idZoneSets) {
-            const zoneSet = await req.dbConnection.ZoneSet.findByPk(id, {
+    if (!req.body.idZoneSets) {
+        res.send(
+            ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, 'Missing zoneset id')
+        );
+    }
+    let exportUnit = req.body.exportUnit;
+    let arrData = [];
+    await new Promise((res, rej) => {
+        async.each(req.body.idZoneSets, (id, next) => {
+            req.dbConnection.ZoneSet.findByPk(id, {
                 include: [
                     {
                         model: req.dbConnection.Zone,
@@ -484,79 +489,84 @@ router.post('/zone-set', async function (req, res) {
                         model: req.dbConnection.Well
                     }
                 ]
+            }).then(zoneSet => {
+                if (!exportUnit) {
+                    exportUnit = zoneSet.well.unit;
+                }
+                for (const zone of zoneSet.zones) {
+                    let startDepth = parseFloat(zone.startDepth).toFixed(4);
+                    let endDepth = parseFloat(zone.endDepth).toFixed(4);
+                    let row = [
+                        zoneSet.well.name,
+                        zone.zone_template.name.replace(/,/g, ''),
+                        convertLength.convertDistance(startDepth, 'm', exportUnit).toFixed(4),
+                        convertLength.convertDistance(endDepth, 'm', exportUnit).toFixed(4),
+                    ]
+                    console.log(tvdInfos[id]);
+                    if (tvdInfos[id]) {
+                        row.push(...getTVDValue(tvdInfos[id].data, tvdInfos[id], startDepth, endDepth).map(v => {
+                            if (!v) return v;
+                            return convertLength
+                                .convertDistance(v, tvdInfos[id].unit, exportUnit)
+                                .toFixed(4);
+                        }));
+                    }
+                    console.log(tvdssInfos[id]);
+                    if (tvdssInfos[id]) {
+                        row.push(...getTVDValue(tvdssInfos[id].data, tvdssInfos[id], startDepth, endDepth).map(v => {
+                            if (!v) return v;
+                            return convertLength
+                                .convertDistance(v, tvdssInfos[id].unit, exportUnit)
+                                .toFixed(4);
+                        }));
+                    }
+                    console.log('DEBUG', row);
+                    arrData.push(row);
+                }
+                next();
             });
-            if (!exportUnit) {
-                exportUnit = zoneSet.well.unit;
+        },
+            (err) => {
+                if (err) rej(err);
+                res();
             }
-            for (const zone of zoneSet.zones) {
-                let startDepth = parseFloat(zone.startDepth).toFixed(4);
-                let endDepth = parseFloat(zone.endDepth).toFixed(4);
-                let row = [
-                    zoneSet.well.name,
-                    zone.zone_template.name.replace(/,/g, ''),
-                    convertLength.convertDistance(startDepth, 'm', exportUnit).toFixed(4),
-                    convertLength.convertDistance(endDepth, 'm', exportUnit).toFixed(4),
-                ]
-                if (tvdInfos[id]) {
-                    row = [...row, ...getTVDValue(tvdInfos[id].data, tvdInfos[id], startDepth, endDepth).map(v => {
-                        if (!v) return v;
-                        return convertLength
-                            .convertDistance(v, tvdInfos[id].unit, exportUnit)
-                            .toFixed(4);
-                    })];
-                }
-                if (tvdssInfos[id]) {
-                    row = [...row, ...getTVDValue(tvdssInfos[id].data, tvdssInfos[id], startDepth, endDepth).map(v => {
-                        if (!v) return v;
-                        return convertLength
-                            .convertDistance(v, tvdssInfos[id].unit, exportUnit)
-                            .toFixed(4);
-                    })];
-                }
-                console.log('DEBUG', row);
-                arrData.push(row);
-            }
-        }
-        console.log('DEBUG', arrData);
-        arrData.sort(compareFn);
-        console.log('DEBUG sorted', arrData);
-        let unitArr = ['', '', exportUnit, exportUnit];
-        if (Object.keys(tvdInfos).length)
-            unitArr = [...unitArr, exportUnit, exportUnit];
-        if (Object.keys(tvdssInfos).length)
-            unitArr = [...unitArr, exportUnit, exportUnit];
-        arrData.unshift(unitArr);
-        if (Object.keys(tvdInfos).length)
-            headers = [...headers, 'Top_TVD', 'Bottom_TVD'];
-        if (Object.keys(tvdssInfos).length)
-            headers = [...headers, 'Top_TVDSS', 'Bottom_TVDSS'];
-        arrData.unshift(headers);
-        csv
-            .write(arrData)
-            .pipe(res);
-
-        function getTVDValue(curveData, tvdInfo, startDepth, endDepth) {
-            let tvdStart = 0;
-            let tvdEnd = 0;
-            if (tvdInfo.step) {
-                tvdStart = curveData[Math.ceil((parseFloat(startDepth).toFixed(4) - parseFloat(tvdInfo.top).toFixed(4)) / parseFloat(tvdInfo.step).toFixed(4))];
-                tvdEnd = curveData[Math.ceil((parseFloat(endDepth).toFixed(4) - parseFloat(tvdInfo.top).toFixed(4)) / parseFloat(tvdInfo.step).toFixed(4))];
-            } else {
-                tvdStart = curveData.find((d, idx) => {
-                    return parseFloat(d.y).toFixed(4) >= parseFloat(startDepth).toFixed(4);
-                })
-                tvdEnd = curveData.find((d, idx) => {
-                    return parseFloat(d.y).toFixed(4) >= parseFloat(endDepth).toFixed(4);
-                })
-            }
-            tvdStart = tvdStart ? parseFloat(tvdStart.x).toFixed(4) : null;
-            tvdEnd = tvdEnd ? parseFloat(tvdEnd.x).toFixed(4) : null;
-            return [tvdStart, tvdEnd];
-        }
-    } else {
-        res.send(
-            ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, 'Missing zoneset id')
         );
+    });
+    console.log('DEBUG', JSON.stringify(arrData.map(d => d.join(' ')), null, 2));
+    arrData.sort(compareFn);
+    console.log('DEBUG sorted', JSON.stringify(arrData.map(d => d.join(' ')), null, 2));
+    let unitArr = ['', '', exportUnit, exportUnit];
+    if (Object.keys(tvdInfos).length)
+        unitArr = [...unitArr, exportUnit, exportUnit];
+    if (Object.keys(tvdssInfos).length)
+        unitArr = [...unitArr, exportUnit, exportUnit];
+    arrData.unshift(unitArr);
+    if (Object.keys(tvdInfos).length)
+        headers = [...headers, 'Top_TVD', 'Bottom_TVD'];
+    if (Object.keys(tvdssInfos).length)
+        headers = [...headers, 'Top_TVDSS', 'Bottom_TVDSS'];
+    arrData.unshift(headers);
+    csv
+        .write(arrData)
+        .pipe(res);
+
+    function getTVDValue(curveData, tvdInfo, startDepth, endDepth) {
+        let tvdStart = 0;
+        let tvdEnd = 0;
+        if (tvdInfo.step) {
+            tvdStart = curveData[Math.ceil((parseFloat(startDepth).toFixed(4) - parseFloat(tvdInfo.top).toFixed(4)) / parseFloat(tvdInfo.step).toFixed(4))];
+            tvdEnd = curveData[Math.ceil((parseFloat(endDepth).toFixed(4) - parseFloat(tvdInfo.top).toFixed(4)) / parseFloat(tvdInfo.step).toFixed(4))];
+        } else {
+            tvdStart = curveData.find((d, idx) => {
+                return parseFloat(d.y).toFixed(4) >= parseFloat(startDepth).toFixed(4);
+            })
+            tvdEnd = curveData.find((d, idx) => {
+                return parseFloat(d.y).toFixed(4) >= parseFloat(endDepth).toFixed(4);
+            })
+        }
+        tvdStart = tvdStart ? parseFloat(tvdStart.x).toFixed(4) : null;
+        tvdEnd = tvdEnd ? parseFloat(tvdEnd.x).toFixed(4) : null;
+        return [tvdStart, tvdEnd];
     }
 });
 
