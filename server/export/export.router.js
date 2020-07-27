@@ -428,10 +428,6 @@ router.post('/zone-set', async function (req, res) {
     const idZoneSets = req.body.idZoneSets;
     const _tvdInfos = req.body.tvdInfos || [];
     const _tvdssInfos = req.body.tvdssInfos || [];
-    console.log('DEBUG', req.body);
-    console.log('idZoneSets', idZoneSets);
-    console.log('tvdInfos', _tvdInfos);
-    console.log('tvdssInfos', _tvdssInfos);
     const tvdInfos = _tvdInfos.reduce((obj, cur, idx) => {
         obj[idZoneSets[idx]] = cur;
         return obj;
