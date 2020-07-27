@@ -451,15 +451,7 @@ async function getProjectFullInfo(payload, done, req) {
                             asyncLoop(curves, function (curve, nextCurve) {
                                 let curveObj = curve.toJSON();
                                 if (curveObj.LineProperty) {
-                                    curveObj.LineProperty.blockPosition = curveObj.LineProperty.family_spec[0].blockPosition;
-                                    curveObj.LineProperty.displayMode = curveObj.LineProperty.family_spec[0].displayMode;
-                                    curveObj.LineProperty.displayType = curveObj.LineProperty.family_spec[0].displayType;
-                                    curveObj.LineProperty.lineColor = curveObj.LineProperty.family_spec[0].lineColor;
-                                    curveObj.LineProperty.lineStyle = curveObj.LineProperty.family_spec[0].lineStyle;
-                                    curveObj.LineProperty.lineWidth = curveObj.LineProperty.family_spec[0].lineWidth;
-                                    curveObj.LineProperty.maxScale = curveObj.LineProperty.family_spec[0].maxScale;
-                                    curveObj.LineProperty.minScale = curveObj.LineProperty.family_spec[0].minScale;
-                                    curveObj.LineProperty.unit = curveObj.LineProperty.family_spec[0].unit;
+                                    Object.assign(curveObj.LineProperty, curveObj.LineProperty.family_spec[0]);
                                     delete curveObj.LineProperty.family_spec;
                                 }
                                 curveArr.push(curveObj);

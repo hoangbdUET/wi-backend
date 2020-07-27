@@ -50,7 +50,11 @@ router.post('/plot/duplicate', function (req, res) {
 router.post('/plot/export', function (req, res) {
 	let exporter = require('./plot.exporter');
 	exporter(req.body, function (plot) {
-		parameterSetModel.createNewParameterSet({ ...req.body, content: plot }, (status) => res.send(status), req.dbConnection);
+		if (req.body.idParameterSet) {
+			parameterSetModel.updateParameterSet({ ...req.body, content: plot }, (status) => res.send(status), req.dbConnection);
+		} else {
+			parameterSetModel.createNewParameterSet({ ...req.body, content: plot }, (status) => res.send(status), req.dbConnection);
+		}
 	}, function (code) {
 		res.status(code).end();
 	}, req.dbConnection, req.decoded.username)
