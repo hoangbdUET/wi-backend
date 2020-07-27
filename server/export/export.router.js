@@ -513,6 +513,7 @@ router.post('/zone-set', async function (req, res) {
                                 .convertDistance(v, tvdInfos[id].unit, exportUnit)
                                 .toFixed(4);
                         }));
+                    }
                     if (tvdssInfos[id]) {
                         row.push(...getTVDValue(tvdssInfos[id].data, tvdssInfos[id], startDepth, endDepth).map(v => {
                             if (!v) return v;
