@@ -1058,7 +1058,7 @@ function _createDataTmp(curves, newCurveName, username) {
 	});
 }
 
-function createArrayCurve(payload, done, dbConnection, createdBy, updatedBy) {
+function saveCurveData(payload, done, dbConnection, createdBy, updatedBy) {
 	let idCurve = payload.body.idCurve || payload.body.idDesCurve;
 	if (idCurve) {
 		dbConnection.Curve.findByPk(idCurve).then(curve => {
@@ -1144,6 +1144,6 @@ module.exports = {
 	processingArrayCurve: processingArrayCurve,
 	splitArrayCurve: splitArrayCurve,
 	mergeCurvesIntoArrayCurve: mergeCurvesIntoArrayCurve,
-	createArrayCurve: createArrayCurve,
+	saveCurveData: saveCurveData,
 	getCurveList: getCurveList
 };
