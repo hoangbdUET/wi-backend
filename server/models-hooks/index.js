@@ -15,6 +15,7 @@ module.exports = function (dbConnection) {
         'ObjectTrack',
         'Plot',
         'PointSet',
+        'Project',
         'Polygon',
         'ReferenceCurve',
         'RegressionLine',

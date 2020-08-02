@@ -1,12 +1,20 @@
 let checkPerm = require('../utils/permission/check-permisison');
+let config = require('config');
+let USER_MAX_WELL = process.env.USER_MAX_WELL || config.Application.USER_MAX_WELL || 999999;
 module.exports = function (dbConnection) {
     dbConnection.Well.addHook('beforeCreate', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'well.create', function (result) {
                 if (result) {
-                    resolve(object, options);
+                    dbConnection.Well.findAndCountAll().then(wells => {
+                        if (wells.count >= USER_MAX_WELL) {
+                            reject({ message: "Well - Out of quota: " + USER_MAX_WELL })
+                        } else {
+                            resolve(object, options);
+                        }
+                    });
                 } else {
-                    reject({message: "Well: Do not have permission"});
+                    reject({ message: "Well: Do not have permission" });
                 }
             });
         });
@@ -19,7 +27,7 @@ module.exports = function (dbConnection) {
                     resolve(object, options);
                 } else {
                     if (object.createdBy !== object.updatedBy) {
-                        reject({message: "Well: Do not have permission"});
+                        reject({ message: "Well: Do not have permission" });
                     } else {
                         resolve(object, options);
                     }
@@ -34,7 +42,7 @@ module.exports = function (dbConnection) {
                     resolve(object, options);
                 } else {
                     if (object.createdBy !== object.updatedBy) {
-                        reject({message: "Well: Do not have permission"});
+                        reject({ message: "Well: Do not have permission" });
                     } else {
                         resolve(object, options);
                     }
