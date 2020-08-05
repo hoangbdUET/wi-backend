@@ -11,9 +11,10 @@ const sequelize = new Sequelize(process.env.BACKEND_DBNAME || config.dbName, pro
     port: process.env.BACKEND_DBPORT || config.port,
     logging: false,
     pool: {
-        max: 2,
-        min: 0,
-        idle: 20000
+        max: 10,
+        min: 1,
+        idle: 20000,
+        acquire: 30000
     },
     operatorsAliases: Sequelize.Op,
     storage: process.env.BACKEND_DBSTORAGE || config.storage

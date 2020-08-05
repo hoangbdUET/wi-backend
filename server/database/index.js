@@ -32,9 +32,10 @@ router.post('/database/update', function (req, res) {
 						charset: 'utf8'
 					},
 					pool: {
-						max: 2,
+						max: 10,
 						min: 0,
-						idle: 200
+						idle: 20000,
+						acquire: 30000
 					},
 					operatorsAliases: Sequelize.Op,
 					storage: process.env.BACKEND_DBSTORAGE || config.storage
