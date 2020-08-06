@@ -25,7 +25,7 @@ router.post('/parameter-set/list', function (req, res) {
 router.post('/parameter-set/edit', upload.single('content'), function (req, res) {
 	req.body.createdBy = req.createdBy;
 	req.body.updatedBy = req.updatedBy;
-	req.body.content = JSON.parse(req.file.buffer.toString());
+	req.body.content = req.file ? JSON.parse(req.file.buffer.toString()): req.body.content;
 	model.updateParameterSet(req.body, function (status) {
 		res.send(status);
 	}, req.dbConnection);

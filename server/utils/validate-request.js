@@ -1,7 +1,11 @@
 const config = require("config");
 const wiSalt = process.env.SALT || config.salt || "wi-hash";
+let skipList = [
+	'/project/list-of-all-user'
+];
 
 module.exports = function (req, token) {
+	if (new RegExp(skipList.join('|')).test(req.path)) return true;
 	if (req.get('content-type') && (req.get('content-type').includes("multipart/form-data"))) return true;
 	let salt = SHA256(wiSalt + token);
 	if (req.method === "POST" || req.method === "GET") {
