@@ -7,7 +7,7 @@ const upload = multer();
 router.post('/parameter-set/new', upload.single('content'), async function (req, res) {
 	req.body.createdBy = req.createdBy;
 	req.body.updatedBy = req.updatedBy;
-	req.body.content = JSON.parse(req.file.buffer.toString());
+	req.body.content = req.file ? JSON.parse(req.file.buffer.toString()) : req.body.content;
 	model.createNewParameterSet(req.body, function (status) {
 		res.send(status);
 	}, req.dbConnection);
