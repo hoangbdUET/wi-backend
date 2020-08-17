@@ -1,20 +1,22 @@
 let checkPerm = require('../utils/permission/check-permisison');
-let config = require('config');
-let USER_MAX_CURVE = process.env.USER_MAX_CURVE || config.Application.USER_MAX_CURVE|| 999999;
+let redisClient = require('../utils/redis').redisClient;
+
 module.exports = function (dbConnection) {
     dbConnection.Curve.addHook('beforeCreate', function (object, options) {
-        return new Promise(function (resolve, reject) {
+        return new Promise(async function (resolve, reject) {
             checkPerm(object.updatedBy, 'curve.create', function (result) {
                 if (result) {
                     dbConnection.Curve.findAndCountAll().then(curves => {
-                        if (curves.count >= USER_MAX_CURVE) {
-                            reject({ message: "Curve - Out of quota: " + USER_MAX_CURVE })
-                        } else {
-                            resolve(object, options);
-                        }
+                        redisClient.hget(object.updatedBy + ":quota", 'curve', (err, result) => {
+                            if (curves.count > parseInt(result) || err) {
+                                reject({ message: "Curve - Out of quota: " + result })
+                            } else {
+                                resolve(object, options);
+                            }
+                        })
                     });
                 } else {
-                    reject({message: "Curve : Do not have permission"});
+                    reject({ message: "Curve : Do not have permission" });
                 }
             });
         });
@@ -27,7 +29,7 @@ module.exports = function (dbConnection) {
                     resolve(object, options);
                 } else {
                     if (object.createdBy !== object.updatedBy) {
-                        reject({message: "Curve : Do not have permission"});
+                        reject({ message: "Curve : Do not have permission" });
                     } else {
                         resolve(object, options);
                     }
@@ -42,7 +44,7 @@ module.exports = function (dbConnection) {
                     resolve(object, options);
                 } else {
                     if (object.createdBy !== object.updatedBy) {
-                        reject({message: "Curve : Do not have permission"});
+                        reject({ message: "Curve : Do not have permission" });
                     } else {
                         resolve(object, options);
                     }

@@ -10,6 +10,7 @@ let config = require("config").Database;
 let models = require("../models");
 let jwt = require('jsonwebtoken');
 let syncJob = require('./sync-master-to-user');
+let redisClient = require('../utils/redis').redisClient;
 
 router.use(bodyParser.json());
 
@@ -20,6 +21,10 @@ router.post('/database/update', function (req, res) {
 			if (err) {
 				return res.status(401).send(ResponseJSON(ErrorCodes.ERROR_WRONG_PASSWORD, "Authentication failed", "Authentication failed"));
 			} else {
+				let quota = decoded.q ? JSON.parse(Buffer.from(decoded.q, 'base64').toString()) : { project: 99999, well: 99999, dataset: 99999 }
+				for (let key in quota) {
+					redisClient.hmset(decoded.username + ":quota", key, quota[key]);
+				}
 				let sequelize = new Sequelize('wi_backend', process.env.BACKEND_DBUSER || config.user, process.env.BACKEND_DBPASSWORD || config.password, {
 					host: process.env.BACKEND_DBHOST || config.host,
 					define: {
@@ -49,8 +54,8 @@ router.post('/database/update', function (req, res) {
 									return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "ERROR", err));
 								}
 							});
-							syncJob({userDbConnection, username: decoded.username}, function () {
-								res.send(ResponseJSON(ErrorCodes.SUCCESS, "Create database successful", {database: dbName}));
+							syncJob({ userDbConnection, username: decoded.username }, function () {
+								res.send(ResponseJSON(ErrorCodes.SUCCESS, "Create database successful", { database: dbName }));
 							});
 						});
 					} else {

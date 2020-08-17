@@ -1,17 +1,19 @@
 let checkPerm = require('../utils/permission/check-permisison');
-let config = require('config');
-let USER_MAX_DATASET = process.env.USER_MAX_DATASET || config.Application.USER_MAX_DATASET || 999999;
+let redisClient = require('../utils/redis').redisClient;
+
 module.exports = function (dbConnection) {
     dbConnection.Dataset.addHook('beforeCreate', function (object, options) {
         return new Promise(function (resolve, reject) {
             checkPerm(object.updatedBy, 'dataset.create', function (result) {
                 if (result) {
                     dbConnection.Dataset.findAndCountAll().then(datasets => {
-                        if (datasets.count >= USER_MAX_DATASET) {
-                            reject({ message: "Dataset - Out of quota: " + USER_MAX_DATASET })
-                        } else {
-                            resolve(object, options);
-                        }
+                        redisClient.hget(object.updatedBy + ":quota", 'dataset', (err, result) => {
+                            if (datasets.count > parseInt(result) || err) {
+                                reject({ message: "Dataset - Out of quota: " + result })
+                            } else {
+                                resolve(object, options);
+                            }
+                        })
                     });
                 } else {
                     reject({ message: "Dataset : Do not have permission" });

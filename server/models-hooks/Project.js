@@ -1,6 +1,6 @@
 let checkPerm = require('../utils/permission/check-permisison');
-let config = require('config');
-let USER_MAX_PROJECT = process.env.USER_MAX_PROJECT || config.Application.USER_MAX_PROJECT || 999999;
+let redisClient = require('../utils/redis').redisClient;
+
 module.exports = function (dbConnection) {
     dbConnection.Project.addHook('beforeCreate', function (object, options) {
         return new Promise(function (resolve, reject) {
@@ -8,11 +8,13 @@ module.exports = function (dbConnection) {
                 if (result) {
                     console.log("========new project")
                     dbConnection.Well.findAndCountAll().then(projects => {
-                        if (projects.count >= USER_MAX_PROJECT) {
-                            reject({ message: "Project - Out of quota: " + USER_MAX_PROJECT })
-                        } else {
-                            resolve(object, options);
-                        }
+                        redisClient.hget(object.updatedBy + ":quota", 'project', (err, result) => {
+                            if (projects.count > parseInt(result) || err) {
+                                reject({ message: "Project - Out of quota: " + result })
+                            } else {
+                                resolve(object, options);
+                            }
+                        })
                     });
                 } else {
                     reject({ message: "Project: Do not have permission" });
