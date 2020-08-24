@@ -17,6 +17,7 @@ const dlisExport = require('dlis_export')(config);
 const checkPermisson = require('../utils/permission/check-permisison');
 const archiver = require('archiver');
 const curveModel = require('../curve/curve.model')
+const curveUtils = require('../utils/curve.function');
 
 function getFullProjectObj(idProject, idWell, dbConnection) {
     return new Promise(async resolve => {
@@ -422,6 +423,11 @@ function getCurveDataPromise(idCurve, dbConnection, username) {
 }
 
 router.post('/zone-set', async function (req, res) {
+    if (!req.body.idZoneSets) {
+        res.send(
+            ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, 'Missing zoneset id')
+        );
+    }
     let headers = ['Well', 'Zone', 'Top_Depth', 'Bottom_Depth'];
     let dbConnection = req.dbConnection;
     let username = req.decoded.username;
@@ -470,11 +476,6 @@ router.post('/zone-set', async function (req, res) {
             }
         );
     });
-    if (!req.body.idZoneSets) {
-        res.send(
-            ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, 'Missing zoneset id')
-        );
-    }
     let exportUnit = req.body.exportUnit;
     let arrData = [];
     await new Promise((res, rej) => {
@@ -546,60 +547,89 @@ router.post('/zone-set', async function (req, res) {
         .pipe(res);
 
     function getTVDValue(curveData, tvdInfo, startDepth, endDepth) {
+        startDepth = +(+startDepth).toFixed(4);
+        endDepth = +(+endDepth).toFixed(4);
         let tvdStart = 0;
         let tvdEnd = 0;
-        if (tvdInfo.step) {
-            tvdStart = curveData[Math.ceil((parseFloat(startDepth).toFixed(4) - parseFloat(tvdInfo.top).toFixed(4)) / parseFloat(tvdInfo.step).toFixed(4))];
-            tvdEnd = curveData[Math.ceil((parseFloat(endDepth).toFixed(4) - parseFloat(tvdInfo.top).toFixed(4)) / parseFloat(tvdInfo.step).toFixed(4))];
+        if (+tvdInfo.step) {
+            tvdStart = curveData[Math.ceil((startDepth - +(tvdInfo.top).toFixed(4)) / +(tvdInfo.step).toFixed(4))];
+            tvdEnd = curveData[Math.ceil((endDepth - +(tvdInfo.top).toFixed(4)) / +(tvdInfo.step).toFixed(4))];
         } else {
-            tvdStart = curveData.find((d, idx) => {
-                return parseFloat(d.y).toFixed(4) >= parseFloat(startDepth).toFixed(4);
-            })
-            tvdEnd = curveData.find((d, idx) => {
-                return parseFloat(d.y).toFixed(4) >= parseFloat(endDepth).toFixed(4);
-            })
+            const startIdx = curveData.findIndex(d => {
+                return +(d.y).toFixed(4) > startDepth;
+            });
+            tvdStart = curveUtils.linearInterpolate(curveData[startIdx - 1], curveData[startIdx], startDepth);
+            const endIdx = curveData.findIndex(d => {
+                return +(d.y).toFixed(4) >= endDepth;
+            });
+            tvdEnd = curveUtils.linearInterpolate(curveData[endIdx - 1], curveData[endIdx], endDepth);
         }
-        tvdStart = tvdStart ? parseFloat(tvdStart.x).toFixed(4) : null;
-        tvdEnd = tvdEnd ? parseFloat(tvdEnd.x).toFixed(4) : null;
+        tvdStart = tvdStart ? +(tvdStart.x).toFixed(4) : null;
+        tvdEnd = tvdEnd ? +(tvdEnd.x).toFixed(4) : null;
         return [tvdStart, tvdEnd];
     }
 });
 
 router.post('/marker-set', async function (req, res) {
+    if (!req.body.idMarkerSets) {
+        res.send(
+            ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, 'Missing idMarkerSets')
+        );
+    }
     let headers = ['Well_name', 'Maker_name', 'Depth'];
     let dbConnection = req.dbConnection;
     let username = req.decoded.username;
-    let tvdInfos = req.body.tvdInfos || [];
-    let tvdssInfos = req.body.tvdssInfos || [];
-    let tvdDatas = [];
-    let tvdssDatas = [];
-    if (tvdInfos && tvdInfos.length) {
-        for (let i = 0; i < tvdInfos.length; i++) {
-            let tvdInfo = tvdInfos[i];
-            if (!tvdInfo) {
-                tvdDatas[i] = null;
-                continue;
+    const idMarkerSets = req.body.idMarkerSets;
+    const _tvdInfos = req.body.tvdInfos || [];
+    const _tvdssInfos = req.body.tvdssInfos || [];
+    const tvdInfos = _tvdInfos.reduce((obj, cur, idx) => {
+        obj[idMarkerSets[idx]] = cur;
+        return obj;
+    }, {});
+    const tvdssInfos = _tvdssInfos.reduce((obj, cur, idx) => {
+        obj[idMarkerSets[idx]] = cur;
+        return obj;
+    }, {});
+    await new Promise((res, rej) => {
+        async.each(tvdInfos,
+            (tvdInfo, next) => {
+                if (!tvdInfo) {
+                    return next();
+                }
+                getCurveDataPromise(tvdInfo.idCurve, dbConnection, username).then(d => {
+                    tvdInfo.data = d;
+                    next();
+                });
+            },
+            (err) => {
+                if (err) rej(err);
+                res();
             }
-            tvdDatas[i] = await getCurveDataPromise(tvdInfo.idCurve, dbConnection, username);
-        }
-    }
-    if (tvdssInfos && tvdssInfos.length) {
-        for (let i = 0; i < tvdssInfos.length; i++) {
-            let tvdssInfo = tvdssInfos[i];
-            if (!tvdssInfo) {
-                tvdssDatas[i] = null;
-                continue;
+        );
+    });
+    await new Promise((res, rej) => {
+        async.each(tvdssInfos,
+            (tvdssInfo, next) => {
+                if (!tvdssInfo) {
+                    return next();
+                }
+                getCurveDataPromise(tvdssInfo.idCurve, dbConnection, username).then(d => {
+                    tvdssInfo.data = d;
+                    next();
+                });
+            },
+            (err) => {
+                if (err) rej(err);
+                res();
             }
-            tvdssDatas[i] = await getCurveDataPromise(tvdssInfo.idCurve, dbConnection, username);
-        }
-    }
-    if (req.body.idMarkerSets) {
-        let arrData = [];
-        // let exportUnit = null;
-        let exportUnit = req.body.exportUnit;
-        for (const id of req.body.idMarkerSets) {
+        );
+    });
+    let exportUnit = req.body.exportUnit;
+    let arrData = [];
+    await new Promise((res, rej) => {
+        async.each(req.body.idMarkerSets, (id, next) => {
             markersetIdx = req.body.idMarkerSets.indexOf(id);
-            const markerSet = await req.dbConnection.MarkerSet.findByPk(id, {
+            req.dbConnection.MarkerSet.findByPk(id, {
                 include: [
                     {
                         model: req.dbConnection.Marker,
@@ -609,98 +639,73 @@ router.post('/marker-set', async function (req, res) {
                         model: req.dbConnection.Well
                     }
                 ]
+            }).then(markerSet => {
+                if (!exportUnit) {
+                    exportUnit = markerSet.well.unit;
+                }
+                for (const marker of markerSet.markers) {
+                    let depth = parseFloat(marker.depth).toFixed(4);
+                    let row = [
+                        markerSet.well.name,
+                        marker.marker_template.name.replace(/,/g, ''),
+                        convertLength.convertDistance(depth, 'm', exportUnit).toFixed(4)
+                    ];
+                    if (tvdInfos[id]) {
+                        row.push(...getTVDValue(tvdInfos[id].data, tvdInfos[id], depth).map(v => {
+                            if (!v) return v;
+                            return convertLength
+                                .convertDistance(v, tvdInfos[id].unit, exportUnit)
+                                .toFixed(4);
+                        }));
+                    }
+                    if (tvdssInfos[id]) {
+                        row.push(...getTVDValue(tvdssInfos[id].data, tvdssInfos[id], depth).map(v => {
+                            if (!v) return v;
+                            return convertLength
+                                .convertDistance(v, tvdssInfos[id].unit, exportUnit)
+                                .toFixed(4);
+                        }));
+                    }
+                    arrData.push(row);
+                };
+                next();
             });
-            if (!exportUnit) {
-                exportUnit = markerSet.well.unit;
+        },
+            (err) => {
+                if (err) rej(err);
+                res();
             }
-            if (exportUnit != 'm' && exportUnit != 'M') {
-                // console.log("convert unit of depth");
-                markerSet.markers.forEach(marker => {
-                    let depth = parseFloat(marker.depth).toFixed(4);
-                    let cDepth = convertLength
-                        .convertDistance(parseFloat(marker.depth), 'm', exportUnit)
-                        .toFixed(4);
-                    let row = [
-                        markerSet.well.name,
-                        marker.marker_template.name.replace(/,/g, ''),
-                        cDepth
-                    ];
-                    if (tvdInfos[markersetIdx]) {
-                        row = [...row, ...getTVDValue(tvdDatas[markersetIdx], tvdInfos[markersetIdx], depth).map(v => {
-                            return convertLength
-                                .convertDistance(v, tvdInfos[markersetIdx].unit, exportUnit)
-                                .toFixed(4);
-                        })];
-                    }
-                    if (tvdssInfos[markersetIdx]) {
-                        row = [...row, ...getTVDValue(tvdssDatas[markersetIdx], tvdssInfos[markersetIdx], depth).map(v => {
-                            return convertLength
-                                .convertDistance(v, tvdssInfos[markersetIdx].unit, exportUnit)
-                                .toFixed(4);
-                        })];
-                    }
-                    arrData.push(row);
-                });
-            } else {
-                markerSet.markers.forEach(marker => {
-                    let depth = parseFloat(marker.depth).toFixed(4);
-                    let row = [
-                        markerSet.well.name,
-                        marker.marker_template.name.replace(/,/g, ''),
-                        depth
-                    ];
-                    if (tvdInfos[markersetIdx]) {
-                        // row = [...row, ...getTVDValue(tvdDatas[markersetIdx], tvdInfos[markersetIdx], depth)];
-                        row = [...row, ...getTVDValue(tvdDatas[markersetIdx], tvdInfos[markersetIdx], depth).map(v => {
-                            return convertLength
-                                .convertDistance(v, tvdInfos[markersetIdx].unit, exportUnit)
-                                .toFixed(4);
-                        })];
-                    }
-                    if (tvdssInfos[markersetIdx]) {
-                        // row = [...row, ...getTVDValue(tvdssDatas[markersetIdx], tvdssInfos[markersetIdx], depth)];
-                        row = [...row, ...getTVDValue(tvdssDatas[markersetIdx], tvdssInfos[markersetIdx], depth).map(v => {
-                            return convertLength
-                                .convertDistance(v, tvdssInfos[markersetIdx].unit, exportUnit)
-                                .toFixed(4);
-                        })];
-                    }
-                    arrData.push(row);
-                });
-            }
-        }
-        // console.log(arrData);
-        arrData.sort(compareFn);
-        let unitArr = ['', '', exportUnit];
-        if (tvdInfos && tvdInfos.length)
-            unitArr = [...unitArr, exportUnit];
-        if (tvdssInfos && tvdssInfos.length)
-            unitArr = [...unitArr, exportUnit];
-        arrData.unshift(unitArr);
-        arrData.unshift(['', '', '']);
-        if (tvdInfos && tvdInfos.length)
-            headers = [...headers, 'TVD'];
-        if (tvdssInfos && tvdssInfos.length)
-            headers = [...headers, 'TVDSS'];
-        csv
-            .write(arrData, { headers })
-            .pipe(res);
-
-        function getTVDValue(curveData, tvdInfo, depth) {
-            let tvd = 0;
-            if (tvdInfo.step) {
-                tvd = (curveData[Math.floor((parseFloat(depth).toFixed(4) - parseFloat(tvdInfo.top).toFixed(4)) / parseFloat(tvdInfo.step).toFixed(4))] || { x: 0 }).x;
-            } else {
-                tvd = curveData.find((d, idx) => {
-                    return parseFloat(d.y).toFixed(4) >= parseFloat(depth).toFixed(4);
-                }).x
-            }
-            return [parseFloat(tvd).toFixed(4)];
-        }
-    } else {
-        res.send(
-            ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, 'Missing idMarkerSets')
         );
+    });
+    arrData.sort(compareFn);
+    let unitArr = ['', '', exportUnit];
+    if (Object.keys(tvdInfos).length)
+        unitArr = [...unitArr, exportUnit];
+    if (Object.keys(tvdssInfos).length)
+        unitArr = [...unitArr, exportUnit];
+    arrData.unshift(unitArr);
+    if (Object.keys(tvdInfos).length)
+        headers = [...headers, 'TVD'];
+    if (Object.keys(tvdssInfos).length)
+        headers = [...headers, 'TVDSS'];
+    arrData.unshift(headers);
+    csv
+        .write(arrData)
+        .pipe(res);
+
+    function getTVDValue(curveData, tvdInfo, depth) {
+        depth = +(+depth).toFixed(4);
+        let tvd = 0;
+        if (+tvdInfo.step) {
+            tvd = curveData[Math.ceil((depth - +(tvdInfo.top).toFixed(4)) / +(tvdInfo.step).toFixed(4))];
+        } else {
+            const idx = curveData.findIndex(d => {
+                return +(d.y).toFixed(4) > depth;
+            });
+            tvd = curveUtils.linearInterpolate(curveData[idx - 1], curveData[idx], depth);
+        }
+        tvd = tvd ? +(tvd.x).toFixed(4) : null;
+        return [tvd];
     }
 });
 

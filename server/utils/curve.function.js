@@ -70,9 +70,25 @@ function moveCurveData(srcCurve, desCurve, callback) {
     });
 }
 
+function linearInterpolate(point1, point2, y) {
+    const x1 = parseFloat(point1.x);
+    const x2 = parseFloat(point2.x);
+    const y1 = parseFloat(point1.y);
+    const y2 = parseFloat(point2.y);
+
+    if (y1 === y2) {
+        const avg = (x1 + x2) / 2;
+        return { x: avg, y };
+    }
+
+    const x = (y - y1) * (x1 - x2) / (y1 - y2) + x1;
+    return { x, y };
+}
+
 module.exports = {
     moveCurveData: moveCurveData,
     checkCurveExisted: checkCurveExisted,
     copyCurveData: copyCurveData,
-    getFullCurveParents: getFullCurveParents
+    getFullCurveParents: getFullCurveParents,
+    linearInterpolate: linearInterpolate,
 };
