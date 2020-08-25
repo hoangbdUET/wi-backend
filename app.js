@@ -18,6 +18,7 @@ const QUEUE_TIME = 500;
 let serverId = require('./server/utils/hashTool').getRandomHash();
 
 const EventEmitter = require('events');
+const getCurrentSource = require('./server/utils/get-current-source');
 
 class MyEmitter extends EventEmitter {
 }
@@ -144,6 +145,7 @@ function main() {
 	let genericObjectTrackRouter = require('./server/generic-object-track/generic-object-track.router');
 	let filterRouter = require('./server/filter/filter.router');
 	let managementDashboardRouter = require('./server/managementdashboard/managementdashboard.router');
+	let getCurrentSourceRouter = require('./server/utils/get-current-source');
 	// let projectLogRouter = require('./server/project-log/project-log.router');
 	let utmZoneRouter = require('./server/utm-zone/index');
 	let testRouter = require('./server/test/test.router');
@@ -374,6 +376,7 @@ function main() {
 	app.use('/log-view', logViewRouter);
 	app.use('/test', testRouter);
 	app.use('/', filterRouter);
+	app.use('/', getCurrentSourceRouter)
 
 
 	accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});
