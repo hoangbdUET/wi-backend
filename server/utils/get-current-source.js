@@ -15,7 +15,7 @@ router.post('/current-resource', async (req, res) => {
     response.p = {
         projects, wells, datasets, curves
     }
-    res.json(response);
+    res.send(ResponseJSON(200, "Done", response));
 })
 
 module.exports = router;
