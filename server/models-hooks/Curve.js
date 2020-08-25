@@ -8,7 +8,7 @@ module.exports = function (dbConnection) {
                 if (result) {
                     dbConnection.Curve.findAndCountAll().then(curves => {
                         redisClient.hget(object.updatedBy + ":quota", 'curve', (err, result) => {
-                            if (curves.count > parseInt(result) || err) {
+                            if (curves.count + 1 > parseInt(result) || err) {
                                 reject({ message: "Curve - Out of quota: " + result })
                             } else {
                                 resolve(object, options);

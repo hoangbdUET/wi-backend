@@ -8,7 +8,7 @@ module.exports = function (dbConnection) {
                 if (result) {
                     dbConnection.Dataset.findAndCountAll().then(datasets => {
                         redisClient.hget(object.updatedBy + ":quota", 'dataset', (err, result) => {
-                            if (datasets.count > parseInt(result) || err) {
+                            if (datasets.count + 1 > parseInt(result) || err) {
                                 reject({ message: "Dataset - Out of quota: " + result })
                             } else {
                                 resolve(object, options);

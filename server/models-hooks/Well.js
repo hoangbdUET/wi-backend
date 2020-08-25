@@ -8,7 +8,7 @@ module.exports = function (dbConnection) {
                 if (result) {
                     dbConnection.Well.findAndCountAll().then(wells => {
                         redisClient.hget(object.updatedBy + ":quota", 'well', (err, result) => {
-                            if (wells.count > parseInt(result) || err) {
+                            if (wells.count + 1 > parseInt(result) || err) {
                                 reject({ message: "Well - Out of quota: " + result })
                             } else {
                                 resolve(object, options);

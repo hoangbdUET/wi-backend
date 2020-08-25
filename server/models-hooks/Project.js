@@ -9,7 +9,7 @@ module.exports = function (dbConnection) {
                     console.log("========new project")
                     dbConnection.Well.findAndCountAll().then(projects => {
                         redisClient.hget(object.updatedBy + ":quota", 'project', (err, result) => {
-                            if (projects.count > parseInt(result) || err) {
+                            if (projects.count + 1 > parseInt(result) || err) {
                                 reject({ message: "Project - Out of quota: " + result })
                             } else {
                                 resolve(object, options);
