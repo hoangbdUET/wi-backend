@@ -62,25 +62,41 @@ function publishPromise(MqttClient, _curve, dataset) {
 }
 
 async function doImportCurves(datasets, token, dbConnection, username, createdBy, updatedBy) {
+	// let clientId = "wi_import_" + _dataset.updatedBy + "_" + _dataset.name + "_" + Math.random().toString(16).substr(2, 8);
+	let clientId = "wi_import_" + username + "_" + Math.random().toString(16).substr(2, 8);
+	let MqttClient = mqtt.connect(process.env.BACKEND_MQTT_BROKER || config.mqttBroker || "wss://mqtt-broker.i2g.cloud:8083", {
+			rejectUnauthorized: false,
+			clientId: clientId,
+			clean: false,
+			keepalive: 30
+		});
+	MqttClient.on('connect', async () => {
+		console.log("Connected to broker " + (process.env.BACKEND_MQTT_BROKER || config.mqttBroker || "wss://mqtt-broker.i2g.cloud:8083"), " with id ", clientId);
+	});
+	MqttClient.on('close', () => {
+		console.log("MQTT Client End ", clientId);
+	})
+	MqttClient.on('error', () => {
+		console.log("Mqtt connect failed");
+	});
 	for (let i = 0; i < datasets.length; i++) {
 		await sleep(2000);
 		let dataset = datasets[i];
 		let _dataset = datasets[i]._dataset;
-		let clientId = "wi_import_" + _dataset.updatedBy + "_" + _dataset.name + "_" + Math.random().toString(16).substr(2, 8);
-		let MqttClient = mqtt.connect(process.env.BACKEND_MQTT_BROKER || config.mqttBroker || "wss://mqtt-broker.i2g.cloud:8083", {
-			rejectUnauthorized: false,
-			clientId: clientId,
-			clean: false
-		});
-		MqttClient.on('connect', async () => {
-			console.log("Connected to broker " + (process.env.BACKEND_MQTT_BROKER || config.mqttBroker || "wss://mqtt-broker.i2g.cloud:8083"), " with id ", clientId);
-		});
-		MqttClient.on('close', () => {
-			console.log("MQTT Client End ", clientId);
-		})
-		MqttClient.on('error', () => {
-			console.log("Mqtt connect failed");
-		});
+		// let MqttClient = mqtt.connect(process.env.BACKEND_MQTT_BROKER || config.mqttBroker || "wss://mqtt-broker.i2g.cloud:8083", {
+		// 	rejectUnauthorized: false,
+		// 	clientId: clientId,
+		// 	clean: false
+		// });
+		// MqttClient.on('connect', async () => {
+		// 	console.log("Connected to broker " + (process.env.BACKEND_MQTT_BROKER || config.mqttBroker || "wss://mqtt-broker.i2g.cloud:8083"), " with id ", clientId);
+		// });
+		// MqttClient.on('close', () => {
+		// 	console.log("MQTT Client End ", clientId);
+		// })
+		// MqttClient.on('error', () => {
+		// 	console.log("Mqtt connect failed");
+		// });
 		for (let j = 0; j < dataset.curves.length; j++) {
 			let curve = dataset.curves[j]
 			await sleep(500);
@@ -88,8 +104,8 @@ async function doImportCurves(datasets, token, dbConnection, username, createdBy
 			let _curve = await curveModels.getCurveDataFromInventoryPromise(curve, token, dbConnection, username, createdBy, updatedBy);
 			await publishPromise(MqttClient, _curve, dataset)
 		}
-		MqttClient.end();
 	}
+	MqttClient.end();
 }
 
 // function importDataset(datasets, token, callback, dbConnection, username, createdBy, updatedBy) {
