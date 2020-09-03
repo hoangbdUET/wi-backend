@@ -64,7 +64,7 @@ router.delete('/project/delete', function (req, res) {
 });
 
 router.post('/project/close', function (req, res) {
-	projectModel.closeProject(req.body, function (status) {
+	projectModel.closeProject(req, function (status) {
 		res.send(status);
 	}, req.dbConnection, req.decoded.realUser);
 });

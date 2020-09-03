@@ -520,10 +520,11 @@ function genLocationOfNewProject() {
     return "";
 }
 
-function closeProject(payload, done, dbConnection, username) {
+function closeProject(req, done, dbConnection, username) {
+    // await openProject.removeRow({ username: req.decoded.realUser, client: req.get("WHOAMI") });
     let openingProject = require('../authenticate/opening-project');
-    openingProject.removeRow({ username: username }).then(() => {
-        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful"));
+    openingProject.removeRow({ username: username, client: req.get("WHOAMI") }).then(() => {
+        done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", req.body));
     });
 }
 
