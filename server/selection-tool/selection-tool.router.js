@@ -1,12 +1,11 @@
 let express = require('express');
 let router = express.Router();
 let fs = require('fs');
-let bodyParser = require('body-parser');
 let multer = require('multer');
 let upload = multer();
 let selectionToolModel = require('./selection-tool.model');
 let path = require('path');
-router.use(bodyParser.json());
+
 
 function writeToTmpFile(data, callback, type) {
     // console.log(data);

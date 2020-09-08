@@ -1,9 +1,8 @@
 let express = require('express');
 let datasetModel = require('./dataset.model');
 let router = express.Router();
-let bodyParser = require('body-parser');
 
-router.use(bodyParser.json());
+
 
 router.post('/dataset/info', function (req, res) {
 	datasetModel.getDatasetInfo(req.body, function (status) {

@@ -3,9 +3,6 @@
 let workflowModel = require('./workflow.model');
 let express = require('express');
 let router = express.Router();
-let bodyParser = require('body-parser');
-router.use(bodyParser.json({limit: '50mb'}));
-router.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
 router.post('/workflow/list', function (req, res) {
     workflowModel.listWorkflow(req.body, function (done) {

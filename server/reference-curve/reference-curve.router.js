@@ -1,9 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var referenceCurveModel = require('./reference-curve.model');
-var bodyParser = require('body-parser');
 
-router.use(bodyParser.json());
+
 
 router.post('/reference-curve/new', function (req, res) {
     referenceCurveModel.createNewReferenceCurve(req.body, function (status) {

@@ -1,9 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var zoneTrackModel = require('./zone-track.model');
-var bodyParser = require('body-parser');
 
-router.use(bodyParser.json());
+
 
 router.post('/zone-track/info', function (req, res) {
     zoneTrackModel.getZoneTrackInfo(req.body,function (status) {

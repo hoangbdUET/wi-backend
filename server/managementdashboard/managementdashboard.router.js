@@ -1,9 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var model = require('./managementdashboard.model');
-var bodyParser = require('body-parser');
 
-router.use(bodyParser.json());
+
 
 router.post('/managementdashboard/new', function (req, res) {
     model.create(req.body, function (status) {

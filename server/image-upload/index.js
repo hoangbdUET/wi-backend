@@ -12,14 +12,13 @@ let errorCodes = require('../../error-codes');
 let hashDir = require('../utils/data-tool').hashDir; // hashDir.createPath();
 let Finder = require('fs-finder');
 let asyncEach = require('async/each');
-let bodyParser = require('body-parser');
 let router = express.Router();
 // let saveDir = path.join(__dirname, '../..', config.imageBasePath);
 let saveDir = process.env.BACKEND_IMAGE_BASE_PATH || config.imageBasePath;
 const multer = require('multer');
 
 router.use(cors());
-router.use(bodyParser.json());
+
 
 let storage = multer.diskStorage({
 	destination: function (req, file, cb) {

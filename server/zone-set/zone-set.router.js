@@ -1,9 +1,8 @@
 let express = require('express');
 let router = express.Router();
 let zoneSetModel = require('./zone-set.model');
-let bodyParser = require('body-parser');
 
-router.use(bodyParser.json());
+
 
 router.post('/zone-set/info', function (req, res) {
     zoneSetModel.getZoneSetInfo(req.body, function (status) {

@@ -1,9 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var crossPlotModel = require('./cross-plot.model');
-var bodyParser = require('body-parser');
 
-router.use(bodyParser.json());
+
 router.post('/cross-plot/info', function (req, res) {
 	crossPlotModel.getCrossPlotInfo(req.body, function (status) {
 		res.send(status);

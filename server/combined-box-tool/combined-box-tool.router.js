@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var bodyParser = require('body-parser');
-router.use(bodyParser.json());
+
 
 var Model = require('./combined-box-tool.model');
 router.post('/tool/new', function (req, res) {

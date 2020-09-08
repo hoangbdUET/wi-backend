@@ -1,9 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var discrimModel = require('./discrim.model');
-var bodyParser = require('body-parser');
 
-router.use(bodyParser.json());
+
 
 router.post('/discrim/info', function (req, res) {
     discrimModel.getDiscrimInfo(req.body, function (status) {

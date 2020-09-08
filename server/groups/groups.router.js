@@ -1,9 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var groupModel = require('./groups.model');
-var bodyParser = require('body-parser');
 
-router.use(bodyParser.json());
+
 
 router.post('/group/info', function (req, res) {
     groupModel.getGroupInfo(req.body, function (status) {

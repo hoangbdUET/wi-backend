@@ -1,7 +1,6 @@
 let express = require('express');
 let router = express.Router();
 let OverlayLineModel = require('./overlay-line.model');
-let bodyParser = require('body-parser');
 
 router.post('/overlay-line/all', function (req, res) {
     OverlayLineModel.getAllOverlayLine(req.body, function (status) {

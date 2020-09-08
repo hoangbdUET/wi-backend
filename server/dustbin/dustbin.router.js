@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const dustbinModel = require('./dustbin.model');
-const bodyParser = require('body-parser');
 
-router.use(bodyParser.json());
+
 
 router.post('/dustbin', function (req, res) {
     dustbinModel.getDustbin(req.body, function (status) {

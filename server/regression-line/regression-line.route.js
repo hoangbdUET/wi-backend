@@ -1,9 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var regressionLineModel = require('./regression-line.model');
-var bodyParser = require('body-parser');
 
-router.use(bodyParser.json());
+
 router.post('/regression-line/info', function (req, res) {
     regressionLineModel.getRegressionLineInfo(req.body,function (status) {
         res.send(status);

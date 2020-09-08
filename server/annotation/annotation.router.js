@@ -1,9 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var annotationModel = require('./annotation.model');
-var bodyParser = require('body-parser');
 
-router.use(bodyParser.json());
 
 router.post('/annotation/new', function (req, res) {
     annotationModel.createNewAnnotation(req.body, function (status) {

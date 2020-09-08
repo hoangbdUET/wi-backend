@@ -5,9 +5,8 @@ let ErrorCodes = require('../../error-codes').CODES;
 const ResponseJSON = require('../response');
 let express = require('express');
 let router = express.Router();
-let bodyParser = require('body-parser');
 let fs = require('fs-extra');
-router.use(bodyParser.json());
+
 const Transporter = require('./transporter.model');
 const hashDir = require('../utils/data-tool').hashDir;
 const path = require('path');

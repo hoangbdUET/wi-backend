@@ -11,7 +11,6 @@ let dataDir = path.join(__dirname, 'data');
 let errorCodes = require('../../error-codes');
 let ResponseJSON = require('../response');
 let router = express.Router();
-let bodyParser = require('body-parser');
 router.use(cors());
 
 function encodePalFiles(callback) {

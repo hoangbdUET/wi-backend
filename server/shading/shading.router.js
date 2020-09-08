@@ -1,9 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var shadingModel = require('./shading.model');
-var bodyParser = require('body-parser');
 
-router.use(bodyParser.json());
+
 
 router.post('/shading/info', function (req, res) {
     shadingModel.getShadingInfo(req.body, function (status) {

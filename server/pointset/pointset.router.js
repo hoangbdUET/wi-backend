@@ -1,9 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var pointSetModel = require('./pointset.model');
-var bodyParser = require('body-parser');
 
-router.use(bodyParser.json());
+
 router.post('/point-set/info', function (req, res) {
     pointSetModel.getPointSetInfo(req.body, function (status) {
         res.send(status);

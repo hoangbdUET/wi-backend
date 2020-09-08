@@ -9,7 +9,6 @@ let dataFile = path.join(__dirname, 'data.json');
 let errorCodes = require('../../../error-codes');
 let ResponseJSON = require('../../response');
 let router = express.Router();
-let bodyParser = require('body-parser');
 router.use(cors());
 
 router.post('/axis-color/save', (req, res) => {

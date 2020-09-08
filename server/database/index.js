@@ -5,14 +5,12 @@ let ErrorCodes = require('../../error-codes').CODES;
 let express = require("express");
 let router = express.Router();
 let Sequelize = require("sequelize");
-let bodyParser = require("body-parser");
 let config = require("config").Database;
 let models = require("../models");
 let jwt = require('jsonwebtoken');
 let syncJob = require('./sync-master-to-user');
 let redisClient = require('../utils/redis').redisClient;
 
-router.use(bodyParser.json());
 
 router.post('/database/update', function (req, res) {
 	let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');

@@ -3,12 +3,11 @@
 let express = require('express');
 let router = express.Router();
 let wellModel = require('./well.model');
-let bodyParser = require('body-parser');
 let wellTopUpdate = require('./well-top-update');
 let duplicateWell = require('./duplicate-well');
 require('./wellEventListerner');
 
-router.use(bodyParser.json());
+
 
 router.post('/well/info', function (req, res) {
     wellModel.getWellInfo(req.body, function (status) {

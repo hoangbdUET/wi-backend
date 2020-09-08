@@ -1,13 +1,12 @@
 let express = require('express');
 let router = express.Router();
 let trackModel = require('./track.model');
-let bodyParser = require('body-parser');
 let fs = require('fs');
 let uploadDir = process.env.BACKEND_USER_UPLOAD_PATH || require('config').uploadPath;
 const multer = require('multer');
 
 
-router.use(bodyParser.json());
+
 
 let storage = multer.diskStorage({
 	destination: function (req, file, cb) {

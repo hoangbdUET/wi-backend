@@ -1,9 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var Model = require('./object-of-track.model');
-var bodyParser = require('body-parser');
 
-router.use(bodyParser.json());
+
 
 router.post('/object/info', function (req, res) {
     Model.infoObjectOfTrack(req.body, function (status) {

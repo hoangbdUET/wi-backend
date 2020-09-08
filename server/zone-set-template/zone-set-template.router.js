@@ -1,9 +1,8 @@
 let express = require('express');
 let router = express.Router();
 let zoneSetTemplateModel = require('./zone-set-template.model');
-let bodyParser = require('body-parser');
 
-router.use(bodyParser.json());
+
 
 router.post('/zone-set-template/new', function (req, res) {
     zoneSetTemplateModel.createNewZoneSetTemplate(req.body, status => {

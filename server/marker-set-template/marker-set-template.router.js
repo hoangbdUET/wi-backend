@@ -1,9 +1,8 @@
 let express = require('express');
 let router = express.Router();
 let markerSetTemplateModel = require('./marker-set-template.model');
-let bodyParser = require('body-parser');
 
-router.use(bodyParser.json());
+
 
 router.post('/marker-set-template/new', function (req, res) {
     markerSetTemplateModel.createNewMarkerSetTemplate(req.body, status => {

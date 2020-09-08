@@ -1,10 +1,9 @@
 let express = require('express');
 let projectModel = require('./project.model');
 let router = express.Router();
-let bodyParser = require('body-parser');
 let Project = require('../models').Project;
 
-router.use(bodyParser.json());
+
 router.registerHooks = function (io) {
 	Project.addHook('afterUpdate', 'afterProjectUpdate', function (project) {
 		io.emit('project-change', project.toJSON());

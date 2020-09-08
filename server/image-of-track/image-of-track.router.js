@@ -1,9 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var Model = require('./image-of-track.model');
-var bodyParser = require('body-parser');
 
-router.use(bodyParser.json());
+
 
 router.post('/image/info', function (req, res) {
     Model.infoImageOfTrack(req.body, function (status) {

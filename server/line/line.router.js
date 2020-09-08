@@ -3,10 +3,9 @@
 let express = require('express');
 let router = express.Router();
 let lineModel = require('./line.model');
-let bodyParser = require('body-parser');
 let Line = require('../models').Line;
 
-router.use(bodyParser.json());
+
 
 router.registerHooks = function (io) {
     // TODO: register hooks to Line model here. Hook callback function should use "io" parameter for send info back to clients

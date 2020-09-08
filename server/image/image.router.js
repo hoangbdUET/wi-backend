@@ -1,11 +1,10 @@
 let express = require('express');
 let router = express.Router();
 let imageModel = require('./image.model');
-let bodyParser = require('body-parser');
 let request = require('request');
 let config = require('config');
 
-router.use(bodyParser.json());
+
 
 router.get('/image/thumbnail', (req, res) => {
     imageModel.describeImage(req.query.idImage, req.dbConnection).then((img) => {

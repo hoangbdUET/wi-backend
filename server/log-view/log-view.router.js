@@ -2,11 +2,10 @@
 const express = require('express');
 const router = express.Router();
 const logViewModel = require('./log-view.model');
-const bodyParser = require('body-parser');
 const axios = require('axios');
 const getJsonResponse = require('../response');
 
-router.use(bodyParser.json());
+
 
 let elasticLink = process.env.BACKEND_ELASTICSEARCH || require('config').get("elasticsearch") || "http://localhost:9200";
 

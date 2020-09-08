@@ -1,10 +1,9 @@
 let express = require('express');
 let router = express.Router();
 let tadpoleTrackModel = require('./generic-object-track.model');
-let bodyParser = require('body-parser');
 
 
-router.use(bodyParser.json());
+
 
 
 router.post('/generic-object-track/info', function (req, res) {

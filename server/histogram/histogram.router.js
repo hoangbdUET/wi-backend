@@ -1,9 +1,8 @@
 let express = require('express');
 let router = express.Router();
 let histogramModel = require('./histogram.model');
-let bodyParser = require('body-parser');
 
-router.use(bodyParser.json());
+
 
 router.post('/histogram/new', function (req, res) {
     if (req.body.idCurve == null || !req.body.idCurve) delete req.body.idCurve;

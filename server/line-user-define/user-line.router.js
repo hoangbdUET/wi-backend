@@ -2,9 +2,8 @@
 var express = require('express');
 var router = express.Router();
 var userDefineLineModel = require('./user-line.model');
-var bodyParser = require('body-parser');
 
-router.use(bodyParser.json());
+
 
 router.post('/user-define-line/new', function (req, res) {
     userDefineLineModel.createNewUserDefineLine(req.body, function (done) {

@@ -1,10 +1,8 @@
 let express = require("express");
 let router = express.Router();
-let bodyParser = require("body-parser");
 let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
 let model = require('./import.model');
-router.use(bodyParser.json());
 
 router.post('/inventory/import/dataset', function (req, res) {
 	let token = req.body.token || req.query.token || req.header['x-access-token'] || req.get('Authorization');

@@ -2,9 +2,7 @@
 var express = require('express');
 var router = express.Router();
 var depthAxisModel = require('./depth-axis.model');
-var bodyParserr = require('body-parser');
 
-router.use(bodyParserr.json());
 router.post('/depth-axis/info', function (req, res) {
     depthAxisModel.getDepthAxisInfo(req.body,function (status) {
         res.send(status);

@@ -1,9 +1,8 @@
 let express = require('express');
 let router = express.Router();
 let familyModel = require('./global.family.models');
-let bodyParser = require('body-parser');
 
-router.use(bodyParser.json());
+
 router.post('/global-family/info', function (req, res) {
     familyModel.getFamilyInfo(req.body, function (status) {
         res.send(status);

@@ -8,7 +8,6 @@ const path = require('path');
 let errorCodes = require('../../error-codes');
 let ResponseJSON = require('../response');
 let router = express.Router();
-let bodyParser = require('body-parser');
 router.use(cors());
 
 router.post('/save', (req, res) => {

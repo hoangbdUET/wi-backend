@@ -2,7 +2,6 @@
 const fs = require('fs');
 const express = require('express');
 const router = express.Router();
-const bodyParser = require('body-parser');
 const multer = require('multer');
 let ResponseJSON = require('../response');
 let ErrorCodes = require('../../error-codes').CODES;
@@ -12,7 +11,7 @@ let convertUnit = require('./convert-unit');
 let uploadDir = process.env.BACKEND_USER_UPLOAD_PATH || require('config').uploadPath;
 const byline = require('byline');
 
-router.use(bodyParser.json());
+
 
 let storage = multer.diskStorage({
 	destination: function (req, file, cb) {
