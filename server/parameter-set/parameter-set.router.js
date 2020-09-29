@@ -12,7 +12,7 @@ router.post('/parameter-set/new', upload.single('content'), async function (req,
 	}
 	model.createNewParameterSet(req.body, function (status) {
 		res.send(status);
-	}, req.dbConnection);
+	}, req.dbConnection, req.CurrentProject);
 });
 router.post('/parameter-set/info', function (req, res) {
 	model.infoParameterSet(req.body, function (status) {
@@ -32,12 +32,12 @@ router.post('/parameter-set/edit', upload.single('content'), function (req, res)
 	}
 	model.updateParameterSet(req.body, function (status) {
 		res.send(status);
-	}, req.dbConnection);
+	}, req.dbConnection, req.CurrentProject);
 });
 router.delete('/parameter-set/delete', function (req, res) {
 	model.deleteParameterSet(req.body, function (status) {
 		res.send(status);
-	}, req.dbConnection);
+	}, req.dbConnection, req.CurrentProject);
 });
 
 router.post('/parameter-set/download', function (req, res) {

@@ -3,7 +3,7 @@ let ResponseJSON = require('../response');
 const _ = require('lodash');
 const config = require('config');
 const loggingServiceUrl = process.env.LOGGING_SERVICE || config.Service.logger || "http://localhost:3333";
-const wiLog = require('wi-logger');
+const wiLog = require('@revotechuet/wi-logger');
 const logger = new wiLog('./logs');
 
 let options = {

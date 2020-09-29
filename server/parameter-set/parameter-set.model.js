@@ -1,8 +1,9 @@
 const ResponseJSON = require('../response');
 const ErrorCodes = require('../../error-codes').CODES;
 const fs = require('fs');
-
-let createNewParameterSet = function (data, done, dbConnection) {
+const wiLog = require('@revotechuet/wi-logger');
+const logger = new wiLog('./logs');
+let createNewParameterSet = function (data, done, dbConnection, CurrentProject) {
 	dbConnection.ParameterSet.findOrCreate({
 		where: {
 			idProject: data.idProject,
@@ -13,10 +14,12 @@ let createNewParameterSet = function (data, done, dbConnection) {
 	}).then(rs => {
 		if (rs[1]) {
 			done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs[0]));
+			logger.info({message: "Created new " + data.type + " " + data.name, username: data.updatedBy, project: CurrentProject});
 		} else {
 			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Parameter set already exists", rs[0]));
 		}
 	}).catch(err => {
+		logger.error({message: err, username: data.updatedBy, project: CurrentProject});
 		done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
 	});
 };
@@ -39,10 +42,11 @@ let infoParameterSet = function (data, done, dbConnection) {
 		done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err));
 	});
 };
-let deleteParameterSet = function (data, done, dbConnection) {
+let deleteParameterSet = function (data, done, dbConnection, CurrentProject) {
 	dbConnection.ParameterSet.findByPk(data.idParameterSet).then(p => {
 		if (p) {
 			p.destroy().then(() => {
+				logger.info({message: "Deleted " + p.type + " " + p.name, username: p.updatedBy, project: CurrentProject});
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", p));
 			}).catch(err => {
 				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
@@ -54,10 +58,11 @@ let deleteParameterSet = function (data, done, dbConnection) {
 		done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
 	});
 };
-let updateParameterSet = function (data, done, dbConnection) {
+let updateParameterSet = function (data, done, dbConnection, CurrentProject) {
 	dbConnection.ParameterSet.findByPk(data.idParameterSet).then(p => {
 		if (p) {
 			Object.assign(p, data).save().then(e => {
+				logger.info({message: "Updated " + e.type + " " + e.name, username: data.updatedBy, project: CurrentProject});
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", e));
 			}).catch(err => {
 				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));

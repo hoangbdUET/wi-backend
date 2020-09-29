@@ -13,6 +13,8 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const uuidv4 = require('uuid/v4');
+const wiLog = require('@revotechuet/wi-logger');
+const logger = new wiLog('./logs');
 
 function createDefaultZoneSetTemplate(zoneSetTemplates, idProject, dbConnection) {
     return new Promise(resolve => {
@@ -210,9 +212,11 @@ function editProject(projectInfo, done, dbConnection) {
             project.alias = projectInfo.alias;
             project.save()
                 .then(function () {
+                    logger.info({username: projectInfo.updatedBy, project: projectInfo.idProject, message: "Updated project " + projectInfo.name});
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Project success", projectInfo));
                 })
                 .catch(function (err) {
+                    logger.info({username: projectInfo.updatedBy, project: projectInfo.idProject, message: err});
                     if (err.name === "SequelizeUniqueConstraintError") {
                         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Project's name already exists"));
                     } else {
@@ -372,8 +376,8 @@ function deleteProject(projectInfo, done, dbConnection) {
     const sequelize = require('sequelize');
     let dbName = (process.env.BACKEND_DBPREFIX || config.Database.prefix) + projectInfo.owner;
     let query = "DELETE FROM " + dbName + ".project WHERE idProject = " + projectInfo.idProject;
-    console.log(query);
     dbConnection.sequelize.query(query, { type: sequelize.QueryTypes.UPDATE }).then(rs => {
+        logger.info({username: projectInfo.idProject, project: projectInfo.idProject, message: "Project deleted"})
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
