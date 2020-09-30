@@ -63,8 +63,6 @@ setTimeout(function () {
 }, 100);
 
 function main() {
-    let WiLog = require('wi-logger');
-    let logger = new WiLog('./logs');
 	let authenticate;
 	let accessLogStream;
 	let express = require('express');
