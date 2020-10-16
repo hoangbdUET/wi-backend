@@ -96,6 +96,7 @@ function downloadParameterSet(payload, done, dbConnection) {
 	} else if (payload.type) {
 		dbConnection.ParameterSet.findAll({where: {type: payload.type}}).then(ps => {
 			if (ps) {
+				delete ps.relatedTo;
 				let tempfile = require('tempfile')('.json');
 				fs.writeFileSync(tempfile, JSON.stringify(ps.toJSON()));
 				done(null, tempfile);

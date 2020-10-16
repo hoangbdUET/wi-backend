@@ -39,6 +39,17 @@ module.exports = function (sequelize, DataTypes) {
         updatedBy: {
             type: DataTypes.STRING(50),
             allowNull: false
-        }
+        },
+        relatedTo: {
+			type: DataTypes.TEXT,
+			allowNull: true,
+			set(value) {
+				this.setDataValue('relatedTo', typeof(value) === 'object' ? JSON.stringify(value) : value);
+			},
+			get() {
+				const value = this.getDataValue('relatedTo');
+				return value ? JSON.parse(value) : null;
+			}
+		},
     });
 };
