@@ -44,7 +44,7 @@ let wellHeaders = [
     {header: "TYPE", value: '', unit: '', description: ""},
     {header: "STATUS", value: '', unit: '', description: ""},
     {header: "WTYPE", value: '', unit: '', description: ""},
-    {header: "FLUID", value: '', unit: '', description: ""}
+    {header: "FLUID", value: '', unit: '', description: ""},
     {header: "BLOCK", value: '', unit: '', description: ""}
 ];
 
