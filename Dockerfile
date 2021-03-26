@@ -1,4 +1,4 @@
-FROM node:8.12.0-alpine
+FROM node:12.21.0-alpine
 
 MAINTAINER I2G
 
