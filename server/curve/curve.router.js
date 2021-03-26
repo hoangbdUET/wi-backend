@@ -11,6 +11,10 @@ let convertUnit = require('./convert-unit');
 let uploadDir = process.env.BACKEND_USER_UPLOAD_PATH || require('config').uploadPath;
 const byline = require('byline');
 
+let bodyParser = require('body-parser');
+router.use(bodyParser.json({ limit: '50mb', extended: true, type: 'application/json' }));
+router.use(bodyParser.urlencoded({ limit: '50mb', extended: true, type: 'application/json' }));
+
 
 
 let storage = multer.diskStorage({
