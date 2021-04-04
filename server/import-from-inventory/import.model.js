@@ -4,7 +4,9 @@ const checkPermisson = require('../utils/permission/check-permisison');
 let async = require('async');
 let mqtt = require('mqtt');
 let config = require('config');
-const { resolve } = require('path');
+const {
+	resolve
+} = require('path');
 
 function sleep(ms) {
 	return new Promise(resolve => {
@@ -33,11 +35,14 @@ function _importDataset(datasets, token, callback, dbConnection, username, creat
 				newDataset.createdBy = createdBy;
 				newDataset.updatedBy = updatedBy;
 				let _dataset = (await dbConnection.Dataset.findOrCreate({
-					where: { name: newDataset.name, idWell: newDataset.idWell },
+					where: {
+						name: newDataset.name,
+						idWell: newDataset.idWell
+					},
 					defaults: newDataset
 				}))[0];
 				datasets[i]._dataset = _dataset;
-				let topic = "import/dataset/" + _dataset.name + "/" + _dataset.idDataset;
+				let topic = "import/dataset/" + Math.random().toString(16).substr(2, 8) + "/" + _dataset.idDataset;
 				datasets[i].topic = topic;
 				response.push({
 					name: _dataset.name,
@@ -54,8 +59,11 @@ function _importDataset(datasets, token, callback, dbConnection, username, creat
 function publishPromise(MqttClient, _curve, dataset) {
 	return new Promise(resolve => {
 		MqttClient.publish(dataset.topic, JSON.stringify({
-			name: _curve.name, idCurve: _curve.idCurve
-		}), { qos: 2 }, function () {
+			name: _curve.name,
+			idCurve: _curve.idCurve
+		}), {
+			qos: 2
+		}, function () {
 			resolve();
 		});
 	})
@@ -65,11 +73,11 @@ async function doImportCurves(datasets, token, dbConnection, username, createdBy
 	// let clientId = "wi_import_" + _dataset.updatedBy + "_" + _dataset.name + "_" + Math.random().toString(16).substr(2, 8);
 	let clientId = "wi_import_" + username + "_" + Math.random().toString(16).substr(2, 8);
 	let MqttClient = mqtt.connect(process.env.BACKEND_MQTT_BROKER || config.mqttBroker || "wss://mqtt-broker.i2g.cloud:8083", {
-			rejectUnauthorized: false,
-			clientId: clientId,
-			clean: false,
-			keepalive: 30
-		});
+		rejectUnauthorized: false,
+		clientId: clientId,
+		clean: false,
+		keepalive: 30
+	});
 	MqttClient.on('connect', async () => {
 		console.log("Connected to broker " + (process.env.BACKEND_MQTT_BROKER || config.mqttBroker || "wss://mqtt-broker.i2g.cloud:8083"), " with id ", clientId);
 	});
@@ -83,20 +91,6 @@ async function doImportCurves(datasets, token, dbConnection, username, createdBy
 		await sleep(2000);
 		let dataset = datasets[i];
 		let _dataset = datasets[i]._dataset;
-		// let MqttClient = mqtt.connect(process.env.BACKEND_MQTT_BROKER || config.mqttBroker || "wss://mqtt-broker.i2g.cloud:8083", {
-		// 	rejectUnauthorized: false,
-		// 	clientId: clientId,
-		// 	clean: false
-		// });
-		// MqttClient.on('connect', async () => {
-		// 	console.log("Connected to broker " + (process.env.BACKEND_MQTT_BROKER || config.mqttBroker || "wss://mqtt-broker.i2g.cloud:8083"), " with id ", clientId);
-		// });
-		// MqttClient.on('close', () => {
-		// 	console.log("MQTT Client End ", clientId);
-		// })
-		// MqttClient.on('error', () => {
-		// 	console.log("Mqtt connect failed");
-		// });
 		for (let j = 0; j < dataset.curves.length; j++) {
 			let curve = dataset.curves[j]
 			await sleep(500);
