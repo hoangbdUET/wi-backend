@@ -123,12 +123,10 @@ module.exports = function (sequelize, DataTypes) {
 		},
 		depthGridInterval: {
 			type: DataTypes.FLOAT,
-			defaultValue: '1.0',
 			allowNull: true
 		},
 		depthGridIntervalUnit: {
 			type: DataTypes.STRING(20),
-			defaultValue: 'cm',
 			allowNull: true
 		}
 	});

@@ -95,6 +95,14 @@ module.exports = function (sequelize, DataTypes) {
 		updatedBy: {
 			type: DataTypes.STRING(50),
 			allowNull: false
+		},
+		depthGridInterval: {
+			type: DataTypes.FLOAT,
+			allowNull: true
+		},
+		depthGridIntervalUnit: {
+			type: DataTypes.STRING(20),
+			allowNull: true
 		}
 	}, {
 		paranoid: true
