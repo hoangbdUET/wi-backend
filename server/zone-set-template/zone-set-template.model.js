@@ -22,7 +22,7 @@ function createNewZoneSetTemplate(payload, done, dbConnection) {
 }
 
 function infoZoneSetTemplate(payload, done, dbConnection) {
-    dbConnection.ZoneSetTemplate.findByPk(payload.idZoneSetTemplate, {include: [{model: dbConnection.ZoneTemplate}, {model: dbConnection.ZoneSet}]}).then(rs => {
+    dbConnection.ZoneSetTemplate.findByPk(payload.idZoneSetTemplate, { include: [{ model: dbConnection.ZoneTemplate }, { model: dbConnection.ZoneSet }] }).then(rs => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
     }).catch(err => {
         done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
@@ -31,8 +31,8 @@ function infoZoneSetTemplate(payload, done, dbConnection) {
 
 function listZoneSetTemplate(payload, done, dbConnection) {
     dbConnection.ZoneSetTemplate.findAll({
-        include: [{model: dbConnection.ZoneTemplate}, {model: dbConnection.ZoneSet}],
-        where: {idProject: payload.idProject ? payload.idProject : null}
+        include: [{ model: dbConnection.ZoneTemplate }, { model: dbConnection.ZoneSet }],
+        where: { idProject: payload.idProject ? payload.idProject : null }
     }).then(rs => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
     }).catch(err => {
@@ -42,8 +42,10 @@ function listZoneSetTemplate(payload, done, dbConnection) {
 
 
 function deleteZoneSetTemplate(payload, done, dbConnection) {
+    delete payload.createdBy;
     dbConnection.ZoneSetTemplate.findByPk(payload.idZoneSetTemplate).then(zst => {
         if (zst) {
+            zst.setDataValue('updatedBy', payload.updatedBy);
             zst.destroy().then(() => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Done", zst));
             }).catch(err => {
@@ -58,10 +60,11 @@ function deleteZoneSetTemplate(payload, done, dbConnection) {
 }
 
 function editZoneSetTemplate(payload, done, dbConnection) {
+    delete payload.createdBy;
     dbConnection.ZoneSetTemplate.findByPk(payload.idZoneSetTemplate).then(zst => {
         if (zst) {
             Object.assign(zst, payload).save().then((zst_) => {
-                dbConnection.ZoneSetTemplate.findByPk(zst_.idZoneSetTemplate, {include: {model: dbConnection.ZoneSet}}).then((r) => {
+                dbConnection.ZoneSetTemplate.findByPk(zst_.idZoneSetTemplate, { include: { model: dbConnection.ZoneSet } }).then((r) => {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
                 });
             }).catch(err => {

@@ -1,25 +1,25 @@
 let checkPerm = require('../utils/permission/check-permisison');
 module.exports = function (dbConnection) {
-    dbConnection.Ternary.addHook('beforeCreate', function (object, options) {
+    dbConnection.TadpoleTrack.addHook('beforeCreate', function (object, options) {
         return new Promise(function (resolve, reject) {
-            checkPerm(object.updatedBy, 'ternary.create', function (result) {
+            checkPerm(object.updatedBy, 'tadpole-track.create', function (result) {
                 if (result) {
                     resolve(object, options);
                 } else {
-                    reject({message: "Ternary : Do not have permission"});
+                    reject({ message: "Tadpole Track : Do not have permission" });
                 }
             });
         });
 
     });
-    dbConnection.Ternary.addHook('beforeDestroy', function (object, options) {
+    dbConnection.TadpoleTrack.addHook('beforeDestroy', function (object, options) {
         return new Promise(function (resolve, reject) {
-            checkPerm(object.updatedBy, 'ternary.delete', function (result) {
+            checkPerm(object.updatedBy, 'tadpole-track.delete', function (result) {
                 if (result) {
                     resolve(object, options);
                 } else {
                     if (object.createdBy !== object.updatedBy) {
-                        reject({message: "Ternary : Do not have permission"});
+                        reject({ message: "Tadpole Track : Do not have permission" });
                     } else {
                         resolve(object, options);
                     }
@@ -27,14 +27,14 @@ module.exports = function (dbConnection) {
             });
         });
     });
-    dbConnection.Ternary.addHook('beforeUpdate', function (object, options) {
+    dbConnection.TadpoleTrack.addHook('beforeUpdate', function (object, options) {
         return new Promise(function (resolve, reject) {
-            checkPerm(object.updatedBy, 'ternary.update', function (result) {
+            checkPerm(object.updatedBy, 'tadpole-track.update', function (result) {
                 if (result) {
                     resolve(object, options);
                 } else {
                     if (object.createdBy !== object.updatedBy) {
-                        reject({message: "Ternary : Do not have permission"});
+                        reject({ message: "Tadpole Track : Do not have permission" });
                     } else {
                         resolve(object, options);
                     }

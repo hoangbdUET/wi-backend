@@ -6,13 +6,13 @@ function createObjectTrack(info, done, dbConnection) {
     Model.create(info).then(result => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Successful ObjectTrack", result));
     }).catch(err => {
-        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Some err", err.message));
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
     });
 }
 
 function infoObjectTrack(info, done, dbConnection) {
     let Model = dbConnection.ObjectTrack;
-    Model.findByPk(info.idObjectTrack, {include: {all: true}}).then(result => {
+    Model.findByPk(info.idObjectTrack, { include: { all: true } }).then(result => {
         if (!result) {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No ObjectTrack Found"));
         } else {
@@ -48,6 +48,8 @@ function deleteObjectTrack(info, done, dbConnection) {
             track.setDataValue('updatedBy', info.updatedBy);
             track.destroy().then(() => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, " Done", track));
+            }).catch(err => {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
             });
         } else {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Not found"));

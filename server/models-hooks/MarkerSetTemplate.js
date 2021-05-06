@@ -1,25 +1,25 @@
 let checkPerm = require('../utils/permission/check-permisison');
 module.exports = function (dbConnection) {
-    dbConnection.RegressionLine.addHook('beforeCreate', function (object, options) {
+    dbConnection.MarkerSetTemplate.addHook('beforeCreate', function (object, options) {
         return new Promise(function (resolve, reject) {
-            checkPerm(object.updatedBy, 'regression-line.create', function (result) {
+            checkPerm(object.updatedBy, 'marker-set-template.create', function (result) {
                 if (result) {
                     resolve(object, options);
                 } else {
-                    reject({message: "Regression Line : Do not have permission"});
+                    reject({ message: "Marker Set Template : Do not have permission" });
                 }
             });
         });
 
     });
-    dbConnection.RegressionLine.addHook('beforeDestroy', function (object, options) {
+    dbConnection.MarkerSetTemplate.addHook('beforeDestroy', function (object, options) {
         return new Promise(function (resolve, reject) {
-            checkPerm(object.updatedBy, 'regression-line.delete', function (result) {
+            checkPerm(object.updatedBy, 'marker-set-template.delete', function (result) {
                 if (result) {
                     resolve(object, options);
                 } else {
                     if (object.createdBy !== object.updatedBy) {
-                        reject({message: "Regression Line : Do not have permission"});
+                        reject({ message: "Marker Set Template : Do not have permission" });
                     } else {
                         resolve(object, options);
                     }
@@ -27,14 +27,14 @@ module.exports = function (dbConnection) {
             });
         });
     });
-    dbConnection.RegressionLine.addHook('beforeUpdate', function (object, options) {
+    dbConnection.MarkerSetTemplate.addHook('beforeUpdate', function (object, options) {
         return new Promise(function (resolve, reject) {
-            checkPerm(object.updatedBy, 'regression-line.update', function (result) {
+            checkPerm(object.updatedBy, 'marker-set-template.update', function (result) {
                 if (result) {
                     resolve(object, options);
                 } else {
                     if (object.createdBy !== object.updatedBy) {
-                        reject({message: "Regression Line : Do not have permission"});
+                        reject({ message: "Marker Set Template : Do not have permission" });
                     } else {
                         resolve(object, options);
                     }

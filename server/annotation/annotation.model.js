@@ -8,14 +8,14 @@ function createNewAnnotation(annotationInfo, done, dbConnection) {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new Annotation success", result));
     }).catch(err => {
         console.log(err);
-        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new Annotation error", err.message));
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
     });
 }
 
 function getAnnotationInfo(annotationID, done, dbConnection) {
     let Annotation = dbConnection.Annotation;
     Annotation.findByPk(annotationID.idAnnotation, {
-        include: [{all: true}]
+        include: [{ all: true }]
     }).then(rs => {
         if (rs) {
             done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
@@ -38,7 +38,7 @@ function editAnnotation(annotationInfo, done, dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Annotation success", result));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Annotation" + err.message));
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
                 })
         })
         .catch(function () {
@@ -56,7 +56,7 @@ function deleteAnnotation(annotationInfo, done, dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Annotation is deleted", annotation));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete Annotation " + err.message, err.message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.message, err.message));
                 })
         })
         .catch(function () {

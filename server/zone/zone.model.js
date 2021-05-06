@@ -64,7 +64,7 @@ function deleteZone(zoneInfo, done, dbConnection) {
 
 function getZoneInfo(zone, done, dbConnection) {
     let Zone = dbConnection.Zone;
-    Zone.findByPk(zone.idZone, {include: [{all: true}]})
+    Zone.findByPk(zone.idZone, { include: [{ all: true }] })
         .then(function (zone) {
             if (!zone) throw "not exits";
             done(ResponseJSON(ErrorCodes.SUCCESS, "Get info Zone success", zone));

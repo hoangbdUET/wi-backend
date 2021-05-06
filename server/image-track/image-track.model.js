@@ -6,13 +6,13 @@ function createImageTrack(info, done, dbConnection) {
     Model.create(info).then(result => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", result));
     }).catch(err => {
-        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Some err", err.message));
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
     });
 }
 
 function infoImageTrack(info, done, dbConnection) {
     let Model = dbConnection.ImageTrack;
-    Model.findByPk(info.idImageTrack, {include: {all: true}}).then(result => {
+    Model.findByPk(info.idImageTrack, { include: { all: true } }).then(result => {
         if (!result) {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No ImageTrack Found"));
         } else {
@@ -33,7 +33,7 @@ function editImageTrack(info, done, dbConnection) {
             Object.assign(result, info).save().then(() => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", info));
             }).catch(err => {
-                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Some err"));
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
             })
         }
     }).catch(err => {
@@ -43,11 +43,13 @@ function editImageTrack(info, done, dbConnection) {
 
 function deleteImageTrack(info, done, dbConnection) {
     let Model = dbConnection.ImageTrack;
-    Model.findOne({where: {idImageTrack: info.idImageTrack}}).then(track => {
+    Model.findOne({ where: { idImageTrack: info.idImageTrack } }).then(track => {
         if (track) {
             track.setDataValue('updatedBy', info.updatedBy);
             track.destroy().then(() => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Delete successful", info));
+            }).catch(err => {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
             });
         } else {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No track found by id"));

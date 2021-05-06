@@ -1,32 +1,32 @@
 module.exports = function (dbConnection) {
     let models = [
         'Annotation',
-        'CombinedBox',
-        'CrossPlot',
         'Curve',
         'Dataset',
         'DepthAxis',
-        'Histogram',
-        'ImageOfTrack',
+        'Flow',
+        'GenericObjectTrack',
+        'Image',
+        'ImageSet',
         'ImageTrack',
         'Line',
         'Marker',
+        'MarkerSet',
+        'MarkerSetTemplate',
         'ObjectOfTrack',
         'ObjectTrack',
+        'ParameterSet',
         'Plot',
-        'PointSet',
         'Project',
-        'Polygon',
         'ReferenceCurve',
-        'RegressionLine',
         'Shading',
-        'Ternary',
+        'TadpoleTrack',
         'Track',
-        'UserDefineLine',
         'Well',
+        'Zone',
         'ZoneSet',
-        'ZoneTrack',
-        'Zone'
+        'ZoneSetTemplate',
+        'ZoneTrack'
     ];
     // let models = [];
     models.forEach(function (model) {

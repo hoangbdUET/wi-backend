@@ -2,7 +2,7 @@ let checkPerm = require('../utils/permission/check-permisison');
 module.exports = function (dbConnection) {
     dbConnection.DepthAxis.addHook('beforeCreate', function (object, options) {
         return new Promise(function (resolve, reject) {
-            checkPerm(object.updatedBy, 'depth-axis.create', function (result) {
+            checkPerm(object.updatedBy, 'depth-track.create', function (result) {
                 if (result) {
                     resolve(object, options);
                 } else {
@@ -14,7 +14,7 @@ module.exports = function (dbConnection) {
     });
     dbConnection.DepthAxis.addHook('beforeDestroy', function (object, options) {
         return new Promise(function (resolve, reject) {
-            checkPerm(object.updatedBy, 'depth-axis.delete', function (result) {
+            checkPerm(object.updatedBy, 'depth-track.delete', function (result) {
                 if (result) {
                     resolve(object, options);
                 } else {
@@ -29,7 +29,7 @@ module.exports = function (dbConnection) {
     });
     dbConnection.DepthAxis.addHook('beforeUpdate', function (object, options) {
         return new Promise(function (resolve, reject) {
-            checkPerm(object.updatedBy, 'depth-axis.update', function (result) {
+            checkPerm(object.updatedBy, 'depth-track.update', function (result) {
                 if (result) {
                     resolve(object, options);
                 } else {

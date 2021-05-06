@@ -12,6 +12,7 @@ function createNewImage(imageInfo, done, dbConnection) {
 }
 
 function editImage(imageInfo, done, dbConnection) {
+	delete imageInfo.createdBy;
 	dbConnection.Image.findByPk(imageInfo.idImage).then(img => {
 		if (img) {
 			Object.assign(img, imageInfo).save().then((i) => {
@@ -28,8 +29,10 @@ function editImage(imageInfo, done, dbConnection) {
 }
 
 function deleteImage(imageInfo, done, dbConnection) {
+	delete imageInfo.createdBy;
 	dbConnection.Image.findByPk(imageInfo.idImage).then(img => {
 		if (img) {
+			img.setDataValue('updatedBy', imageInfo.updatedBy);
 			img.destroy().then(i => {
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", i));
 			}).catch(err => {

@@ -5,7 +5,7 @@ let validationFlow = require('../project/project.model').validationFlow;
 
 let createNewFlow = function (flow, done, dbConnection) {
 	if (flow.idFlow) {
-		dbConnection.Flow.findByPk(flow.idFlow, {include: {model: dbConnection.Task}}).then(fl => {
+		dbConnection.Flow.findByPk(flow.idFlow, { include: { model: dbConnection.Task } }).then(fl => {
 			dbConnection.Flow.create({
 				name: flow.name,
 				content: fl.content,
@@ -35,10 +35,10 @@ let createNewFlow = function (flow, done, dbConnection) {
 				})
 			}).catch(err => {
 				console.log(err);
-				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
+				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
 			});
 		}).catch(err => {
-			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
+			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
 		});
 	} else if (flow.idParameterSet) {
 		dbConnection.ParameterSet.findByPk(flow.idParameterSet).then(pt => {
@@ -82,27 +82,28 @@ let createNewFlow = function (flow, done, dbConnection) {
 		dbConnection.Flow.create(flow).then(f => {
 			done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", f));
 		}).catch(err => {
-			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
+			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
 		});
 	}
 };
 
 let editFlow = function (flowInfo, done, dbConnection) {
+	delete flowInfo.createdBy;
 	dbConnection.Flow.findByPk(flowInfo.idFlow).then(flow => {
 		if (flow) {
 			Object.assign(flow, flowInfo).save().then(f => {
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", f));
 			}).catch(err => {
-				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Error", err));
+				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
 			})
 		} else {
-			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No flow found by if"));
+			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No flow found by id"));
 		}
 	});
 };
 
 let infoFlow = function (flow, done, dbConnection) {
-	dbConnection.Flow.findByPk(flow.idFlow, {include: {all: true}}).then(f => {
+	dbConnection.Flow.findByPk(flow.idFlow, { include: { all: true } }).then(f => {
 		if (f) {
 			done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", f));
 		} else {
@@ -113,21 +114,22 @@ let infoFlow = function (flow, done, dbConnection) {
 
 let listFlow = function (flow, done, dbConnection) {
 	if (flow.listTemplate) {
-		dbConnection.Flow.findAll({where: {idProject: null}}).then(rs => {
-			dbConnection.ParameterSet.findAll({where: {idProject: flow.idProject, type: "FT"}}).then(fts => {
+		dbConnection.Flow.findAll({ where: { idProject: null } }).then(rs => {
+			dbConnection.ParameterSet.findAll({ where: { idProject: flow.idProject, type: "FT" } }).then(fts => {
 				rs.push(...fts);
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
 			});
 		})
 	} else {
-		dbConnection.Flow.findAll({where: {idProject: flow.idProject, isTemplate: false}}).then(fs => {
+		dbConnection.Flow.findAll({ where: { idProject: flow.idProject, isTemplate: false } }).then(fs => {
 			done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", fs));
 		});
 	}
 };
 
 let deleteFlow = function (flow, done, dbConnection) {
-	dbConnection.Flow.findByPk(flow.idFlow, {include: {all: true}}).then(f => {
+	delete flow.createdBy;
+	dbConnection.Flow.findByPk(flow.idFlow, { include: { all: true } }).then(f => {
 		if (f) {
 			f.destroy().then(fl => {
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", f));
@@ -143,7 +145,7 @@ let duplicateFlow = function (flow, done, dbConnection) {
 	if (!flow.name) {
 		done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Need flow name"));
 	} else {
-		dbConnection.Flow.findByPk(flow.idFlow, {include: {model: dbConnection.Task}}).then(fl => {
+		dbConnection.Flow.findByPk(flow.idFlow, { include: { model: dbConnection.Task } }).then(fl => {
 			if (fl) {
 				dbConnection.Flow.create({
 					name: flow.name,
@@ -189,7 +191,7 @@ let duplicateFlow = function (flow, done, dbConnection) {
 
 let saveAsTemplate = function (flow, done, dbConnection) {
 	if (!flow.name) return done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Need template name"));
-	dbConnection.Flow.findByPk(flow.idFlow, {include: {model: dbConnection.Task}}).then(fl => {
+	dbConnection.Flow.findByPk(flow.idFlow, { include: { model: dbConnection.Task } }).then(fl => {
 		fl = fl.toJSON();
 		if (fl) {
 			let saveObjContent = {
@@ -209,7 +211,7 @@ let saveAsTemplate = function (flow, done, dbConnection) {
 				type: "FT"
 			}).then(() => {
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Done"));
-			}).catch(err=>{
+			}).catch(err => {
 				if (err.name === "SequelizeUniqueConstraintError") {
 					done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Workflow template's name already exists!"));
 				} else {

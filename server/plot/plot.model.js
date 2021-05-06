@@ -269,7 +269,7 @@ let createNewPlot = function (plotInfo, done, dbConnection, username) {
 		myPlot.unit = plotInfo.unit;
 		createPlotTemplate(myPlot, dbConnection, function (err, result) {
 			if (err) {
-				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Plot's name already exists", "PLOT NAME EXISTED"));
+				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
 			} else {
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Create " + plotInfo.plotTemplate + " successful", result));
 			}

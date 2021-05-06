@@ -132,9 +132,9 @@ function main() {
 	let markerSetRouter = require('./server/marker-set/marker-set.router');
 	let markerTemplateRouter = require('./server/marker-template/marker-template.router');
 	let markerSetTemplateRouter = require('./server/marker-set-template/marker-set-template.router');
-	let resetDefaulParameters = require('./server/reset-parameter/reset-pamameter.router');
+	let resetDefaultParameters = require('./server/reset-parameter/reset-pamameter.router');
 	let permissionRouter = require('./server/permission/permission.router');
-	let storageDatabseRouter = require('./server/storage-database/storage-database.router');
+	let storageDatabaseRouter = require('./server/storage-database/storage-database.router');
 	let imageRouter = require('./server/image/image.router');
 	let imageSetRouter = require('./server/image-set/image-set.router');
 	let logViewRouter = require('./server/log-view/log-view.router');
@@ -150,8 +150,8 @@ function main() {
 	let mlProjectRouter = require('./server/ml-project/ml-project.router');
 	let queue = {};
 	let http = require('http').Server(app);
-	app.use(express.json({limit: '10mb'}));
-	app.use(express.urlencoded({limit: '10mb'}));
+	app.use(express.json({ limit: '10mb' }));
+	app.use(express.urlencoded({ limit: '10mb' }));
 	app.use(cors());
 	// app.use(queue({activeLimit: 2, queuedLimit: 2}));
 	/**
@@ -160,7 +160,7 @@ function main() {
 	app.get('/info', (req, res) => {
 		res.send(require('./server/utils/information').serverInfo);
 	});
-	app.post('/refresh-token', (req, res)=>{
+	app.post('/refresh-token', (req, res) => {
 		res.json({
 			code: 200,
 			content: {
@@ -174,7 +174,7 @@ function main() {
 	app.use('/', utmZoneRouter);
 	app.use('/pattern', express.static(path.join(__dirname, '/server/pattern/files')));
 	const compression = require('compression');
-	app.use(compression({filter: shouldCompress}));
+	app.use(compression({ filter: shouldCompress }));
 
 	function shouldCompress(req, res) {
 		if (req.headers['x-no-compression']) {
@@ -249,7 +249,7 @@ function main() {
 	});
 	app.use('/', globalFamilyRouter);
 	app.get('/', function (req, res) {
-		res.json({serverId: serverId, version: "1.0"});
+		res.json({ serverId: serverId, version: "1.0" });
 	});
 	app.use('/', databaseRouter);
 	authenticate = require('./server/authenticate/authenticate');
@@ -293,7 +293,6 @@ function main() {
 	});
 	app.use('/', patternRouter);
 	app.use('/', inventoryRouter);
-	// app.use('/', uploadRouter);
 	app.use('/', projectRouter);
 	app.use('/', familyRouter);
 	app.use('/', familyUnitRouter);
@@ -307,31 +306,41 @@ function main() {
 	app.use('/', markerTemplateRouter);
 	app.use('/', taskSpecRouter);
 	app.use('/', mlProjectRouter);
-	app.use('/project/well', imageSetRouter);
-	app.use('/project/well/image-set', imageRouter);
-	app.use('/project', parameterSetRouter);
-	app.use('/project', storageDatabseRouter);
-	app.use('/permission', permissionRouter);
-	app.use('/reset-parameter', resetDefaulParameters);
-	app.use('/pal', palRouter);
-	app.use('/custom-fill', customFillRouter);
+	app.use('/', filterRouter);
+	app.use('/', getCurrentSourceRouter)
 	app.use('/project', wellRouter);
 	app.use('/project', groupsRouter);
 	app.use('/project', plotRouter);
+	app.use('/project', parameterSetRouter);
+	app.use('/project', storageDatabaseRouter);
+	app.use('/project', flowRouter);
+	app.use('/project', analysisRouter);
 	app.use('/project/well', datasetRouter);
 	app.use('/project/well', zoneSetRouter);
-	app.use('/project', histogramRouter);
-	app.use('/project', crossPlotRouter);
+	app.use('/project/well', imageSetRouter);
 	app.use('/project/well', referenceCurveRouter);
-	app.use('/project', combinedBoxRouter);
 	app.use('/project/well', markerSetRouter);
-	app.use('/project', flowRouter);
+	app.use('/project/well/image-set', imageRouter);
+	app.use('/project/plot', imageTrackRouter);
+	app.use('/project/plot', depthAxisRouter);
+	app.use('/project/plot', trackRouter);
+	app.use('/project/plot', zoneTrackRouter);
+	app.use('/project/plot', objectTrackRouter);
+	app.use('/project/plot', tadpoleTrackRouter);
+	app.use('/project/plot', genericObjectTrackRouter);
+	app.use('/project/plot/track', shadingRouter);
+	app.use('/project/plot/track', lineRouter);
+	app.use('/project/plot/track', annotationRouter);
+	app.use('/project/plot/object-track', objectOfTrackRouter);
+	app.use('/project/plot/image-track', imageOfTrackRouter);
+	app.use('/project/well/dataset', curveRouter);
+	app.use('/project/well/zone-set', zoneRouter);
+	app.use('/project/well/marker-set', markerRouter);
+	app.use('/permission', permissionRouter);
 	app.use('/project/flow', taskRouter);
-	app.use('/project', analysisRouter);
-
+	app.use('/pal', palRouter);
+	app.use('/custom-fill', customFillRouter);
 	app.use('/', managementDashboardRouter);
-	// app.use('/project', projectLogRouter);
-	//middleware for all curve router to block spam request
 	app.use('/project/well/dataset/curve', function (req, res, next) {
 		if (!queue[req.decoded.username]) {
 			queue[req.decoded.username] = asyncQueue(function (next, cb) {
@@ -345,39 +354,31 @@ function main() {
 			// console.log("Push to queue");
 		});
 	});
-	app.use('/project/combined-box', selectionToolRouter);
-	app.use('/project/combined-box', combinedBoxToolRouter);
-	app.use('/project/plot', imageTrackRouter);
-	app.use('/project/plot', depthAxisRouter);
-	app.use('/project/plot', trackRouter);
-	app.use('/project/plot', zoneTrackRouter);
-	app.use('/project/plot', objectTrackRouter);
-	app.use('/project/plot', tadpoleTrackRouter);
-	app.use('/project/plot', genericObjectTrackRouter);
-	app.use('/project/well/marker-set', markerRouter);
-	app.use('/project/plot/track', shadingRouter);
-	app.use('/project/plot/track', lineRouter);
-	app.use('/project/plot/track', annotationRouter);
-	app.use('/project/well/dataset', curveRouter);//change
-	app.use('/project/well/zone-set', zoneRouter);
-	app.use('/project/cross-plot', polygonRouter);
-	app.use('/project/cross-plot', pointSetRouter);
-	app.use('/project/cross-plot', userDefineLineRouter);
-	app.use('/project/cross-plot', ternaryRouter);
-	app.use('/project/cross-plot', regressionLineRouter);
-	app.use('/project/cross-plot', overlayLineRouter);
-	app.use('/project/cross-plot', axisColorRouter);
-	app.use('/project/plot/object-track', objectOfTrackRouter);
-	app.use('/project/plot/image-track', imageOfTrackRouter);
+
 	app.use('/export', exportRouter);
 	app.use('/log-view', logViewRouter);
 	app.use('/test', testRouter);
-	app.use('/', filterRouter);
-	app.use('/', getCurrentSourceRouter)
+	app.use('/reset-parameter', resetDefaultParameters);
+	
+	// app.use('/project', histogramRouter);
+	// app.use('/project', crossPlotRouter);
+	// app.use('/project', combinedBoxRouter);
+	// app.use('/project', projectLogRouter);
+	//middleware for all curve router to block spam request
 
+	// app.use('/project/combined-box', selectionToolRouter);
+	// app.use('/project/combined-box', combinedBoxToolRouter);
 
-	accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});
-	app.use(morgan('combined', {stream: accessLogStream}));
+	// app.use('/project/cross-plot', polygonRouter);
+	// app.use('/project/cross-plot', pointSetRouter);
+	// app.use('/project/cross-plot', userDefineLineRouter);
+	// app.use('/project/cross-plot', ternaryRouter);
+	// app.use('/project/cross-plot', regressionLineRouter);
+	// app.use('/project/cross-plot', overlayLineRouter);
+	// app.use('/project/cross-plot', axisColorRouter);
+
+	accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
+	app.use(morgan('combined', { stream: accessLogStream }));
 
 	http.listen(process.env.BACKEND_PORT || config.port, function () {
 		console.log("Listening on port " + (process.env.BACKEND_PORT || config.port));

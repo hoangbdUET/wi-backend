@@ -326,7 +326,6 @@ function createNewLine(lineInfo, done, dbConnection, username) {
 
 function editLine(lineInfo, done, dbConnection) {
 	delete lineInfo.createdBy;
-	delete lineInfo.createdBy;
 	delete lineInfo.changed;
 	if (lineInfo.lineStyle) lineInfo.lineStyle = typeof(lineInfo.lineStyle) === 'object' ? JSON.stringify(lineInfo.lineStyle) : lineInfo.lineStyle;
 	if (lineInfo.symbolLineDash) lineInfo.symbolLineDash = typeof(lineInfo.symbolLineDash) === 'object' ? JSON.stringify(lineInfo.symbolLineDash) : lineInfo.symbolLineDash;

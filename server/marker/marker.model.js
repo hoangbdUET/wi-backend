@@ -46,7 +46,7 @@ function deleteMarker(markerInfo, done, dbConnection) {
     let Marker = dbConnection.Marker;
     Marker.findByPk(markerInfo.idMarker)
         .then(function (marker) {
-            marker.setDataValue('updatedAt', markerInfo.updatedBy);
+            marker.setDataValue('updatedBy', markerInfo.updatedBy);
             marker.destroy()
                 .then(function () {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Marker is deleted", marker));

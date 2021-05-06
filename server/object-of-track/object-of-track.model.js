@@ -6,7 +6,7 @@ function createObjectOfTrack(info, done, dbConnection) {
     Model.create(info).then(result => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Successful ObjectOfTrack", result));
     }).catch(err => {
-        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Some err", err.message));
+        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
     });
 }
 
@@ -33,7 +33,7 @@ function editObjectOfTrack(info, done, dbConnection) {
             Object.assign(result, info).save().then(() => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", info));
             }).catch(err => {
-                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Some err"));
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
             })
         }
     }).catch(err => {
@@ -48,6 +48,8 @@ function deleteObjectOfTrack(info, done, dbConnection) {
             track.setDataValue('updatedBy', info.updatedBy);
             track.destroy().then(() => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Delete successful", info));
+            }).catch(err => {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
             });
         } else {
             done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No object found by id"));

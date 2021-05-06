@@ -16,7 +16,7 @@ function createNewZoneTrack(zoneTrackInfo, done, dbConnection) {
                         }));
                     })
                     .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new ZoneTrack " + err.name));
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
                     })
             },
             function () {
@@ -36,7 +36,7 @@ function editZoneTrack(zoneTrackInfo, done, dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit zoneTrack success", zoneTrackInfo));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit zoneTrack" + err));
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
                 })
         })
         .catch(function () {
@@ -54,7 +54,7 @@ function deleteZoneTrack(zoneTrackInfo, done, dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "ZoneTrack is deleted", zoneTrack));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, "Delete ZoneTrack " + err.message, err.message));
+                    done(ResponseJSON(ErrorCodes.ERROR_DELETE_DENIED, err.message, err));
                 })
         })
         .catch(function () {
@@ -67,7 +67,7 @@ function getZoneTrackInfo(zoneTrack, done, dbConnection) {
     ZoneTrack.findByPk(zoneTrack.idZoneTrack, {
         include: {
             model: dbConnection.ZoneSet,
-            include: {model: dbConnection.Zone, include: {model: dbConnection.ZoneTemplate}}
+            include: { model: dbConnection.Zone, include: { model: dbConnection.ZoneTemplate } }
         }
     })
         .then(function (zoneTrack) {

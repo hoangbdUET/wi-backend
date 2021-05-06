@@ -31,8 +31,10 @@ function listMarkerSetTemplate(payload, done, dbConnection) {
 
 
 function deleteMarkerSetTemplate(payload, done, dbConnection) {
+    delete payload.createdBy;
     dbConnection.MarkerSetTemplate.findByPk(payload.idMarkerSetTemplate).then(zst => {
         if (zst) {
+            zst.setDataValue('updatedBy', payload.updatedBy);
             zst.destroy().then(() => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Done", zst));
             }).catch(err => {
@@ -47,6 +49,7 @@ function deleteMarkerSetTemplate(payload, done, dbConnection) {
 }
 
 function editMarkerSetTemplate(payload, done, dbConnection) {
+    delete payload.createdBy;
     dbConnection.MarkerSetTemplate.findByPk(payload.idMarkerSetTemplate).then(zst => {
         if (zst) {
             Object.assign(zst, payload).save().then((zst_) => {

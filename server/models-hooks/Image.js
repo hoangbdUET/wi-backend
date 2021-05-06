@@ -1,25 +1,25 @@
 let checkPerm = require('../utils/permission/check-permisison');
 module.exports = function (dbConnection) {
-    dbConnection.CombinedBox.addHook('beforeCreate', function (object, options) {
+    dbConnection.Image.addHook('beforeCreate', function (object, options) {
         return new Promise(function (resolve, reject) {
-            checkPerm(object.updatedBy, 'combined-box.create', function (result) {
+            checkPerm(object.updatedBy, 'image.create', function (result) {
                 if (result) {
                     resolve(object, options);
                 } else {
-                    reject({message: "Combined Box : Do not have permission"});
+                    reject({ message: "Image : Do not have permission" });
                 }
             });
         });
 
     });
-    dbConnection.CombinedBox.addHook('beforeDestroy', function (object, options) {
+    dbConnection.Image.addHook('beforeDestroy', function (object, options) {
         return new Promise(function (resolve, reject) {
-            checkPerm(object.updatedBy, 'combined-box.delete', function (result) {
+            checkPerm(object.updatedBy, 'image.delete', function (result) {
                 if (result) {
                     resolve(object, options);
                 } else {
                     if (object.createdBy !== object.updatedBy) {
-                        reject({message: "Combined Box : Do not have permission"});
+                        reject({ message: "Image : Do not have permission" });
                     } else {
                         resolve(object, options);
                     }
@@ -27,14 +27,14 @@ module.exports = function (dbConnection) {
             });
         });
     });
-    dbConnection.CombinedBox.addHook('beforeUpdate', function (object, options) {
+    dbConnection.Image.addHook('beforeUpdate', function (object, options) {
         return new Promise(function (resolve, reject) {
-            checkPerm(object.updatedBy, 'combined-box.update', function (result) {
+            checkPerm(object.updatedBy, 'image.update', function (result) {
                 if (result) {
                     resolve(object, options);
                 } else {
                     if (object.createdBy !== object.updatedBy) {
-                        reject({message: "Combined Box : Do not have permission"});
+                        reject({ message: "Image : Do not have permission" });
                     } else {
                         resolve(object, options);
                     }

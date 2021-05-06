@@ -9,6 +9,16 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING(200),
             allowNull: false,
             unique: "name-idProject"
+        },
+        createdBy: {
+            type: DataTypes.STRING(50),
+            allowNull: true,
+            defaultValue: 'system-init'
+        },
+        updatedBy: {
+            type: DataTypes.STRING(50),
+            allowNull: true,
+            defaultValue: 'system-init'
         }
     });
 };

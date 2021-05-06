@@ -8,7 +8,7 @@ function createNew(payload, done, dbConnection) {
 			let Op = require('sequelize').Op;
 			if (payload.idMarkerSetTemplate && (payload.start || payload.start === 0) && payload.stop) {
 				dbConnection.MarkerTemplate.findAll({
-					where: {idMarkerSetTemplate: payload.idMarkerSetTemplate},
+					where: { idMarkerSetTemplate: payload.idMarkerSetTemplate },
 					order: [['orderNum', 'ASC']]
 				}).then(async templates => {
 					let stop = payload.stop;
@@ -30,9 +30,9 @@ function createNew(payload, done, dbConnection) {
 						});
 					}, function () {
 						dbConnection.MarkerSet.findByPk(markerSet.idMarkerSet, {
-							include: [{model: dbConnection.MarkerSetTemplate}, {
+							include: [{ model: dbConnection.MarkerSetTemplate }, {
 								model: dbConnection.Marker,
-								include: {model: dbConnection.MarkerTemplate}
+								include: { model: dbConnection.MarkerTemplate }
 							}]
 						}).then(rs => {
 							done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
@@ -45,8 +45,8 @@ function createNew(payload, done, dbConnection) {
 		}).catch(err => {
 			if (err.name === "SequelizeUniqueConstraintError") {
 				dbConnection.MarkerSet.findOne({
-					where: {name: payload.name, idWell: payload.idWell},
-					include: {model: dbConnection.MarkerSetTemplate}
+					where: { name: payload.name, idWell: payload.idWell },
+					include: { model: dbConnection.MarkerSetTemplate }
 				}).then(zs => {
 					done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Marker set's name already exists", zs));
 				});
@@ -64,13 +64,14 @@ function createNew(payload, done, dbConnection) {
 }
 
 function edit(payload, done, dbConnection) {
+	delete payload.createdBy;
 	dbConnection.MarkerSet.findByPk(payload.idMarkerSet).then(m => {
 		if (m) {
 			Object.assign(m, payload).save().then(r => {
 				dbConnection.MarkerSet.findByPk(r.idMarkerSet, {
-					include: [{model: dbConnection.MarkerSetTemplate}, {
+					include: [{ model: dbConnection.MarkerSetTemplate }, {
 						model: dbConnection.Marker,
-						include: {model: dbConnection.MarkerTemplate}
+						include: { model: dbConnection.MarkerTemplate }
 					}]
 				}).then(rs => {
 					done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
@@ -87,19 +88,29 @@ function edit(payload, done, dbConnection) {
 }
 
 function del(payload, done, dbConnection) {
-	dbConnection.MarkerSet.destroy({where: {idMarkerSet: payload.idMarkerSet}}).then(r => {
-		done(ResponseJSON(ErrorCodes.SUCCESS, "Done"));
+	delete payload.createdBy;
+	dbConnection.MarkerSet.findByPk(payload.idMarkerSet).then(mks => {
+		if (mks) {
+			mks.setDataValue('updatedBy', payload.updatedBy);
+			mks.destroy().then(r => {
+				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
+			}).catch(err => {
+				done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
+			})
+		} else {
+			done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Marker set not found by id", "Marker set not found by id"));
+		}
 	}).catch(err => {
 		done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
-	});
+	})
 }
 
 function list(payload, done, dbConnection) {
 	dbConnection.MarkerSet.findAll({
-		where: {idWell: payload.idWell},
-		include: [{model: dbConnection.MarkerSetTemplate}, {
+		where: { idWell: payload.idWell },
+		include: [{ model: dbConnection.MarkerSetTemplate }, {
 			model: dbConnection.Marker,
-			include: {model: dbConnection.MarkerTemplate}
+			include: { model: dbConnection.MarkerTemplate }
 		}]
 	}).then(r => {
 		done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
@@ -112,7 +123,7 @@ function info(payload, done, dbConnection) {
 	dbConnection.MarkerSet.findByPk(payload.idMarkerSet, {
 		include: {
 			model: dbConnection.Marker,
-			include: {model: dbConnection.MarkerTemplate}
+			include: { model: dbConnection.MarkerTemplate }
 		}
 	}).then(r => {
 		if (!r) {

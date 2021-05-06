@@ -15,6 +15,7 @@ function getDustbin(payload, callback, dbConnection) {
     let Crossplots = [];
     let Zonesets = [];
     let Zones = [];
+
     dbConnection.Well.findAll({
         where: {
             idProject: payload.idProject
@@ -28,7 +29,7 @@ function getDustbin(payload, callback, dbConnection) {
             }
             asyncParallel([
                 function (cb) {
-                    dbConnection.Dataset.findAll({where: {idWell: well.idWell}, paranoid: false}).then(datasets => {
+                    dbConnection.Dataset.findAll({ where: { idWell: well.idWell }, paranoid: false }).then(datasets => {
                         asyncEach(datasets, function (dataset, nextDataset) {
                             if (dataset.deletedAt) {
                                 let _dataset = dataset.toJSON();
@@ -36,7 +37,7 @@ function getDustbin(payload, callback, dbConnection) {
                                 Datasets.push(_dataset);
                             }
                             dbConnection.Curve.findAll({
-                                where: {idDataset: dataset.idDataset},
+                                where: { idDataset: dataset.idDataset },
                                 paranoid: false
                             }).then(curves => {
                                 asyncEach(curves, function (curve, nextCurve) {
@@ -57,7 +58,7 @@ function getDustbin(payload, callback, dbConnection) {
                 },
                 function (cb) {
                     dbConnection.Histogram.findAll({
-                        where: {idProject: payload.idProject},
+                        where: { idProject: payload.idProject },
                         paranoid: false
                     }).then(histograms => {
                         asyncEach(histograms, function (histogram, nextHistogram) {
@@ -74,7 +75,7 @@ function getDustbin(payload, callback, dbConnection) {
                 },
                 function (cb) {
                     dbConnection.CrossPlot.findAll({
-                        where: {idProject: payload.idProject},
+                        where: { idProject: payload.idProject },
                         paranoid: false
                     }).then(crossplots => {
                         asyncEach(crossplots, function (crossplot, nextCrossplot) {
@@ -90,7 +91,7 @@ function getDustbin(payload, callback, dbConnection) {
                     });
                 },
                 function (cb) {
-                    dbConnection.ZoneSet.findAll({where: {idWell: well.idWell}, paranoid: false}).then(zonesets => {
+                    dbConnection.ZoneSet.findAll({ where: { idWell: well.idWell }, paranoid: false }).then(zonesets => {
                         asyncEach(zonesets, function (zoneset, nextZoneset) {
                             if (zoneset.deletedAt) {
                                 let _zoneset = zoneset.toJSON();
@@ -108,7 +109,7 @@ function getDustbin(payload, callback, dbConnection) {
             });
         }, function () {
             let Plots = [];
-            dbConnection.Plot.findAll({where: {idProject: payload.idProject}, paranoid: false}).then(plots => {
+            dbConnection.Plot.findAll({ where: { idProject: payload.idProject }, paranoid: false }).then(plots => {
                 asyncEach(plots, function (plot, nextPlot) {
                     if (plot.deletedAt) {
                         let _plot = plot.toJSON();
@@ -138,18 +139,66 @@ function deleteObject(payload, callback, dbConnection) {
     let Dataset = dbConnection.Dataset;
     let Curve = dbConnection.Curve;
     let Plot = dbConnection.Plot;
-    let CrossPlot = dbConnection.CrossPlot;
-    let Histogram = dbConnection.Histogram;
     let ZoneSet = dbConnection.ZoneSet;
     let Zone = dbConnection.Zone;
-    //type = well,group,dataset,curve,plot,crossplot,histogram,zoneset
+    let Flow = dbConnection.Flow;
+    let ParameterSet = dbConnection.ParameterSet;
+    let MarkerSet = dbConnection.MarkerSet;
+    let Marker = dbConnection.Marker;
+    let ImageSet = dbConnection.ImageSet;
+    let Image = dbConnection.Image;
     let objectType = payload.type;
     switch (objectType) {
-        case 'well' : {
-            Well.findByPk(payload.idObject, {paranoid: false}).then(rs => {
+        case 'well': {
+            Well.findByPk(payload.idObject, { paranoid: false }).then(rs => {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
-                    rs.destroy({permanently: true, force: true}).then(() => {
+                    rs.destroy({ permanently: true, force: true }).then(() => {
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
+                    }).catch((err) => {
+                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    })
+                } else {
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Well"));
+                }
+            });
+            break;
+        }
+        case 'dataset': {
+            Dataset.findByPk(payload.idObject, { paranoid: false }).then(rs => {
+                if (rs) {
+                    rs.setDataValue('updatedBy', payload.updatedBy);
+                    rs.destroy({ permanently: true, force: true }).then(() => {
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
+                    }).catch((err) => {
+                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    })
+                } else {
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Dataset"));
+                }
+            });
+            break;
+        }
+        case 'curve': {
+            Curve.findByPk(payload.idObject, { paranoid: false }).then(rs => {
+                if (rs) {
+                    rs.setDataValue('updatedBy', payload.updatedBy);
+                    rs.destroy({ permanently: true, force: true }).then(() => {
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
+                    }).catch((err) => {
+                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    })
+                } else {
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Curve"));
+                }
+            });
+            break;
+        }
+        case 'logplot': {
+            Plot.findByPk(payload.idObject, { paranoid: false }).then(rs => {
+                if (rs) {
+                    rs.setDataValue('updatedBy', payload.updatedBy);
+                    rs.destroy({ permanently: true, force: true }).then(() => {
                         callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
@@ -160,86 +209,146 @@ function deleteObject(payload, callback, dbConnection) {
             });
             break;
         }
-        case 'dataset' : {
-            Dataset.findByPk(payload.idObject, {paranoid: false}).then(rs => {
+        case 'histogram': {
+            ParameterSet.findByPk(payload.idObject, { paranoid: false }).then(rs => {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
-                    rs.destroy({permanently: true, force: true}).then(() => {
+                    rs.destroy({ permanently: true, force: true }).then(() => {
                         callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     })
                 } else {
-                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Plot"));
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Histogram"));
                 }
             });
             break;
         }
-        case 'curve' : {
-            Curve.findByPk(payload.idObject, {paranoid: false}).then(rs => {
+        case 'parameterset': {
+            ParameterSet.findByPk(payload.idObject, { paranoid: false }).then(rs => {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
-                    rs.destroy({permanently: true, force: true}).then(() => {
+                    rs.destroy({ permanently: true, force: true }).then(() => {
                         callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     })
                 } else {
-                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Plot"));
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Histogram"));
                 }
             });
             break;
         }
-        case 'logplot' : {
-            Plot.findByPk(payload.idObject, {paranoid: false}).then(rs => {
+        case 'crossplot': {
+            ParameterSet.findByPk(payload.idObject, { paranoid: false }).then(rs => {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
-                    rs.destroy({permanently: true, force: true}).then(() => {
+                    rs.destroy({ permanently: true, force: true }).then(() => {
                         callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     })
                 } else {
-                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Plot"));
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Crossplot"));
                 }
             });
             break;
         }
-        case 'crossplot' : {
-            CrossPlot.findByPk(payload.idObject, {paranoid: false}).then(rs => {
+        case 'zone': {
+            Zone.findByPk(payload.idObject, { paranoid: false }).then(rs => {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
-                    rs.destroy({permanently: true, force: true}).then(() => {
+                    rs.destroy({ permanently: true, force: true }).then(() => {
                         callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     })
                 } else {
-                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Plot"));
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Zone"));
                 }
             });
             break;
         }
-        case 'histogram' : {
-            Histogram.findByPk(payload.idObject, {paranoid: false}).then(rs => {
+        case 'markerset': {
+            MarkerSet.findByPk(payload.idObject, { paranoid: false }).then(rs => {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
-                    rs.destroy({permanently: true, force: true}).then(() => {
+                    rs.destroy({ permanently: true, force: true }).then(() => {
                         callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                     })
                 } else {
-                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Plot"));
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Markerset"));
                 }
             });
             break;
         }
-        case 'zoneset' : {
-            ZoneSet.findByPk(payload.idObject, {paranoid: false}).then(rs => {
+        case 'marker': {
+            Marker.findByPk(payload.idObject, { paranoid: false }).then(rs => {
                 if (rs) {
                     rs.setDataValue('updatedBy', payload.updatedBy);
-                    rs.destroy({permanently: true, force: true}).then(() => {
+                    rs.destroy({ permanently: true, force: true }).then(() => {
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
+                    }).catch((err) => {
+                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    })
+                } else {
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Marker"));
+                }
+            });
+            break;
+        }
+        case 'flow': {
+            Flow.findByPk(payload.idObject, { paranoid: false }).then(rs => {
+                if (rs) {
+                    rs.setDataValue('updatedBy', payload.updatedBy);
+                    rs.destroy({ permanently: true, force: true }).then(() => {
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
+                    }).catch((err) => {
+                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    })
+                } else {
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Flow"));
+                }
+            });
+            break;
+        }
+        case 'imageset': {
+            ImageSet.findByPk(payload.idObject, { paranoid: false }).then(rs => {
+                if (rs) {
+                    rs.setDataValue('updatedBy', payload.updatedBy);
+                    rs.destroy({ permanently: true, force: true }).then(() => {
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
+                    }).catch((err) => {
+                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    })
+                } else {
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Imageset"));
+                }
+            });
+            break;
+        }
+        case 'image': {
+            Image.findByPk(payload.idObject, { paranoid: false }).then(rs => {
+                if (rs) {
+                    rs.setDataValue('updatedBy', payload.updatedBy);
+                    rs.destroy({ permanently: true, force: true }).then(() => {
+                        callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
+                    }).catch((err) => {
+                        callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
+                    })
+                } else {
+                    callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No Image"));
+                }
+            });
+            break;
+        }
+        case 'zoneset': {
+            ZoneSet.findByPk(payload.idObject, { paranoid: false }).then(rs => {
+                if (rs) {
+                    rs.setDataValue('updatedBy', payload.updatedBy);
+                    rs.destroy({ permanently: true, force: true }).then(() => {
                         callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
                     }).catch((err) => {
                         callback(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
@@ -277,9 +386,9 @@ function restoreObject(payload, callback, dbConnection, username) {
                 rename(rs, function (err, success) {
                     if (!err) {
                         rs.restore().then(() => {
-                            Dataset.findAll({where: {idWell: rs.idWell}}).then(datasets => {
+                            Dataset.findAll({ where: { idWell: rs.idWell } }).then(datasets => {
                                 asyncEach(datasets, function (dataset, nextDataset) {
-                                    Curve.findAll({where: {idDataset: dataset.idDataset}}).then(curves => {
+                                    Curve.findAll({ where: { idDataset: dataset.idDataset } }).then(curves => {
                                         asyncEach(curves, function (curve, nextCurve) {
                                             curveFunction.getFullCurveParents(curve, dbConnection).then(curveParents => {
                                                 curveParents.username = username;
@@ -313,7 +422,7 @@ function restoreObject(payload, callback, dbConnection, username) {
         case 'dataset': {
             Dataset.findByPk(payload.idObject, {
                 paranoid: false,
-                include: {all: true, paranoid: false}
+                include: { all: true, paranoid: false }
             }).then(rs => {
                 let oldName = rs.name;
                 rs.name = rs.name.substring(1);
@@ -333,7 +442,7 @@ function restoreObject(payload, callback, dbConnection, username) {
                                     curveFunction.moveCurveData(srcCurve, curveParents, function () {
                                         curve.restore().then(() => {
                                             dbConnection.Line.findAll({
-                                                where: {idCurve: curve.idCurve},
+                                                where: { idCurve: curve.idCurve },
                                                 paranoid: false
                                             }).then(lines => {
                                                 asyncEach(lines, function (line, next) {
@@ -375,7 +484,7 @@ function restoreObject(payload, callback, dbConnection, username) {
                             curve: r.name
                         };
                         curveFunction.moveCurveData(curveParents, desCurve, function () {
-                            dbConnection.Line.findAll({where: {idCurve: rs.idCurve}, paranoid: false}).then(lines => {
+                            dbConnection.Line.findAll({ where: { idCurve: rs.idCurve }, paranoid: false }).then(lines => {
                                 asyncEach(lines, function (line, next) {
                                     line.restore().then(() => {
                                         next();

@@ -29,7 +29,7 @@ function createNewShading(shadingInfo, done, dbConnection) {
                         done(ResponseJSON(ErrorCodes.SUCCESS, "Create new shading success", result));
                     })
                     .catch(function (err) {
-                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Create new shading" + err));
+                        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
                     })
             },
             function () {
@@ -49,7 +49,7 @@ function editShading(shadingInfo, done, dbConnection) {
             Object.assign(shading, shadingInfo).save().then(rs => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Successful", rs));
             }).catch(err => {
-                done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Err", err));
+                done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, err.message, err));
             });
         } else {
             done(ResponseJSON(ErrorCodes.ERROR_ENTITY_NOT_EXISTS, "Shading not found for edit"));

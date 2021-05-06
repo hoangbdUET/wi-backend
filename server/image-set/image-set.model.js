@@ -27,7 +27,7 @@ function createOrGetImageSet(payload, cb, dbConnection) {
 }
 
 function infoImageSet(payload, cb, dbConnection) {
-	dbConnection.ImageSet.findByPk(payload.idImageSet, {include: {model: dbConnection.Image}}).then(rs => {
+	dbConnection.ImageSet.findByPk(payload.idImageSet, { include: { model: dbConnection.Image } }).then(rs => {
 		if (rs) {
 			cb(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
 		} else {
@@ -37,6 +37,7 @@ function infoImageSet(payload, cb, dbConnection) {
 }
 
 function updateImageSet(payload, cb, dbConnection) {
+	delete payload.createdBy;
 	dbConnection.ImageSet.findByPk(payload.idImageSet).then(rs => {
 		if (rs) {
 			Object.assign(rs, payload).save().then(r => {
@@ -51,8 +52,10 @@ function updateImageSet(payload, cb, dbConnection) {
 }
 
 function deleteImageSet(payload, cb, dbConnection) {
+	delete payload.createdBy;
 	dbConnection.ImageSet.findByPk(payload.idImageSet).then(rs => {
 		if (rs) {
+			rs.setDataValue('updatedBy', payload.updatedBy);
 			rs.destroy().then(() => {
 				cb(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
 			}).catch(err => {
@@ -70,8 +73,8 @@ function duplicateImageSet(payload, cb, dbConnection) {
 
 function listImageSet(payload, cb, dbConnection) {
 	dbConnection.ImageSet.findAll({
-		where: {idWell: payload.idWell},
-		include: {model: dbConnection.Image}
+		where: { idWell: payload.idWell },
+		include: { model: dbConnection.Image }
 	}).then(rs => {
 		cb(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
 	}).catch(err => {

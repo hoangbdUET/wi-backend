@@ -91,6 +91,7 @@ function editZoneSet(zoneSetInfo, done, dbConnection) {
 }
 
 function deleteZoneSet(zoneSetInfo, done, dbConnection) {
+	delete zoneSetInfo.createdBy;
 	let ZoneSet = dbConnection.ZoneSet;
 	ZoneSet.findByPk(zoneSetInfo.idZoneSet)
 		.then(function (zoneSet) {
