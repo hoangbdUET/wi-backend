@@ -65,6 +65,7 @@ let infoTask = function (data, callback, dbConnection) {
 let deleteTask = function (data, callback, dbConnection) {
     dbConnection.Task.findByPk(data.idTask).then(w => {
         if (w) {
+            w.setDataValue('updatedBy', data.updatedBy);
             w.destroy().then(() => {
                 callback(ResponseJSON(ErrorCodes.SUCCESS, "Successful", w));
             });

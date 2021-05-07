@@ -21,6 +21,7 @@ module.exports = function (dbConnection) {
         'ReferenceCurve',
         'Shading',
         'TadpoleTrack',
+        'Task',
         'Track',
         'Well',
         'Zone',
