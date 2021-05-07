@@ -45,6 +45,7 @@ let infoParameterSet = function (data, done, dbConnection) {
 let deleteParameterSet = function (data, done, dbConnection, CurrentProject) {
 	dbConnection.ParameterSet.findByPk(data.idParameterSet).then(p => {
 		if (p) {
+			p.setDataValue('updatedBy', data.updatedBy);
 			p.destroy().then(() => {
 				logger.info({message: "Deleted " + p.type + " " + p.name, username: p.updatedBy, project: CurrentProject});
 				done(ResponseJSON(ErrorCodes.SUCCESS, "Done", p));
