@@ -10,6 +10,7 @@ function createNewMarkerTemplate(payload, done, dbConnection) {
 }
 
 function editMarkerTemplate(payload, done, dbConnection) {
+    delete payload.createdBy;
     dbConnection.MarkerTemplate.findByPk(payload.idMarkerTemplate).then(m => {
         if (m) {
             Object.assign(m, payload).save().then(r => {
@@ -26,11 +27,19 @@ function editMarkerTemplate(payload, done, dbConnection) {
 }
 
 function deleteMarkerTemplate(payload, done, dbConnection) {
-    dbConnection.MarkerTemplate.destroy({where: {idMarkerTemplate: payload.idMarkerTemplate}}).then(r => {
-        done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
-    }).catch(err => {
-        done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err));
-    });
+    delete payload.createdBy;
+    dbConnection.MarkerTemplate.findByPk(payload.idMarkerTemplate).then(mkt => {
+        if (mkt) {
+            mkt.setDataValue("updatedBy", payload.updatedBy);
+            mkt.destroy().then(r => {
+                done(ResponseJSON(ErrorCodes.SUCCESS, "Done", r));
+            }).catch(err => {
+                done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message))
+            })
+        } else {
+            done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "No maker template found by id", "No maker template found by id"));
+        }
+    })
 }
 
 function infoMarkerTemplate(payload, done, dbConnection) {
@@ -43,7 +52,7 @@ function infoMarkerTemplate(payload, done, dbConnection) {
 
 
 function allMarkerTemplate(payload, done, dbConnection) {
-    dbConnection.MarkerTemplate.findAll({where: {idMarkerSetTemplate: payload.idMarkerSetTemplate}}).then(l => {
+    dbConnection.MarkerTemplate.findAll({ where: { idMarkerSetTemplate: payload.idMarkerSetTemplate } }).then(l => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", l));
     });
 }

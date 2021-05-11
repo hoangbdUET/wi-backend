@@ -36,7 +36,7 @@ function editZone(zoneInfo, done, dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit zone success", zoneInfo));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit zone" + err));
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                 })
         })
         .catch(function () {

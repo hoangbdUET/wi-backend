@@ -77,6 +77,7 @@ function newZoneTemplate(payload, done, dbConnection) {
 }
 
 function editZoneTemplate(payload, done, dbConnection) {
+    delete payload.createdBy;
     dbConnection.ZoneTemplate.findByPk(payload.idZoneTemplate).then(zt => {
         if (zt) {
             Object.assign(zt, payload).save().then(zt => {
@@ -93,8 +94,10 @@ function editZoneTemplate(payload, done, dbConnection) {
 }
 
 function deleteZoneTemplate(payload, done, dbConnection) {
+    delete payload.createdBy;
     dbConnection.ZoneTemplate.findByPk(payload.idZoneTemplate).then(zt => {
         if (zt) {
+            zt.setDataValue("updatedBy", payload.updatedBy);
             zt.destroy().then(() => {
                 done(ResponseJSON(ErrorCodes.SUCCESS, "Done", zt));
             }).catch(err => {
@@ -109,7 +112,7 @@ function deleteZoneTemplate(payload, done, dbConnection) {
 }
 
 function listZoneTemplate(payload, done, dbConnection) {
-    dbConnection.ZoneTemplate.findAll({where: {idZoneSetTemplate: payload.idZoneSetTemplate}}).then(rs => {
+    dbConnection.ZoneTemplate.findAll({ where: { idZoneSetTemplate: payload.idZoneSetTemplate } }).then(rs => {
         done(ResponseJSON(ErrorCodes.SUCCESS, "Done", rs));
     });
 }
