@@ -34,7 +34,7 @@ function editMarker(markerInfo, done, dbConnection) {
                     done(ResponseJSON(ErrorCodes.SUCCESS, "Edit Marker success", result));
                 })
                 .catch(function (err) {
-                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, "Edit Marker" + err));
+                    done(ResponseJSON(ErrorCodes.ERROR_INVALID_PARAMS, err.message, err.message));
                 })
         })
         .catch(function () {
@@ -46,6 +46,7 @@ function deleteMarker(markerInfo, done, dbConnection) {
     let Marker = dbConnection.Marker;
     Marker.findByPk(markerInfo.idMarker)
         .then(function (marker) {
+            marker.setDataValue('updatedBy', markerInfo.updatedBy);
             marker.setDataValue('updatedBy', markerInfo.updatedBy);
             marker.destroy()
                 .then(function () {
