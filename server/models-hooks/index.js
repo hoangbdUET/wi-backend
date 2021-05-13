@@ -13,7 +13,7 @@ module.exports = function (dbConnection) {
         'Marker',
         'MarkerSet',
         'MarkerSetTemplate',
-        'MarkerTemplate',
+        // 'MarkerTemplate',
         'ObjectOfTrack',
         'ObjectTrack',
         'ParameterSet',
@@ -28,7 +28,7 @@ module.exports = function (dbConnection) {
         'Zone',
         'ZoneSet',
         'ZoneSetTemplate',
-        'ZoneTemplate',
+        // 'ZoneTemplate',
         'ZoneTrack'
     ];
     // let models = [];
