@@ -13,7 +13,7 @@ module.exports = function (sequelize, DataTypes) {
                 notEmpty: true
             }
         },
-        alias:{
+        alias: {
             type: DataTypes.STRING,
             allowNull: true,
             unique: true
@@ -41,9 +41,14 @@ module.exports = function (sequelize, DataTypes) {
         updatedBy: {
             type: DataTypes.STRING(50),
             allowNull: false
+        },
+        searchMode: {
+            type: DataTypes.STRING(10),
+            allowNull: false,
+            defaultValue: "default"
         }
     }, {
-	    charset: 'utf8',
-	    collate: 'utf8_general_ci'
+        charset: 'utf8',
+        collate: 'utf8_general_ci'
     });
 };
